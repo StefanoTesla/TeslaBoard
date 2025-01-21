@@ -28,17 +28,15 @@ export function coverc(){
                     if(res.execute){
                         this.addToast({ type:"success", text: this.text.gen.cmdAck })
                         this.coverC.cover.status = 2;
-                    }
-                    if(res.error) {
-                        this.addToast({ type:"error", text:this.text.errors?.[res.error] || "undefined error", time:3})
                     } else {
-                        this.addToast({ type:"error", text: this.text.gen.cmdRefused,time:3})
+                        if(res.error) {
+                            this.addToast({ type:"error", text:this.text.errors?.[res.error] || "undefined error", time:3})
+                        } else {
+                            this.addToast({ type:"error", text: this.text.gen.cmdRefused,time:3})
+                        }
                     }
+
                 })
-                .catch(err => {
-                        console.log("Errore sconosciuto:", err);
-                        this.addToast({ type: "error", text: "Errore sconosciuto." });
-                });
         },
         coverOpen(){
             const ip = import.meta.env.VITE_BOARD_IP
@@ -77,6 +75,7 @@ export function coverc(){
                 .then(res => {
                     if(res.execute){
                         this.addToast({ type:"success", text: this.text.gen.cmdAck })
+                        this.coverC.calibrator.brightness = value;
                     }
                     if(res.error) {
                         this.addToast({ type:"error", text:this.text.errors?.[res.error] || "undefined error", time:3})

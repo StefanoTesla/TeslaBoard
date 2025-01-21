@@ -129,6 +129,7 @@
 		"coverNotPresent": "Il coperchio non è presente",
 		"calibNotPresent": "Il flat panel non è presente",
 		"calibBrightnessNotPresent" : "Parametro di luminosità assente",
+		"calibBrightnessNotInRange": "Parametro di luminosità fuori dai limiti",
 		"ShAlreadyMoving" : "Il tetto è già in movimento",
 		"ShAlreadyOpen" : "Il tetto è già aperto",
 		"ShAlreadyClosed" : "Il tetto è già chiuso",

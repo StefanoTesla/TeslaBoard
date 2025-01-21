@@ -107,7 +107,7 @@ void coverWebServer(){
                 if (parameter == "brightness") {
                     present = true;
                     value = p->value().toInt();
-                    if(value >=0 && value <=2000){
+                    if(value >=0 && value <=4096){
                         CoverC.command.calibrator.change = true;
                         CoverC.command.calibrator.brightness = value;
                         inRange = true;
