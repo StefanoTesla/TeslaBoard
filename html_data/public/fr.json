@@ -1,131 +1,145 @@
 {
-    "menu": {
-      "home": "ACCUEIL",
-      "setting": "PARAMÈTRES"
-    },
-    "switch": {
-      "title": "Interrupteur",
-      "name": "Nom:",
-      "description": "Description:",
-      "typeEnum": {
-        "0": "Non utilisé",
-        "1": "Entrée numérique",
-        "2": "Entrée analogique",
-        "3": "Sortie numérique",
-        "4": "Sortie PWM",
-        "5": "Sortie Servo",
-        "6": "Sortie analogique"
-      }
-    },
-    "dome": {
-      "title": "Dôme",
-      "input": "État des entrées",
-      "roofState": "État du toit: ",
-      "actualCommand": "Commande actuelle:",
-      "lastCommand": "Dernière commande:",
-      "shutterState": {
-        "open": "Ouvert",
-        "closed": "Fermé",
-        "opening": "Ouverture",
-        "closing": "Fermeture",
-        "error": "Erreur"
-      },
-      "shutterCommand": {
-        "idle": "Aucune commande",
-        "open": "Ouverture",
-        "close": "Fermeture",
-        "halt": "STOP"
-      }
-    },
-    "coverC": {
-      "calibrator": "Panneau plat",
-      "cover": "Couvercle",
-      "coverState": "État du couvercle: ",
-      "coverEnum": {
-        "notPresent": "Non présent",
-        "close": "Fermé",
-        "moving": "En mouvement",
-        "open": "Ouvert",
-        "unknow": "Inconnu",
-        "error": "Erreur"
-      }
-    },
-    "gen": {
-      "opened": "ouvert",
-      "closed": "fermé",
-      "open": "ouvrir",
-      "close": "fermer",
-      "halt": "arrêter",
-      "pin": "GPIO:",
-      "type": "Type:",
-      "outputs": "Sorties",
-      "loadFromBoard": "RESTAURER",
-      "downloadFile": "TÉLÉCHARGER LE FICHIER",
-      "save": "ENREGISTRER",
-      "enable": "Activer:",
-      "powerOn": "allumer",
-      "powerOff": "éteindre",
-      "actualPos": "Position actuelle:",
-      "actualValue": "Valeur actuelle:",
-      "locale": "Langue",
-      "cmdAck": "Commande reçue",
-      "wifi": "WiFi",
-      "ipAddress": "Adresse IP:",
-      "subnet": "Sous-réseau:",
-      "staticIp": "Adresse IP statique:",
-      "waitToReconnect": "Attente de reconnexion:",
-      "warningIP": "Avertissement, une validation simple est effectuée, en cas d'erreur, il sera impossible d'atteindre la carte.",
-      "configSaved": "Configuration enregistrée",
-      "utility": "Utilitaires",
-      "reboot": "REBOOTER LA CARTE",
-      "wifireset": "SUPPRIMER LES PARAMÈTRES WIFI"
-    },
-    "setting": {
-      "dome": {
-        "inOpen": "Entrée ouverte",
-        "inClose": "Entrée fermée",
-        "onDelay": "Délai d'activation:",
-        "offDelay": "Délai de désactivation:",
-        "outStart": "GPIO Start:",
-        "outHalt": "GPIO STOP:",
-        "outOpen": "GPIO Ouverture:",
-        "outClose": "GPIO Fermeture:",
-        "timeout": "Délai d'attente",
-        "autoClose": "Fermeture automatique",
-        "timeOutMoviment": "Délai de mouvement:",
-        "autoclosewarning1": "Attention, lisez attentivement avant de l'activer.",
-        "autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET si le WiFi est connecté ET si aucune communication avec la carte n'est présente (concernant le DÔME).",
-        "autoclosewarning3": "Par exemple, en cas de coupure de courant temporaire, une fois l'alimentation rétablie et si le PC est éteint ou si les logiciels ne redémarrent pas, le système attendra les minutes définies, après quoi le toit sera fermé, INDEPENDAMMENT de l'état de l'équipement (télescope).",
-        "autoclosewarning4": "En cas de maintenance du toit, le navigateur doit rester ouvert sur la page principale pour éviter la fermeture automatique, ou mieux encore, désactiver cette fonction.",
-        "autoclosewarning5": "En activant cette fonctionnalité, vous confirmez avoir compris les risques que cela pourrait poser pour vous et votre équipement.",
-        "autoCloseEn": "Activer la fermeture automatique:",
-        "autoCloseMin": "Fermer après:"
-      },
-      "coverC": {
-        "calibrator": {
-          "calibrator": "Panneau plat"
-        },
-        "cover": {
-          "cover": "Couvercle",
-          "openDeg": "Ouvrir à degrés:",
-          "closeDeg": "Fermer à degrés:",
-          "maxDeg": "Rotation maximale:",
-          "movingTime": "Temps de mouvement:"
-        },
-        "configSaved": "Configuration du calibrateur de couvercle enregistrée"
-      },
-      "board": {
-        "configSaved": "Configuration de la carte enregistrée"
-      }
-    },
-    "errors": {
-      "noUsableAsInput": "Non utilisable comme entrée",
-      "noUsableAsOutput": "Non utilisable comme sortie"
-    },
-    "pwm": {
-      "0": "Non initialisé",
-      "1": "PWM",
-      "2": "Servo"
-    }
-  }
-  
+	"menu": {
+		"home": "ACCUEIL",
+		"setting": "PARAMÈTRES"
+	},
+	"switch": {
+		"title": "interrupteur",
+		"name": "Nom :",
+		"description": "Description :",
+		"typeEnum": {
+			"0": "Non utilisé",
+			"1": "Entrée numérique",
+			"2": "Entrée analogique",
+			"3": "Sortie numérique",
+			"4": "Sortie PWM",
+			"5": "Sortie Servo",
+			"6": "Sortie analogique"
+		}
+	},
+	"dome": {
+		"title": "Dôme",
+		"input": "État des Entrées",
+		"roofState": "État du Toit : ",
+		"actualCommand": "Commande actuelle :",
+		"lastCommand": "Dernière commande :",
+		"shutterState": {
+			"open": "Ouvert",
+			"closed": "Fermé",
+			"opening": "En Ouverture",
+			"closing": "En Fermeture",
+			"error": "Erreur"
+		},
+		"shutterCommand": {
+			"idle": "Aucune Commande",
+			"open": "En Ouverture",
+			"close": "En Fermeture",
+			"halt": "ARRÊT"
+		}
+	},
+	"coverC": {
+		"calibrator": "Panneau Plat",
+		"cover": "Couvercle",
+		"coverState": "État du Couvercle : ",
+		"coverEnum": {
+			"notPresent": "Non présent",
+			"close": "Fermé",
+			"moving": "En Mouvement",
+			"open": "Ouvert",
+			"unknow": "Inconnu",
+			"error": "Erreur"
+		}
+	},
+	"gen": {
+		"opened": "ouvert",
+		"closed": "fermé",
+		"open": "ouvrir",
+		"close": "fermer",
+		"halt": "arrêter",
+		"pin": "GPIO :",
+		"type": "Type :",
+		"outputs": "Sorties",
+		"loadFromBoard": "RESTAURER",
+		"downloadFile": "TÉLÉCHARGER LE FICHIER",
+		"save": "ENREGISTRER",
+		"enable": "Activer :",
+		"powerOn": "allumer",
+		"powerOff": "éteindre",
+		"actualPos": "Position actuelle :",
+		"actualValue": "Valeur actuelle :",
+		"locale": "Langue",
+		"cmdAck": "Commande reçue",
+		"cmdRefused": "Commande refusée",
+		"wifi": "WiFi",
+		"ipAddress": "Adresse IP :",
+		"gateway": "Adresse de la Passerelle :",
+		"subnet": "Sous-réseau :",
+		"staticIp": "Adresse IP statique :",
+		"waitToReconnect": "Attente pour reconnexion :",
+		"warningIP": "Attention, une validation simple est effectuée ; en cas d'erreur, il sera impossible d'accéder à la carte.",
+		"configSaved": "Configuration Enregistrée",
+		"utility": "Utilitaire",
+		"reboot": "REDÉMARRER LA CARTE",
+		"wifireset": "SUPPRIMER LES PARAMÈTRES WIFI"
+	},
+	"setting": {
+		"dome": {
+			"inOpen": "Entrée Ouverte",
+			"inClose": "Entrée Fermée",
+			"onDelay": "Délai d'Activation :",
+			"offDelay": "Délai de Désactivation :",
+			"outStart": "GPIO Démarrage :",
+			"outHalt": "GPIO ARRÊT :",
+			"outOpen": "GPIO Ouverture :",
+			"outClose": "GPIO Fermeture :",
+			"timeout": "Délai d'expiration",
+			"autoClose": "Fermeture Automatique",
+			"timeOutMoviment": "Délai de Mouvement :",
+			"autoclosewarning1": "Attention, lisez attentivement avant de l'activer.",
+			"autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET que le WiFi est connecté ET qu'il n'y a aucune communication avec la carte (concernant le DÔME).",
+			"autoclosewarning3": "Par exemple, en cas de panne de courant temporaire, une fois le courant rétabli, et probablement le PC éteint ou les logiciels de gestion ne redémarrant pas, il attendra les minutes définies, après quoi le toit se fermera INDÉPENDAMMENT de l'état de l'équipement (télescope).",
+			"autoclosewarning4": "Lors de la maintenance du toit, il sera nécessaire de garder le navigateur ouvert sur la page principale pour éviter une fermeture automatique, ou mieux encore, désactiver cette fonctionnalité.",
+			"autoclosewarning5": "En activant cette fonction, vous confirmez avoir lu et compris les risques qu'elle peut entraîner pour vous et votre équipement.",
+			"autoCloseEn": "Activation de la Fermeture Automatique :",
+			"autoCloseMin": "Fermer après :"
+		},
+		"coverC": {
+			"calibrator": {
+				"calibrator": "Panneau Plat"
+			},
+			"cover": {
+				"cover": "Couvercle",
+				"openDeg": "Ouvert à degrés :",
+				"closeDeg": "Fermé à degrés :",
+				"maxDeg": "Rotation Maximale :",
+				"movingTime": "Temps de Mouvement :"
+			},
+			"configSaved": "Configuration du Couvercle Calibrateur Enregistrée"
+		},
+		"board": {
+			"configSaved": "Configuration de la Carte Enregistrée"
+		}
+	},
+	"errors": {
+		"noUsableAsInput": "non utilisable comme entrée",
+		"noUsableAsOutput": "non utilisable comme sortie",
+		"coverIsMoving": "Le couvercle est déjà en mouvement",
+		"coverNotPresent": "Le couvercle n'est pas présent",
+		"calibNotPresent": "Le panneau plat n'est pas présent",
+		"calibBrightnessNotPresent": "Paramètre de luminosité manquant",
+		"calibBrightnessNotInRange": "Paramètre de luminosité hors limites",
+		"ShAlreadyMoving": "Le toit est déjà en mouvement",
+		"ShAlreadyOpen": "Le toit est déjà ouvert",
+		"ShAlreadyClosed": "Le toit est déjà fermé",
+		"SwIdOutOfRange": "ID d'Interrupteur hors limites",
+		"SwValueBehindMin": "Valeur Minimum dépassée",
+		"SwValueOverMax": "Valeur Maximum dépassée",
+		"SwValueAbsent": "Valeur Non Fournie",
+		"SwNotWritable": "Interrupteur non inscriptible"
+	},
+	"pwm": {
+		"0": "Non initialisé",
+		"1": "PWM",
+		"2": "Servo"
+	}
+}

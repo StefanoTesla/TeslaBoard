@@ -1,131 +1,145 @@
 {
-    "menu": {
-      "home": "INICIO",
-      "setting": "AJUSTES"
-    },
-    "switch": {
-      "title": "Interruptor",
-      "name": "Nombre:",
-      "description": "Descripción:",
-      "typeEnum": {
-        "0": "No utilizado",
-        "1": "Entrada digital",
-        "2": "Entrada analógica",
-        "3": "Salida digital",
-        "4": "Salida PWM",
-        "5": "Salida Servo",
-        "6": "Salida analógica"
-      }
-    },
-    "dome": {
-      "title": "Cúpula",
-      "input": "Estado de entrada",
-      "roofState": "Estado del techo: ",
-      "actualCommand": "Comando actual:",
-      "lastCommand": "Último comando:",
-      "shutterState": {
-        "open": "Abierto",
-        "closed": "Cerrado",
-        "opening": "Abriendo",
-        "closing": "Cerrando",
-        "error": "Error"
-      },
-      "shutterCommand": {
-        "idle": "Sin comando",
-        "open": "Abrir",
-        "close": "Cerrar",
-        "halt": "DETENER"
-      }
-    },
-    "coverC": {
-      "calibrator": "Panel plano",
-      "cover": "Cubierta",
-      "coverState": "Estado de la cubierta: ",
-      "coverEnum": {
-        "notPresent": "No presente",
-        "close": "Cerrado",
-        "moving": "En movimiento",
-        "open": "Abierto",
-        "unknow": "Desconocido",
-        "error": "Error"
-      }
-    },
-    "gen": {
-      "opened": "abierto",
-      "closed": "cerrado",
-      "open": "abrir",
-      "close": "cerrar",
-      "halt": "detener",
-      "pin": "GPIO:",
-      "type": "Tipo:",
-      "outputs": "Salidas",
-      "loadFromBoard": "RESTABLECER",
-      "downloadFile": "DESCARGAR ARCHIVO",
-      "save": "GUARDAR",
-      "enable": "Habilitar:",
-      "powerOn": "encender",
-      "powerOff": "apagar",
-      "actualPos": "Posición actual:",
-      "actualValue": "Valor actual:",
-      "locale": "Idioma",
-      "cmdAck": "Comando recibido",
-      "wifi": "WiFi",
-      "ipAddress": "Dirección IP:",
-      "subnet": "Subred:",
-      "staticIp": "IP estática:",
-      "waitToReconnect": "Esperando reconexión:",
-      "warningIP": "Advertencia, se realiza una validación simple, en caso de error no se podrá alcanzar la tarjeta.",
-      "configSaved": "Configuración guardada",
-      "utility": "Utilidades",
-      "reboot": "REINICIAR LA TARJETA",
-      "wifireset": "ELIMINAR CONFIGURACIÓN WIFI"
-    },
-    "setting": {
-      "dome": {
-        "inOpen": "Entrada abierta",
-        "inClose": "Entrada cerrada",
-        "onDelay": "Retraso de activación:",
-        "offDelay": "Retraso de desactivación:",
-        "outStart": "GPIO Inicio:",
-        "outHalt": "GPIO DETENER:",
-        "outOpen": "GPIO Abrir:",
-        "outClose": "GPIO Cerrar:",
-        "timeout": "Tiempo de espera",
-        "autoClose": "Cierre automático",
-        "timeOutMoviment": "Tiempo de movimiento:",
-        "autoclosewarning1": "Atención, lea cuidadosamente antes de habilitar.",
-        "autoclosewarning2": "Esta opción cierra automáticamente el techo si el techo está abierto Y si WiFi está conectado Y no hay comunicación con la tarjeta (respecto a la CÚPULA).",
-        "autoclosewarning3": "Por ejemplo, si hay un corte temporal de energía, una vez que la energía se restablezca y si el PC está apagado o el software no se reinicia, el sistema esperará los minutos definidos y luego cerrará el techo, INDEPENDIENTEMENTE del estado del equipo (telescopio).",
-        "autoclosewarning4": "En el caso de mantenimiento del techo, el navegador debe permanecer abierto en la página principal para evitar el cierre automático, o deshabilite esta función.",
-        "autoclosewarning5": "Al habilitar esta función, usted confirma que ha comprendido los riesgos que puede suponer para usted y su equipo.",
-        "autoCloseEn": "Habilitar cierre automático:",
-        "autoCloseMin": "Cerrar después de:"
-      },
-      "coverC": {
-        "calibrator": {
-          "calibrator": "Panel plano"
-        },
-        "cover": {
-          "cover": "Cubierta",
-          "openDeg": "Abrir en grados:",
-          "closeDeg": "Cerrar en grados:",
-          "maxDeg": "Rotación máxima:",
-          "movingTime": "Tiempo de movimiento:"
-        },
-        "configSaved": "Configuración del calibrador de cubierta guardada"
-      },
-      "board": {
-        "configSaved": "Configuración de la tarjeta guardada"
-      }
-    },
-    "errors": {
-      "noUsableAsInput": "No utilizable como entrada",
-      "noUsableAsOutput": "No utilizable como salida"
-    },
-    "pwm": {
-      "0": "No inicializado",
-      "1": "PWM",
-      "2": "Servo"
-    }
-  }
-  
+	"menu": {
+		"home": "INICIO",
+		"setting": "CONFIGURACIÓN"
+	},
+	"switch": {
+		"title": "interruptor",
+		"name": "Nombre:",
+		"description": "Descripción:",
+		"typeEnum": {
+			"0": "No utilizado",
+			"1": "Entrada Digital",
+			"2": "Entrada Analógica",
+			"3": "Salida Digital",
+			"4": "Salida PWM",
+			"5": "Salida Servo",
+			"6": "Salida Analógica"
+		}
+	},
+	"dome": {
+		"title": "Cúpula",
+		"input": "Estado de Entradas",
+		"roofState": "Estado del Techo: ",
+		"actualCommand": "Comando actual:",
+		"lastCommand": "Último comando:",
+		"shutterState": {
+			"open": "Abierto",
+			"closed": "Cerrado",
+			"opening": "Abriendo",
+			"closing": "Cerrando",
+			"error": "Error"
+		},
+		"shutterCommand": {
+			"idle": "Sin Comando",
+			"open": "Abriendo",
+			"close": "Cerrando",
+			"halt": "DETENER"
+		}
+	},
+	"coverC": {
+		"calibrator": "Panel Plano",
+		"cover": "Cubierta",
+		"coverState": "Estado de la Cubierta: ",
+		"coverEnum": {
+			"notPresent": "No presente",
+			"close": "Cerrado",
+			"moving": "En Movimiento",
+			"open": "Abierto",
+			"unknow": "Desconocido",
+			"error": "Error"
+		}
+	},
+	"gen": {
+		"opened": "abierto",
+		"closed": "cerrado",
+		"open": "abrir",
+		"close": "cerrar",
+		"halt": "detener",
+		"pin": "GPIO:",
+		"type": "Tipo:",
+		"outputs": "Salidas",
+		"loadFromBoard": "RESTAURAR",
+		"downloadFile": "DESCARGAR ARCHIVO",
+		"save": "GUARDAR",
+		"enable": "Habilitar:",
+		"powerOn": "encender",
+		"powerOff": "apagar",
+		"actualPos": "Posición actual:",
+		"actualValue": "Valor Actual:",
+		"locale": "Idioma",
+		"cmdAck": "Comando recibido",
+		"cmdRefused": "Comando Rechazado",
+		"wifi": "WiFi",
+		"ipAddress": "Dirección IP:",
+		"gateway": "Dirección de la Puerta de Enlace:",
+		"subnet": "Subred:",
+		"staticIp": "Dirección IP estática:",
+		"waitToReconnect": "Esperando para reconexión:",
+		"warningIP": "Atención, se realiza una validación simple; en caso de error será imposible acceder a la tarjeta.",
+		"configSaved": "Configuración Guardada",
+		"utility": "Utilidad",
+		"reboot": "REINICIAR TARJETA",
+		"wifireset": "ELIMINAR CONFIGURACIÓN WIFI"
+	},
+	"setting": {
+		"dome": {
+			"inOpen": "Entrada Abierta",
+			"inClose": "Entrada Cerrada",
+			"onDelay": "Retraso de Activación:",
+			"offDelay": "Retraso de Desactivación:",
+			"outStart": "GPIO Inicio:",
+			"outHalt": "GPIO DETENER:",
+			"outOpen": "GPIO Abrir:",
+			"outClose": "GPIO Cerrar:",
+			"timeout": "Tiempo de Espera",
+			"autoClose": "Cierre Automático",
+			"timeOutMoviment": "Tiempo de Movimiento:",
+			"autoclosewarning1": "Atención, lea cuidadosamente antes de activarlo.",
+			"autoclosewarning2": "Esta opción cierra automáticamente el techo si el techo está abierto Y el WiFi está conectado Y no hay comunicación con la tarjeta (relacionada con la CÚPULA).",
+			"autoclosewarning3": "Por ejemplo, en caso de un corte de energía temporal, una vez que vuelva la electricidad, y probablemente la PC permanezca apagada o los programas de control no se reinicien, esperará los minutos configurados, después de lo cual el techo se cerrará INDEPENDIENTEMENTE del estado del equipo (telescopio).",
+			"autoclosewarning4": "Durante el mantenimiento del techo, será necesario mantener el navegador abierto en la página principal para evitar el cierre automático, o mejor aún, desactivar esta función.",
+			"autoclosewarning5": "Al activar esta función, confirmas que has leído y comprendido los riesgos que esta función puede tener para ti y tu equipo.",
+			"autoCloseEn": "Habilitación de Cierre Automático:",
+			"autoCloseMin": "Cerrar después de:"
+		},
+		"coverC": {
+			"calibrator": {
+				"calibrator": "Panel Plano"
+			},
+			"cover": {
+				"cover": "Tapa",
+				"openDeg": "Abierto a grados:",
+				"closeDeg": "Cerrado a grados:",
+				"maxDeg": "Rotación Máxima:",
+				"movingTime": "Tiempo de Movimiento:"
+			},
+			"configSaved": "Configuración de la Cubierta Calibradora Guardada"
+		},
+		"board": {
+			"configSaved": "Configuración de la Tarjeta Guardada"
+		}
+	},
+	"errors": {
+		"noUsableAsInput": "no usable como entrada",
+		"noUsableAsOutput": "no usable como salida",
+		"coverIsMoving": "La cubierta ya está en movimiento",
+		"coverNotPresent": "La cubierta no está presente",
+		"calibNotPresent": "El panel plano no está presente",
+		"calibBrightnessNotPresent": "Falta el parámetro de brillo",
+		"calibBrightnessNotInRange": "El parámetro de brillo está fuera de rango",
+		"ShAlreadyMoving": "El techo ya está en movimiento",
+		"ShAlreadyOpen": "El techo ya está abierto",
+		"ShAlreadyClosed": "El techo ya está cerrado",
+		"SwIdOutOfRange": "ID del Interruptor fuera de rango",
+		"SwValueBehindMin": "Valor Mínimo sobrepasado",
+		"SwValueOverMax": "Valor Máximo sobrepasado",
+		"SwValueAbsent": "Valor No Proporcionado",
+		"SwNotWritable": "Interruptor no escribible"
+	},
+	"pwm": {
+		"0": "No inicializado",
+		"1": "PWM",
+		"2": "Servo"
+	}
+}

@@ -1,131 +1,145 @@
 {
 	"menu": {
-	  "home": "HOME",
-	  "setting": "SETTING"
+		"home": "HOME",
+		"setting": "SETTINGS"
 	},
 	"switch": {
-	  "title": "switch",
-	  "name": "Name:",
-	  "description": "Description:",
-	  "typeEnum": {
-		"0": "Not used",
-		"1": "Digital Input",
-		"2": "Analog Input",
-		"3": "Digital Output",
-		"4": "PWM Output",
-		"5": "Servo Output",
-		"6": "Analog Output"
-	  }
+		"title": "switch",
+		"name": "Name:",
+		"description": "Description:",
+		"typeEnum": {
+			"0": "Not used",
+			"1": "Digital Input",
+			"2": "Analog Input",
+			"3": "Digital Output",
+			"4": "PWM Output",
+			"5": "Servo Output",
+			"6": "Analog Output"
+		}
 	},
 	"dome": {
-	  "title": "Dome",
-	  "input": "Inputs status",
-	  "roofState": "Roof status: ",
-	  "actualCommand": "Actual Command:",
-	  "lastCommand": "Last command:",
-	  "shutterState": {
-		"open": "Open",
-		"closed": "Close",
-		"opening": "Opening",
-		"closing": "Closing",
-		"error": "Error"
-	  },
-	  "shutterCommand": {
-		"idle": "No Command",
-		"open": "Opening",
-		"close": "Closing",
-		"halt": "HALT"
-	  }
+		"title": "Dome",
+		"input": "Input Status",
+		"roofState": "Roof State: ",
+		"actualCommand": "Current Command:",
+		"lastCommand": "Last Command:",
+		"shutterState": {
+			"open": "Open",
+			"closed": "Closed",
+			"opening": "Opening",
+			"closing": "Closing",
+			"error": "Error"
+		},
+		"shutterCommand": {
+			"idle": "No Command",
+			"open": "Opening",
+			"close": "Closing",
+			"halt": "HALT"
+		}
 	},
 	"coverC": {
-	  "calibrator": "Flat Panel",
-	  "cover": "Cover",
-	  "coverState": "Cover Status: ",
-	  "coverEnum": {
-		"notPresent": "Not present",
-		"close": "Close",
-		"moving": "Moving",
-		"open": "Open",
-		"unknow": "Unknown",
-		"error": "Error"
-	  }
+		"calibrator": "Flat Panel",
+		"cover": "Cover",
+		"coverState": "Cover State: ",
+		"coverEnum": {
+			"notPresent": "Not present",
+			"close": "Closed",
+			"moving": "Moving",
+			"open": "Open",
+			"unknow": "Unknown",
+			"error": "Error"
+		}
 	},
 	"gen": {
-	  "opened": "open",
-	  "closed": "close",
-	  "open": "open",
-	  "close": "close",
-	  "halt": "stop",
-	  "pin": "GPIO:",
-	  "type": "Type:",
-	  "outputs": "Outputs",
-	  "loadFromBoard": "RESTORE",
-	  "downloadFile": "DOWNLOAD FILE",
-	  "save": "SAVE",
-	  "enable": "Enable:",
-	  "powerOn": "power on",
-	  "powerOff": "power off",
-	  "actualPos": "Actual position:",
-	  "actualValue": "Actual value:",
-	  "locale": "Language",
-	  "cmdAck": "Command received",
-	  "wifi": "WiFi",
-	  "ipAddress": "IP Address:",
-	  "subnet": "Subnet:",
-	  "staticIp": "Static IP address:",
-	  "waitToReconnect": "Waiting to reconnect:",
-	  "warningIP": "Warning, simple validation is being performed; in case of error, it will be impossible to reach the board.",
-	  "configSaved": "Configuration Saved",
-	  "utility": "Utility",
-	  "reboot": "REBOOT BOARD",
-	  "wifireset": "REMOVE WIFI SETTINGS"
+		"opened": "open",
+		"closed": "closed",
+		"open": "open",
+		"close": "close",
+		"halt": "halt",
+		"pin": "GPIO:",
+		"type": "Type:",
+		"outputs": "Outputs",
+		"loadFromBoard": "RESTORE",
+		"downloadFile": "DOWNLOAD FILE",
+		"save": "SAVE",
+		"enable": "Enable:",
+		"powerOn": "power on",
+		"powerOff": "power off",
+		"actualPos": "Current Position:",
+		"actualValue": "Current Value:",
+		"locale": "Language",
+		"cmdAck": "Command received",
+		"cmdRefused": "Command Refused",
+		"wifi": "WiFi",
+		"ipAddress": "IP Address:",
+		"gateway": "Gateway Address:",
+		"subnet": "Subnet:",
+		"staticIp": "Static IP Address:",
+		"waitToReconnect": "Waiting for reconnection:",
+		"warningIP": "Warning, a simple validation is performed; in case of error, it will be impossible to reach the board.",
+		"configSaved": "Configuration Saved",
+		"utility": "Utility",
+		"reboot": "REBOOT BOARD",
+		"wifireset": "REMOVE WIFI SETTINGS"
 	},
 	"setting": {
-	  "dome": {
-		"inOpen": "Open Input",
-		"inClose": "Close Input",
-		"onDelay": "Activation Delay:",
-		"offDelay": "Deactivation Delay:",
-		"outStart": "GPIO Start:",
-		"outHalt": "GPIO HALT:",
-		"outOpen": "GPIO Opening:",
-		"outClose": "GPIO Closing:",
-		"timeout": "Timeout",
-		"autoClose": "Automatic Closing",
-		"timeOutMoviment": "Movement Timeout:",
-		"autoclosewarning1": "Warning, read carefully before enabling.",
-		"autoclosewarning2": "This option automatically closes the roof if the roof is open AND WiFi is connected AND there is no communication with the board (concerning the DOME).",
-		"autoclosewarning3": "For example, in the case of a temporary power outage, once the power is restored and possibly the PC is turned off or software doesn't restart, it will wait for the set minutes, after which the roof will be closed, REGARDLESS of the equipment (telescope) state.",
-		"autoclosewarning4": "In case of roof maintenance, you must keep the browser open on the main page to prevent automatic closing, or better yet, disable this function.",
-		"autoclosewarning5": "By enabling this feature, you confirm that you have read and understood the risks that this function may pose to you and your equipment.",
-		"autoCloseEn": "Enable Automatic Closing:",
-		"autoCloseMin": "Close After:"
-	  },
-	  "coverC": {
-		"calibrator": {
-		  "calibrator": "Flat Panel"
+		"dome": {
+			"inOpen": "Open Input",
+			"inClose": "Close Input",
+			"onDelay": "Activation Delay:",
+			"offDelay": "Deactivation Delay:",
+			"outStart": "GPIO Start:",
+			"outHalt": "GPIO HALT:",
+			"outOpen": "GPIO Opening:",
+			"outClose": "GPIO Closing:",
+			"timeout": "Timeout",
+			"autoClose": "Automatic Closing",
+			"timeOutMoviment": "Movement Timeout:",
+			"autoclosewarning1": "Warning, read carefully before activating it.",
+			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND WiFi is connected AND there is no communication with the board (related to the DOME).",
+			"autoclosewarning3": "For example, in case of a temporary blackout, once the power returns and the PC is likely off or the management software does not restart, it will wait the set minutes, after which the roof will close REGARDLESS of the state of the equipment (telescope).",
+			"autoclosewarning4": "During roof maintenance, it will be necessary to keep the browser open on the main page to avoid automatic closing, or better yet, deactivate this feature.",
+			"autoclosewarning5": "By activating this feature, you confirm you have read and understood the risks it poses to you and your equipment.",
+			"autoCloseEn": "Automatic Closing Enable:",
+			"autoCloseMin": "Close after:"
 		},
-		"cover": {
-		  "cover": "Cover",
-		  "openDeg": "Open at degrees:",
-		  "closeDeg": "Close at degrees:",
-		  "maxDeg": "Maximum Rotation:",
-		  "movingTime": "Movement Time:"
+		"coverC": {
+			"calibrator": {
+				"calibrator": "Flat Panel"
+			},
+			"cover": {
+				"cover": "Cover",
+				"openDeg": "Open at degrees:",
+				"closeDeg": "Close at degrees:",
+				"maxDeg": "Maximum Rotation:",
+				"movingTime": "Moving Time:"
+			},
+			"configSaved": "Cover Calibrator configuration Saved"
 		},
-		"configSaved": "Cover Calibrator configuration saved"
-	  },
-	  "board": {
-		"configSaved": "Board configuration saved"
-	  }
+		"board": {
+			"configSaved": "Board configuration Saved"
+		}
 	},
 	"errors": {
-	  "noUsableAsInput": "not usable as input",
-	  "noUsableAsOutput": "not usable as output"
+		"noUsableAsInput": "not usable as input",
+		"noUsableAsOutput": "not usable as output",
+		"coverIsMoving": "The cover is already moving",
+		"coverNotPresent": "The cover is not present",
+		"calibNotPresent": "The flat panel is not present",
+		"calibBrightnessNotPresent": "Brightness parameter missing",
+		"calibBrightnessNotInRange": "Brightness parameter out of range",
+		"ShAlreadyMoving": "The roof is already moving",
+		"ShAlreadyOpen": "The roof is already open",
+		"ShAlreadyClosed": "The roof is already closed",
+		"SwIdOutOfRange": "Switch ID out of range",
+		"SwValueBehindMin": "Minimum value exceeded",
+		"SwValueOverMax": "Maximum value exceeded",
+		"SwValueAbsent": "Value Not Provided",
+		"SwNotWritable": "Switch not writable"
 	},
 	"pwm": {
-	  "0": "Not initialized",
-	  "1": "PWM",
-	  "2": "Servo"
+		"0": "Not initialized",
+		"1": "PWM",
+		"2": "Servo"
 	}
-  }
-  
+}
