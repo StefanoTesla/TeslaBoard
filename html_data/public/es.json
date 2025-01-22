@@ -141,5 +141,12 @@
 		"0": "No inicializado",
 		"1": "PWM",
 		"2": "Servo"
+	},
+	"reboot": {
+		"warning": "ADVERTENCIA",
+		"text1": "La configuración se ha guardado, pero solo se aplicará después del próximo reinicio.",
+		"text2": "Puedes reiniciar ahora o más tarde (el botón para realizar el reinicio está en la pestaña Tesla Board).",
+		"now": "REINICIAR AHORA",
+		"later": "REINICIAR DESPUÉS"
 	}
 }

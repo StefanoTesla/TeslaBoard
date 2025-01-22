@@ -31,12 +31,12 @@
     <template x-if="modal">
       <div class="modal">
         <div class="modal_box">
-          <p class="error">ATTENZIONE</p>
-          <p>La configurazione è stata salvata, ma verrà applicata solamente al prossimo riavvio.</p>
-          <p>Puoi riavviare adesso, o successivamente (il tasto per eseguire il reset è nella scheda Tesla Board)</p>
+          <p class="error" x-text="text.reboot.warning">{warning}</p>
+          <p x-text="text.reboot.text1">{text1}</p>
+          <p x-text="text.reboot.text2">{text2}</p>
           <div class="modal_selection">
-            <button class="green" @click="closeModal()">RIAVVIA PIU TARDI</button>
-            <button class="red"  @click="rebootTheBoard()">RIAVVIA ADESSO</button>
+            <button class="green" @click="closeModal()" x-text="text.reboot.later">{REBOOT_LATER}</button>
+            <button class="red"  @click="rebootTheBoard()" x-text="text.reboot.now">{REBOOT_NOW}</button>
           </div>
         </div>
       </div>

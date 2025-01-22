@@ -141,5 +141,12 @@
 		"0": "Nicht initialisiert",
 		"1": "PWM",
 		"2": "Servo"
+	},
+	"reboot": {
+		"warning": "WARNUNG",
+		"text1": "Die Konfiguration wurde gespeichert, wird jedoch erst nach dem nächsten Neustart angewendet.",
+		"text2": "Sie können jetzt oder später neu starten (die Schaltfläche zum Zurücksetzen befindet sich auf der Tesla-Board-Seite).",
+		"now": "JETZT NEUSTARTEN",
+		"later": "SPÄTER NEUSTARTEN"
 	}
 }

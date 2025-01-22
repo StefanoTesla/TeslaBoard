@@ -143,5 +143,12 @@
 		"0": "Non inizializzato",
 		"1": "PWM",
 		"2": "Servo"
+	},
+	"reboot":{
+		"warning": "ATTENZIONE",
+		"text1": "La configurazione è stata salvata, ma verrà applicata solamente al prossimo riavvio.",
+		"text2": "Puoi riavviare adesso, o successivamente (il tasto per eseguire il reset è nella scheda Tesla Board)",
+		"now": "RIAVVIA ADESSO",
+		"later": "RIAVVIA DOPO"
 	}
 }
