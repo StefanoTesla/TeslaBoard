@@ -59,14 +59,16 @@ void setup() {
   startupTask();
   
   AsyncWiFiManager wifiManager(&server,&dns);
-  wifiManager.autoConnect("TeslaBoard");
   if(Global.config.wifi.ip.enable){
+    Serial.println("tryng to connect with static ip...");
     IPAddress ip(Global.config.wifi.ip.ip[0],Global.config.wifi.ip.ip[1],Global.config.wifi.ip.ip[2],Global.config.wifi.ip.ip[3]);
     IPAddress gw(Global.config.wifi.ip.gw[0],Global.config.wifi.ip.gw[1],Global.config.wifi.ip.gw[2],Global.config.wifi.ip.gw[3]);
     IPAddress sn(Global.config.wifi.ip.sub[0],Global.config.wifi.ip.sub[1],Global.config.wifi.ip.sub[2],Global.config.wifi.ip.sub[3]); 
     wifiManager.setSTAStaticIPConfig(ip,gw,sn);
 
   }
+  wifiManager.autoConnect("TeslaBoard");
+
   server.addHandler(&ws);
   //start alpaca discovery
   alpacaDiscovery(udp);
