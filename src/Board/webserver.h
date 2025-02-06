@@ -93,6 +93,7 @@ void boardWebServer(){
         board["cores"] = ESP.getChipCores();
         board["rev"] = ESP.getChipRevision();
         board["freq"] = ESP.getCpuFreqMHz();
+        board["version"] = 400;
         
 
         JsonArray pwm = doc["pwm"].to<JsonArray>();
