@@ -4,11 +4,12 @@ import { translations } from './utils/translations.js'
 import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
+import { checkUpdate } from './utils/checkUpdate.js'
 
 export default function GlobalData() {
     return {
         locale:"",
-        textLoaded:false,
+        textLoaded:true,
         exist: {},
         dome:{},
         coverC:{},
@@ -20,6 +21,12 @@ export default function GlobalData() {
             brightness:0,
         },
         dataLoaded :false,
+        update: false,
+        version: {
+            actual:500,
+            available:0,
+            upgrade:false
+        },
         notices: [],
         visible: [],
 
@@ -37,6 +44,7 @@ export default function GlobalData() {
             
         })
         .catch(error => console.error('Error fetching board data:', error))
+        this.dataLoaded = true;
     },
 
     updateData(){
@@ -51,6 +59,7 @@ export default function GlobalData() {
             this.getCoverCStatus()
         }
         this.dataLoaded = true;
+        
       },
 
     updateBoard(){
@@ -67,6 +76,7 @@ export default function GlobalData() {
             this.board.wifi.days = Math.floor(this.board.wifi.uptime / (24 * 60));
             this.board.wifi.hours = Math.floor((this.board.wifi.uptime % (24 * 60)) / 60);
             this.board.wifi.minutes = this.board.wifi.uptime % 60;  
+            this.version.actual = parseInt(this.board.version)
             
         })
         .catch(error => console.error('Error fetching board data:', error));
@@ -75,11 +85,10 @@ export default function GlobalData() {
     },
 
 
-
-
+    ...toast(),
+    ...checkUpdate(),
     ...translations(),
     ...validation(),
-    ...toast(),
     ...dome(),
     ...coverc(),
     ...switches()

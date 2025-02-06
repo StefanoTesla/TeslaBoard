@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ESP32 Log Viewer</title>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,17 +14,17 @@
       align-items: center;
       justify-content: center;
       height: 100vh;
-      background-color: #f4f4f9;
+      background-color: #161616;
     }
     h1 {
-      color: #333;
+      color: #fff;
     }
     #log {
       width: 90%;
       height: 70%;
       overflow-y: auto;
-      border: 1px solid #ccc;
-      background: #fff;
+      border: 1px solid #161616;
+      background: #323232;
       padding: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
@@ -33,20 +32,60 @@
       margin: 0;
       padding: 5px;
       font-size: 14px;
-      color: #555;
+      color: #fff;
     }
     #log p.error {
       color: red;
     }
+    #log p.warning {
+      color: yellow;
+    }
+
+    .active {
+      background-color: #4CAF50;
+    }
+
+    .button-container {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #323232;
+      color: white;
+      border: 1px solid #161616;
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
+
+    button.active {
+      background-color: #4CAF50;
+    }
+
+    .container{
+      @apply w-full h-full;
+    }
   </style>
 </head>
-<body>
-  <h1>ESP32 Log Viewer</h1>
-  <div x-data="logViewer()" id="log">
-    <!-- Ciclo sui log -->
-    <template x-for="log in logs" :key="log.id">
-      <p :class="log.type" x-text="log.message"></p>
-    </template>
+<body x-data="logViewer()">
+  <div class="container">
+    <h1>TeslaBoard Log Viewer</h1>
+
+    <!-- Bottoni per selezionare i filtri -->
+    <div class="button-container">
+      <button :class="{ 'active': filter.board }" @click="toggleFilter('board')">Board</button>
+      <button :class="{ 'active': filter.dome }" @click="toggleFilter('dome')">Dome</button>
+      <button :class="{ 'active': filter.switch }" @click="toggleFilter('switch')">Switch</button>
+      <button :class="{ 'active': filter.coverc }" @click="toggleFilter('coverc')">CoverC</button>
+    </div>
+
+    <div id="log">
+      <!-- Ciclo sui log, ma solo quelli che passano il filtro -->
+      <template x-for="log in filteredLogs" :key="log.id">
+        <p :class="log.type" :data-machine="log.machine" x-text="log.message"></p>
+      </template>
+    </div>
   </div>
 
   <script>
@@ -55,53 +94,58 @@
         logs: [],
         socket: null,
         nextId: 0,
+        filter: {
+          board: true,
+          dome: true,
+          coverc: true,
+          switch: true
+        },
 
         // Metodo per aggiungere un log
         addLog(message, type = 'info', machine = '0') {
           switch (parseInt(type)) {
             case 0:
-              type = 'error'
+              type = 'error';
               break;
 
             case 1:
-              type = 'warning'
+              type = 'warning';
               break;
             case 2:
-              type = 'info'
+              type = 'info';
               break;
             case 3:
-              type = 'debug'
+              type = 'debug';
               break;
 
             default:
-              type = 'info'
+              type = 'info';
               break;
           }
 
           switch (parseInt(machine)) {
             case 0:
-              machine = 'Board'
+              machine = 'board';
               break;
             case 1:
-              machine = 'Dome'
+              machine = 'dome';
               break;
             case 2:
-              machine = 'CoverC'
+              machine = 'coverc';
               break;
             case 3:
-              machine = 'Switch'
+              machine = 'switch';
               break;
-            
             default:
-              machine = ''
+              machine = 'board';
               break;
           }
 
           let d = new Date(); // Crea un'istanza di Date
           let timeString = d.toLocaleTimeString(); // Ora puoi usare toLocaleTimeString
 
-          message =  timeString + " [" + machine +"] " + message
-          this.logs.push({ id: this.nextId++, message, type });
+          message = timeString + " [" + machine + "] " + message;
+          this.logs.push({ id: this.nextId++, message, type, machine });
 
           // Mantieni visibile l'ultimo messaggio
           this.$nextTick(() => {
@@ -110,16 +154,15 @@
           });
         },
 
-        connect(){
+        connect() {
           this.socket = new WebSocket(`ws://172.20.10.10/ws`);
         },
 
         // Inizializza il WebSocket
         init() {
-          //this.socket = new WebSocket(`ws://${window.location.hostname}/ws`);
-          this.connect()
+          this.connect();
           this.socket.onopen = () => {
-            this.addLog('Connesso al WebSocket.', 0,5);
+            this.addLog('Connesso al WebSocket.', 0, 5);
           };
 
           this.socket.onmessage = (event) => {
@@ -129,15 +172,31 @@
 
           this.socket.onclose = () => {
             this.addLog('Disconnesso dal WebSocket.', 'error');
-            setTimeout(this.connect(),1000)
+            setTimeout(this.connect(), 1000);
           };
 
           this.socket.onerror = (error) => {
             this.addLog('Errore WebSocket.', 'error');
           };
+        },
+
+        // Toggle il filtro per ciascuna macchina
+        toggleFilter(machine) {
+          this.filter[machine] = !this.filter[machine];
+        },
+
+        // Computed property per filtrare i log
+        get filteredLogs() {
+          return this.logs.filter(log => {
+            console.log(log.machine)
+            // Controlla se il filtro per la macchina è attivo
+            return this.filter[log.machine];
+          });
         }
       };
     }
   </script>
+
+  <script type="module" src="/main.js"></script>
 </body>
 </html>
