@@ -1,4 +1,4 @@
-export function checkUpdate(){
+export function checkFirmwareUpdate(){
     return {
         checkUpdate(){
             let av = this.getCookie("version")
