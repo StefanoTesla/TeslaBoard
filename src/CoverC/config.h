@@ -47,7 +47,6 @@ void initCoverCConfig(){
     file.close();
     JsonObject calibrator = doc["Calibrator"];
     CoverC.config.calibrator.present = calibrator["present"];
-    CoverC.config.calibrator.outPWM = calibrator["pin"];
 
     JsonObject cover = doc["Cover"];
     CoverC.config.cover.present = cover["present"];
@@ -61,8 +60,7 @@ void initCoverCConfig(){
     if(CoverC.config.calibrator.present){ 
         tmpCh = assignLedChannel(pwm);
         if(tmpCh < 16){
-            CoverC.config.calibrator.pwmChannel = tmpCh;
-            ledcAttachPin(CoverC.config.calibrator.outPWM, tmpCh);
+            Calibrator.setup(calibrator["pin"],tmpCh);
         } 
     }
 
@@ -72,6 +70,7 @@ void initCoverCConfig(){
     tmpCh = assignLedChannel(servo);
         if(tmpCh < 16){
             CoverC.config.cover.pwmChannel = tmpCh;
+            
             ledcAttachPin(CoverC.config.cover.outServoPin, tmpCh);
         }
     }

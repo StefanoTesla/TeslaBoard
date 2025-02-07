@@ -2,12 +2,6 @@
 struct InputStructure {
   unsigned int pin;
   bool type; //0=NO 1=NC
-  unsigned long delayON;
-  unsigned long delayOFF;
-  unsigned long _ackOn;
-  unsigned long _ackOff;
-  bool reInput;
-  bool feInput;
 };
 
 /* ALPACA DATA */

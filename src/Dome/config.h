@@ -11,32 +11,33 @@ void saveDomeConfig(){
         return;
     }
     JsonDocument doc;
-
+ 
     JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
-    pinOpen["pin"] = Dome.config.tmpCfg.inOpen.pin;
-    pinOpen["dOn"] = Dome.config.tmpCfg.inOpen.delayON;
-    pinOpen["dOff"] = Dome.config.tmpCfg.inOpen.delayOFF;
-    pinOpen["type"] = Dome.config.tmpCfg.inOpen.type;
+    pinOpen["pin"] = Dome.config.data.inOpen.pin;
+    pinOpen["dOn"] = DomeInOpen.getTOn();
+    pinOpen["dOff"] = DomeInOpen.getTOff();
+    pinOpen["type"] = Dome.config.data.inOpen.type;
 
     JsonObject pinClose = doc["pinClose"].to<JsonObject>();
-    pinClose["pin"] = Dome.config.tmpCfg.inClose.pin;
-    pinClose["dOn"] = Dome.config.tmpCfg.inClose.delayON;
-    pinClose["dOff"] = Dome.config.tmpCfg.inClose.delayOFF;
-    pinClose["type"] = Dome.config.tmpCfg.inClose.type;
+    pinClose["pin"] = Dome.config.data.inClose.pin;
+    pinClose["dOn"] = DomeInClose.getTOn();
+    pinClose["dOff"] = DomeInClose.getTOff();
+    pinClose["type"] = Dome.config.data.inClose.type;
 
     JsonObject autoclose = doc["autoclose"].to<JsonObject>();
-    autoclose["enable"] = Dome.config.tmpCfg.enAutoClose;
-    autoclose["minutes"] = Dome.config.tmpCfg.autoCloseTimeOut;
+    autoclose["enable"] = Dome.config.data.enAutoClose;
+    autoclose["minutes"] = Dome.config.data.autoCloseTimeOut;
 
-    doc["pinStart"] = Dome.config.tmpCfg.outStart_Open;
-    doc["pinHalt"] = Dome.config.tmpCfg.outHalt_Close;
-    doc["movTimeOut"] = Dome.config.tmpCfg.movingTimeOut;
+    doc["pinStart"] = Dome.config.data.outStart_Open;
+    doc["pinHalt"] = Dome.config.data.outHalt_Close;
+    doc["movTimeOut"] = Dome.config.data.movingTimeOut;
 
     serializeJson(doc, file);
 
     
     file.close();
     Dome.config.Save.execute = false;
+
 }
 
 
@@ -61,31 +62,21 @@ void initDomeConfig(){
     file.close();
 
     JsonObject pinOpen = doc["pinOpen"];
-    Dome.config.data.inOpen.pin = pinOpen["pin"]; 
-    Dome.config.data.inOpen.delayON = pinOpen["dOn"]; 
-    Dome.config.data.inOpen.delayOFF = pinOpen["dOff"];
-    Dome.config.data.inOpen.type = pinOpen["type"];
+    DomeInOpen.setup(pinOpen["pin"],pinOpen["type"],pinOpen["dOn"],pinOpen["dOff"]);
 
     JsonObject pinClose = doc["pinClose"];
-    Dome.config.data.inClose.pin = pinClose["pin"]; 
-    Dome.config.data.inClose.delayON = pinClose["dOn"]; 
-    Dome.config.data.inClose.delayOFF = pinClose["dOff"];
-    Dome.config.data.inClose.type = pinClose["type"];
+    DomeInClose.setup(pinClose["pin"],pinClose["type"],pinClose["dOn"],pinClose["dOff"]);
 
     JsonObject autoClose = doc["autoclose"];
     Dome.config.data.enAutoClose = autoClose["enable"];
     Dome.config.data.autoCloseTimeOut = autoClose["minutes"];
 
-    Dome.config.data.outStart_Open = doc["pinStart"];
-    Dome.config.data.outHalt_Close = doc["pinHalt"];
+    DomeOutMoveOpen.setup(doc["pinStart"]);
+    DomeOutHaltClose.setup(doc["pinHalt"]);
+
     Dome.config.data.movingTimeOut = doc["movTimeOut"];
 
     Dome.config.Load.isValid = true;
-
-    pinMode(Dome.config.data.outStart_Open, OUTPUT);
-    pinMode(Dome.config.data.outHalt_Close, OUTPUT);
-    pinMode(Dome.config.data.inOpen.pin, INPUT);
-    pinMode(Dome.config.data.inClose.pin, INPUT);
 
 }
 

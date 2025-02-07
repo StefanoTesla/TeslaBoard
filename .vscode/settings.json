@@ -27,7 +27,8 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "chrono": "cpp",
-        "thread": "c"
+        "thread": "c",
+        "cmath": "cpp"
     },
     "C_Cpp.default.includePath": [
 

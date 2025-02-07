@@ -61,7 +61,6 @@ struct DomeConfig {
   domeHeader data;
   domeSaveConfigStruct Save;
   domeLoadConfigStruct Load;
-  domeHeader tmpCfg;
 };
 
 struct DomeStruct{

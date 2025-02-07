@@ -9,23 +9,23 @@ void domeWebServer(){
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
-        pinOpen["pin"] = Dome.config.data.inOpen.pin;
-        pinOpen["dOn"] = Dome.config.data.inOpen.delayON;
-        pinOpen["dOff"] = Dome.config.data.inOpen.delayOFF;
-        pinOpen["type"] = Dome.config.data.inOpen.type;
+        pinOpen["pin"] = DomeInOpen.getPinNumber();
+        pinOpen["dOn"] = DomeInOpen.getTOn();
+        pinOpen["dOff"] = DomeInOpen.getTOff();
+        pinOpen["type"] = DomeInOpen.getInvert();
 
         JsonObject pinClose = doc["pinClose"].to<JsonObject>();
-        pinClose["pin"] = Dome.config.data.inClose.pin;
-        pinClose["dOn"] = Dome.config.data.inClose.delayON;
-        pinClose["dOff"] = Dome.config.data.inClose.delayOFF;
-        pinClose["type"] = Dome.config.data.inClose.type;
+        pinClose["pin"] = DomeInClose.getPinNumber();
+        pinClose["dOn"] = DomeInClose.getTOn();
+        pinClose["dOff"] = DomeInClose.getTOff();
+        pinClose["type"] = DomeInOpen.getInvert();
 
         JsonObject autoclose = doc["autoclose"].to<JsonObject>();
         autoclose["enable"] = Dome.config.data.enAutoClose;
         autoclose["minutes"] = Dome.config.data.autoCloseTimeOut;
 
-        doc["pinStart"] = Dome.config.data.outStart_Open;
-        doc["pinHalt"] = Dome.config.data.outHalt_Close;
+        doc["pinStart"] = DomeOutMoveOpen.getPinNumber();
+        doc["pinHalt"] = DomeOutHaltClose.getPinNumber();
         doc["movTimeOut"] = Dome.config.data.movingTimeOut / 1000;
         #ifdef GATE_BOARD
             doc["driverType"] = 0;
@@ -121,7 +121,7 @@ void domeWebServer(){
         /* open pin */
         JsonObject pinOpen = json.as<JsonObject>()["pinOpen"];
         if( pinOpen["pin"].is<unsigned int>() and commonValidateInputPin(pinOpen["pin"])){
-            if (pinOpen["pin"] != Dome.config.data.inOpen.pin){
+            if (pinOpen["pin"] != DomeInOpen.getPinNumber()){
                 reboot = true;
             }
         } else {
@@ -148,7 +148,7 @@ void domeWebServer(){
         JsonObject pinClose = json.as<JsonObject>()["pinClose"];
 
         if( pinClose["pin"].is<unsigned int>() and commonValidateInputPin(pinClose["pin"])){
-            if (pinClose["pin"] != Dome.config.data.inClose.pin){
+            if (pinClose["pin"] != DomeInClose.getPinNumber()){
                 reboot = true;
             }
         } else {
@@ -170,7 +170,7 @@ void domeWebServer(){
 
         /* outputs */
         if( json["pinStart"].is<unsigned int>() and commonValidateOutputPin(json["pinStart"])){
-            if (json["pinStart"] != Dome.config.data.outStart_Open){
+            if (json["pinStart"] != DomeOutMoveOpen.getPinNumber()){
                 reboot = true;
             }
         } else {
@@ -179,7 +179,7 @@ void domeWebServer(){
         }
 
         if( json["pinHalt"].is<unsigned int>() and commonValidateOutputPin(json["pinHalt"])){
-            if (json["pinHalt"] != Dome.config.data.outHalt_Close){
+            if (json["pinHalt"] != DomeOutHaltClose.getPinNumber()){
                 reboot = true;
             }
         } else {
@@ -205,33 +205,31 @@ void domeWebServer(){
         }
 
         if(!error){
-            /* input */
-            Dome.config.tmpCfg.inOpen.pin = pinOpen["pin"].as<unsigned int>();
-            Dome.config.tmpCfg.inOpen.delayON = pinOpen["dOn"].as<unsigned long>();
-            Dome.config.tmpCfg.inOpen.delayOFF = pinOpen["dOff"].as<unsigned long>();
-            Dome.config.tmpCfg.inOpen.type = pinOpen["type"].as<bool>();
-            Dome.config.tmpCfg.inClose.pin = pinClose["pin"].as<unsigned int>();
-            Dome.config.tmpCfg.inClose.delayON = pinClose["dOn"].as<unsigned long>();
-            Dome.config.tmpCfg.inClose.delayOFF = pinClose["dOff"].as<unsigned long>();
-            Dome.config.tmpCfg.inClose.type = pinClose["type"].as<bool>();
+            /* input open */
+            Dome.config.data.inOpen.pin = pinOpen["pin"].as<unsigned int>();
+            DomeInOpen.setTOn(pinOpen["dOn"].as<unsigned long>());
+            DomeInOpen.setTOff(pinOpen["dOff"].as<unsigned long>());
+            Dome.config.data.inOpen.type = pinOpen["type"].as<bool>();
+            /* input close */
+            Dome.config.data.inClose.pin = pinClose["pin"].as<unsigned int>();
+            DomeInClose.setTOn(pinClose["dOn"].as<unsigned long>());
+            DomeInClose.setTOff(pinClose["dOff"].as<unsigned long>());
+            Dome.config.data.inClose.type = pinClose["type"].as<bool>();
             /* output */
-            Dome.config.tmpCfg.outStart_Open = json["pinStart"].as<unsigned int>();
-            Dome.config.tmpCfg.outHalt_Close = json["pinHalt"].as<unsigned int>();
+            Dome.config.data.outStart_Open = json["pinStart"].as<unsigned int>();
+            Dome.config.data.outHalt_Close = json["pinHalt"].as<unsigned int>();
             /* timeout */
-             Dome.config.tmpCfg.movingTimeOut = json["movTimeOut"].as<unsigned int>() * 1000;
+             Dome.config.data.movingTimeOut = json["movTimeOut"].as<unsigned int>() * 1000;
             /* autoclose */
-            Dome.config.tmpCfg.enAutoClose = autoClose["enable"].as<bool>();
-            Dome.config.tmpCfg.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();
+            Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
+            Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();
             Dome.config.Save.execute = true;
         } else {
             response->setCode(500);
         }
         doc["reboot"] = reboot;
         Dome.config.Save.restartNeeded = reboot;
-        Serial.println(reboot);
-        if(!reboot){
-             Dome.config.data = Dome.config.tmpCfg;
-        }
+
         response->setLength();
         request->send(response);
     });

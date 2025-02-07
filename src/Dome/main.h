@@ -1,90 +1,23 @@
 #ifndef DOME_MAIN
 #define DOME_MAIN
 
+
+DigitalInput DomeInOpen;
+DigitalInput DomeInClose;
+DigitalOutput DomeOutMoveOpen;
+DigitalOutput DomeOutHaltClose;
+
 #include "config.h"
+
+
 
 //
 // Read shutter input status
 //
 void domeInputRead(){
     int status = 0;
-    bool open;
-    bool close;
 
-
-    open = Dome.config.data.inOpen.type ? !digitalRead(Dome.config.data.inOpen.pin) : digitalRead(Dome.config.data.inOpen.pin);
-    close = Dome.config.data.inOpen.type ? !digitalRead(Dome.config.data.inClose.pin) : digitalRead(Dome.config.data.inClose.pin);
-  
-    //debounce open signal
-    if (open){
-      /* reset the off debounce data */
-      Dome.config.data.inOpen.feInput = false;
-      Dome.config.data.inOpen._ackOff=0;
-      if(!Dome.Shutter.inOpen){
-        if(!Dome.config.data.inOpen.reInput){
-          Dome.config.data.inOpen._ackOn = Global.actualMillis;
-          Dome.config.data.inOpen.reInput = true;
-          Dome.config.data.inOpen.feInput = false;
-        } else {
-          if(Global.actualMillis - Dome.config.data.inOpen._ackOn > Dome.config.data.inOpen.delayON){
-            Dome.Shutter.inOpen = true;
-            logMessage(dome,lDebug,"Got Open input signal");
-          }
-        }
-      }
-    } else {
-      if(Dome.Shutter.inOpen){
-        if(!Dome.config.data.inOpen.feInput){
-          Dome.config.data.inOpen._ackOff = Global.actualMillis;
-          Dome.config.data.inOpen.feInput = true;
-          /* reset the on debounce data */
-          Dome.config.data.inOpen._ackOn = 0;
-          Dome.config.data.inOpen.reInput = false;
-        } else {
-          if(Global.actualMillis- Dome.config.data.inOpen._ackOff > Dome.config.data.inOpen.delayOFF){
-            Dome.Shutter.inOpen = false;
-            logMessage(dome,lDebug,"Lost Open input signal");
-          } 
-        }
-      }
-    }
-
-
-    //debounce close signal
-    if (close){
-      /* reset the off debounce data */
-      Dome.config.data.inClose.feInput = false;
-      Dome.config.data.inClose._ackOff=0;
-      if(!Dome.Shutter.inClose){
-        if(!Dome.config.data.inClose.reInput){
-          Dome.config.data.inClose._ackOn = Global.actualMillis;
-          Dome.config.data.inClose.reInput = true;
-          Dome.config.data.inClose.feInput = false;
-        } else {
-          if(Global.actualMillis - Dome.config.data.inClose._ackOn > Dome.config.data.inClose.delayON){
-            Dome.Shutter.inClose = true;
-            logMessage(dome,lDebug,"Got Close input signal");
-          }
-        }
-      }
-    } else {
-      if(Dome.Shutter.inClose){
-        if(!Dome.config.data.inClose.feInput){
-          Dome.config.data.inClose._ackOff = Global.actualMillis;
-          Dome.config.data.inClose.feInput = true;
-          /* reset the on debounce data */
-          Dome.config.data.inClose._ackOn = 0;
-          Dome.config.data.inClose.reInput = false;
-        } else {
-          if(Global.actualMillis- Dome.config.data.inClose._ackOff > Dome.config.data.inClose.delayOFF){
-            Dome.Shutter.inClose = false;
-            logMessage(dome,lDebug,"Lost Close input signal");
-          } 
-        }
-      }
-    }
-
-    status = (Dome.Shutter.inClose ? 1 : 0) + (Dome.Shutter.inOpen ? 2 : 0);
+    status = (DomeInClose.status() ? 1 : 0) + (DomeInOpen.status() ? 2 : 0);
 
     switch (status)
     {
@@ -109,8 +42,8 @@ void domeInputRead(){
 
 //a fast way to set the shutter output instead to repeat every time
 void shutterOutput(bool start_open, bool halt_close){
-    digitalWrite(Dome.config.data.outStart_Open, start_open);
-    digitalWrite(Dome.config.data.outStart_Open, halt_close);
+    DomeOutMoveOpen.write(start_open);
+    DomeOutHaltClose.write(halt_close);
 }
 
 //
