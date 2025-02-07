@@ -49,7 +49,6 @@ void setSwitchValue(){
         switch(Switch.data[i].property.type){
 
             case SwTypeNull:
-                Switch.data[i].command.execute =false;
                 Switch.data[i].actualValue.intValue = 0;
                 Switch.data[i].actualValue.boValue = false;
                 break;
@@ -57,19 +56,15 @@ void setSwitchValue(){
                 digitalWrite(Switch.data[i].property.pin,Switch.data[i].command.boValue);
                 logMessageFormatted(Switches,lInfo,"DO Switch Command Executed on ID %d",i);
                 break;
-        //    case SwTypeAOutput:
-        //        value = map(analogRead(Switch.data[i].property.pin),0,4095,Switch.data[i].property.minValue,Switch.data[i].property.maxValue);
-        //        Switch.data[i].actualValue.boValue = value > Switch.data[i].property.minValue ? true : false;
-        //        Switch.data[i].actualValue.intValue = value;
-        //       break;
             case SwTypePWM:
                 ledcWrite(Switch.data[i].property.pwmch,Switch.data[i].command.intValue);
                 logMessageFormatted(Switches,lInfo,"PWM Switch Command Executed on ID %d with val: %d",i,Switch.data[i].command.intValue);
                 break;
             case SwTypeServo:
                 logMessageFormatted(Switches,lInfo,"Servo Switch Command Executed on ID %d with val: %d",i,Switch.data[i].command.intValue);
-                value = map(Switch.data[i].command.intValue,Switch.data[i].property.minValue,Switch.data[i].property.maxValue,0,4096);
-                ledcWrite(Switch.data[i].property.pwmch,value);
+                int dutyMicros = map(Switch.data[i].command.intValue, 0, CoverC.config.cover.maxDeg, 544, 2500);
+                int dutyValue = map(dutyMicros, 0, 20000, 0, 4096);
+                ledcWrite(Switch.data[i].property.pwmch,dutyValue);
                 break;
             default:
                 logMessage(Switches,lErr,"Trying to command a non writable Switch");
