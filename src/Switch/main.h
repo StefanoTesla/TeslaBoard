@@ -46,6 +46,8 @@ void setSwitchValue(){
             continue;
         }
         int value;
+        int dutyMicros;
+        int dutyValue;
         switch(Switch.data[i].property.type){
 
             case SwTypeNull:
@@ -62,8 +64,8 @@ void setSwitchValue(){
                 break;
             case SwTypeServo:
                 logMessageFormatted(Switches,lInfo,"Servo Switch Command Executed on ID %d with val: %d",i,Switch.data[i].command.intValue);
-                int dutyMicros = map(Switch.data[i].command.intValue, 0, CoverC.config.cover.maxDeg, 544, 2500);
-                int dutyValue = map(dutyMicros, 0, 20000, 0, 4096);
+                dutyMicros = map(Switch.data[i].command.intValue, 0, CoverC.config.cover.maxDeg, 544, 2500);
+                dutyValue = map(dutyMicros, 0, 20000, 0, 4096);
                 ledcWrite(Switch.data[i].property.pwmch,dutyValue);
                 break;
             default:
