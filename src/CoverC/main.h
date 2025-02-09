@@ -49,7 +49,7 @@ void coverCycle(){
   if(CoverC.status.cover.status == CoverStatusUnknow){
     Cover.write(CoverC.command.cover.angle);
   } else {
-    Cover.slowMove(CoverC.command.cover.angle);
+    Cover.goToSlowly(CoverC.command.cover.angle);
   }
   
 }

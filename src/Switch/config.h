@@ -97,17 +97,22 @@ void initSwitchConfig(){
         case SwTypeNull:
             break;
         case SwTypeDInput:
+            SwitchObjects[count] = new DigitalInput;
+            SwitchObjects[count]->setup(Switch.data[count].property.pin);
             pinMode(Switch.data[count].property.pin,INPUT);
             Switch.data[count].property.minValue = 0;
             Switch.data[count].property.maxValue = 1;
             break;
         case SwTypeDOutput:
+            SwitchObjects[count] = new DigitalOutput;
+            SwitchObjects[count]->setPin(Switch.data[count].property.pin)->setup();
             pinMode(Switch.data[count].property.pin,OUTPUT);
             Switch.data[count].property.minValue = 0;
             Switch.data[count].property.maxValue = 1;
             break;
         case SwTypePWM:
-            Serial.println("pwm");
+            SwitchObjects[count] = new PWMOutput;
+            SwitchObjects[count]->setup(Switch.data[count].property.pin);
             Switch.data[count].property.pwmch = assignLedChannel(pwm);
             if(Switch.data[count].property.pwmch < 16){
                 ledcAttachPin(Switch.data[count].property.pin, Switch.data[count].property.pwmch);
@@ -118,6 +123,9 @@ void initSwitchConfig(){
             Switch.data[count].property.maxValue = 4096;
             break;
         case SwTypeServo:
+            SwitchObjects[count] = new ServoOutput;
+            SwitchObjects[count]->setup();
+            SwitchObjects[count]->goToSlowly()
             Switch.data[count].property.pwmch = assignLedChannel(servo);
             if(Switch.data[count].property.pwmch < 16){
                 ledcAttachPin(Switch.data[count].property.pin, Switch.data[count].property.pwmch);

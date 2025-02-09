@@ -73,4 +73,7 @@ struct SwitchStruct{
 } Switch;
 
 
+IOBase* SwitchObjects[_MAX_SWITCH_ID_];
+
+
 #endif

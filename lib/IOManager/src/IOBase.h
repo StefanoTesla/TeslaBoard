@@ -12,7 +12,9 @@ protected:
 
 public:
     IOBase() {}
-    virtual void setup(int _pin){}
+    virtual void setPin(int _pin){}
+    virtual void setChannel(int _pin){}
+    virtual void setup(){}
     virtual int write(int _value) = 0;
     virtual int readPin() = 0;
     virtual int status();

@@ -8,23 +8,37 @@ class ServoOutput : public IOBase {
 private:
     unsigned int channel;
     int value;
-    int maxDeg;
-    int closeDeg;
-    int openDeg;
+    unsigned int maxDeg;
+    unsigned int closeDeg;
+    unsigned int openDeg;
+    unsigned int movingTime;
     bool invert;
     int cycle;
     bool moving;
+    bool overridePosition;
+
+    struct MoveToSlowlyStruct{
+        unsigned int destination;
+        unsigned long intervall;
+        bool increment;
+        int nextDeg;
+        unsigned long actualMillis;
+    };
+
+    MoveToSlowlyStruct MoveToSlowly;
+
+    void servoHandler();
 
 public:
     ServoOutput();
     void setup(int _pin, int _channel);
     int readPin() override;
     int write(int _valore) override;
+    bool goToSlowly(int _angle=0, bool overridePosition = false);
     int status();
     unsigned int getChannel();
     int getType() override;
     int setServoAngle(int _angle);
-    void slowMove(int _angle);
     bool isClose();
     bool isOpen();
     bool isMoving();

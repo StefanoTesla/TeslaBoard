@@ -28,7 +28,9 @@
         "utility": "cpp",
         "chrono": "cpp",
         "thread": "c",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "bitset": "c",
+        "algorithm": "c"
     },
     "C_Cpp.default.includePath": [
 

@@ -1,6 +1,21 @@
 #include <Arduino.h>
 #include "ServoOutput.h"
 
+//This library is totally outside the Servo.h arduino library
+//I handle the servo like a PWM output and I calcolate the duty in microsecond with a 12bit resolution.
+//Since I will use slow timer, I declare that 1° of minimum moviment can be fine
+//Going down means fight with float values and I don't want to fight, I'm pacific person.
+//I assume olso that minimum position is 0°
+//I can't go below zero, or everything here should be rewritte
+
+// this library assume olso that the used servo following the standard servo specific 50hz 0°=544us full rotation°=2500us
+// if you need to change it:
+// check the write function where 544 and 2500 are the microsecond for 0 and full rotation.
+// check the status function: 111 is the ledcRead value when rotation is 0° and 511 when servo is fully rotated.
+
+//the Slow Moviment got an auxiliar parameter _overridePosition, if set to true, status will return the destination position instead the real angle
+//this to bypass a problem with N.I.N.A
+
 ServoOutput::ServoOutput(){
     
 }
@@ -11,10 +26,16 @@ void ServoOutput::setup(int _pin, int _channel){
     ledcAttachPin(pin,channel);
 }
 
-int ServoOutput::write(int _value) {
-    int dutyMicros = map(_value, 0, maxDeg, 544, 2500);
-    int dutyValue = map(dutyMicros, 0, 20000, 0, 4095); 
-    ledcWrite(channel, dutyValue);
+int ServoOutput::write(int _angle) {
+    if (_angle > 0 && _angle <= maxDeg){
+      int dutyMicros = map(_angle, 0, maxDeg, 544, 2500);
+      int dutyValue = map(dutyMicros, 0, 20000, 0, 4095); 
+      ledcWrite(channel, dutyValue);
+      return 1;
+    }
+
+    return 0;
+
 }
 
 int ServoOutput::readPin() {
@@ -22,8 +43,13 @@ int ServoOutput::readPin() {
 }
 
 int ServoOutput::status(){
-    float angle = ((float)(readPin() - 111) / (511 - 111)) * maxDeg;
-    return round(angle);
+    if(overridePosition){
+      return MoveToSlowly.destination;
+    } else {
+      float angle = ((float)(readPin() - 111) / (511 - 111)) * maxDeg;
+      return round(angle);
+    }
+
 }
 
 unsigned int ServoOutput::getChannel(){
@@ -55,132 +81,64 @@ bool ServoOutput::isMoving(){
 }
 
 
-void ServoOutput::slowMove(int _angle){
 
+bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
-}
-
-void ServoOutput::loop(){
-
-
-}
-
-
-/*
-
-switch (CoverC.status.cover.cycle){
-    case 0:
-      if (CoverC.status.cover.angle == CoverC.config.cover.closeDeg){
-        CoverC.status.cover.status = CoverStatusClose;
-      } else if (CoverC.status.cover.angle == CoverC.config.cover.openDeg){
-        CoverC.status.cover.status = CoverStatusOpen;
-      } else if( CoverC.status.cover.angle < 0 or CoverC.status.cover.angle > CoverC.config.cover.maxDeg){
-        CoverC.status.cover.status = CoverStatusUnknow;
-      }
-      
-      if(CoverC.status.cover.status != CoverStatusMoving){
-        if (CoverC.command.cover.move){
-          CoverC.command.cover.handler.ackMillis = Global.actualMillis;
-          if(CoverC.status.cover.status == CoverStatusUnknow){
-            CoverC.status.cover.cycle = 10;
-          } else {
-            CoverC.status.cover.cycle = 20;
-          }
-          CoverC.status.cover.status = CoverStatusMoving;
-        }
+      if(moving){
+        Serial.println("Servo is already moving");
+         return false;
       }
 
-      break;
-    
-    //from unknow angle
-    case 10:
-      logMessage(coverc,lInfo,"Cy:10 Moving from undefined position");
-      
-      Cover.write(CoverC.command.cover.angle);
-      CoverC.status.cover.cycle = 11;
-      break;
-    
-    case 11:
-      if((Global.actualMillis - CoverC.command.cover.handler.ackMillis) > CoverC.config.cover.movingTime){
-        logMessage(coverc,lInfo,"Cy:11 Moviment finish");
-        CoverC.command.cover.move = false;
-        CoverC.status.cover.cycle = 0;
+      if(status() < 0 || status()> maxDeg){
+        Serial.println("Servo is in an undefined position, use write function");
+        return false;
       }
-      break;
 
-    //inc or dec angle?
-    case 20:
-    if(CoverC.command.cover.angle == CoverC.status.cover.angle){
-      CoverC.status.cover.cycle = 0;
-      CoverC.command.cover.move = false;
-    } else {
+      if(_angle < 0 || _angle > maxDeg){
+        Serial.println("invalid commanded angle.");
+        return false;
+      }
+
       // get in how many ms I need to do a degree
-      CoverC.command.cover.handler.stepTime = CoverC.config.cover.movingTime / CoverC.config.cover.maxDeg;
-      if( CoverC.command.cover.handler.stepTime == 0) {
-        CoverC.command.cover.handler.stepTime = 1;
+      MoveToSlowly.destination = _angle;
+      MoveToSlowly.intervall = movingTime / maxDeg;
+      if(MoveToSlowly.intervall == 0){
+        MoveToSlowly.intervall = 1;
       }
-      logMessageFormatted(coverc,lInfo,"Cy:20 Step time: %d", CoverC.command.cover.handler.stepTime);
-      logMessageFormatted(coverc,lInfo,"Cy:20 Moving time: %d", CoverC.config.cover.movingTime);
-
-      // check if I need to encrease or decrease
-      if(CoverC.command.cover.angle > CoverC.status.cover.angle){
-        logMessage(coverc,lInfo,"Cy:20 Moving to an higher position");
-        CoverC.command.cover.handler.inc = true;
-        
-      } else if(CoverC.command.cover.angle < CoverC.status.cover.angle ){
-        logMessage(coverc,lInfo,"Cy:20 Moving to a lower position");
-        CoverC.command.cover.handler.inc = false;
-      }
-
-      // do the magic
-      CoverC.status.cover.cycle = 30;
+      MoveToSlowly.increment = status() > _angle ? false : true; 
+      moving = true;
+      overridePosition = _overridePosition ? true : false;
+      return true;
+}
 
 
-    }
-
+void ServoOutput::servoHandler(){
+switch (cycle){
+    case 0:
+      MoveToSlowly.actualMillis = millis();
+      MoveToSlowly.nextDeg = status();
+      cycle =10;
       break;
-
-    case 30:
-    if (Global.actualMillis - CoverC.command.cover.handler.ackMillis > CoverC.command.cover.handler.stepTime){
-
-      if(CoverC.command.cover.handler.inc){
-        CoverC.command.cover.handler.angle++;
-        CoverC.command.cover.handler.ackMillis = Global.actualMillis;
-        if(CoverC.status.cover.angle >= CoverC.command.cover.angle){
-          Cover.write(CoverC.command.cover.angle);
-          CoverC.status.cover.cycle = 0;
-          CoverC.command.cover.move = false;
-          logMessage(coverc,lInfo,"Cy:30 finish");
+    case 10:
+      if(millis() - MoveToSlowly.actualMillis > MoveToSlowly.intervall){
+        MoveToSlowly.nextDeg += MoveToSlowly.nextDeg ? -1 : +1;
+        if((MoveToSlowly.increment && MoveToSlowly.nextDeg > MoveToSlowly.destination) ||
+            (!MoveToSlowly.increment && MoveToSlowly.nextDeg < MoveToSlowly.destination)) {
+              write(MoveToSlowly.nextDeg);
+              MoveToSlowly.actualMillis = millis();
         } else {
-          Cover.write(CoverC.command.cover.handler.angle);
-        }
-      } else {
-        CoverC.command.cover.handler.angle--;
-        if(CoverC.command.cover.handler.angle < 0){
-          CoverC.command.cover.handler.angle = 0;
-        }
-        CoverC.command.cover.handler.ackMillis = Global.actualMillis;
-        if(CoverC.status.cover.angle <= CoverC.command.cover.angle ){
-          Cover.write(CoverC.command.cover.angle);
-          CoverC.status.cover.cycle = 0;
-          CoverC.command.cover.move = false;
-          logMessage(coverc,lInfo,"Cy:30 finish");
-        } else {
-          Cover.write(CoverC.command.cover.handler.angle);
+          write(MoveToSlowly.destination);
+          cycle = 0;
+          moving = false;
         }
       }
-
-      
-    }
-
-      break;
-
-
-
-    default:
-      logMessage(coverc,lErr,"Cover cycle OverFlow");
-      Serial.println("COVER: CYCLE OVERFLOW");
 
   }
+}
 
-*/
+
+void ServoOutput::loop(){
+  if(moving){
+    servoHandler();
+  }
+}
