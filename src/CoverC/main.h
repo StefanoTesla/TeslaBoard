@@ -97,13 +97,11 @@ void coverCycle(){
       logMessageFormatted(coverc,lInfo,"Cy:20 Moving time: %d", CoverC.config.cover.movingTime);
 
       // check if I need to encrease or decrease
-      if(CoverC.command.cover.angle > CoverC.status.cover.angle){
+      CoverC.command.cover.handler.inc = CoverC.status.cover.angle < CoverC.command.cover.angle ? true : false;
+      if(CoverC.command.cover.handler.inc){
         logMessage(coverc,lInfo,"Cy:20 Moving to an higher position");
-        CoverC.command.cover.handler.inc = true;
-        
-      } else if(CoverC.command.cover.angle < CoverC.status.cover.angle ){
+      } else{
         logMessage(coverc,lInfo,"Cy:20 Moving to a lower position");
-        CoverC.command.cover.handler.inc = false;
       }
 
       // do the magic
@@ -115,41 +113,23 @@ void coverCycle(){
       break;
 
     case 30:
-    if (Global.actualMillis - CoverC.command.cover.handler.ackMillis > CoverC.command.cover.handler.stepTime){
+      if (Global.actualMillis - CoverC.command.cover.handler.ackMillis > CoverC.command.cover.handler.stepTime){
+        CoverC.command.cover.handler.angle += CoverC.command.cover.handler.inc ? 1 : -1;
 
-      if(CoverC.command.cover.handler.inc){
-        CoverC.command.cover.handler.angle++;
         CoverC.command.cover.handler.ackMillis = Global.actualMillis;
-        if(CoverC.status.cover.angle >= CoverC.command.cover.angle){
-          setServoAngle(CoverC.command.cover.angle);
-          CoverC.status.cover.cycle = 0;
-          CoverC.command.cover.move = false;
-          logMessage(coverc,lInfo,"Cy:30 finish");
-        } else {
-          setServoAngle(CoverC.command.cover.handler.angle);
-        }
-      } else {
-        CoverC.command.cover.handler.angle--;
-        if(CoverC.command.cover.handler.angle < 0){
-          CoverC.command.cover.handler.angle = 0;
-        }
-        CoverC.command.cover.handler.ackMillis = Global.actualMillis;
-        if(CoverC.status.cover.angle <= CoverC.command.cover.angle ){
-          setServoAngle(CoverC.command.cover.angle);
-          CoverC.status.cover.cycle = 0;
-          CoverC.command.cover.move = false;
-          logMessage(coverc,lInfo,"Cy:30 finish");
-        } else {
-          setServoAngle(CoverC.command.cover.handler.angle);
-        }
+
+        if((CoverC.command.cover.handler.inc && CoverC.status.cover.angle < CoverC.command.cover.angle) ||
+            (!CoverC.command.cover.handler.inc && CoverC.status.cover.angle >= CoverC.command.cover.angle))
+            {
+              setServoAngle(CoverC.command.cover.handler.angle);
+          } else { 
+            setServoAngle(CoverC.command.cover.angle);
+            CoverC.status.cover.cycle = 0;
+            CoverC.command.cover.move = false;
+            logMessage(coverc,lInfo,"Cy:30 finish");
+          }
       }
-
-      
-    }
-
       break;
-
-
 
     default:
       logMessage(coverc,lErr,"Cover cycle OverFlow");

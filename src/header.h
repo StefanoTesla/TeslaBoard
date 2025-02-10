@@ -129,63 +129,32 @@ enum LogType{
 };
 
 bool pinExist(unsigned int pin){
-  if(pin > 39 or pin == 20 or pin == 24 or pin==38){
+  if(pin > 39 || pin == 20 || pin == 24 || pin==38 || (pin >=6 && pin <= 11) || (pin >=28 && pin <= 31)){
     return false;
   }
-
-  if(pin >=6 and pin <= 11){
-    return false;
-  }
-
-
-  if(pin >=28 and pin <= 31){
-    return false;
-  }
-
   return true;
 }
+
 bool pinUsableAsInput(unsigned int pin){
-  if(!pinExist(pin)){
+  if(!pinExist(pin) || pin==1){
     return false;
   }
-
-  if(pin==1){
-    return false;
-  }
-
   return true;
-
 }
+
 bool pinUsableAsOutput(unsigned int pin){
-
-  if(!pinExist(pin)){
+  if(!pinExist(pin) || pin == 3 || pin > 33){
     return false;
   }
-
-  if(pin == 3){
-    return false;
-  }
-
-  if(pin > 33){
-    return false;
-  }
-
   return true;
-
 }
+
 bool pinUsableAsAnalogInput(unsigned int pin){
-  if(pin <32){
+  if(!pinExist(pin) and pin <33){
     return false;
   }
   return true;
 }
-bool pinUsableAsAnalogOutput(unsigned int pin){
-  if(pin < 25 or pin > 25){
-    return false;
-  }
-  return true;
-}
-
 
 bool usableLedChannel(unsigned int channel,ledcType type){
 
@@ -224,7 +193,7 @@ bool usableLedChannel(unsigned int channel,ledcType type){
 
 }
 
-unsigned int setupLedcChannel(unsigned int channel, ledcType type){
+int setupLedcChannel(unsigned int channel, ledcType type){
 
   switch (type)
   {

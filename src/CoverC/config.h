@@ -57,22 +57,21 @@ void initCoverCConfig(){
     CoverC.config.cover.closeDeg = cover["closeDeg"];
     CoverC.config.cover.maxDeg = cover["maxDeg"];
     
-    unsigned int tmpCh = 666;
+    int CalibCh;
     if(CoverC.config.calibrator.present){ 
-        tmpCh = assignLedChannel(pwm);
-        if(tmpCh < 16){
-            CoverC.config.calibrator.pwmChannel = tmpCh;
-            ledcAttachPin(CoverC.config.calibrator.outPWM, tmpCh);
+        CalibCh = assignLedChannel(pwm);
+        if(CalibCh >= 0 && CalibCh < 16){
+            CoverC.config.calibrator.pwmChannel = CalibCh;
+            ledcAttachPin(CoverC.config.calibrator.outPWM, CalibCh);
         } 
     }
 
-    tmpCh = 666;
-
+    int CoverCh;
     if(CoverC.config.cover.present){
-    tmpCh = assignLedChannel(servo);
-        if(tmpCh < 16){
-            CoverC.config.cover.pwmChannel = tmpCh;
-            ledcAttachPin(CoverC.config.cover.outServoPin, tmpCh);
+        CoverCh = assignLedChannel(servo);
+        if(CalibCh >= 0 && CoverCh < 16){
+            CoverC.config.cover.pwmChannel = CoverCh;
+            ledcAttachPin(CoverC.config.cover.outServoPin, CoverCh);
         }
     }
 
