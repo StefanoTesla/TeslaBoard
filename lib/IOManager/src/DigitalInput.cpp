@@ -1,17 +1,25 @@
 #include <Arduino.h>
+#include "IOStruct.h"
 #include "DigitalInput.h"
 
 DigitalInput::DigitalInput(){
 }
 
-void DigitalInput::setup(int _pin, bool _invert, unsigned long _ton, unsigned long _toff){
-    pin = _pin;
-    invert = _invert;
-    ton = _ton;
-    toff = _toff;
-    pinMode(_pin, INPUT);
-}
+void DigitalInput::setup(IOConfigBase* config) {
+    // Verifica che il tipo del config sia quello corretto (DigitalInputConfig)
+    if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
+        DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
 
+        pin = cfg->pin;
+        invert = cfg->invert;
+        ton = cfg->ton;
+        toff = cfg->toff;
+        
+        pinMode(pin, INPUT);
+    } else {
+        Serial.println("Errore: tipo di configurazione non valido!");
+    }
+}
 
 int DigitalInput::write(int _value) {
     Serial.println("Errore: Impossibile scrivere su un ingresso digitale.");

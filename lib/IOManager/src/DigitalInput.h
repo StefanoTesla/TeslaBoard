@@ -17,7 +17,7 @@ private:
 
 public:
     DigitalInput();
-    void setup(int _pin, bool _invert = false, unsigned long _ton = 0, unsigned long _toff = 0);
+    void setup(IOConfigBase* config);
     int readPin() override;
     int write(int _value) override;
     int status();

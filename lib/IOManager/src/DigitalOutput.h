@@ -6,12 +6,11 @@
 class DigitalOutput : public IOBase {
 
 private:
-    int pin;
     bool value;
 
 public:
     DigitalOutput();
-    void setup(int _pin);
+    void setup(IOConfigBase* config);
     int readPin() override;
     int write(int valore) override;
     int status();

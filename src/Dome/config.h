@@ -62,10 +62,25 @@ void initDomeConfig(){
     file.close();
 
     JsonObject pinOpen = doc["pinOpen"];
-    DomeInOpen.setup(pinOpen["pin"],pinOpen["type"],pinOpen["dOn"],pinOpen["dOff"]);
+    DigitalInputConfig OpenConfig;
+
+    OpenConfig.pin = pinOpen["pin"];
+    OpenConfig.invert = pinOpen["type"];
+    OpenConfig.toff = pinOpen["dOff"];
+    OpenConfig.ton = pinOpen["dOn"];
+
+    DomeInOpen.setup(&OpenConfig);
 
     JsonObject pinClose = doc["pinClose"];
-    DomeInClose.setup(pinClose["pin"],pinClose["type"],pinClose["dOn"],pinClose["dOff"]);
+
+    DigitalInputConfig CloseConfig;
+
+    CloseConfig.pin = pinOpen["pin"];
+    CloseConfig.invert = pinOpen["type"];
+    CloseConfig.toff = pinOpen["dOff"];
+    CloseConfig.ton = pinOpen["dOn"];
+
+    DomeInClose.setup(&CloseConfig);
 
     JsonObject autoClose = doc["autoclose"];
     Dome.config.data.enAutoClose = autoClose["enable"];
