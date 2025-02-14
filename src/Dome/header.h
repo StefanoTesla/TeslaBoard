@@ -69,7 +69,7 @@ struct DomeStruct{
 };
 
 DomeStruct Dome;
-
+JsonDocument DomeConfig;
 /* CONFIG AREA */
 
 

@@ -4,8 +4,8 @@
 #ifdef DOME
 	#define GATE_BOARD
 #endif
-#define COVER_CALIBRATOR
-#define SWITCH
+//#define COVER_CALIBRATOR
+//#define SWITCH
 
 #include "libraries.h"
 

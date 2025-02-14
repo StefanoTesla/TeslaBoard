@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "ServoOutput.h"
-
+#include "IOConfigStruct.h"
 //This library is totally outside the Servo.h arduino library
 //I handle the servo like a PWM output and I calcolate the duty in microsecond with a 12bit resolution.
 //Since I will use slow timer, I declare that 1° of minimum moviment can be fine
@@ -20,10 +20,16 @@ ServoOutput::ServoOutput(){
     
 }
 
-void ServoOutput::setup(int _pin, int _channel){
-    pin = _pin;
-    channel = _channel;
-    ledcAttachPin(pin,channel);
+void ServoOutput::setup(IOConfigBase* config){
+  if (config->getType() == 5) { 
+    ServoutputConfig* cfg = static_cast<ServoutputConfig*>(config);
+
+    pin = cfg->pin;
+    
+    pinMode(pin, OUTPUT);
+} else {
+    Serial.println("Errore: tipo di configurazione non valido!");
+}
 }
 
 int ServoOutput::write(int _angle) {

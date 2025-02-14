@@ -103,6 +103,7 @@ void initSwitchConfig(){
             Switch.data[count].property.minValue = 0;
             Switch.data[count].property.maxValue = 1;
             break;
+
         case SwTypeDOutput:
             SwitchObjects[count] = new DigitalOutput;
             SwitchObjects[count]->setPin(Switch.data[count].property.pin)->setup();

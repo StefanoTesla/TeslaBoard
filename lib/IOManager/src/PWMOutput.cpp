@@ -1,13 +1,13 @@
 #include <Arduino.h>
 #include "PWMOutput.h"
+#include "IOConfigStruct.h"
 
 PWMOutput::PWMOutput(){
     
 }
 
-void PWMOutput::setup(int _pin, int _channel){
-    pin = _pin;
-    channel = _channel;
+void PWMOutput::setup(IOConfigBase* config){
+
     ledcAttachPin(pin,channel);
 }
 

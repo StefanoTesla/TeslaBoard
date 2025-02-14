@@ -273,7 +273,7 @@ unsigned int checkForFreeLedChannel(ledcType type){
   return -1;
 }
 
-unsigned int assignLedChannel(ledcType type){
+int assignLedChannel(ledcType type){
   unsigned int channel = checkForFreeLedChannel(type);
   if (channel < 0 ){
     Serial.println("[ERR] LEDC: error during the search of a free channel.");

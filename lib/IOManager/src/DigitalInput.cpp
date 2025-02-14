@@ -1,15 +1,23 @@
 #include <Arduino.h>
+#include "IOConfigStruct.h"
 #include "DigitalInput.h"
 
 DigitalInput::DigitalInput(){
 }
 
-void DigitalInput::setup(int _pin, bool _invert, unsigned long _ton, unsigned long _toff){
-    pin = _pin;
-    invert = _invert;
-    ton = _ton;
-    toff = _toff;
-    pinMode(_pin, INPUT);
+void DigitalInput::setup(IOConfigBase* config){
+    if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
+        DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
+
+        pin = cfg->pin;
+        invert = cfg->invert;
+        dOn = cfg->dOn;
+        dOff = cfg->dOff;
+        
+        pinMode(pin, INPUT);
+    } else {
+        Serial.println("Errore: tipo di configurazione non valido!");
+    }
 }
 
 
@@ -32,7 +40,7 @@ int DigitalInput::status(){
                 reInput = true;
                 ackMillis = millis();
             } else {
-                if(millis() - ackMillis > ton){ /*wait ton time*/
+                if(millis() - ackMillis > dOn){ /*wait ton time*/
                     value = true;
                 }
             }
@@ -44,7 +52,7 @@ int DigitalInput::status(){
                 feInput = true;
                 ackMillis = millis();
             } else {
-                if(millis() - ackMillis > toff){ /*wait toff time*/
+                if(millis() - ackMillis > dOff){ /*wait toff time*/
                     value = false;
                 }
             }
@@ -54,29 +62,6 @@ int DigitalInput::status(){
     return value;
 }
 
-bool DigitalInput::getInvert(){
-    return invert;
-}
-
-unsigned long DigitalInput::getTOn(){
-    return ton;
-}
-
-unsigned long DigitalInput::getTOff(){
-    return toff;
-}
-
-void DigitalInput::setInvert(bool _invert){
-    invert=_invert;
-}
-
-void DigitalInput::setTOn(unsigned long _ton){
-    ton = _ton;
-}
-
-void DigitalInput::setTOff(unsigned long _toff){
-    toff = _toff;
-}
 
 int DigitalInput::getType(){
     return 1;

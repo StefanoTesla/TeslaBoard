@@ -14,14 +14,14 @@ void saveDomeConfig(){
  
     JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
     pinOpen["pin"] = Dome.config.data.inOpen.pin;
-    pinOpen["dOn"] = DomeInOpen.getTOn();
-    pinOpen["dOff"] = DomeInOpen.getTOff();
+    pinOpen["dOn"] = DomeInOpen.dOn;
+    pinOpen["dOff"] = DomeInOpen.dOff;
     pinOpen["type"] = Dome.config.data.inOpen.type;
 
     JsonObject pinClose = doc["pinClose"].to<JsonObject>();
     pinClose["pin"] = Dome.config.data.inClose.pin;
-    pinClose["dOn"] = DomeInClose.getTOn();
-    pinClose["dOff"] = DomeInClose.getTOff();
+    pinClose["dOn"] = DomeInClose.dOn;
+    pinClose["dOff"] = DomeInClose.dOff;
     pinClose["type"] = Dome.config.data.inClose.type;
 
     JsonObject autoclose = doc["autoclose"].to<JsonObject>();
@@ -62,17 +62,30 @@ void initDomeConfig(){
     file.close();
 
     JsonObject pinOpen = doc["pinOpen"];
-    DomeInOpen.setup(pinOpen["pin"],pinOpen["type"],pinOpen["dOn"],pinOpen["dOff"]);
+    DigitalInputConfig OpenConfig;
+    OpenConfig.pin = pinOpen["pin"];
+    OpenConfig.dOn = pinOpen["dOn"];
+    OpenConfig.dOff = pinOpen["dOff"];
+
+    DomeInOpen.setup(&OpenConfig);
 
     JsonObject pinClose = doc["pinClose"];
-    DomeInClose.setup(pinClose["pin"],pinClose["type"],pinClose["dOn"],pinClose["dOff"]);
+    DigitalInputConfig CloseConfig;
+    CloseConfig.pin = pinClose["pin"];
+    CloseConfig.dOn = pinClose["dOn"];
+    CloseConfig.dOff = pinClose["dOff"];
+    DomeInClose.setup(&CloseConfig);
 
     JsonObject autoClose = doc["autoclose"];
     Dome.config.data.enAutoClose = autoClose["enable"];
     Dome.config.data.autoCloseTimeOut = autoClose["minutes"];
+    DigitalOutputConfig StartConfig;
+    StartConfig.pin = doc["pinStart"];
+    DomeOutMoveOpen.setup(&StartConfig);
 
-    DomeOutMoveOpen.setup(doc["pinStart"]);
-    DomeOutHaltClose.setup(doc["pinHalt"]);
+    DigitalOutputConfig HaltConfig;
+    HaltConfig.pin = doc["pinStart"];
+    DomeOutHaltClose.setup(&HaltConfig);
 
     Dome.config.data.movingTimeOut = doc["movTimeOut"];
 

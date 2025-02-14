@@ -2,6 +2,7 @@
 #define IOBASE_H
 
 #include <Arduino.h>
+#include "IOConfigStruct.h"
 
 class IOBase {
 protected:
@@ -12,9 +13,7 @@ protected:
 
 public:
     IOBase() {}
-    virtual void setPin(int _pin){}
-    virtual void setChannel(int _pin){}
-    virtual void setup(){}
+    virtual void setup(IOConfigBase* config){}
     virtual int write(int _value) = 0;
     virtual int readPin() = 0;
     virtual int status();

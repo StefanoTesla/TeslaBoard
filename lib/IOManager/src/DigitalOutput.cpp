@@ -1,13 +1,21 @@
 #include <Arduino.h>
 #include "DigitalOutput.h"
+#include "IOConfigStruct.h"
 
 DigitalOutput::DigitalOutput(){
     
 }
 
-void DigitalOutput::setup(int _pin){
-    pin = _pin;
-    pinMode(_pin, OUTPUT);
+void DigitalOutput::setup(IOConfigBase* config){
+    if (config->getType() == 3) { 
+        DigitalOutputConfig* cfg = static_cast<DigitalOutputConfig*>(config);
+
+        pin = cfg->pin;
+        
+        pinMode(pin, OUTPUT);
+    } else {
+        Serial.println("Errore: tipo di configurazione non valido!");
+    }
 }
 
 

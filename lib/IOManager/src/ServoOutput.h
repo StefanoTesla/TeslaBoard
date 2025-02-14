@@ -2,6 +2,7 @@
 #define SERVO_OUTPUT_H
 
 #include "IOBase.h"
+#include "IOConfigStruct.h"
 
 class ServoOutput : public IOBase {
 
@@ -31,7 +32,7 @@ private:
 
 public:
     ServoOutput();
-    void setup(int _pin, int _channel);
+    void setup(IOConfigBase* config);
     int readPin() override;
     int write(int _valore) override;
     bool goToSlowly(int _angle=0, bool overridePosition = false);
