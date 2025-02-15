@@ -26,8 +26,12 @@ void ServoOutput::setup(IOConfigBase* config){
     pin = cfg->pin;
     channel = cfg->channel;
     ledcAttachPin(pin, channel);
+    Serial.print("New Servo setup at pin: ");
+    Serial.print(pin);
+    Serial.print(" at channel: ");
+    Serial.println(channel);
 } else {
-    Serial.println("Errore: tipo di configurazione non valido!");
+    Serial.println("Errore: SERVO tipo di configurazione non valido!");
 }
 }
 

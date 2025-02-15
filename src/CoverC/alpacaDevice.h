@@ -155,7 +155,7 @@ void coverAlpacaDevice(){
       } else{
             Serial.println("ascom is goin to close");
             CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = CoverC.config.cover.closeDeg;
+            CoverC.command.cover.angle = Cover.closeDeg;
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
       }
@@ -178,7 +178,7 @@ void coverAlpacaDevice(){
       } else{
             Serial.println("ascom is goin to close");
             CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = CoverC.config.cover.openDeg;
+            CoverC.command.cover.angle = Cover.openDeg;
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
       }

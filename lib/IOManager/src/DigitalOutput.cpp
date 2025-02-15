@@ -13,8 +13,10 @@ void DigitalOutput::setup(IOConfigBase* config){
         pin = cfg->pin;
         
         pinMode(pin, OUTPUT);
+        Serial.print("New DO setup at pin: ");
+        Serial.println(pin);
     } else {
-        Serial.println("Errore: tipo di configurazione non valido!");
+        Serial.println("Errore: DO tipo di configurazione non valido!");
     }
 }
 

@@ -32,25 +32,31 @@ void coverCycle(){
 
   CoverC.status.cover.angle = Cover.status();
   
-  if(Cover.isClose()){
-    CoverC.status.cover.status = CoverStatusClose;
-  } else if (Cover.isOpen()){
-    CoverC.status.cover.status = CoverStatusOpen;
-  } else if (Cover.isMoving()){
+  if (Cover.isMoving()){
     CoverC.status.cover.status = CoverStatusMoving;
   } else {
-    CoverC.status.cover.status = CoverStatusUnknow;
+    if(Cover.isClose()){
+      CoverC.status.cover.status = CoverStatusClose;
+    } else if (Cover.isOpen()){
+      CoverC.status.cover.status = CoverStatusOpen;
+    } else {
+      CoverC.status.cover.status = CoverStatusUnknow;
+    }
+    
   }
   
   if( CoverC.status.cover.status != CoverStatusMoving ){ return; }
 
-  if(!CoverC.command.cover.move){ return; }
-
-  if(CoverC.status.cover.status == CoverStatusUnknow){
-    Cover.write(CoverC.command.cover.angle);
-  } else {
-    Cover.goToSlowly(CoverC.command.cover.angle);
+  if(CoverC.command.cover.move){
+    if(CoverC.status.cover.status == CoverStatusUnknow){
+      Cover.write(CoverC.command.cover.angle);
+    } else {
+      Cover.goToSlowly(CoverC.command.cover.angle);
+    }
+    CoverC.command.cover.move = false;
   }
+
+  Cover.loop();
   
 }
 

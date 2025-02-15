@@ -8,9 +8,7 @@ struct IOConfigBase {
 
 struct DigitalInputConfig : public IOConfigBase {
     int pin;
-    bool invert;
-    unsigned long dOn;
-    unsigned long dOff;
+    bool type; // false = NO true= NC
 
     int getType() const override { return 1; } // Restituisci un tipo univoco per DigitalInputConfig
 };

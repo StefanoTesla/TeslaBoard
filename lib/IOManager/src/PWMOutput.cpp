@@ -7,11 +7,17 @@ PWMOutput::PWMOutput(){
 }
 
 void PWMOutput::setup(IOConfigBase* config){
-    if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
+    if (config->getType() == 4) {  // 1 è il tipo di DigitalInputConfig
         PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
         pin = cfg->pin;
         channel = cfg->channel;
         ledcAttachPin(pin,channel);
+        Serial.print("New PWM setup at pin: ");
+        Serial.print(pin);
+        Serial.print(" at channel: ");
+        Serial.println(channel);
+    } else {
+        Serial.println("Errore: PWM tipo di configurazione non valido!");
     }
 }
 

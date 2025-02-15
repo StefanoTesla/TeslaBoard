@@ -8,15 +8,13 @@ DigitalInput::DigitalInput(){
 void DigitalInput::setup(IOConfigBase* config){
     if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
         DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
-
         pin = cfg->pin;
-        invert = cfg->invert;
-        dOn = cfg->dOn;
-        dOff = cfg->dOff;
-        
+        type = cfg->type;
         pinMode(pin, INPUT);
+        Serial.print("New DI setup at pin: ");
+        Serial.println(pin);
     } else {
-        Serial.println("Errore: tipo di configurazione non valido!");
+        Serial.println("Errore: DI tipo di configurazione non valido!");
     }
 }
 
@@ -27,7 +25,7 @@ int DigitalInput::write(int _value) {
 }
 
 int DigitalInput::readPin() {
-    return invert ? digitalRead(pin) : digitalRead(pin);
+    return type ? digitalRead(pin) : digitalRead(pin);
 }
 
 int DigitalInput::status(){

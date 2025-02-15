@@ -5,7 +5,6 @@
 
 struct coverCSaveConfigStruct{
   bool execute = false;
-  bool failed = false;
   bool restartNeeded = false;
 };
 
@@ -15,18 +14,10 @@ struct coverCLoadConfigStruct{
 
 struct calibratorConfig{
   bool present;
-  unsigned int outPWM;
-  int pwmChannel;
 };
 
 struct coverConfig{
   bool present;
-  unsigned int outServoPin;
-  unsigned int openDeg;
-  unsigned int closeDeg = 0;
-  unsigned int maxDeg = 0;
-  unsigned int movingTime = 2000;
-  int pwmChannel;
 };
 struct structTmpCoverCalibratorConfig{
   calibratorConfig calibrator;
@@ -36,7 +27,6 @@ struct structTmpCoverCalibratorConfig{
 struct structCoverCalibratorConfig{
   calibratorConfig calibrator;
   coverConfig cover;
-  structTmpCoverCalibratorConfig tmpCfg;
   coverCSaveConfigStruct save;
   coverCLoadConfigStruct load;
 };
@@ -47,17 +37,10 @@ struct calibratorCommand{
   unsigned int brightness; 
 };
 
-struct coverCommandTmp{
-  int angle;
-  unsigned long ackMillis;
-  unsigned long stepTime;
-  bool inc;
-};
 
 struct coverCommand{
   bool move;
   int angle;
-  coverCommandTmp handler;
 };
 
 struct coverCalibratorsCommand{
@@ -94,7 +77,6 @@ enum coverStatusEnum{
 
 struct coverStatus{
   coverStatusEnum status;
-  unsigned int cycle;
   unsigned int angle;
 };
 

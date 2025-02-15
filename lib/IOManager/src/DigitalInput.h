@@ -10,10 +10,9 @@ private:
     bool reInput;
     bool feInput;
     unsigned long ackMillis;
-    int type = 1;
 
 public:
-    bool invert;
+    bool type;
     unsigned long dOn;
     unsigned long dOff;
 

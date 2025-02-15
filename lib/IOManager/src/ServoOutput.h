@@ -36,7 +36,7 @@ public:
     void setup(IOConfigBase* config);
     int readPin() override;
     int write(int _valore) override;
-    bool goToSlowly(int _angle=0, bool overridePosition = false);
+    bool goToSlowly(int _angle=0, bool overridePosition = true);
     int status();
     unsigned int getChannel();
     int getType() override;
