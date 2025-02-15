@@ -9,10 +9,6 @@ class ServoOutput : public IOBase {
 private:
     unsigned int channel;
     int value;
-    unsigned int maxDeg;
-    unsigned int closeDeg;
-    unsigned int openDeg;
-    unsigned int movingTime;
     bool invert;
     int cycle;
     bool moving;
@@ -31,6 +27,11 @@ private:
     void servoHandler();
 
 public:
+    unsigned int maxDeg;
+    unsigned int closeDeg;
+    unsigned int openDeg;
+    unsigned long movingTime;
+
     ServoOutput();
     void setup(IOConfigBase* config);
     int readPin() override;

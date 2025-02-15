@@ -125,6 +125,6 @@ struct coverCalibrator{
 };
 
 coverCalibrator CoverC;
-
+JsonDocument CoverCConfigTmp;
 
 #endif

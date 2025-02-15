@@ -1,8 +1,3 @@
-/* input structure */
-struct InputStructure {
-  unsigned int pin;
-  bool type; //0=NO 1=NC
-};
 
 /* ALPACA DATA */
 
@@ -20,7 +15,6 @@ AlpacaCommonData AlpacaData;
 /** CONFIG STRUCT **/
 struct boardSaveConfigStruct{
   bool execute = false;
-  bool failed = false;
   bool restartNeeded = false;
 };
 
@@ -245,7 +239,7 @@ unsigned int setupLedcChannel(unsigned int channel, ledcType type){
   return -1;
 }
 
-unsigned int checkForFreeLedChannel(ledcType type){
+int checkForFreeLedChannel(ledcType type){
 
   if (type == notAssigned){
     return -1;
@@ -274,7 +268,7 @@ unsigned int checkForFreeLedChannel(ledcType type){
 }
 
 int assignLedChannel(ledcType type){
-  unsigned int channel = checkForFreeLedChannel(type);
+  int channel = checkForFreeLedChannel(type);
   if (channel < 0 ){
     Serial.println("[ERR] LEDC: error during the search of a free channel.");
     return -1;

@@ -32,9 +32,7 @@ struct DigitalOutputConfig : public IOConfigBase {
 };
 struct PWMOutputConfig : public IOConfigBase {
     int pin;
-    bool invert;
-    unsigned long ton;
-    unsigned long toff;
+    int channel;
 
     int getType() const override { return 4; } // Restituisci un tipo univoco per DigitalInputConfig
 };

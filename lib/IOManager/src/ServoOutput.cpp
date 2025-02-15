@@ -23,10 +23,9 @@ ServoOutput::ServoOutput(){
 void ServoOutput::setup(IOConfigBase* config){
   if (config->getType() == 5) { 
     ServoutputConfig* cfg = static_cast<ServoutputConfig*>(config);
-
     pin = cfg->pin;
-    
-    pinMode(pin, OUTPUT);
+    channel = cfg->channel;
+    ledcAttachPin(pin, channel);
 } else {
     Serial.println("Errore: tipo di configurazione non valido!");
 }

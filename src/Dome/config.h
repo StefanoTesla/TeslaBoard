@@ -10,32 +10,14 @@ void saveDomeConfig(){
         Dome.config.Save.execute = false;
         return;
     }
-    JsonDocument doc;
- 
-    JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
-    pinOpen["pin"] = Dome.config.data.inOpen.pin;
-    pinOpen["dOn"] = DomeInOpen.dOn;
-    pinOpen["dOff"] = DomeInOpen.dOff;
-    pinOpen["type"] = Dome.config.data.inOpen.type;
 
-    JsonObject pinClose = doc["pinClose"].to<JsonObject>();
-    pinClose["pin"] = Dome.config.data.inClose.pin;
-    pinClose["dOn"] = DomeInClose.dOn;
-    pinClose["dOff"] = DomeInClose.dOff;
-    pinClose["type"] = Dome.config.data.inClose.type;
 
-    JsonObject autoclose = doc["autoclose"].to<JsonObject>();
-    autoclose["enable"] = Dome.config.data.enAutoClose;
-    autoclose["minutes"] = Dome.config.data.autoCloseTimeOut;
-
-    doc["pinStart"] = Dome.config.data.outStart_Open;
-    doc["pinHalt"] = Dome.config.data.outHalt_Close;
-    doc["movTimeOut"] = Dome.config.data.movingTimeOut;
-
-    serializeJson(doc, file);
+    serializeJson(DomeConfigTmp, file);
 
     
     file.close();
+
+    DomeConfigTmp.clear();
     Dome.config.Save.execute = false;
 
 }

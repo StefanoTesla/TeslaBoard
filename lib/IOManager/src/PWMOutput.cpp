@@ -7,8 +7,12 @@ PWMOutput::PWMOutput(){
 }
 
 void PWMOutput::setup(IOConfigBase* config){
-
-    ledcAttachPin(pin,channel);
+    if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
+        PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
+        pin = cfg->pin;
+        channel = cfg->channel;
+        ledcAttachPin(pin,channel);
+    }
 }
 
 int PWMOutput::write(int _value) {

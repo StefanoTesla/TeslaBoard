@@ -47,8 +47,8 @@ void domeWebServer(){
         status["lastCommand"] = Dome.Shutter.LastDomeCommand;
 
         JsonObject input = doc["input"].to<JsonObject>();
-        input["open"] = Dome.Shutter.inOpen;
-        input["close"] = Dome.Shutter.inClose;
+        input["open"] = DomeInOpen.status();
+        input["close"] = DomeInClose.status();
 
         response->setLength();
         request->send(response);
@@ -206,7 +206,7 @@ void domeWebServer(){
 
         if(!error){
             /* input open */
-            DomeConfig = json;
+            DomeConfigTmp = json;
             DomeInOpen.dOn = pinOpen["dOn"].as<unsigned long>();
             DomeInOpen.dOff = pinOpen["dOff"].as<unsigned long>();
             DomeInClose.dOn = pinClose["dOn"].as<unsigned long>();
@@ -229,7 +229,7 @@ void domeWebServer(){
 
     server.addHandler(domeConfigHandler);
 
-    server.serveStatic("/dome/domeconfig.txt", LittleFS, "/cfg/domeconfig.txt");
+    server.serveStatic("/dome/domeconfig.txt", LittleFS, "/cfg/domecfg.txt");
 
 ;
 }
