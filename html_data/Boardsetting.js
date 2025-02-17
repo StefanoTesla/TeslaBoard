@@ -9,7 +9,7 @@ import { board} from './utils/board.js'
 export default function BoardSetting() {
     return {
         textLoaded:false,
-        exist: {switch:true},
+        exist: {},
         dome:{},
         domeOrig:{},
         coverC:{},
@@ -41,6 +41,8 @@ export default function BoardSetting() {
                 this.getCoverCConfig()
             }
             if(this.exist.switch){
+                console.log("eccome");
+                console.log(this.exist.switch)
                 this.getSwitchConfig()
             }
             

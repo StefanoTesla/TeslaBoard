@@ -142,7 +142,7 @@ void coverWebServer(){
 
         if( CoverC.config.calibrator.present ){
             CoverC.command.calibrator.change = true;
-            CoverC.command.calibrator.brightness = 4096;
+            CoverC.command.calibrator.brightness = 4095;
             doc["execute"] = true;
         } else {
             doc["error"] = "calibratorNotPresent";

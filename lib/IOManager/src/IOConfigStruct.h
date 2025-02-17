@@ -34,7 +34,7 @@ struct PWMOutputConfig : public IOConfigBase {
 
     int getType() const override { return 4; } // Restituisci un tipo univoco per DigitalInputConfig
 };
-struct ServoutputConfig : public IOConfigBase {
+struct ServoOutputConfig : public IOConfigBase {
     int pin;
     int channel;
     unsigned int maxDeg;

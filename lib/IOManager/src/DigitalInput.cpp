@@ -10,6 +10,8 @@ void DigitalInput::setup(IOConfigBase* config){
         DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
         pin = cfg->pin;
         type = cfg->type;
+        min = 0;
+        max = 1;
         pinMode(pin, INPUT);
         Serial.print("New DI setup at pin: ");
         Serial.println(pin);

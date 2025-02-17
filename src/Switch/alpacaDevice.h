@@ -23,11 +23,7 @@ void unWritableIdErrorMessage(AsyncWebServerRequest *request) {
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
       int id = request->getAttribute("id").toInt();
-      if (Global.config.language.locale == "it"){
-            sprintf(message, "Lo switch n: %d, non può essere scritto.", id);
-      } else {
-            sprintf(message, "Switch n: %d, cannot be written", id);
-      }
+      sprintf(message, "Switch n: %d, cannot be written", id);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -148,11 +144,7 @@ void missingValueErrorMessage(AsyncWebServerRequest *request) {
       JsonObject doc = response->getRoot().to<JsonObject>();
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
-      if (Global.config.language.locale == "it"){
-            sprintf(message, "Parametro \"Value\" non fornito");
-      } else {
-            sprintf(message, "\"Value\" parameter not provided");
-      }
+      sprintf(message, "\"Value\" parameter not provided");
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -168,11 +160,7 @@ void valueOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
       char message[100];
       int id = request->getAttribute("id").toInt();
       int value = request->getAttribute("value").toInt();
-      if (Global.config.language.locale == "it"){
-            sprintf(message, "L'ID fornito: %d, è fuori range, il massimo è: %d", id, value);
-      } else {
-            sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, value);
-      }
+      sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, value);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;

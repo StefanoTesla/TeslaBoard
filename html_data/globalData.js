@@ -10,7 +10,7 @@ export default function GlobalData() {
     return {
         locale:"",
         textLoaded:false,
-        exist: {},
+        exist: {dome:false,cover:false,switch:false},
         dome:{},
         coverC:{},
         board:{},
@@ -47,7 +47,7 @@ export default function GlobalData() {
     },
 
     updateData(){
-        if (this.exist.dome){
+        if (this.exist.switch){
             this.getSwitchStatus()
         }
 

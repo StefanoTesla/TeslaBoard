@@ -117,56 +117,35 @@ enum LogType{
 };
 
 bool pinExist(unsigned int pin){
-  if(pin > 39 or pin == 20 or pin == 24 or pin==38){
-    return false;
-  }
-
-  if(pin >=6 and pin <= 11){
-    return false;
-  }
-
-
-  if(pin >=28 and pin <= 31){
+  if(pin > 39 or pin == 20 or pin == 24 or pin==38 or (pin >=6 and pin <= 11) or (pin >=28 and pin <= 31)){
     return false;
   }
 
   return true;
 }
+
 bool pinUsableAsInput(unsigned int pin){
-  if(!pinExist(pin)){
+  if(!pinExist(pin) or pin==1){
     return false;
   }
-
-  if(pin==1){
-    return false;
-  }
-
   return true;
-
 }
+
 bool pinUsableAsOutput(unsigned int pin){
-
-  if(!pinExist(pin)){
+  if(!pinExist(pin) or pin == 3 or pin > 33){
     return false;
   }
-
-  if(pin == 3){
-    return false;
-  }
-
-  if(pin > 33){
-    return false;
-  }
-
   return true;
 
 }
+
 bool pinUsableAsAnalogInput(unsigned int pin){
   if(pin <32){
     return false;
   }
   return true;
 }
+
 bool pinUsableAsAnalogOutput(unsigned int pin){
   if(pin < 25 or pin > 25){
     return false;
@@ -313,8 +292,7 @@ void printLEDChannelStatus(){
     } else {
 
       Serial.print(i);
-      Serial.print(" |");
-      Serial.print(" ");
+      Serial.print(" | ");
       switch (Global.pwm[i].type)
       {
       case notAssigned:

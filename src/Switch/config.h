@@ -41,16 +41,6 @@ void saveSwitchConfig(){
     file.close();
     logMessage(Switches,lInfo,"Config saved");
 
-    //reset temporary configuration
-    for (int i = 0; i < _MAX_SWITCH_ID_; i++)
-    {
-        memset(Switch.config.tmp[i].property.Name, 0, sizeof(Switch.config.tmp[i].property.Name));
-        memset(Switch.config.tmp[i].property.Description, 0, sizeof(Switch.config.tmp[i].property.Description));
-        Switch.config.tmp[i].property.type = SwTypeNull;
-        Switch.config.tmp[i].property.minValue =0;
-        Switch.config.tmp[i].property.maxValue =0;
-
-    }
     
 }
 
@@ -71,88 +61,65 @@ void initSwitchConfig(){
     DeserializationError error = deserializeJson(doc, file);
 
     if(error){
+        file.close();
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.c_str());
         Switch.config.load.isValid = false;
         return;
     }    
     file.close();
+    int tmpCh = -1;
     int count = 0;
     for (JsonObject Switche : doc["Switches"].as<JsonArray>()) {
+        if(count >= _MAX_SWITCH_ID_){
+            Serial.println("[SWI] Too many switches configured");
+            exit;
+        }
+        //Digital Input
         if(Switche["type"] == 1){
             SwitchObjects[count] = new DigitalInput;
             DigitalInputConfig DiConfig;
             DiConfig.pin=Switche["pin"];
             SwitchObjects[count]->setup(&DiConfig);
-            Switch.data[count].property.minValue = 0;
-            Switch.data[count].property.maxValue = 1;
-            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
-            SwitchObjects[count]->setDescriprion(Switche["desc"].as<const char*>());
+        //Analog Input - not really know if will develop
         } else if(Switche["type"] == 2){
             Serial.println("gne");
+        //Digital Output
         } else if(Switche["type"] == 3){
             SwitchObjects[count] = new DigitalOutput;
             DigitalOutputConfig DOConfig;
             DOConfig.pin=Switche["pin"];
             SwitchObjects[count]->setup(&DOConfig);
-            Switch.data[count].property.minValue = 0;
-            Switch.data[count].property.maxValue = 1;
-            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
-            SwitchObjects[count]->setDescriprion(Switche["desc"].as<const char*>());
+        //PWM Output
         } else if(Switche["type"] == 4){
-            Serial.println("gne");
+            tmpCh = -1;
+            tmpCh = assignLedChannel(pwm);
+            if(tmpCh >= 0 && tmpCh < 16){
+                SwitchObjects[count] = new PWMOutput;
+                PWMOutputConfig PWMConfig;
+                PWMConfig.pin=Switche["pin"];
+                PWMConfig.channel=tmpCh;
+                SwitchObjects[count]->setup(&PWMConfig);
+            }
+        //Servo Output
         } else if(Switche["type"] == 5){
+            tmpCh = -1;
+            tmpCh = assignLedChannel(servo);
+            if(tmpCh >= 0 && tmpCh < 16){
+                SwitchObjects[count] = new ServoOutput;
+                ServoOutputConfig ServoConfig;
+                ServoConfig.pin=Switche["pin"];
+                ServoConfig.channel=tmpCh;
+                SwitchObjects[count]->setup(&ServoConfig);
+            }
         }
-/*
-        switch (Switch.data[count].property.type)
-        {
-        case SwTypeNull:
-            break;
-        case SwTypeDInput:
-            SwitchObjects[count] = new DigitalInput;
-            DigitalInputConfig DiConfig;
-            DiConfig.pin=Switche["pin"];
-            SwitchObjects[count]->setup(&DiConfig);
-            Switch.data[count].property.minValue = 0;
-            Switch.data[count].property.maxValue = 1;
-            break;
 
-        case SwTypeDOutput:
-            SwitchObjects[count] = new DigitalOutput;
-            SwitchObjects[count]->setPin(Switch.data[count].property.pin)->setup();
-            pinMode(Switch.data[count].property.pin,OUTPUT);
-            Switch.data[count].property.minValue = 0;
-            Switch.data[count].property.maxValue = 1;
-            break;
-        case SwTypePWM:
-            SwitchObjects[count] = new PWMOutput;
-            SwitchObjects[count]->setup(Switch.data[count].property.pin);
-            Switch.data[count].property.pwmch = assignLedChannel(pwm);
-            if(Switch.data[count].property.pwmch < 16){
-                ledcAttachPin(Switch.data[count].property.pin, Switch.data[count].property.pwmch);
-            } else {
-                Serial.println("[ERR] Init: Unable to get a free timer");
-            }
-            Switch.data[count].property.minValue = 0;
-            Switch.data[count].property.maxValue = 4096;
-            break;
-        case SwTypeServo:
-            SwitchObjects[count] = new ServoOutput;
-            SwitchObjects[count]->setup();
-            //SwitchObjects[count]->goToSlowly()
-            Switch.data[count].property.pwmch = assignLedChannel(servo);
-            if(Switch.data[count].property.pwmch < 16){
-                ledcAttachPin(Switch.data[count].property.pin, Switch.data[count].property.pwmch);
-            }
-            Switch.data[count].property.minValue = Switche["min"].is<int>() ? Switche["min"] : 0;
-            Switch.data[count].property.maxValue = Switche["max"].is<int>() ? Switche["max"] : 180;
-            break;
-        
-        default:
-            Serial.println("wrong hole!");
-            break;
+        if (SwitchObjects[count] != nullptr) {
+            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
+            SwitchObjects[count]->setDescription(Switche["desc"].as<const char*>());
         }
-*/
+
+        tmpCh = -1;
         count +=1;
 
     }

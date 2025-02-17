@@ -1,6 +1,7 @@
 #ifndef SWITCH_WEBSERVER
 #define SWITCH_WEBSERVER
-
+#include "libraries.h"
+#include "header.h"
 
 void switchWebServer(){
 
@@ -35,15 +36,18 @@ void switchWebServer(){
         JsonArray array = doc["Switches"].to<JsonArray>();
 
         for(int i=0;i<_MAX_SWITCH_ID_;i++){
-            if(Switch.data[i].property.type == SwTypeNull  ){
+            Serial.println(SwitchObjects[i]->getType());
+            /*
+            if(SwitchObjects[i]->getType() == SwTypeNull  ){
                 continue;
             }
+            if (SwitchObjects[i] != nullptr) {
             JsonObject jsonSwitch = array.add<JsonObject>();
-            jsonSwitch["name"] = Switch.data[i].property.Name;
-            jsonSwitch["desc"] = Switch.data[i].property.Description;
-            jsonSwitch["type"] = Switch.data[i].property.type;
-            jsonSwitch["min"] = Switch.data[i].property.minValue;
-            jsonSwitch["max"] = Switch.data[i].property.maxValue;
+            jsonSwitch["name"] = SwitchObjects[i]->getName();
+            jsonSwitch["desc"] = SwitchObjects[i]->getDescription();
+            jsonSwitch["type"] = SwitchObjects[i]->getType();
+            jsonSwitch["min"] = SwitchObjects[i].property.minValue;
+            jsonSwitch["max"] = SwitchObjects[i].property.maxValue;
             if( Switch.data[i].actualValue.boValue ){
                 jsonSwitch["boValue"] = true;   
             } else {
@@ -51,6 +55,10 @@ void switchWebServer(){
             }
             
             jsonSwitch["intValue"] = Switch.data[i].actualValue.intValue;
+            } else {
+                Serial.print("Puntatore nullo id: ");
+                Serial.println(i);
+            }*/
         }
         
         response->setLength();

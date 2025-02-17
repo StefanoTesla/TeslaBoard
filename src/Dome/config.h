@@ -67,7 +67,7 @@ void initDomeConfig(){
     DomeOutMoveOpen.setup(&StartConfig);
 
     DigitalOutputConfig HaltConfig;
-    HaltConfig.pin = doc["pinStart"];
+    HaltConfig.pin = doc["pinHalt"];
     DomeOutHaltClose.setup(&HaltConfig);
 
     Dome.config.data.movingTimeOut = doc["movTimeOut"];

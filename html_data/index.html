@@ -214,9 +214,9 @@
               <div x-show="coverC.calibrator.status > 0" class="card">
                 <p x-text="text.coverC.calibrator" class="font-semibold pb-4">{calibrator}</p>
                 <div class="range">
-                  <input type="range" min='0' max='4096' step='1' x-model="coverC.calibrator.brightness" @change="calibratorBrightness(coverC.calibrator.brightness)" />
+                  <input type="range" min='0' max='4095' step='1' x-model="coverC.calibrator.brightness" @change="calibratorBrightness(coverC.calibrator.brightness)" />
                 </div>
-                <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="coverC.calibrator.brightness"></span> / 4096
+                <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="coverC.calibrator.brightness"></span> / 4095
                 <div class="flex justify-around w-full">
                   <button @click="calibratorOff()" :class="{
                     'disactivated' : coverC.calibrator.brightness == 0,

@@ -4,13 +4,17 @@
 void saveCoverCConfig(){
 
     File file = LittleFS.open("/cfg/cccfg.txt", FILE_WRITE);
-
+    CoverC.config.save.execute=false;
+    
     if (!file) {
         Serial.println("Error during open CoverCalibration config file");
         return;
     }
 
     serializeJson(CoverCConfigTmp, file);
+    serializeJson(CoverCConfigTmp,Serial);
+    CoverCConfigTmp.clear();
+    
     file.close();
 
 }
@@ -24,7 +28,7 @@ void initCoverCConfig(){
         return;
     }
     DeserializationError error = deserializeJson(doc, file);
-    
+    serializeJson(doc,Serial);
     if(error){
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.c_str());
@@ -34,10 +38,10 @@ void initCoverCConfig(){
     file.close();
 
     int tmpCh = -1;
-    JsonObject calibrator = doc["Calibrator"];
+    JsonObject calibrator = doc["calibrator"];
     CoverC.config.calibrator.present = calibrator["present"];
 
-    JsonObject cover = doc["Cover"];
+    JsonObject cover = doc["cover"];
     CoverC.config.cover.present = cover["present"];
     
     
@@ -56,7 +60,7 @@ void initCoverCConfig(){
     if(CoverC.config.cover.present){
     tmpCh = assignLedChannel(servo);
         if(tmpCh >= 0 && tmpCh < 16){
-            ServoutputConfig CoverConfig;
+            ServoOutputConfig CoverConfig;
             CoverConfig.pin = cover["pin"];
             CoverConfig.channel = tmpCh;
             Cover.setup(&CoverConfig);

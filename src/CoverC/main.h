@@ -78,6 +78,7 @@ void coverCalibratorLoop(){
   coverHandlerloop();
 
   if (CoverC.config.save.execute){
+    CoverC.config.save.execute = false;
     saveCoverCConfig();
   }
 }

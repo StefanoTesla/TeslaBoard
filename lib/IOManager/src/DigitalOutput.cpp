@@ -11,7 +11,8 @@ void DigitalOutput::setup(IOConfigBase* config){
         DigitalOutputConfig* cfg = static_cast<DigitalOutputConfig*>(config);
 
         pin = cfg->pin;
-        
+        min = 0;
+        max = 1;
         pinMode(pin, OUTPUT);
         Serial.print("New DO setup at pin: ");
         Serial.println(pin);

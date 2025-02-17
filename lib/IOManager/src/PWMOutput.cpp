@@ -11,6 +11,8 @@ void PWMOutput::setup(IOConfigBase* config){
         PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
         pin = cfg->pin;
         channel = cfg->channel;
+        min = 0;
+        max = 4095;
         ledcAttachPin(pin,channel);
         Serial.print("New PWM setup at pin: ");
         Serial.print(pin);
@@ -22,7 +24,12 @@ void PWMOutput::setup(IOConfigBase* config){
 }
 
 int PWMOutput::write(int _value) {
-    if(_value > 0 && _value < 4096){
+    Serial.print("Canale: ");
+    Serial.print(channel);
+    Serial.print(" valore: ");
+    Serial.print(_value);
+    
+    if(_value >= min && _value <= max){
         ledcWrite(channel,_value);
         return 1;
     } else {

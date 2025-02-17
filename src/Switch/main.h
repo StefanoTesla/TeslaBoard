@@ -7,7 +7,6 @@ void updateSwitchState(){
     for(int i=0;i<_MAX_SWITCH_ID_;i++){
         int value = 0;
         switch(Switch.data[i].property.type){
-
             case SwTypeNull:
                 Switch.data[i].actualValue.boValue =false;
                 Switch.data[i].actualValue.intValue = 0;
@@ -79,8 +78,8 @@ void setSwitchValue(){
 
 
 void SwitchLoop(){
-    updateSwitchState();
-    setSwitchValue();
+    //updateSwitchState();
+    //setSwitchValue();
 
 
     if(Switch.config.save.execute){
@@ -96,7 +95,7 @@ void SwitchLoop(){
 
 void switchRequestHandler(){
   switchWebServer();
-  switchAlpacaManage();
-  switchAlpacaDevice();
+  //switchAlpacaManage();
+  //switchAlpacaDevice();
 }
 #endif

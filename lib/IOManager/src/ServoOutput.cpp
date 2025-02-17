@@ -22,9 +22,11 @@ ServoOutput::ServoOutput(){
 
 void ServoOutput::setup(IOConfigBase* config){
   if (config->getType() == 5) { 
-    ServoutputConfig* cfg = static_cast<ServoutputConfig*>(config);
+    ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
     pin = cfg->pin;
     channel = cfg->channel;
+    min = 0;
+    max = 1;
     ledcAttachPin(pin, channel);
     Serial.print("New Servo setup at pin: ");
     Serial.print(pin);

@@ -123,7 +123,7 @@ export function coverc(){
                 .then(res => {
                     if (res.execute){
                         this.addToast({ type:"success", text: this.text.gen.cmdAck })
-                        this.coverC.calibrator.brightness = 4096;
+                        this.coverC.calibrator.brightness = 4095;
                     }
                 })
                 .catch(err => {
