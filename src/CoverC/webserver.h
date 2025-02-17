@@ -9,16 +9,16 @@ void coverWebServer(){
 
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
         calibrator["present"] = CoverC.config.calibrator.present;
-        calibrator["pin"] = CoverC.config.calibrator.outPWM;
+        calibrator["pin"] = Calibrator.getPinNumber();
 
 
         JsonObject cover = doc["cover"].to<JsonObject>();
         cover["present"] = CoverC.config.cover.present;
-        cover["pin"] = CoverC.config.cover.outServoPin;
-        cover["closeDeg"] = CoverC.config.cover.closeDeg;
-        cover["openDeg"] = CoverC.config.cover.openDeg;
-        cover["maxDeg"] = CoverC.config.cover.maxDeg;
-        cover["movTime"] = CoverC.config.cover.movingTime;
+        cover["pin"] = Cover.getPinNumber();
+        cover["closeDeg"] = Cover.closeDeg;
+        cover["openDeg"] = Cover.openDeg;
+        cover["maxDeg"] = Cover.maxDeg;
+        cover["movTime"] = Cover.movingTime;
         cover["reboot"] = CoverC.config.save.restartNeeded;
 
         response->setLength();
@@ -52,7 +52,7 @@ void coverWebServer(){
         if(CoverC.command.cover.move == false && CoverC.config.cover.present){
             doc["execute"] = true;
             CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = CoverC.config.cover.openDeg;
+            CoverC.command.cover.angle = Cover.openDeg;
         } else {
             doc["execute"] = false;
             if(!CoverC.config.cover.present){
@@ -73,7 +73,7 @@ void coverWebServer(){
         if(CoverC.command.cover.move == false && CoverC.config.cover.present){
             doc["execute"] = true;
             CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = CoverC.config.cover.closeDeg;
+            CoverC.command.cover.angle = Cover.closeDeg;
         } else {
             doc["execute"] = false;
             if(!CoverC.config.cover.present){
@@ -190,7 +190,7 @@ void coverWebServer(){
                 err.add("Calibrator present");
             }
             if( calibrator["pin"].is<unsigned int>() && commonValidateOutputPin(calibrator["pin"])){
-                if (calibrator["pin"] != CoverC.config.calibrator.outPWM){
+                if (calibrator["pin"] != Calibrator.getPinNumber()){
                     reboot = true;
                 }
             } else {
@@ -209,18 +209,18 @@ void coverWebServer(){
                 err.add("Cover enable");
             }
             if( cover["pin"].is<unsigned int>() and commonValidateOutputPin(calibrator["pin"])){
-                if (calibrator["pin"] != CoverC.config.calibrator.outPWM){
+                if (calibrator["pin"] != Calibrator.getPinNumber()){
                     reboot = true;
                 }
             } else {
                 error=true;
                 err.add("GPIO Cover pin");
             }
-            if( !cover["maxDeg"].is<unsigned int>() || cover["openDeg"] > 360){
+            if( !cover["maxDeg"].is<unsigned int>() || ( cover["openDeg"] > 360 || cover["closeDeg"] > 360)){
                 error=true;
                 err.add("Cover MaxDeg");
             }
-            if( !cover["closeDeg"].is<unsigned int>() || cover["openDeg"] > 360){
+            if( !cover["closeDeg"].is<unsigned int>() || cover["closeDeg"] > 360){
                 error=true;
                 err.add("Close Cover deg");
             }
@@ -235,22 +235,15 @@ void coverWebServer(){
 
             if(!error){
                 /* input */
-                CoverC.config.tmpCfg.calibrator.present = calibrator["present"];
-                CoverC.config.tmpCfg.calibrator.outPWM = calibrator["pin"];
-                CoverC.config.tmpCfg.cover.present = cover["present"];
-                CoverC.config.tmpCfg.cover.outServoPin = cover["pin"];
-                CoverC.config.tmpCfg.cover.maxDeg = cover["maxDeg"];
-                CoverC.config.tmpCfg.cover.closeDeg = cover["closeDeg"];
-                CoverC.config.tmpCfg.cover.openDeg = cover["openDeg"];
-                CoverC.config.tmpCfg.cover.movingTime = cover["movTime"];
+                CoverCConfigTmp = json;
 
                 CoverC.config.save.execute = true;
 
                 if(!reboot ){
-                    CoverC.config.cover.maxDeg = CoverC.config.tmpCfg.cover.maxDeg;
-                    CoverC.config.cover.openDeg = CoverC.config.tmpCfg.cover.openDeg;
-                    CoverC.config.cover.closeDeg = CoverC.config.tmpCfg.cover.closeDeg;
-                    CoverC.config.cover.movingTime = CoverC.config.tmpCfg.cover.movingTime;
+                    Cover.maxDeg = cover["maxDeg"];
+                    Cover.openDeg = cover["openDeg"];
+                    Cover.closeDeg = cover["closeDeg"];
+                    Cover.movingTime = cover["movTime"];
                 }
             } else {
                 response->setCode(500);
@@ -264,7 +257,7 @@ void coverWebServer(){
 
     server.addHandler(coverCConfigHandler);
 
-    server.serveStatic("/coverc/ccconfig.txt", LittleFS, "/cfg/ccconfig.txt");
+    server.serveStatic("/coverc/ccconfig.txt", LittleFS, "/cfg/cccfg.txt");
 }
 
 #endif

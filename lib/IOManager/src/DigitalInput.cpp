@@ -1,25 +1,23 @@
 #include <Arduino.h>
-#include "IOStruct.h"
+#include "IOConfigStruct.h"
 #include "DigitalInput.h"
 
 DigitalInput::DigitalInput(){
 }
 
-void DigitalInput::setup(IOConfigBase* config) {
-    // Verifica che il tipo del config sia quello corretto (DigitalInputConfig)
+void DigitalInput::setup(IOConfigBase* config){
     if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
         DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
-
         pin = cfg->pin;
-        invert = cfg->invert;
-        ton = cfg->ton;
-        toff = cfg->toff;
-        
+        type = cfg->type;
         pinMode(pin, INPUT);
+        Serial.print("New DI setup at pin: ");
+        Serial.println(pin);
     } else {
-        Serial.println("Errore: tipo di configurazione non valido!");
+        Serial.println("Errore: DI tipo di configurazione non valido!");
     }
 }
+
 
 int DigitalInput::write(int _value) {
     Serial.println("Errore: Impossibile scrivere su un ingresso digitale.");
@@ -27,7 +25,7 @@ int DigitalInput::write(int _value) {
 }
 
 int DigitalInput::readPin() {
-    return invert ? digitalRead(pin) : digitalRead(pin);
+    return type ? digitalRead(pin) : digitalRead(pin);
 }
 
 int DigitalInput::status(){
@@ -40,7 +38,7 @@ int DigitalInput::status(){
                 reInput = true;
                 ackMillis = millis();
             } else {
-                if(millis() - ackMillis > ton){ /*wait ton time*/
+                if(millis() - ackMillis > dOn){ /*wait ton time*/
                     value = true;
                 }
             }
@@ -52,7 +50,7 @@ int DigitalInput::status(){
                 feInput = true;
                 ackMillis = millis();
             } else {
-                if(millis() - ackMillis > toff){ /*wait toff time*/
+                if(millis() - ackMillis > dOff){ /*wait toff time*/
                     value = false;
                 }
             }
@@ -62,29 +60,6 @@ int DigitalInput::status(){
     return value;
 }
 
-bool DigitalInput::getInvert(){
-    return invert;
-}
-
-unsigned long DigitalInput::getTOn(){
-    return ton;
-}
-
-unsigned long DigitalInput::getTOff(){
-    return toff;
-}
-
-void DigitalInput::setInvert(bool _invert){
-    invert=_invert;
-}
-
-void DigitalInput::setTOn(unsigned long _ton){
-    ton = _ton;
-}
-
-void DigitalInput::setTOff(unsigned long _toff){
-    toff = _toff;
-}
 
 int DigitalInput::getType(){
     return 1;

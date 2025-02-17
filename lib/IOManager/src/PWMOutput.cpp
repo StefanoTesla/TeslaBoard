@@ -1,14 +1,24 @@
 #include <Arduino.h>
 #include "PWMOutput.h"
+#include "IOConfigStruct.h"
 
 PWMOutput::PWMOutput(){
     
 }
 
-void PWMOutput::setup(int _pin, int _channel){
-    pin = _pin;
-    channel = _channel;
-    ledcAttachPin(pin,channel);
+void PWMOutput::setup(IOConfigBase* config){
+    if (config->getType() == 4) {  // 1 è il tipo di DigitalInputConfig
+        PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
+        pin = cfg->pin;
+        channel = cfg->channel;
+        ledcAttachPin(pin,channel);
+        Serial.print("New PWM setup at pin: ");
+        Serial.print(pin);
+        Serial.print(" at channel: ");
+        Serial.println(channel);
+    } else {
+        Serial.println("Errore: PWM tipo di configurazione non valido!");
+    }
 }
 
 int PWMOutput::write(int _value) {

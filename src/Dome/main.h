@@ -263,7 +263,7 @@ void domeLoop() {
 
 
   if (Dome.Shutter.Cycle >= 11 && Dome.Shutter.Cycle <= 12) {
-    if ((Global.actualMillis - Dome.Shutter.timeOutAck) > Dome.config.data.movingTimeOut) { //input error I wait 10 sec. before done command
+    if ((Global.actualMillis - Dome.Shutter.timeOutAck) > (Dome.config.data.movingTimeOut * 1000)) { //input error I wait 10 sec. before done command
       Serial.println("DOME: SHUTTER TIMEOUT");
       logMessage(dome,lErr,"HALT COMMAND, Shutter timeout");
       Dome.Shutter.command = ShCommandHalt;  //Timeout, HALT

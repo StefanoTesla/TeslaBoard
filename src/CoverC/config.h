@@ -9,21 +9,8 @@ void saveCoverCConfig(){
         Serial.println("Error during open CoverCalibration config file");
         return;
     }
-    JsonDocument doc;
-    
-    JsonObject cover = doc["Cover"].to<JsonObject>();
-    cover["present"] = CoverC.config.tmpCfg.cover.present;
-    cover["pin"] = CoverC.config.tmpCfg.cover.outServoPin;
-    cover["movingTime"] = CoverC.config.tmpCfg.cover.movingTime;
-    cover["openDeg"] = CoverC.config.tmpCfg.cover.openDeg;
-    cover["closeDeg"] = CoverC.config.tmpCfg.cover.closeDeg;
-    cover["maxDeg"] = CoverC.config.tmpCfg.cover.maxDeg;
 
-    JsonObject calibrator = doc["Calibrator"].to<JsonObject>();
-    calibrator["present"] = CoverC.config.tmpCfg.calibrator.present;
-    calibrator["pin"] = CoverC.config.tmpCfg.calibrator.outPWM;
-
-    serializeJson(doc, file);
+    serializeJson(CoverCConfigTmp, file);
     file.close();
 
 }
@@ -45,33 +32,38 @@ void initCoverCConfig(){
         return;
     }
     file.close();
+
+    int tmpCh = -1;
     JsonObject calibrator = doc["Calibrator"];
     CoverC.config.calibrator.present = calibrator["present"];
 
     JsonObject cover = doc["Cover"];
     CoverC.config.cover.present = cover["present"];
-    CoverC.config.cover.outServoPin = cover["pin"];
-    CoverC.config.cover.movingTime = cover["movingTime"];
-    CoverC.config.cover.openDeg = cover["openDeg"];
-    CoverC.config.cover.closeDeg = cover["closeDeg"];
-    CoverC.config.cover.maxDeg = cover["maxDeg"];
     
-    unsigned int tmpCh = 666;
+    
     if(CoverC.config.calibrator.present){ 
         tmpCh = assignLedChannel(pwm);
-        if(tmpCh < 16){
-            Calibrator.setup(calibrator["pin"],tmpCh);
+        if(tmpCh >= 0 && tmpCh < 16){
+            PWMOutputConfig CalibConfig;
+            CalibConfig.pin = calibrator["pin"];
+            CalibConfig.channel = tmpCh;
+            Calibrator.setup(&CalibConfig);
         } 
     }
 
-    tmpCh = 666;
+    tmpCh = -1;
 
     if(CoverC.config.cover.present){
     tmpCh = assignLedChannel(servo);
-        if(tmpCh < 16){
-            CoverC.config.cover.pwmChannel = tmpCh;
-            
-            ledcAttachPin(CoverC.config.cover.outServoPin, tmpCh);
+        if(tmpCh >= 0 && tmpCh < 16){
+            ServoutputConfig CoverConfig;
+            CoverConfig.pin = cover["pin"];
+            CoverConfig.channel = tmpCh;
+            Cover.setup(&CoverConfig);
+            Cover.movingTime = cover["movingTime"];
+            Cover.openDeg = cover["openDeg"];
+            Cover.closeDeg = cover["closeDeg"];
+            Cover.maxDeg = cover["maxDeg"];
         }
     }
 

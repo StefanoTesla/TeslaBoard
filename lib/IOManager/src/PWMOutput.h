@@ -6,7 +6,7 @@
 class PWMOutput : public IOBase {
 
 private:
-    unsigned int channel;
+    int channel;
     int value;
 
 public:

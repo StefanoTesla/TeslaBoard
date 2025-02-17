@@ -2,13 +2,13 @@
 #define SERVO_OUTPUT_H
 
 #include "IOBase.h"
+#include "IOConfigStruct.h"
 
 class ServoOutput : public IOBase {
 
 private:
     unsigned int channel;
     int value;
-
     bool invert;
     int cycle;
     bool moving;
@@ -30,13 +30,13 @@ public:
     unsigned int maxDeg;
     unsigned int closeDeg;
     unsigned int openDeg;
-    unsigned int movingTime;
+    unsigned long movingTime;
 
     ServoOutput();
     void setup(IOConfigBase* config);
     int readPin() override;
     int write(int _valore) override;
-    bool goToSlowly(int _angle=0, bool overridePosition = false);
+    bool goToSlowly(int _angle=0, bool overridePosition = true);
     int status();
     unsigned int getChannel();
     int getType() override;

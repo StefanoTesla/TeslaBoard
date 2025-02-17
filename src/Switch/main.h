@@ -15,8 +15,8 @@ void updateSwitchState(){
             case SwTypeDInput:
             case SwTypeDOutput:
                 digitalRead(Switch.data[i].property.pin);
-                Switch.data[i].actualValue.boValue = digitalRead(Switch.data[i].property.pin) ? true : false;
-                Switch.data[i].actualValue.intValue = digitalRead(Switch.data[i].property.pin);
+                Switch.data[i].actualValue.boValue = SwitchObjects[i]->status() ? true : false;
+                Switch.data[i].actualValue.intValue = SwitchObjects[i]->status();
                 break;
             case SwTypeAInput:
             case SwTypeAOutput:
@@ -64,8 +64,6 @@ void setSwitchValue(){
                 break;
             case SwTypeServo:
                 logMessageFormatted(Switches,lInfo,"Servo Switch Command Executed on ID %d with val: %d",i,Switch.data[i].command.intValue);
-                dutyMicros = map(Switch.data[i].command.intValue, 0, CoverC.config.cover.maxDeg, 544, 2500);
-                dutyValue = map(dutyMicros, 0, 20000, 0, 4096);
                 ledcWrite(Switch.data[i].property.pwmch,dutyValue);
                 break;
             default:
