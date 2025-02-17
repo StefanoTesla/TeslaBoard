@@ -212,7 +212,7 @@ void domeWebServer(){
             DomeInClose.dOn = pinClose["dOn"].as<unsigned long>();
             DomeInClose.dOff = pinClose["dOff"].as<unsigned long>();
             /* timeout */
-             Dome.config.data.movingTimeOut = json["movTimeOut"].as<unsigned int>();
+            Dome.config.data.movingTimeOut = json["movTimeOut"].as<unsigned int>();
             /* autoclose */
             Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
             Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();

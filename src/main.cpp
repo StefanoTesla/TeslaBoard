@@ -5,7 +5,7 @@
 	#define GATE_BOARD
 #endif
 #define COVER_CALIBRATOR
-//#define SWITCH
+#define SWITCH
 
 #include "libraries.h"
 

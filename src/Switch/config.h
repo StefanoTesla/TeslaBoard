@@ -79,27 +79,40 @@ void initSwitchConfig(){
     file.close();
     int count = 0;
     for (JsonObject Switche : doc["Switches"].as<JsonArray>()) {
-        const char* jsonName = Switche["name"].as<const char*>();
-        strncpy( Switch.data[count].property.Name, jsonName, sizeof( Switch.data[count].property.Name) - 1);
-        Switch.data[count].property.Name[sizeof( Switch.data[count].property.Name) - 1] = '\0';
-
-        if(Switche["desc"].is<String>()){
-            const char* jsonDesc = Switche["desc"].as<const char*>();
-            strncpy( Switch.data[count].property.Description, jsonDesc, sizeof( Switch.data[count].property.Description) - 1);
-            Switch.data[count].property.Description[sizeof( Switch.data[count].property.Description) - 1] = '\0';
+        if(Switche["type"] == 1){
+            SwitchObjects[count] = new DigitalInput;
+            DigitalInputConfig DiConfig;
+            DiConfig.pin=Switche["pin"];
+            SwitchObjects[count]->setup(&DiConfig);
+            Switch.data[count].property.minValue = 0;
+            Switch.data[count].property.maxValue = 1;
+            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
+            SwitchObjects[count]->setDescriprion(Switche["desc"].as<const char*>());
+        } else if(Switche["type"] == 2){
+            Serial.println("gne");
+        } else if(Switche["type"] == 3){
+            SwitchObjects[count] = new DigitalOutput;
+            DigitalOutputConfig DOConfig;
+            DOConfig.pin=Switche["pin"];
+            SwitchObjects[count]->setup(&DOConfig);
+            Switch.data[count].property.minValue = 0;
+            Switch.data[count].property.maxValue = 1;
+            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
+            SwitchObjects[count]->setDescriprion(Switche["desc"].as<const char*>());
+        } else if(Switche["type"] == 4){
+            Serial.println("gne");
+        } else if(Switche["type"] == 5){
         }
-
-        Switch.data[count].property.type = Switche["type"];
-        Switch.data[count].property.pin = Switche["pin"];
-
+/*
         switch (Switch.data[count].property.type)
         {
         case SwTypeNull:
             break;
         case SwTypeDInput:
             SwitchObjects[count] = new DigitalInput;
-            SwitchObjects[count]->setup(Switch.data[count].property.pin);
-            pinMode(Switch.data[count].property.pin,INPUT);
+            DigitalInputConfig DiConfig;
+            DiConfig.pin=Switche["pin"];
+            SwitchObjects[count]->setup(&DiConfig);
             Switch.data[count].property.minValue = 0;
             Switch.data[count].property.maxValue = 1;
             break;
@@ -126,7 +139,7 @@ void initSwitchConfig(){
         case SwTypeServo:
             SwitchObjects[count] = new ServoOutput;
             SwitchObjects[count]->setup();
-            SwitchObjects[count]->goToSlowly()
+            //SwitchObjects[count]->goToSlowly()
             Switch.data[count].property.pwmch = assignLedChannel(servo);
             if(Switch.data[count].property.pwmch < 16){
                 ledcAttachPin(Switch.data[count].property.pin, Switch.data[count].property.pwmch);
@@ -139,9 +152,8 @@ void initSwitchConfig(){
             Serial.println("wrong hole!");
             break;
         }
-
+*/
         count +=1;
-
 
     }
 
