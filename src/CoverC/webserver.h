@@ -19,7 +19,8 @@ void coverWebServer(){
         cover["openDeg"] = Cover.openDeg;
         cover["maxDeg"] = Cover.maxDeg;
         cover["movTime"] = Cover.movingTime;
-        cover["reboot"] = CoverC.config.save.restartNeeded;
+        
+        doc["reboot"] = CoverC.config.save.restartNeeded;
 
         response->setLength();
         request->send(response);

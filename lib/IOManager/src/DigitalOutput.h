@@ -9,6 +9,8 @@ private:
     bool value;
 
 public:
+    int invert;
+    
     DigitalOutput();
     void setup(IOConfigBase* config);
     int readPin() override;

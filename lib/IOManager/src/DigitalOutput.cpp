@@ -7,10 +7,11 @@ DigitalOutput::DigitalOutput(){
 }
 
 void DigitalOutput::setup(IOConfigBase* config){
-    if (config->getType() == 3) { 
+    if (config->getType() == 2) { 
         DigitalOutputConfig* cfg = static_cast<DigitalOutputConfig*>(config);
 
         pin = cfg->pin;
+        invert = cfg->invert;
         min = 0;
         max = 1;
         pinMode(pin, OUTPUT);
@@ -21,8 +22,23 @@ void DigitalOutput::setup(IOConfigBase* config){
     }
 }
 
-
+/**
+ * @brief Scrive il valore digitale nel pin.
+ * 
+ * Questa funzione utilizza `digitaldigitalWrite()` per scrivere il valore
+ * di un pin, se configurato, lo inverte
+ * 
+ * @return int 1= operazione completata.
+ */
 int DigitalOutput::write(int _value) {
+    //never trust what user can write in _value
+    if(invert){
+        if(_value == 0){
+            _value =1;
+        } else {
+            _value = 0;
+        }
+    }
     digitalWrite(pin,_value);
     return 1;
 }
@@ -32,12 +48,13 @@ int DigitalOutput::readPin() {
 }
 
 int DigitalOutput::status(){
-    value = readPin();
+    
+    value = invert ? !readPin() : readPin();
     return value;
 }
 
 int DigitalOutput::getType(){
-    return 3;
+    return 2;
 }
 
     

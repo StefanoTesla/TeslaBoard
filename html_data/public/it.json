@@ -3,21 +3,6 @@
 		"home": "HOME",
 		"setting": "IMPOSTAZIONI"
 	},
-	"switch":{
-		"title":"switch",
-		"name":"Nome:",
-		"description":"Descrizione:",
-		"typeEnum":{
-			"0": "Non utilizzato",
-			"1": "Ingresso Digitale",
-			"2": "Ingresso Analogico",
-			"3": "Uscita Digitale",
-			"4": "Uscita PWM",
-			"5": "Uscita Servo",
-			"6": "Uscita Analogica"
-		}
-
-	},
 	"dome":{
 		"title":"Cupola",
 		"input":"Stato Ingressi",
@@ -58,7 +43,6 @@
 		"close" : "chiudi",
 		"halt" : "ferma",
 		"pin" : "GPIO:",
-		"type": "Tipo:",
 		"outputs": "Uscite",
 		"loadFromBoard": "RIPRISTINA",
 		"downloadFile": "SCARICA FILE",
@@ -86,6 +70,7 @@
 
 	"setting":{
 		"dome":{
+			"driverType": "Tipo di comando:",
 			"inOpen": "Ingresso Aperto",
 			"inClose": "Ingresso Chiuso",
 			"onDelay": "Ritardo Attivazione:",
@@ -94,6 +79,7 @@
 			"outHalt": "GPIO HALT:",
 			"outOpen": "GPIO Apertura:",
 			"outClose": "GPIO Chiusura:",
+			"outDir": "GPIO Direzione:",
 			"timeout": "Timeout",
 			"autoClose": "Chiusura Automatica",
 			"timeOutMoviment" : "Timeout Movimentazione:",
@@ -103,19 +89,18 @@
 			"autoclosewarning4": "In caso di manutenzione al tetto, sarà necessario mantenere il browser aperto sulla pagina principale, per evitare la chiusura automatica, o ancora meglio disattivare questa funzione.",
 			"autoclosewarning5": "Attivando questa funzione confermi di aver letto e compreso i rischi che questa funzione può avere per te e la tua attrezzatura.",
 			"autoCloseEn": "Abilitazione Chiusura Automatica:",
-			"autoCloseMin": "Chiudi dopo:"
+			"autoCloseMin": "Chiudi dopo:",
+			"driverTypeEnum":{
+				"0": "Scheda da Cancello",
+				"1": "Segnale di direzione",
+				"2": "Comando + Direzione"
+			}
 		},
 		"coverC":{
 			"calibrator":{
 				"calibrator": "Flat Panel"
 			},
-			"cover":{
-				"cover": "Tappo",
-				"openDeg": "Aperto a gradi:",
-				"closeDeg": "Chiudi a gradi:",
-				"maxDeg": "Massima Rotazione:",
-				"movingTime": "Tempo di movimento:"
-			},
+			"cover": "Tappo",
 			"configSaved": "configurazione Cover Calibrator Salvata"
 		},
 		"board":{
@@ -150,5 +135,46 @@
 		"text2": "Puoi riavviare adesso, o successivamente (il tasto per eseguire il reset è nella scheda Tesla Board)",
 		"now": "RIAVVIA ADESSO",
 		"later": "RIAVVIA DOPO"
+	},
+	"IOBase":{
+		"title":"switch",
+		"name":"Nome:",
+		"description":"Descrizione:",
+		"pin" : "GPIO:",
+		"type": "Tipo:",
+		"typeEnum": {
+			"0": "Non utilizzata",
+			"1": "Ingresso Digitale",
+			"2": "Uscita Digitale",
+			"3": "Uscita PWM",
+			"4": "Uscita Servo"
+		},
+		"DI":{
+			"onDelay": "Ritardo Attivazione:",
+			"offDelay": "Ritardo Disattivazione:",
+			"func": "Funzionamento:",
+			"invertEnum":{
+				"0": "Norm. Aperto",
+				"1": "Norm. Chiuso"
+			}
+		},
+		"DO":{
+			"func": "Funzionamento:",
+			"invertEnum":{
+				"0": "Attivo HIGH",
+				"1": "Attivo LOW"
+			}
+		},
+		"Servo":{
+			"openDeg": "Aperto a gradi:",
+			"closeDeg": "Chiuso a gradi:",
+			"maxDeg": "Massima Rotazione:",
+			"maxDegEnum":{
+				"90": "90°",
+				"180": "180°",
+				"270": "270°"
+			},
+			"movingTime": "Tempo di movimento:"
+		}
 	}
 }

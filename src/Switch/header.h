@@ -22,11 +22,9 @@ struct switchLoadConfigStruct{
 enum SwitchType{
   SwTypeNull,
   SwTypeDInput,
-  SwTypeAInput ,
   SwTypeDOutput,
   SwTypePWM,
   SwTypeServo,
-  SwTypeAOutput
 };
 
 struct SwitchCommandStruct {
@@ -73,7 +71,8 @@ struct SwitchStruct{
 } Switch;
 
 
-IOBase* SwitchObjects[_MAX_SWITCH_ID_];
+IOBase* SwitchObjects[_MAX_SWITCH_ID_] = {nullptr};
+JsonDocument tmpSwitchCfg;
 
 
 #endif

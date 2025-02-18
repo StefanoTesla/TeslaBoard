@@ -162,18 +162,17 @@ export function coverc(){
             this.parseObjectToInt(this.coverC)
 
             if(this.coverC.calibrator.present){
-                if(this.invalidOutputPin( this.coverC.calibrator.pin, "coverc_calibrator_out" )){ valid = false }
+                if(this.invalidOutputPin( this.coverC.calibrator.pin,"coverc_calibrator_out" )){ valid = false }
             } else {
                 this.removeValidationErrorClass("coverc_calibrator_out")
             }
             if(this.coverC.cover.present){
                 if(this.invalidOutputPin(this.coverC.cover.pin,"coverc_cover_out")){ valid = false }
-                if(this.negativeValue(this.coverC.cover.maxDeg)){ valid = false }
-                if(this.negativeValue(this.coverC.cover.closeDeg)){ valid = false }
-                if(this.negativeValue(this.coverC.cover.openDeg) ){ valid = false }
-                if(this.coverC.cover.maxDeg>360) { this.addValidationErrorClass("coverc_cover_max_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_max_deg") }
-                if(this.coverC.cover.closeDeg > this.coverC.cover.maxDeg){ this.addValidationErrorClass("coverc_cover_close_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_close_deg") }
-                if( this.coverC.cover.openDeg > this.coverC.cover.maxDeg){ this.addValidationErrorClass("coverc_cover_open_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_open_deg") }
+                if(this.negativeValue(this.coverC.cover.maxDeg,"coverc_cover_max_deg") || this.greaterThen(this.coverC.cover.maxDeg,270,"coverc_cover_max_deg")){ valid = false }
+                if(this.negativeValue(this.coverC.cover.closeDeg,"coverc_cover_close_deg")){ valid = false }
+                if(this.negativeValue(this.coverC.cover.openDeg,"coverc_cover_open_deg") ){ valid = false }
+                if(this.greaterThen(this.coverC.cover.closeDeg,this.coverC.cover.maxDeg,"coverc_cover_close_deg")){ valid = false }
+                if(this.greaterThen(this.coverC.cover.openDeg,this.coverC.cover.maxDeg,"coverc_cover_open_deg")){ valid = false }
             } else {
                 this.removeValidationErrorClass("coverc_cover_out")
                 this.removeValidationErrorClass("coverc_cover_max_deg")

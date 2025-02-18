@@ -21,7 +21,7 @@ ServoOutput::ServoOutput(){
 }
 
 void ServoOutput::setup(IOConfigBase* config){
-  if (config->getType() == 5) { 
+  if (config->getType() == 4) { 
     ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
     pin = cfg->pin;
     channel = cfg->channel;

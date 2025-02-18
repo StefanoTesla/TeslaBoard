@@ -10,9 +10,8 @@ void saveCoverCConfig(){
         Serial.println("Error during open CoverCalibration config file");
         return;
     }
-
+    CoverCConfigTmp.remove("reboot");
     serializeJson(CoverCConfigTmp, file);
-    serializeJson(CoverCConfigTmp,Serial);
     CoverCConfigTmp.clear();
     
     file.close();
@@ -28,7 +27,6 @@ void initCoverCConfig(){
         return;
     }
     DeserializationError error = deserializeJson(doc, file);
-    serializeJson(doc,Serial);
     if(error){
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.c_str());
@@ -64,7 +62,7 @@ void initCoverCConfig(){
             CoverConfig.pin = cover["pin"];
             CoverConfig.channel = tmpCh;
             Cover.setup(&CoverConfig);
-            Cover.movingTime = cover["movingTime"];
+            Cover.movingTime = cover["movTime"];
             Cover.openDeg = cover["openDeg"];
             Cover.closeDeg = cover["closeDeg"];
             Cover.maxDeg = cover["maxDeg"];

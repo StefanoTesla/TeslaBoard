@@ -6,7 +6,6 @@
 
 bool canBeWritten(unsigned int id){
       if(
-      Switch.data[id].property.type == SwTypeAOutput ||
       Switch.data[id].property.type == SwTypeDOutput ||
       Switch.data[id].property.type == SwTypePWM ||
       Switch.data[id].property.type == SwTypeServo

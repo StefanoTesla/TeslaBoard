@@ -12,7 +12,7 @@ private:
     unsigned long ackMillis;
 
 public:
-    bool type;
+    int invert;
     unsigned long dOn;
     unsigned long dOff;
 

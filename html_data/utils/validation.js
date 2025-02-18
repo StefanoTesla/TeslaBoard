@@ -54,7 +54,19 @@ export function validation() {
         },
     
         negativeValue(value,divclass){
-            if(value<0){
+
+            if(isNaN(value) || value<0){
+                console.log(value);
+                console.log(divclass);
+                this.addValidationErrorClass(divclass);
+                return true
+            }
+            this.removeValidationErrorClass(divclass);
+            return false
+        },
+
+        greaterThen(value,maxValue,divclass){
+            if(value>maxValue){
                 this.addValidationErrorClass(divclass);
                 return true
             }
@@ -63,12 +75,17 @@ export function validation() {
         },
     
         addValidationErrorClass(id){
+            console.log("metto")
             const el = document.getElementById(id);
             if (el) {el.classList.add('validation_error');
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });}
+                    console.log("metto")
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    console.log("scrollo")
+                }
         },
     
         removeValidationErrorClass(id){
+            console.log("tolgo")
             const el = document.getElementById(id);
             if (el) el.classList.remove('validation_error');
         },

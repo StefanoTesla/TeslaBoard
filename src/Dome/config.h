@@ -7,19 +7,15 @@ void saveDomeConfig(){
     File file = LittleFS.open("/cfg/domecfg.txt", FILE_WRITE);
     if (!file) {
         Serial.println("Error during open Dome config file");
-        Dome.config.Save.execute = false;
         return;
     }
 
+    DomeConfigTmp.remove("reboot");
 
     serializeJson(DomeConfigTmp, file);
-
-    
     file.close();
-
     DomeConfigTmp.clear();
     Dome.config.Save.execute = false;
-
 }
 
 
@@ -46,7 +42,7 @@ void initDomeConfig(){
     JsonObject pinOpen = doc["pinOpen"];
     DigitalInputConfig OpenConfig;
     OpenConfig.pin = pinOpen["pin"];
-    OpenConfig.type = pinOpen["type"];
+    OpenConfig.invert = pinOpen["invert"];
     DomeInOpen.setup(&OpenConfig);
     DomeInOpen.dOn = pinOpen["dOn"];
     DomeInOpen.dOff = pinOpen["dOff"];
@@ -54,25 +50,36 @@ void initDomeConfig(){
     JsonObject pinClose = doc["pinClose"];
     DigitalInputConfig CloseConfig;
     CloseConfig.pin = pinClose["pin"];
-    CloseConfig.type = pinClose["type"];
+    CloseConfig.invert = pinClose["invert"];
     DomeInClose.setup(&CloseConfig);
     DomeInClose.dOn = pinClose["dOn"];
     DomeInClose.dOff = pinClose["dOff"];
 
+    JsonObject pinStart = doc["pinStart"];
+    DigitalOutputConfig StartConfig;
+    StartConfig.pin = pinStart["pin"];
+    StartConfig.invert = pinStart["invert"];
+    DomeOutMoveOpen.setup(&StartConfig);
+
+    JsonObject pinHalt = doc["pinHalt"];
+    DigitalOutputConfig HaltConfig;
+    HaltConfig.pin = pinHalt["pin"];
+    HaltConfig.invert = pinHalt["invert"];
+    DomeOutHaltClose.setup(&HaltConfig);
+
+    /* Dome strict configuration */
     JsonObject autoClose = doc["autoclose"];
     Dome.config.data.enAutoClose = autoClose["enable"];
     Dome.config.data.autoCloseTimeOut = autoClose["minutes"];
-    DigitalOutputConfig StartConfig;
-    StartConfig.pin = doc["pinStart"];
-    DomeOutMoveOpen.setup(&StartConfig);
 
-    DigitalOutputConfig HaltConfig;
-    HaltConfig.pin = doc["pinHalt"];
-    DomeOutHaltClose.setup(&HaltConfig);
-
+    Dome.config.data.driverType = doc["driverType"];
     Dome.config.data.movingTimeOut = doc["movTimeOut"];
-
     Dome.config.Load.isValid = true;
+
+    //reset the output
+    DomeOutMoveOpen.write(0);
+    DomeOutHaltClose.write(0);
+
 
 }
 

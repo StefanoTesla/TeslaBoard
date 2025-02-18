@@ -9,7 +9,7 @@ void DigitalInput::setup(IOConfigBase* config){
     if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
         DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
         pin = cfg->pin;
-        type = cfg->type;
+        invert = cfg->invert;
         min = 0;
         max = 1;
         pinMode(pin, INPUT);
@@ -27,7 +27,7 @@ int DigitalInput::write(int _value) {
 }
 
 int DigitalInput::readPin() {
-    return type ? digitalRead(pin) : digitalRead(pin);
+    return invert ? !digitalRead(pin) : digitalRead(pin);
 }
 
 int DigitalInput::status(){

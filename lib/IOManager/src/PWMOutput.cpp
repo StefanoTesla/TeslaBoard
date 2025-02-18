@@ -7,7 +7,7 @@ PWMOutput::PWMOutput(){
 }
 
 void PWMOutput::setup(IOConfigBase* config){
-    if (config->getType() == 4) {  // 1 è il tipo di DigitalInputConfig
+    if (config->getType() == 3) {  // 1 è il tipo di DigitalInputConfig
         PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
         pin = cfg->pin;
         channel = cfg->channel;
@@ -52,7 +52,7 @@ unsigned int PWMOutput::getChannel(){
 }
 
 int PWMOutput::getType(){
-    return 4;
+    return 3;
 }
 
     

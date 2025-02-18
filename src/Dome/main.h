@@ -51,7 +51,7 @@ void shutterOutput(bool start_open, bool halt_close){
 //
 void domeAutoClose(){
 
-  if (Dome.Shutter.input == ShInputOnlyOpen && Dome.config.data.enAutoClose){
+  if (Dome.Shutter.input == ShInputOnlyOpen){
     if ((Global.actualMillis - (Dome.Shutter.lastCommunicationMillis)) > (Dome.config.data.autoCloseTimeOut * 1000 * 60)) {
           logMessage(dome,lErr,"Autoclosing command");
           Dome.Shutter.command = ShCommandClose;
@@ -100,12 +100,18 @@ void shutterCycle(){
             //Pulse to start to the motor, ack millis for time out and
             Dome.Shutter.timeOutAck = Global.actualMillis;
             logMessage(dome,lDebug,"Cycle:10");
-            #ifdef GATE_BOARD
+            if(Dome.config.data.driverType == 0){
               shutterOutput(true,false);
-            #else
+            } else if (Dome.config.data.driverType == 1){
               if (Dome.Shutter.command == ShCommandOpen) { shutterOutput(true,false); }
               if (Dome.Shutter.command == ShCommandClose) { shutterOutput(false,true); }
-            #endif
+            } else if(Dome.config.data.driverType == 2){
+              if (Dome.Shutter.command == ShCommandOpen) { shutterOutput(true,false); }
+              if (Dome.Shutter.command == ShCommandClose) { shutterOutput(true,true); }
+            } else {
+              Serial.println("[DOME]: Wrong driver type configuration!");
+              Dome.Shutter.Cycle=100;
+            }
             Dome.Shutter.Cycle++;
 
             break;
@@ -114,9 +120,9 @@ void shutterCycle(){
             if ((Global.actualMillis - Dome.Shutter.timeOutAck) > 1000) { //Wait 1second anyway
               if (Dome.Shutter.input == ShInputAll || Dome.Shutter.input == ShInputNoOne) {
                 logMessage(dome,lDebug,"Cycle:11");
-                #ifdef GATE_BOARD
+                if(Dome.config.data.driverType == 0){
                   shutterOutput(false,false);
-                #endif
+                }
                 Dome.Shutter.Cycle++;
               }
             }
@@ -136,21 +142,21 @@ void shutterCycle(){
                 break;
               }
               //Open command was sended but I reach the opposite direction
-              #ifdef GATE_BOARD
-              if (Dome.Shutter.input == ShInputOnlyClose) { //OMG wrong direction!
-                if (Dome.Shutter.MoveRetry == false) {
-                  logMessage(dome,lErr,"Cycle:12, Shutter eas axpected open, close signal recived");
-                  Dome.Shutter.MoveRetry = true; // just one retry
-                  Dome.Shutter.Cycle = 20;
-                } else {
-                  Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
+              if(Dome.config.data.driverType == 0){
+                if (Dome.Shutter.input == ShInputOnlyClose) { //OMG wrong direction!
+                  if (Dome.Shutter.MoveRetry == false) {
+                    logMessage(dome,lErr,"Cycle:12, Shutter eas axpected open, close signal recived");
+                    Dome.Shutter.MoveRetry = true; // just one retry
+                    Dome.Shutter.Cycle = 20;
+                  } else {
+                    Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
+                  }
                 }
               }
-              #endif
             }
 
             // Check Close Cycle
-            if (Dome.Shutter.command == ShCommandClose) { //OMG wrong direction!
+            if (Dome.Shutter.command == ShCommandClose) { 
               if(Global.pulse.second.pulse){
                 logMessage(dome,lDebug,"Cycle:12, Waiting for Close Signal");
               }
@@ -160,17 +166,17 @@ void shutterCycle(){
                 Dome.Shutter.status = ShStatusClose;
                 Dome.Shutter.Cycle++;
               }
-              #ifdef GATE_BOARD
-              if (Dome.Shutter.input == ShInputOnlyClose) {
-                if (Dome.Shutter.MoveRetry == false) {
-                  logMessage(dome,lErr,"Cycle:12, Shutter was axpected close, open signal recived");
-                  Dome.Shutter.MoveRetry = true; // just one retry
-                  Dome.Shutter.Cycle = 20;
-                } else {
-                  Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
+              if(Dome.config.data.driverType == 0){
+                if (Dome.Shutter.input == ShInputOnlyClose) { //OMG wrong direction!
+                  if (Dome.Shutter.MoveRetry == false) {
+                    logMessage(dome,lErr,"Cycle:12, Shutter was axpected close, open signal recived");
+                    Dome.Shutter.MoveRetry = true; // just one retry
+                    Dome.Shutter.Cycle = 20;
+                  } else {
+                    Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
+                  }
                 }
               }
-              #endif
             }
             // FINE CHECK CHIUSURA
 
@@ -188,11 +194,7 @@ void shutterCycle(){
     case 20: 
             logMessage(dome,lErr,"Cycle:20, Shutter ping pong cycle, HALT Signal send...");
             Dome.Shutter.timeOutAck = Global.actualMillis;
-            #ifdef GATE_BOARD
-              shutterOutput(false,true);
-            #else
-              shutterOutput(false,false);
-            #endif
+            shutterOutput(false,true);
             Dome.Shutter.Cycle++;
             break;
 
@@ -218,11 +220,13 @@ void shutterCycle(){
             Dome.Shutter.timeOutAck = Global.actualMillis;
             Dome.Shutter.status = ShStatusError;
             logMessage(dome,lErr,"Cycle:100, HALT");
-            #ifdef GATE_BOARD
+            
+            if(Dome.config.data.driverType == 0){
               shutterOutput(false,true);
-            #else
+            } else {
               shutterOutput(false,false);
-            #endif
+            }
+
             Dome.Shutter.Cycle++;
             break;
 
@@ -257,7 +261,10 @@ void lastShutterCommand(){
 
 void domeLoop() {
   domeInputRead();
-  domeAutoClose();
+  if(Dome.config.data.enAutoClose){
+    domeAutoClose();
+  }
+  
   shutterCycle();
   lastShutterCommand();
 
@@ -272,6 +279,7 @@ void domeLoop() {
 
   if (Dome.config.Save.execute){
     saveDomeConfig();
+    Dome.config.Save.execute = false;
   }
 
 }

@@ -1,9 +1,6 @@
 #define ALPACA_PORT 4567
 
 #define DOME
-#ifdef DOME
-	#define GATE_BOARD
-#endif
 #define COVER_CALIBRATOR
 #define SWITCH
 

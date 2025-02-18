@@ -95,7 +95,7 @@ export function switches(){
 
     addNewSwitch(){
         if(this.swi.Switches.length <= 14){
-            this.swi.Switches.push({"name":"","desc":"","type":0,"pin":0,"min":0,"max":0})
+            this.swi.Switches.push({"name":"","desc":"","type":0,"pin":0})
         } else {
             this.addToast({type:"error", text:"Limite Raggiunto" })
         }
@@ -119,22 +119,33 @@ export function switches(){
         this.swi.Switches[index].desc = this.swi.Switches[index].desc.replace(/[@#$*<>:;!]/g, '')
         this.swi.Switches[index].type = parseInt(this.swi.Switches[index].type)
         this.swi.Switches[index].pin = parseInt(this.swi.Switches[index].pin)
-        this.swi.Switches[index].min = parseInt(this.swi.Switches[index].min)
-        this.swi.Switches[index].max = parseInt(this.swi.Switches[index].max)
+
 
         switch (this.swi.Switches[index].type) {
             case 0:
                 return true;
                 break;
             case 1: //di
-            case 2: //ai
+                this.swi.Switches[index].invert = parseInt(this.swi.Switches[index].invert)
+                this.swi.Switches[index].dOn = parseInt(this.swi.Switches[index].dOn)
+                this.swi.Switches[index].dOff = parseInt(this.swi.Switches[index].dOff)
                 if(this.invalidInputPin(this.swi.Switches[index].pin,'sw_'+ index +'_pin')){ return false }
+                if(this.negativeValue(this.swi.Switches[index].dOn,'sw_'+ index +'_dOn')){ return false }
+                if(this.negativeValue(this.swi.Switches[index].dOff,'sw_'+ index +'_dOff')){ return false }
+                if(this.negativeValue(this.swi.Switches[index].invert,'sw_'+ index +'_invert')){ console.log("failed"); return false }
+                if(this.greaterThen(this.swi.Switches[index].invert,1,'sw_'+ index +'_invert')){ console.log("failed"); return false }
                 return true
                 break;
-
-            case 5://servo
-
-                if(this.swi.Switches[index].max <= this.swi.Switches[index].min){
+            case 2://do
+                this.swi.Switches[index].invert = parseInt(this.swi.Switches[index].invert)
+                console.log("chek DO setting")
+                if(this.invalidOutputPin(this.swi.Switches[index].pin,'sw_'+ index +'_pin')){ return false }
+                if(this.negativeValue(this.swi.Switches[index].invert,'sw_'+ index +'_invert')){ return false }
+                if(this.greaterThen(this.swi.Switches[index].invert,1,'sw_'+ index +'_invert')){ return false }
+                return true
+            case 4://servo
+                this.greaterThen(this.swi.Switches[index].maxDeg,270,'sw_'+ index +'_max')
+                if(this.swi.Switches[index].maxDeg <= this.swi.Switches[index].min){
                     this.addValidationErrorClass('sw_'+ index +'_max')
                     return false
                 } else {
@@ -146,9 +157,7 @@ export function switches(){
                 } else {
                     this.removeValidationErrorClass('sw_'+ index +'_min')
                 }
-            case 6://ao
-            case 4://pwm
-            case 3://do
+            case 3://pwm
                 if(this.invalidOutputPin(this.swi.Switches[index].pin,'sw_'+ index +'_pin')){ return false }
                 return true
                 break;

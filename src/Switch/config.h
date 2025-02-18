@@ -6,6 +6,11 @@ void saveSwitchConfig(){
     File file = LittleFS.open("/cfg/switchcfg.txt", FILE_WRITE);
     Serial.println("Switch save in progress..");
     logMessage(Switches,lInfo,"Saving config file");
+
+    serializeJson(tmpSwitchCfg, Serial);
+    tmpSwitchCfg.clear();
+    file.close();
+    /*
     JsonDocument doc;
     JsonArray array = doc["Switches"].to<JsonArray>();
 
@@ -26,8 +31,6 @@ void saveSwitchConfig(){
                 jsonSwitch["max"] = Switch.config.tmp[i].property.maxValue;
 
             case SwTypePWM:
-            case SwTypeAInput:
-            case SwTypeAOutput:
             case SwTypeDInput:
             case SwTypeDOutput:
                 jsonSwitch["pin"] = Switch.config.tmp[i].property.pin;
@@ -40,7 +43,7 @@ void saveSwitchConfig(){
     serializeJson(doc, file);
     file.close();
     logMessage(Switches,lInfo,"Config saved");
-
+    */
     
 }
 
@@ -75,24 +78,20 @@ void initSwitchConfig(){
             Serial.println("[SWI] Too many switches configured");
             exit;
         }
+        tmpCh = -1;
         //Digital Input
-        if(Switche["type"] == 1){
+        if(Switche["type"] == static_cast<int>(SwTypeDInput)){
             SwitchObjects[count] = new DigitalInput;
             DigitalInputConfig DiConfig;
             DiConfig.pin=Switche["pin"];
             SwitchObjects[count]->setup(&DiConfig);
-        //Analog Input - not really know if will develop
-        } else if(Switche["type"] == 2){
-            Serial.println("gne");
-        //Digital Output
-        } else if(Switche["type"] == 3){
+        } else if(Switche["type"] == static_cast<int>(SwTypeDOutput)){
             SwitchObjects[count] = new DigitalOutput;
             DigitalOutputConfig DOConfig;
             DOConfig.pin=Switche["pin"];
             SwitchObjects[count]->setup(&DOConfig);
         //PWM Output
-        } else if(Switche["type"] == 4){
-            tmpCh = -1;
+        } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
             tmpCh = assignLedChannel(pwm);
             if(tmpCh >= 0 && tmpCh < 16){
                 SwitchObjects[count] = new PWMOutput;
@@ -102,8 +101,7 @@ void initSwitchConfig(){
                 SwitchObjects[count]->setup(&PWMConfig);
             }
         //Servo Output
-        } else if(Switche["type"] == 5){
-            tmpCh = -1;
+        } else if(Switche["type"] == static_cast<int>(SwTypeServo)){
             tmpCh = assignLedChannel(servo);
             if(tmpCh >= 0 && tmpCh < 16){
                 SwitchObjects[count] = new ServoOutput;
@@ -118,8 +116,6 @@ void initSwitchConfig(){
             SwitchObjects[count]->setName(Switche["name"].as<const char*>());
             SwitchObjects[count]->setDescription(Switche["desc"].as<const char*>());
         }
-
-        tmpCh = -1;
         count +=1;
 
     }

@@ -8,40 +8,27 @@ struct IOConfigBase {
 
 struct DigitalInputConfig : public IOConfigBase {
     int pin;
-    bool type; // false = NO true= NC
-
-    int getType() const override { return 1; } // Restituisci un tipo univoco per DigitalInputConfig
+    int invert; // 0=N.O. 1=N.C.
+    int getType() const override { return 1; }
 };
-struct AnalogInputConfig : public IOConfigBase {
-    int pin;
-    bool invert;
-    unsigned long ton;
-    unsigned long toff;
 
-    int getType() const override { return 2; } // Restituisci un tipo univoco per DigitalInputConfig
-};
 struct DigitalOutputConfig : public IOConfigBase {
     int pin;
-    bool invert;
-    unsigned long ton;
-    unsigned long toff;
-
-    int getType() const override { return 3; } // Restituisci un tipo univoco per DigitalInputConfig
+    int invert; // 0=H_ACT 1=L_ACT
+    int getType() const override { return 2; }
 };
+
 struct PWMOutputConfig : public IOConfigBase {
     int pin;
     int channel;
 
-    int getType() const override { return 4; } // Restituisci un tipo univoco per DigitalInputConfig
+    int getType() const override { return 3; } 
 };
+
 struct ServoOutputConfig : public IOConfigBase {
     int pin;
     int channel;
-    unsigned int maxDeg;
-    unsigned long closeDeg;
-    unsigned long openDeg;
-
-    int getType() const override { return 5; } // Restituisci un tipo univoco per DigitalInputConfig
+    int getType() const override { return 4; } 
 };
 
 

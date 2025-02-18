@@ -31,7 +31,14 @@ export function dome(){
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.dome)
-              }).then(res => res.json())
+                })
+                .then(async res => {
+                    if (!res.ok) { 
+                        const errorData = await res.json();
+                        throw new Error(JSON.stringify(errorData)); 
+                    }
+                    return res.json();
+                })
                 .then(res => {
                     this.addToast({ type:"success", text: this.text.gen.configSaved, time:3 })
                     this.reboot.dome = res.reboot ? true : false
@@ -58,13 +65,19 @@ export function dome(){
         if(this.invalidInputPin(this.dome.pinOpen.pin,"dome_in_open")){ valid = false}
         if(this.negativeValue( this.dome.pinOpen.dOn,"dome_in_open_don")){ valid = false }
         if(this.negativeValue( this.dome.pinOpen.dOff,"dome_in_open_doff")){ valid = false }
+        if(this.negativeValue( this.dome.pinOpen.invert,"dome_in_open_invert" || this.greaterThen(this.dome.pinOpen.invert,1,"dome_in_open_invert"))){ valid = false }
+
         //input close
         if(this.invalidInputPin( this.dome.pinClose.pin,"dome_in_close")){ valid = false }
         if(this.negativeValue( this.dome.pinClose.dOn,"dome_in_close_don")){ valid = false }
         if(this.negativeValue( this.dome.pinClose.dOff,"dome_in_close_doff")){ valid = false }
+        if(this.negativeValue( this.dome.pinOpen.invert,"dome_in_close_invert" || this.greaterThen(this.dome.pinOpen.invert,1,"dome_in_close_invert"))){ valid = false }
         //outputs
-        if(this.invalidOutputPin( this.dome.pinStart,"dome_out_start")){ valid = false }
-        if(this.invalidOutputPin( this.dome.pinHalt,"dome_out_halt")){ valid = false }
+        if(this.invalidOutputPin( this.dome.pinStart.pin,"dome_out_start")){ valid = false }
+        if(this.negativeValue( this.dome.pinStart.invert,"dome_out_start_invert" || this.greaterThen(this.dome.pinHalt.invert,1,"dome_out_start_invert"))){ valid = false }
+
+        if(this.invalidOutputPin( this.dome.pinHalt.pin,"dome_out_halt")){ valid = false }
+        if(this.negativeValue( this.dome.pinHalt.invert,"dome_out_halt_invert") || this.greaterThen(this.dome.pinHalt.invert,1,"dome_out_halt_invert")){ valid = false }
         //timers
         if(this.negativeValue( this.dome.movTimeOut,"dome_timeout")){ valid = false }
         if(this.negativeValue( this.dome.autoclose.minutes,"dome_autoclose_time")){ valid = false }

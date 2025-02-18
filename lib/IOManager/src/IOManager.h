@@ -3,7 +3,6 @@
 
 #include "IOConfigStruct.h"
 #include <Arduino.h>
-#include "IOStruct.h"
 #include "IOBase.h"
 #include "DigitalInput.h"
 #include "DigitalOutput.h"

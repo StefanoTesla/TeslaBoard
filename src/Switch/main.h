@@ -17,12 +17,6 @@ void updateSwitchState(){
                 Switch.data[i].actualValue.boValue = SwitchObjects[i]->status() ? true : false;
                 Switch.data[i].actualValue.intValue = SwitchObjects[i]->status();
                 break;
-            case SwTypeAInput:
-            case SwTypeAOutput:
-                value = map(analogRead(Switch.data[i].property.pin),0,4095,Switch.data[i].property.minValue,Switch.data[i].property.maxValue);
-                Switch.data[i].actualValue.boValue = value > Switch.data[i].property.minValue ? true : false;
-                Switch.data[i].actualValue.intValue = value;
-                break;
             case SwTypePWM:
                 Switch.data[i].actualValue.intValue = map(ledcRead(Switch.data[i].property.pwmch),0,4096,Switch.data[i].property.minValue,Switch.data[i].property.maxValue);
                 Switch.data[i].actualValue.boValue = Switch.data[i].actualValue.intValue > Switch.data[i].property.minValue ? true : false;
