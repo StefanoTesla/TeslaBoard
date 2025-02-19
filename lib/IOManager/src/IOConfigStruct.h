@@ -28,6 +28,10 @@ struct PWMOutputConfig : public IOConfigBase {
 struct ServoOutputConfig : public IOConfigBase {
     int pin;
     int channel;
+    int maxDeg;
+    int closeDeg;
+    int openDeg;
+    int movTime;
     int getType() const override { return 4; } 
 };
 

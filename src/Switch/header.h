@@ -2,7 +2,7 @@
 #define SWITCH_VARIABLE
 
 
-#define _MAX_SWITCH_ID_ 16
+#define _MAX_SWITCH_ID_ 15
 
 /* CONFIGURATION AREA */
 
@@ -57,7 +57,7 @@ struct SwitchArrayStruct
 
 struct SwitchConfiStruct{
   unsigned int configuredSwitch;
-  SwitchArrayStruct tmp[_MAX_SWITCH_ID_];
+  //SwitchArrayStruct tmp[_MAX_SWITCH_ID_];
   switchSaveConfigStruct save;
   switchLoadConfigStruct load;
 };

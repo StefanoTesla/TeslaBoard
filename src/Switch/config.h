@@ -76,8 +76,13 @@ void initSwitchConfig(){
             if(tmpCh >= 0 && tmpCh < 16){
                 SwitchObjects[count] = new ServoOutput;
                 ServoOutputConfig ServoConfig;
-                ServoConfig.pin=Switche["pin"];
-                ServoConfig.channel=tmpCh;
+                ServoConfig.pin = Switche["pin"];
+                ServoConfig.channel = tmpCh;
+                ServoConfig.maxDeg = Switche["maxDeg"];
+                ServoConfig.closeDeg= Switche["closeDeg"];
+                ServoConfig.openDeg = Switche["openDeg"];
+                ServoConfig.movTime = Switche["movTime"];
+
                 SwitchObjects[count]->setup(&ServoConfig);
             }
         }
