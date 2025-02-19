@@ -12,9 +12,9 @@ private:
     unsigned long ackMillis;
 
 public:
-    int invert;
-    unsigned long dOn;
-    unsigned long dOff;
+    int invert = 0;
+    unsigned long dOn = 0;
+    unsigned long dOff = 0;
 
     DigitalInput();
     void setup(IOConfigBase* config);

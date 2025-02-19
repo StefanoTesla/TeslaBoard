@@ -197,7 +197,13 @@ void switchWebServer(){
                 }
 
                 type = Switche["type"].as<unsigned int>();
-                
+
+                if(type == 0){
+                    logMessageFormatted(Switches,lErr,"Switch of type 0, skipped - id: %d",count);
+                    continue;
+                }
+
+
                 //check if pin is a number
                 if(!Switche["pin"].is<unsigned int>()){
                     error = true;
@@ -205,13 +211,6 @@ void switchWebServer(){
                     logMessageFormatted(Switches,lErr,"Pin number not provided - id: %d",count);
                     continue;
                 }
-
-                if(type == 0){
-                    logMessageFormatted(Switches,lErr,"Switch of type 0, skipped - id: %d",count);
-                    continue;
-                }
-
-                count +=1;
 
                 if(count>= _MAX_SWITCH_ID_){
                     error = true;
@@ -235,21 +234,20 @@ void switchWebServer(){
                     tmpSwitch["desc"] = Switche["desc"];
                     tmpSwitch["type"] = 1;
                     tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                    tmpSwitch["invert"] = 0;
+                    tmpSwitch["dOn"] = 0;
+                    tmpSwitch["dOff"] = 0;
 
                     if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
                         tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
-                    } else {
-                        tmpSwitch["invert"] = 0;
                     }
+
                     if(Switche["dOn"].as<unsigned int>() >= 0){
                         tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
-                    } else {
-                        tmpSwitch["dOn"] = 0;
                     }
+
                     if(Switche["dOff"].as<unsigned int>() >= 0){
                         tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
-                    } else {
-                        tmpSwitch["dOff"] = 0;
                     }
 
                 } else if(type==2){
@@ -264,27 +262,57 @@ void switchWebServer(){
                     tmpSwitch["desc"] = Switche["desc"];
                     tmpSwitch["type"] = 2;
                     tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-
+                    tmpSwitch["invert"] = 0;
+                    
                     if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
                         tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
-                    } else {
-                        tmpSwitch["invert"] = 0;
+                    }
+                } else if(type==3){
+                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 3;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                } else if(type==4){
+                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 4;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                    tmpSwitch["openDeg"] = 0;
+                    tmpSwitch["closeDeg"] = 0;
+                    tmpSwitch["movTime"] = 0;
+
+                    if(Switche["maxDeg"].as<unsigned int>() >= 0 && Switche["maxDeg"].as<unsigned int>() <= 360){
+                        tmpSwitch["maxDeg"] = Switche["maxDeg"].as<unsigned int>();
+                    }
+                    if(Switche["openDeg"].as<unsigned int>() >= 0 && Switche["openDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
+                        tmpSwitch["openDeg"] = Switche["openDeg"].as<unsigned int>();
+                    }
+                    if(Switche["closeDeg"].as<unsigned int>() >= 0 && Switche["closeDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
+                        tmpSwitch["closeDeg"] = Switche["invert"].as<unsigned int>();
+                    }
+                    if(Switche["movTime"].as<unsigned int>() >= 0){
+                        tmpSwitch["movTime"] = Switche["movTime"].as<unsigned int>();
                     }
                 } else {
                     continue;
                 }
             }
 
-            //do I need to reboot?
- /*           for (int i = 0; i < Swi; i++)
-            {
-                if(Switch.data[i].property.type != Switch.config.tmp[i].property.type ||
-                    Switch.data[i].property.pin != Switch.config.tmp[i].property.pin)
-                {
-                    reboot = true;
-                }
-            }
-*/
+
             doc["reboot"] = reboot;
 
             if(!reboot){

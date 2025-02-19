@@ -9,7 +9,7 @@ private:
     bool value;
 
 public:
-    int invert;
+    int invert = 0;
     
     DigitalOutput();
     void setup(IOConfigBase* config);

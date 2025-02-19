@@ -111,8 +111,7 @@
                           </div>
                           <div class="row" x-show="sw.type == 1">
                             <p x-text="text.IOBase.DI.func">{Function}</p>
-                            <select 
-                              name="type" 
+                            <select  
                               :id="'sw_' + index + '_invert'" 
                               x-model.defer="sw.invert"
                               x-init="$nextTick(() => { $el.value = sw.invert })"
@@ -127,8 +126,7 @@
                           <div class="row" x-show="sw.type == 2">
                             <p x-text="text.IOBase.DO.func">{Function}</p>
                             <select 
-                              name="type" 
-                              :id="'sw_' + index + '_invert'" 
+                              :id="'sw_'+ index +'_trigger'" 
                               x-model.defer="sw.invert"
                               x-init="$nextTick(() => { $el.value = sw.invert })"
                               >
@@ -141,22 +139,22 @@
                           <div class="row" x-show="sw.type == 4">
                             <p x-text="text.IOBase.Servo.closeDeg">{closeDeg}</p>
                             <div class="input_with_unit">
-                              <span class="unit">°</span><input :id="'sw_'+ index + '_min'" class="with_unit" type="number" x-model="sw.closeDeg"/>
+                              <span class="unit">°</span><input :id="'sw_'+ index + '_closeDeg'" class="with_unit" type="number" x-model="sw.closeDeg"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 4">
                             <p x-text="text.IOBase.Servo.openDeg">{openDeg}</p>
                             <div class="input_with_unit">
-                              <span class="unit">°</span><input :id="'sw_'+ index + '_max'" class="with_unit" type="number" x-model="sw.openDeg"/>
+                              <span class="unit">°</span><input :id="'sw_'+ index + '_openDeg'" class="with_unit" type="number" x-model="sw.openDeg"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 4">
                             <p x-text="text.IOBase.Servo.maxDeg">{maxDeg}</p>
                             <select 
                               name="type" 
-                              :id="'sw_' + index + '_invert'" 
-                              x-model.defer="sw.invert"
-                              x-init="$nextTick(() => { $el.value = sw.invert })"
+                              :id="'sw_' + index + '_maxDeg'" 
+                              x-model.defer="sw.maxDeg"
+                              x-init="$nextTick(() => { $el.value = sw.maxDeg })"
                               >
                               <template x-for="[key, value] in Object.entries(text.IOBase.Servo.maxDegEnum)" :key="key">
                                 <option :value="parseInt(key)" x-text="value"></option>
@@ -166,7 +164,7 @@
                           <div class="row" x-show="sw.type == 4">
                             <p>Moving Time:</p>
                             <div class="input_with_unit">
-                              <span class="unit">ms</span><input :id="'sw_'+ index + '_max'" class="with_unit" type="number" x-model="sw.movingTime"/>
+                              <span class="unit">ms</span><input :id="'sw_'+ index + '_movTime'" class="with_unit" type="number" x-model="sw.movTime"/>
                             </div>
                           </div>
                           

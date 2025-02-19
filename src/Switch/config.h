@@ -7,43 +7,11 @@ void saveSwitchConfig(){
     Serial.println("Switch save in progress..");
     logMessage(Switches,lInfo,"Saving config file");
 
-    serializeJson(tmpSwitchCfg, Serial);
+    serializeJson(tmpSwitchCfg, file);
     tmpSwitchCfg.clear();
     file.close();
-    /*
-    JsonDocument doc;
-    JsonArray array = doc["Switches"].to<JsonArray>();
 
-    for (size_t i = 0; i < _MAX_SWITCH_ID_ ; i++)
-    {
-        if(Switch.config.tmp[i].property.type == SwTypeNull  ){
-            continue;
-        }
-        JsonObject jsonSwitch = array.add<JsonObject>();
-        jsonSwitch["name"] = Switch.config.tmp[i].property.Name;
-        jsonSwitch["desc"] = Switch.config.tmp[i].property.Description;
-        jsonSwitch["type"] = Switch.config.tmp[i].property.type;
-
-        switch(Switch.config.tmp[i].property.type){
-            case SwTypeServo:
-
-                jsonSwitch["min"] = Switch.config.tmp[i].property.minValue;
-                jsonSwitch["max"] = Switch.config.tmp[i].property.maxValue;
-
-            case SwTypePWM:
-            case SwTypeDInput:
-            case SwTypeDOutput:
-                jsonSwitch["pin"] = Switch.config.tmp[i].property.pin;
-                break;
-            default:
-                break;
-        }
-    }
-
-    serializeJson(doc, file);
-    file.close();
     logMessage(Switches,lInfo,"Config saved");
-    */
     
 }
 
@@ -84,11 +52,13 @@ void initSwitchConfig(){
             SwitchObjects[count] = new DigitalInput;
             DigitalInputConfig DiConfig;
             DiConfig.pin=Switche["pin"];
+            DiConfig.invert=Switche["invert"];
             SwitchObjects[count]->setup(&DiConfig);
         } else if(Switche["type"] == static_cast<int>(SwTypeDOutput)){
             SwitchObjects[count] = new DigitalOutput;
             DigitalOutputConfig DOConfig;
             DOConfig.pin=Switche["pin"];
+            DOConfig.invert=Switche["invert"];
             SwitchObjects[count]->setup(&DOConfig);
         //PWM Output
         } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
