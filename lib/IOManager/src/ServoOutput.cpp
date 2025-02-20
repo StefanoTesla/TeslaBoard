@@ -171,7 +171,8 @@ switch (cycle){
       break;
     
     default:
-      Serial.println(cycle);
+      cycle = 0;
+      moving = false;
       break;
   }
 }

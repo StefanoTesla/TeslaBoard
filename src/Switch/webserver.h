@@ -37,7 +37,7 @@ void switchWebServer(){
                 ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
                 jsonSwitch["openDeg"] = servo->openDeg;
                 jsonSwitch["closeDeg"] = servo->closeDeg;
-                jsonSwitch["maxDeg"] = servo->maxDeg;
+                jsonSwitch["maxDeg"] = servo->getMax();
                 jsonSwitch["movingTime"] = servo->movingTime;
             }
 
@@ -90,7 +90,7 @@ void switchWebServer(){
                 value = p->value().toInt();
             } 
         }
-        if(id < 0 || id >= Switch.config.configuredSwitch && SwitchObjects[id] != nullptr){
+        if(id < 0 || id >= Switch.config.configuredSwitch){
             logMessageFormatted(Switches,lErr,"cmd. not exec, ID out of range",id);
             doc["error"] = "SwIdOutOfRange";
             err= true;
@@ -102,7 +102,7 @@ void switchWebServer(){
         }
         if(value < 0){
             doc["error"] = "SwValueAbsent";
-            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d value not provided",id);
+            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d value not provided or less than 0",id);
             err= true;
         } else {
             if(value < SwitchObjects[id]->getMin()){
@@ -117,33 +117,23 @@ void switchWebServer(){
             }
         }
 
-        switch (SwitchObjects[id]->getType())
+        if (SwitchObjects[id]->getType() < 2)
         {
-        case SwTypeDInput:
-        case SwTypeNull:
             err = true;
             doc["error"] = "SwNotWritable";
             logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d switch cannot be writable",id);
-            err= true;
-            break;
+        }
+
+
+        if(err){
+            response->setLength();
+            request->send(response);
+            return;
+        }
+
+        SwitchObjects[id]->write(value);
+        doc["execute"] = true;
         
-        default:
-            break;
-        }
-
-
-        if(!err){
-            /*
-            Switch.data[id].command.intValue = value;
-            if(value == Switch.data[id].property.minValue){
-                Switch.data[id].command.boValue = false;
-            } else {
-                Switch.data[id].command.boValue = true;
-            }
-            Switch.data[id].command.execute = true;
-            */
-            doc["execute"] = true;
-        }
 
         response->setLength();
         request->send(response);

@@ -9,19 +9,18 @@ class ServoOutput : public IOBase {
 private:
     unsigned int channel;
     int value;
-    bool invert;
-    int cycle;
-    bool moving;
-    bool overridePosition;
+    int cycle = 0;
+    bool moving = 0;
+    bool overridePosition = true;
 
     struct MoveToSlowlyStruct{
-        unsigned long startTime;
-        unsigned long endTime;
-        unsigned int destination;
-        unsigned long intervall;
-        bool increment;
-        int nextDeg;
-        unsigned long actualMillis;
+        unsigned long startTime = 0;
+        unsigned long endTime = 0;
+        unsigned int destination = 0;
+        unsigned long intervall = 0;
+        bool increment = false;
+        int nextDeg = 0;
+        unsigned long actualMillis = 0;
     };
 
     MoveToSlowlyStruct MoveToSlowly;
@@ -29,9 +28,9 @@ private:
     void servoHandler();
 
 public:
-    unsigned int closeDeg;
-    unsigned int openDeg;
-    unsigned long movingTime;
+    unsigned int closeDeg = 0;
+    unsigned int openDeg = 0;
+    unsigned long movingTime = 0;
     int currentAngle;
 
     ServoOutput();

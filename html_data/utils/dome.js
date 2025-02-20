@@ -22,7 +22,7 @@ export function dome(){
 
 
     saveDomeSetting(){
-        if(this.validateDome()){
+        if(!this.validateDome()){
             const ip = import.meta.env.VITE_BOARD_IP
             fetch(ip + '/api/dome/cfg', {
                 method: 'POST',
@@ -59,29 +59,34 @@ export function dome(){
     },
 
     validateDome(){
-        let valid = true
         this.parseObjectToInt(this.dome)
         //input open
-        if(this.invalidInputPin(this.dome.pinOpen.pin,"dome_in_open")){ valid = false}
-        if(this.negativeValue( this.dome.pinOpen.dOn,"dome_in_open_don")){ valid = false }
-        if(this.negativeValue( this.dome.pinOpen.dOff,"dome_in_open_doff")){ valid = false }
-        if(this.negativeValue( this.dome.pinOpen.invert,"dome_in_open_invert" || this.greaterThen(this.dome.pinOpen.invert,1,"dome_in_open_invert"))){ valid = false }
+        let err = false;
 
+        //input open
+        err |= new Validator(this.dome.pinOpen.pin,"dome_in_open").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinOpen.dOn,"dome_in_open_don").negativeValue().evaluate()
+        err |= new Validator(this.dome.pinOpen.dOff,"dome_in_open_doff").negativeValue().evaluate()
+        err |= new Validator(this.dome.pinOpen.invert,"dome_in_open_invert").negativeValue().greaterThen(1).evaluate()
         //input close
-        if(this.invalidInputPin( this.dome.pinClose.pin,"dome_in_close")){ valid = false }
-        if(this.negativeValue( this.dome.pinClose.dOn,"dome_in_close_don")){ valid = false }
-        if(this.negativeValue( this.dome.pinClose.dOff,"dome_in_close_doff")){ valid = false }
-        if(this.negativeValue( this.dome.pinOpen.invert,"dome_in_close_invert" || this.greaterThen(this.dome.pinOpen.invert,1,"dome_in_close_invert"))){ valid = false }
-        //outputs
-        if(this.invalidOutputPin( this.dome.pinStart.pin,"dome_out_start")){ valid = false }
-        if(this.negativeValue( this.dome.pinStart.invert,"dome_out_start_invert" || this.greaterThen(this.dome.pinHalt.invert,1,"dome_out_start_invert"))){ valid = false }
+        err |= new Validator(this.dome.pinClose.pin,"dome_in_close").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinClose.dOn,"dome_in_close_don").negativeValue().evaluate()
+        err |= new Validator(this.dome.pinClose.dOff,"dome_in_close_doff").negativeValue().evaluate()
+        err |= new Validator(this.dome.pinClose.invert,"dome_in_close_invert").negativeValue().greaterThen(1).evaluate()
 
-        if(this.invalidOutputPin( this.dome.pinHalt.pin,"dome_out_halt")){ valid = false }
-        if(this.negativeValue( this.dome.pinHalt.invert,"dome_out_halt_invert") || this.greaterThen(this.dome.pinHalt.invert,1,"dome_out_halt_invert")){ valid = false }
+        //outputs
+        err |= new Validator(this.dome.pinStart.pin,"dome_out_start").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinStart.invert,"dome_out_start_invert").negativeValue().greaterThen(1).evaluate()
+
+        //outputs
+        err |= new Validator(this.dome.pinHalt.pin,"dome_out_halt").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinHalt.invert,"dome_out_halt_invert").negativeValue().greaterThen(1).evaluate()
+
         //timers
-        if(this.negativeValue( this.dome.movTimeOut,"dome_timeout")){ valid = false }
-        if(this.negativeValue( this.dome.autoclose.minutes,"dome_autoclose_time")){ valid = false }
-        return valid
+        err |= new Validator(this.dome.movTimeOut,"dome_timeout").negativeValue().greaterThen(1000).evaluate()
+        err |= new Validator(this.dome.autoclose.minutes,"dome_autoclose_time").negativeValue().greaterThen(1).evaluate()
+
+        return err
     },
 
     

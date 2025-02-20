@@ -160,31 +160,31 @@ export function coverc(){
         validateCoverC(){
             let valid = true
             this.parseObjectToInt(this.coverC)
-
+            let err = false;
             if(this.coverC.calibrator.present){
-                if(this.invalidOutputPin( this.coverC.calibrator.pin,"coverc_calibrator_out" )){ valid = false }
+                err |= new Validator(this.coverC.calibrator.pin,"coverc_calibrator_out").invalidOutputPin().evaluate()
             } else {
                 this.removeValidationErrorClass("coverc_calibrator_out")
             }
             if(this.coverC.cover.present){
-                if(this.invalidOutputPin(this.coverC.cover.pin,"coverc_cover_out")){ valid = false }
-                if(this.negativeValue(this.coverC.cover.maxDeg,"coverc_cover_max_deg") || this.greaterThen(this.coverC.cover.maxDeg,270,"coverc_cover_max_deg")){ valid = false }
-                if(this.negativeValue(this.coverC.cover.closeDeg,"coverc_cover_close_deg")){ valid = false }
-                if(this.negativeValue(this.coverC.cover.openDeg,"coverc_cover_open_deg") ){ valid = false }
-                if(this.greaterThen(this.coverC.cover.closeDeg,this.coverC.cover.maxDeg,"coverc_cover_close_deg")){ valid = false }
-                if(this.greaterThen(this.coverC.cover.openDeg,this.coverC.cover.maxDeg,"coverc_cover_open_deg")){ valid = false }
+                err |= new Validator(this.coverC.cover.pin,"coverc_cover_out").invalidOutputPin().evaluate()
+                err |= new Validator(this.coverC.cover.maxDeg,"coverc_cover_max_deg").negativeValue().evaluate()
+                err |= new Validator(this.coverC.cover.closeDeg,"coverc_cover_close_deg").negativeValue().greaterThen(this.coverC.cover.maxDeg).evaluate()
+                err |= new Validator(this.coverC.cover.openDeg,"coverc_cover_open_deg").negativeValue().greaterThen(this.coverC.cover.maxDeg).evaluate()
+                err |= new Validator(this.coverC.cover.movTime,"coverc_cover_mov_time").negativeValue().evaluate()
             } else {
                 this.removeValidationErrorClass("coverc_cover_out")
                 this.removeValidationErrorClass("coverc_cover_max_deg")
                 this.removeValidationErrorClass("coverc_cover_close_deg")
                 this.removeValidationErrorClass("coverc_cover_open_deg")
+                this.removeValidationErrorClass("coverc_cover_mov_time")
             }
-            return valid
+            return err
         
         },
 
         saveCoverCSetting(){
-            if(this.validateCoverC()){
+            if(!this.validateCoverC()){
                 const ip = import.meta.env.VITE_BOARD_IP
                 fetch(ip + '/api/coverc/cfg', {
                     method: 'POST',
