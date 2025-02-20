@@ -66,7 +66,7 @@ struct SwitchConfiStruct{
 /* SWITCH STRUCT */
 struct SwitchStruct{
   SwitchConfiStruct config;
-  SwitchArrayStruct data[_MAX_SWITCH_ID_];
+  //SwitchArrayStruct data[_MAX_SWITCH_ID_];
   
 } Switch;
 

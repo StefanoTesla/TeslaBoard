@@ -44,19 +44,15 @@ void coverCycle(){
     }
     
   }
-  
-  if( CoverC.status.cover.status != CoverStatusMoving ){ return; }
 
   if(CoverC.command.cover.move){
     if(CoverC.status.cover.status == CoverStatusUnknow){
       Cover.write(CoverC.command.cover.angle);
     } else {
-      Cover.goToSlowly(CoverC.command.cover.angle);
+      Cover.goToSlowly(CoverC.command.cover.angle,false);
     }
     CoverC.command.cover.move = false;
   }
-
-  Cover.loop();
   
 }
 

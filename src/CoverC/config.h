@@ -61,11 +61,11 @@ void initCoverCConfig(){
             ServoOutputConfig CoverConfig;
             CoverConfig.pin = cover["pin"];
             CoverConfig.channel = tmpCh;
+            CoverConfig.maxDeg = cover["maxDeg"];
             Cover.setup(&CoverConfig);
             Cover.movingTime = cover["movTime"];
             Cover.openDeg = cover["openDeg"];
-            Cover.closeDeg = cover["closeDeg"];
-            Cover.maxDeg = cover["maxDeg"];
+            Cover.closeDeg = cover["closeDeg"]; 
         }
     }
 

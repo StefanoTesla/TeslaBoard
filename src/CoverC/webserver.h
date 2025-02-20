@@ -17,7 +17,7 @@ void coverWebServer(){
         cover["pin"] = Cover.getPinNumber();
         cover["closeDeg"] = Cover.closeDeg;
         cover["openDeg"] = Cover.openDeg;
-        cover["maxDeg"] = Cover.maxDeg;
+        cover["maxDeg"] = Cover.getMax();
         cover["movTime"] = Cover.movingTime;
         
         doc["reboot"] = CoverC.config.save.restartNeeded;
@@ -50,7 +50,7 @@ void coverWebServer(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        if(CoverC.command.cover.move == false && CoverC.config.cover.present){
+        if(Cover.isMoving() == false && CoverC.config.cover.present){
             doc["execute"] = true;
             CoverC.command.cover.move = true;
             CoverC.command.cover.angle = Cover.openDeg;
@@ -59,7 +59,7 @@ void coverWebServer(){
             if(!CoverC.config.cover.present){
                 doc["error"] = "coverNotPresent";
             }
-            if(CoverC.command.cover.move == true){
+            if(Cover.isMoving()){
                 doc["error"] = "coverIsMoving";
             }
         }
@@ -71,7 +71,7 @@ void coverWebServer(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        if(CoverC.command.cover.move == false && CoverC.config.cover.present){
+        if(Cover.isMoving() == false && CoverC.config.cover.present){
             doc["execute"] = true;
             CoverC.command.cover.move = true;
             CoverC.command.cover.angle = Cover.closeDeg;
@@ -80,7 +80,7 @@ void coverWebServer(){
             if(!CoverC.config.cover.present){
                 doc["error"] = "coverNotPresent";
             }
-            if(CoverC.command.cover.move == true){
+            if(Cover.isMoving()){
                 doc["error"] = "coverIsMoving";
             }
         }
@@ -235,15 +235,13 @@ void coverWebServer(){
             }
 
             if(!error){
-                /* input */
                 CoverCConfigTmp = json;
-
                 CoverC.config.save.execute = true;
 
                 if(!reboot ){
-                    Cover.maxDeg = cover["maxDeg"];
                     Cover.openDeg = cover["openDeg"];
                     Cover.closeDeg = cover["closeDeg"];
+                    Cover.setMax(cover["maxDeg"]);
                     Cover.movingTime = cover["movTime"];
                 }
             } else {

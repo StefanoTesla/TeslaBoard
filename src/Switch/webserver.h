@@ -90,7 +90,7 @@ void switchWebServer(){
                 value = p->value().toInt();
             } 
         }
-        if(id < 0 || id >= Switch.config.configuredSwitch){
+        if(id < 0 || id >= Switch.config.configuredSwitch && SwitchObjects[id] != nullptr){
             logMessageFormatted(Switches,lErr,"cmd. not exec, ID out of range",id);
             doc["error"] = "SwIdOutOfRange";
             err= true;
@@ -105,19 +105,19 @@ void switchWebServer(){
             logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d value not provided",id);
             err= true;
         } else {
-            if(value < Switch.data[id].property.minValue){
+            if(value < SwitchObjects[id]->getMin()){
                 doc["error"] = "SwValueBehindMin";
                 logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d below min",id,value);
                 err= true;
             }
-            if(value > Switch.data[id].property.maxValue){
+            if(value > SwitchObjects[id]->getMax()){
                 doc["error"] = "SwValueOverMax";
                 logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d exceeded max",id,value);
                 err= true;
             }
         }
 
-        switch (Switch.data[id].property.type)
+        switch (SwitchObjects[id]->getType())
         {
         case SwTypeDInput:
         case SwTypeNull:
@@ -133,6 +133,7 @@ void switchWebServer(){
 
 
         if(!err){
+            /*
             Switch.data[id].command.intValue = value;
             if(value == Switch.data[id].property.minValue){
                 Switch.data[id].command.boValue = false;
@@ -140,6 +141,7 @@ void switchWebServer(){
                 Switch.data[id].command.boValue = true;
             }
             Switch.data[id].command.execute = true;
+            */
             doc["execute"] = true;
         }
 

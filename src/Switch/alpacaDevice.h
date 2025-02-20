@@ -5,12 +5,17 @@
 
 
 bool canBeWritten(unsigned int id){
-      if(
-      Switch.data[id].property.type == SwTypeDOutput ||
-      Switch.data[id].property.type == SwTypePWM ||
-      Switch.data[id].property.type == SwTypeServo
-      ){ 
-            return true; 
+      if(SwitchObjects[id] == nullptr){ return false; }
+      switch (SwitchObjects[id]->getType())
+      {
+      case SwTypeDOutput:
+      case SwTypePWM:
+      case SwTypeServo:
+            return true;
+            break;
+      
+      default:
+            break;
       }
       return false;
 }
@@ -81,7 +86,7 @@ AsyncMiddlewareFunction getID([](AsyncWebServerRequest* request, ArMiddlewareNex
             parameter.toLowerCase();
             if (parameter == "id") {
                   id = p->value().toInt();
-                  if( id >= 0 && id < Switch.config.configuredSwitch){
+                  if( id >= 0 && id < Switch.config.configuredSwitch && SwitchObjects[id] != nullptr){
                         request->setAttribute("id", static_cast<long>(id));
                         next();
                         return;
@@ -100,11 +105,7 @@ void missingStateErrorMessage(AsyncWebServerRequest *request) {
       JsonObject doc = response->getRoot().to<JsonObject>();
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
-      if (Global.config.language.locale == "it"){
-            sprintf(message,"Parametro \"State\" non fornito");
-      } else {
-            sprintf(message,"\"State\" parameter not provided");
-      }
+      sprintf(message,"\"State\" parameter not provided");
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -188,7 +189,7 @@ AsyncMiddlewareFunction getValue([](AsyncWebServerRequest* request, ArMiddleware
 AsyncMiddlewareFunction isValueable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
       int id = request->getAttribute("id").toInt();
       int value = request->getAttribute("value").toInt();
-      if(canBeWritten(id) && (value >= Switch.data[id].property.minValue && value <= Switch.data[id].property.maxValue) ){
+      if(canBeWritten(id) && (value >= SwitchObjects[id]->getMin() && value <= SwitchObjects[id]->getMax()) ){
             next();
             return;
       }
@@ -249,7 +250,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].actualValue.boValue;
+            doc["Value"] = SwitchObjects[id]->status() ? true : false;
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -262,7 +263,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].property.Description;
+            doc["Value"] = SwitchObjects[id]->getDescription();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -275,7 +276,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].property.Name;
+            doc["Value"] = SwitchObjects[id]->getName();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -288,7 +289,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].actualValue.intValue;
+            doc["Value"] = SwitchObjects[id]->status();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -301,7 +302,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].property.minValue;
+            doc["Value"] = SwitchObjects[id]->getMin();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -314,7 +315,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = Switch.data[id].property.maxValue;
+            doc["Value"] = SwitchObjects[id]->getMax();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -339,7 +340,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = !Switch.data[id].command.execute;
+            doc["Value"] = true;
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -360,7 +361,7 @@ void switchAlpacaDevice(){
                   char message[15];
                   sprintf(message, "GetSwitch%d", i);
                   getSwitch["Name"] = message;
-                  getSwitch["Value"] = Switch.data[i].actualValue.boValue;
+                  getSwitch["Value"] = SwitchObjects[i].actualValue.boValue;
             }
             //getSwitchValue
             for (int i = 0; i < Switch.config.configuredSwitch; i++)

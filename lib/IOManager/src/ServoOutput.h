@@ -15,6 +15,8 @@ private:
     bool overridePosition;
 
     struct MoveToSlowlyStruct{
+        unsigned long startTime;
+        unsigned long endTime;
         unsigned int destination;
         unsigned long intervall;
         bool increment;
@@ -27,24 +29,26 @@ private:
     void servoHandler();
 
 public:
-    unsigned int maxDeg;
     unsigned int closeDeg;
     unsigned int openDeg;
     unsigned long movingTime;
+    int currentAngle;
 
     ServoOutput();
     void setup(IOConfigBase* config);
     int readPin() override;
-    int write(int _valore) override;
+    int write(int _angle) override;
     bool goToSlowly(int _angle=0, bool overridePosition = true);
     int status();
     unsigned int getChannel();
     int getType() override;
     int setServoAngle(int _angle);
+    int readAngle();
     bool isClose();
     bool isOpen();
     bool isMoving();
     void loop();
+    void setMax(int _value);
 };
 
 #endif

@@ -4,35 +4,13 @@
 #include "config.h"
 
 void updateSwitchState(){
-    for(int i=0;i<_MAX_SWITCH_ID_;i++){
-        int value = 0;
-        switch(Switch.data[i].property.type){
-            case SwTypeNull:
-                Switch.data[i].actualValue.boValue =false;
-                Switch.data[i].actualValue.intValue = 0;
-                break;
-            case SwTypeDInput:
-            case SwTypeDOutput:
-                digitalRead(Switch.data[i].property.pin);
-                Switch.data[i].actualValue.boValue = SwitchObjects[i]->status() ? true : false;
-                Switch.data[i].actualValue.intValue = SwitchObjects[i]->status();
-                break;
-            case SwTypePWM:
-                Switch.data[i].actualValue.intValue = map(ledcRead(Switch.data[i].property.pwmch),0,4096,Switch.data[i].property.minValue,Switch.data[i].property.maxValue);
-                Switch.data[i].actualValue.boValue = Switch.data[i].actualValue.intValue > Switch.data[i].property.minValue ? true : false;
-                break;
-            case SwTypeServo:
-                value  = ledcRead(Switch.data[i].property.pwmch);
-                break;
-            default:
-                break;
-        }
-
+    for(int i=0;i<Switch.config.configuredSwitch;i++){
+        if(SwitchObjects[i] == nullptr){ continue; }
+        SwitchObjects[i]->status();
     }
-    
 }
 
-
+/*
 void setSwitchValue(){
     for(int i=0;i<_MAX_SWITCH_ID_;i++){
         if(!Switch.data[i].command.execute){
@@ -69,10 +47,10 @@ void setSwitchValue(){
     }
 
 }
-
+*/
 
 void SwitchLoop(){
-    //updateSwitchState();
+    updateSwitchState();
     //setSwitchValue();
 
 
@@ -85,7 +63,7 @@ void SwitchLoop(){
 
 #include "webserver.h"
 #include "alpacaManage.h"
-#include "alpacaDevice.h"
+//#include "alpacaDevice.h"
 
 void switchRequestHandler(){
   switchWebServer();

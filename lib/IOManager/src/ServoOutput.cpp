@@ -26,7 +26,7 @@ void ServoOutput::setup(IOConfigBase* config){
     pin = cfg->pin;
     channel = cfg->channel;
     min = 0;
-    max = 1;
+    max = cfg->maxDeg;
     ledcAttachPin(pin, channel);
     Serial.print("New Servo setup at pin: ");
     Serial.print(pin);
@@ -38,13 +38,13 @@ void ServoOutput::setup(IOConfigBase* config){
 }
 
 int ServoOutput::write(int _angle) {
-    if (_angle > 0 && _angle <= maxDeg){
-      int dutyMicros = map(_angle, 0, maxDeg, 544, 2500);
+    if (_angle >= 0 && _angle <= max){
+      int dutyMicros = map(_angle, 0, max, 544, 2500);
       int dutyValue = map(dutyMicros, 0, 20000, 0, 4095); 
       ledcWrite(channel, dutyValue);
+      Serial.println(" done");
       return 1;
     }
-
     return 0;
 
 }
@@ -53,13 +53,20 @@ int ServoOutput::readPin() {
     return ledcRead(channel);
 }
 
+int ServoOutput::readAngle(){
+  float angle = ((float)(readPin() - 111) / (511 - 111)) * max;
+  return round(angle);
+}
+
 int ServoOutput::status(){
     if(overridePosition){
-      return MoveToSlowly.destination;
+      currentAngle = MoveToSlowly.destination;
     } else {
-      float angle = ((float)(readPin() - 111) / (511 - 111)) * maxDeg;
-      return round(angle);
+      currentAngle = readAngle();
     }
+
+    servoHandler();
+    return currentAngle;
 
 }
 
@@ -77,6 +84,7 @@ bool ServoOutput::isClose(){
     }
     return false;
 }
+
 bool ServoOutput::isOpen(){
     if(status()==openDeg && !moving){
         return true;
@@ -91,8 +99,6 @@ bool ServoOutput::isMoving(){
     return false;
 }
 
-
-
 bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
       if(moving){
@@ -100,56 +106,81 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
          return false;
       }
 
-      if(status() < 0 || status()> maxDeg){
+      if(readAngle() < 0 || readAngle()> max){
         Serial.println("Servo is in an undefined position, use write function");
         return false;
       }
 
-      if(_angle < 0 || _angle > maxDeg){
+      if(_angle < 0 || _angle > max){
         Serial.println("invalid commanded angle.");
         return false;
       }
 
       // get in how many ms I need to do a degree
       MoveToSlowly.destination = _angle;
-      MoveToSlowly.intervall = movingTime / maxDeg;
+      MoveToSlowly.intervall = movingTime / max;
       if(MoveToSlowly.intervall == 0){
         MoveToSlowly.intervall = 1;
       }
-      MoveToSlowly.increment = status() > _angle ? false : true; 
+      MoveToSlowly.increment = readAngle() > _angle ? false : true; 
       moving = true;
+      Serial.println();
+      Serial.print("Destinazione: ");
+      Serial.print(MoveToSlowly.destination);
+      Serial.print(" Intervallo: ");
+      Serial.print(MoveToSlowly.intervall);
+      Serial.print(" Angolo attuale: ");
+      Serial.print(readAngle());
+      Serial.print(" Incremento: ");
+      Serial.println(MoveToSlowly.increment);
       overridePosition = _overridePosition ? true : false;
       return true;
 }
 
-
 void ServoOutput::servoHandler(){
 switch (cycle){
     case 0:
+      if(!moving){
+        overridePosition = false;
+        return;
+      }
       MoveToSlowly.actualMillis = millis();
-      MoveToSlowly.nextDeg = status();
-      cycle =10;
+      MoveToSlowly.startTime = millis();
+      MoveToSlowly.nextDeg = readAngle();
+      cycle = 10;
+      Serial.println(cycle);
       break;
+
     case 10:
-      if(millis() - MoveToSlowly.actualMillis > MoveToSlowly.intervall){
-        MoveToSlowly.nextDeg += MoveToSlowly.nextDeg ? -1 : +1;
-        if((MoveToSlowly.increment && MoveToSlowly.nextDeg > MoveToSlowly.destination) ||
-            (!MoveToSlowly.increment && MoveToSlowly.nextDeg < MoveToSlowly.destination)) {
+      if(millis() - MoveToSlowly.actualMillis >= MoveToSlowly.intervall){
+        MoveToSlowly.nextDeg += MoveToSlowly.increment ? +1 : -1;
+        Serial.println(MoveToSlowly.nextDeg);
+        if((MoveToSlowly.increment && MoveToSlowly.nextDeg < MoveToSlowly.destination) ||
+            (!MoveToSlowly.increment && MoveToSlowly.nextDeg > MoveToSlowly.destination)) {
               write(MoveToSlowly.nextDeg);
               MoveToSlowly.actualMillis = millis();
         } else {
           write(MoveToSlowly.destination);
           cycle = 0;
+          Serial.println("Servo cylce is finish");
+          Serial.println(millis()-MoveToSlowly.startTime);
+
           moving = false;
         }
       }
-
+      break;
+    
+    default:
+      Serial.println(cycle);
+      break;
   }
 }
 
-
 void ServoOutput::loop(){
-  if(moving){
-    servoHandler();
+}
+
+void ServoOutput::setMax(int _value){
+  if(_value > 0 && _value <= 360){
+    max = _value;
   }
 }

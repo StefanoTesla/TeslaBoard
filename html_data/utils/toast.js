@@ -9,7 +9,7 @@ export function toast() {
             
         fireToast(id,time = 0) {
             this.visible.push(this.notices.find(notice => notice.id == id))
-            let timeShown = 500
+            let timeShown = 1000
             if (time != 0){
               timeShown = 1000 * time
             }
