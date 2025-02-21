@@ -1,3 +1,5 @@
+import { Validator } from "./Validator";
+
 export function board(){
     return {
 
@@ -8,7 +10,6 @@ export function board(){
             .then(data => {
                 this.board = data;
                 this.load.board = true
-                this.checkUpdate()
             })
             .catch(error => console.error('Error fetching board data:', error));
         },

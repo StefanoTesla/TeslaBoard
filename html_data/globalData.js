@@ -42,7 +42,12 @@ export default function GlobalData() {
             this.fetchTexts(data.locale);
             this.exist = data.define;
             this.updateData()
+            
+            this.version.actual = data.version
+            
+            console.log(this.version.actual)
             this.updateBoard()
+            this.checkUpdate()
             
         })
         .catch(error => console.error('Error fetching board data:', error))
@@ -77,8 +82,7 @@ export default function GlobalData() {
             this.board.wifi.days = Math.floor(this.board.wifi.uptime / (24 * 60));
             this.board.wifi.hours = Math.floor((this.board.wifi.uptime % (24 * 60)) / 60);
             this.board.wifi.minutes = this.board.wifi.uptime % 60;  
-            this.version.actual = parseInt(this.board.version)
-            this.checkUpdate()
+
         })
         .catch(error => console.error('Error fetching board data:', error));
 

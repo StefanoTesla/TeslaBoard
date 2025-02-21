@@ -5,6 +5,7 @@ import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
 import { board} from './utils/board.js'
 import { validation } from './utils/validation.js'
+import { checkFirmwareUpdate } from './utils/checkFirmwareUpdate.js'
 
 export default function BoardSetting() {
     return {
@@ -41,8 +42,6 @@ export default function BoardSetting() {
                 this.getCoverCConfig()
             }
             if(this.exist.switch){
-                console.log("eccome");
-                console.log(this.exist.switch)
                 this.getSwitchConfig()
             }
             
@@ -83,6 +82,7 @@ export default function BoardSetting() {
     ...translations(),
     ...validation(),
     ...toast(),
+    ...checkFirmwareUpdate(),
     ...dome(),
     ...coverc(),
     ...switches(),
