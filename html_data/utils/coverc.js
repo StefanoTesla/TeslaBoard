@@ -184,49 +184,51 @@ export function coverc(){
         },
 
         saveCoverCSetting(){
-            if(!this.validateCoverC()){
-                const ip = import.meta.env.VITE_BOARD_IP
-                fetch(ip + '/api/coverc/cfg', {
-                    method: 'POST',
-                    headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.coverC)
-                }).then(res => {
-                    // Controllo dello stato HTTP
-                    if (!res.ok) {
-                        // Analizzo la risposta JSON anche per errori 500
-                        return res.json().then(errorResponse => {
-                            throw { status: res.status, ...errorResponse };
-                        });
-                    }
-                    return res.json();
-                })
-                .then(res => {
-                    if(res.reboot){
-                        this.reboot.cover = res.reboot
-                        this.modal = true
-                    } else {
-                        this.reboot.cover = false
-                    }
-                    
-                    this.addToast({ type: "success", text: this.text.gen.configSaved, time:3 });
-                })
-                .catch(err => {
-                    if (err.errors) {
-                        err.errors.forEach((error, index) => {
-                            setTimeout(() => {
-                                console.log(`Errore ${index + 1}: ${error}`);
-                                this.addToast({ type: "error", text: `Errore: ${error}` });
-                            }, 1 * index);  // put a delay to avoid toat crash
-                        });
-                    } else {
-                        console.log("Errore sconosciuto:", err);
-                        this.addToast({ type: "error", text: "Errore sconosciuto." });
-                    }
-                });
+            if(this.validateCoverC()){
+                this.addToast({type:"error", message:"Validation Error"})
+                return
             }
+            const ip = import.meta.env.VITE_BOARD_IP
+            fetch(ip + '/api/coverc/cfg', {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.coverC)
+            }).then(res => {
+                // Controllo dello stato HTTP
+                if (!res.ok) {
+                    // Analizzo la risposta JSON anche per errori 500
+                    return res.json().then(errorResponse => {
+                        throw { status: res.status, ...errorResponse };
+                    });
+                }
+                return res.json();
+            })
+            .then(res => {
+                if(res.reboot){
+                    this.reboot.cover = res.reboot
+                    this.modal = true
+                } else {
+                    this.reboot.cover = false
+                }
+                
+                this.addToast({ type: "success", text: this.text.gen.configSaved, time:3 });
+            })
+            .catch(err => {
+                if (err.errors) {
+                    err.errors.forEach((error, index) => {
+                        setTimeout(() => {
+                            console.log(`Errore ${index + 1}: ${error}`);
+                            this.addToast({ type: "error", text: `Errore: ${error}` });
+                        }, 1 * index);  // put a delay to avoid toat crash
+                    });
+                } else {
+                    console.log("Errore sconosciuto:", err);
+                    this.addToast({ type: "error", text: "Errore sconosciuto." });
+                }
+            });
         }
 
     }
