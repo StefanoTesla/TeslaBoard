@@ -182,7 +182,7 @@
 
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalSwitchesConfig()">{loadFromBoard}</button>
-                  <a href="./switch/switchconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a href="./switch/switchconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveSwitchesSetting()">{save}</button>
                 </div>
               </div>
@@ -416,7 +416,7 @@
 
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalDomeConfig()">{loadFromBoard}</button>
-                  <a href="./dome/domeconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a href="./dome/domeconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveDomeSetting()">{save}</button>
                 </div>
 
@@ -517,7 +517,7 @@
                 </div>
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalCoverCConfig()">{loadFromBoard}</button>
-                  <a href="./cover/ccconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a class="f_button orange" href="./cover/ccconfig.txt" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveCoverCSetting()">{save}</button>
                 </div>
               </div>
@@ -634,7 +634,7 @@
                 </div>
               </div>
               <div class="config_buttons">
-                <a href="./board/boarcfg.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                <a href="./board/boarcfg.txt" class="f_button orange" x-text="text.gen.downloadFile"> download></a>
                 <button class="red" x-text="text.gen.save" @click="saveBoardConfig()">{save}</button>
               </div>
             </div>

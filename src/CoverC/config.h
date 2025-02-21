@@ -62,10 +62,10 @@ void initCoverCConfig(){
             CoverConfig.pin = cover["pin"];
             CoverConfig.channel = tmpCh;
             CoverConfig.maxDeg = cover["maxDeg"];
+            CoverConfig.closeDeg = cover["closeDeg"]; 
+            CoverConfig.openDeg = cover["openDeg"];
+            CoverConfig.movTime = cover["movTime"];
             Cover.setup(&CoverConfig);
-            Cover.movingTime = cover["movTime"];
-            Cover.openDeg = cover["openDeg"];
-            Cover.closeDeg = cover["closeDeg"]; 
         }
     }
 

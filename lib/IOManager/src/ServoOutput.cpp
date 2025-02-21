@@ -27,11 +27,17 @@ void ServoOutput::setup(IOConfigBase* config){
     channel = cfg->channel;
     min = 0;
     max = cfg->maxDeg;
+    openDeg = cfg->openDeg;
+    movingTime = cfg->movTime;
     ledcAttachPin(pin, channel);
     Serial.print("New Servo setup at pin: ");
     Serial.print(pin);
     Serial.print(" at channel: ");
-    Serial.println(channel);
+    Serial.print(channel);
+    Serial.print(" max Deg: ");
+    Serial.print(max);
+    Serial.print(" moviment time: ");
+    Serial.println(movingTime);
 } else {
     Serial.println("Errore: SERVO tipo di configurazione non valido!");
 }
@@ -98,6 +104,16 @@ bool ServoOutput::isMoving(){
     }
     return false;
 }
+
+void ServoOutput::goTo(int _angle,bool slowPermitted){
+
+  if(isReferenced() && slowPermitted && movingTime != 0){
+    goToSlowly(_angle,true);
+  } else {
+    write(_angle);
+  }
+}
+
 
 bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
@@ -184,4 +200,11 @@ void ServoOutput::setMax(int _value){
   if(_value > 0 && _value <= 360){
     max = _value;
   }
+}
+
+bool ServoOutput::isReferenced(){
+  if(readAngle() >= 0 && readAngle()<=getMax()){
+    return true;
+  }
+  return false;
 }

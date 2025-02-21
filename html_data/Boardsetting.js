@@ -1,10 +1,10 @@
 import { toast } from './utils/toast.js'
-import { validation } from './utils/validation.js'
 import { translations } from './utils/translations.js'
 import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
 import { board} from './utils/board.js'
+import { validation } from './utils/validation.js'
 
 export default function BoardSetting() {
     return {
@@ -63,6 +63,12 @@ export default function BoardSetting() {
         const ip = import.meta.env.VITE_BOARD_IP
         fetch(ip+'/api/board/reboot')
         .then(response => response.json())
+        .then(response => {
+            setTimeout(function(){
+                location.reload();
+            }, 3000);
+        }
+        )
         .catch(error => console.error('Error fetching board data:', error));
     },
     wifiReset(){

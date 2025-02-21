@@ -38,7 +38,7 @@ void switchWebServer(){
                 jsonSwitch["openDeg"] = servo->openDeg;
                 jsonSwitch["closeDeg"] = servo->closeDeg;
                 jsonSwitch["maxDeg"] = servo->getMax();
-                jsonSwitch["movingTime"] = servo->movingTime;
+                jsonSwitch["movTime"] = servo->movingTime;
             }
 
         }
@@ -117,7 +117,7 @@ void switchWebServer(){
             }
         }
 
-        if (SwitchObjects[id]->getType() < 2)
+        if (SwitchObjects[id]->getType() < static_cast<int>(SwTypeDOutput))
         {
             err = true;
             doc["error"] = "SwNotWritable";
@@ -131,7 +131,13 @@ void switchWebServer(){
             return;
         }
 
-        SwitchObjects[id]->write(value);
+        if (SwitchObjects[id]->getType() != static_cast<int>(SwTypeServo)){
+            SwitchObjects[id]->write(value);
+        } else {
+            ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+            servo->goTo(value,true);
+        }
+        
         doc["execute"] = true;
         
 

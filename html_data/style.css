@@ -168,6 +168,10 @@ button{
   @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase
 }
 
+.f_button{
+  @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase h-10 w-fit mx-auto md:mx-0 mb-4
+}
+
 .green{
   background-color: var(--green);
   color: #212121;

@@ -209,8 +209,8 @@ void coverWebServer(){
                 error=true;
                 err.add("Cover enable");
             }
-            if( cover["pin"].is<unsigned int>() and commonValidateOutputPin(calibrator["pin"])){
-                if (calibrator["pin"] != Calibrator.getPinNumber()){
+            if( cover["pin"].is<unsigned int>() and commonValidateOutputPin(cover["pin"])){
+                if (cover["pin"] != Cover.getPinNumber()){
                     reboot = true;
                 }
             } else {

@@ -18,6 +18,7 @@ export function board(){
         saveBoardConfig(){
 
             if(!this.validateBoardCfg()){
+
                 return
             }
 
@@ -56,10 +57,10 @@ export function board(){
             this.ipAddress(this.board.address.staticIp[1],"board_wifi_staticIP_1")
             this.ipAddress(this.board.address.staticIp[2],"board_wifi_staticIP_2")
             this.ipAddress(this.board.address.staticIp[3],"board_wifi_staticIP_3")
-            this.ipAddress(this.board.address.staticGateway[0],"board_wifi_staticGateway_0")
-            this.ipAddress(this.board.address.staticGateway[1],"board_wifi_staticGateway_1")
-            this.ipAddress(this.board.address.staticGateway[2],"board_wifi_staticGateway_2")
-            this.ipAddress(this.board.address.staticGateway[3],"board_wifi_staticGateway_3")
+            this.ipAddress(this.board.address.staticGateway[0],"board_wifi_staticGat_0")
+            this.ipAddress(this.board.address.staticGateway[1],"board_wifi_staticGat_1")
+            this.ipAddress(this.board.address.staticGateway[2],"board_wifi_staticGat_2")
+            this.ipAddress(this.board.address.staticGateway[3],"board_wifi_staticGat_3")
             this.ipAddress(this.board.address.staticSubnet[0],"board_wifi_staticSub_0")
             this.ipAddress(this.board.address.staticSubnet[1],"board_wifi_staticSub_1")
             this.ipAddress(this.board.address.staticSubnet[2],"board_wifi_staticSub_2")
@@ -67,20 +68,23 @@ export function board(){
         },
 
         validateBoardCfg(){
-            let valid=true;
+            let err=false;
             if(this.board.address.enStaticIP){
-                console.debug("checking ip..")
-                if(this.ipAddress(this.board.address.staticIp[0],"board_wifi_staticIP_0")){valid=false}
-                if(this.ipAddress(this.board.address.staticIp[1],"board_wifi_staticIP_1")){valid=false}
-                if(this.ipAddress(this.board.address.staticIp[2],"board_wifi_staticIP_2")){valid=false}
-                if(this.ipAddress(this.board.address.staticIp[3],"board_wifi_staticIP_3")){valid=false}
-                if(this.ipAddress(this.board.address.staticSubnet[0],"board_wifi_staticSub_0")){valid=false}
-                if(this.ipAddress(this.board.address.staticSubnet[1],"board_wifi_staticSub_1")){valid=false}
-                if(this.ipAddress(this.board.address.staticSubnet[2],"board_wifi_staticSub_2")){valid=false}
-                if(this.ipAddress(this.board.address.staticSubnet[3],"board_wifi_staticSub_3")){valid=false}
+                err |= new Validator(this.board.address.staticIp[0],"board_wifi_staticIP_0").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticIp[1],"board_wifi_staticIP_1").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticIp[2],"board_wifi_staticIP_2").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticIp[3],"board_wifi_staticIP_3").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticSubnet[0],"board_wifi_staticSub_0").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticSubnet[1],"board_wifi_staticSub_1").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticSubnet[2],"board_wifi_staticSub_2").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticSubnet[3],"board_wifi_staticSub_3").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticGateway[0],"board_wifi_staticGat_0").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticGateway[1],"board_wifi_staticGat_1").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticGateway[2],"board_wifi_staticGat_2").negativeValue().greaterThen(255).evalutate()
+                err |= new Validator(this.board.address.staticGateway[3],"board_wifi_staticGat_3").negativeValue().greaterThen(255).evalutate()
             }
 
-            if(!valid){
+            if(err){
                 console.error("not valid")
                 this.addToast({"type":"error","text":"Error in the static ip"})
                 return false;
@@ -103,9 +107,5 @@ export function board(){
 
             return true;
         }
-
     }
-
-
-
 }

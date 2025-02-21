@@ -22,40 +22,41 @@ export function dome(){
 
 
     saveDomeSetting(){
-        if(!this.validateDome()){
-            const ip = import.meta.env.VITE_BOARD_IP
-            fetch(ip + '/api/dome/cfg', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json, text/plain, */*',
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(this.dome)
-                })
-                .then(async res => {
-                    if (!res.ok) { 
-                        const errorData = await res.json();
-                        throw new Error(JSON.stringify(errorData)); 
-                    }
-                    return res.json();
-                })
-                .then(res => {
-                    this.addToast({ type:"success", text: this.text.gen.configSaved, time:3 })
-                    this.reboot.dome = res.reboot ? true : false
-                    this.modal = res.reboot
-
-                })
-                .catch(err => {
-                    try {
-                        const errorData = JSON.parse(err.message);
-                        console.log("Errors:", errorData.errors);
-                        this.addToast({ type: "error", text: "Errore: " + errorData.errors.join(", "), time:3 });
-                    } catch (parseError) {
-                        console.log("Errore sconosciuto:", err);
-                        this.addToast({ type: "error", text: "Errore sconosciuto.", time:3 });
-                    }
-                });
+        if(this.validateDome()){
+            return
         }
+        const ip = import.meta.env.VITE_BOARD_IP
+        fetch(ip + '/api/dome/cfg', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.dome)
+            })
+            .then(async res => {
+                if (!res.ok) { 
+                    const errorData = await res.json();
+                    throw new Error(JSON.stringify(errorData)); 
+                }
+                return res.json();
+            })
+            .then(res => {
+                this.addToast({ type:"success", text: this.text.gen.configSaved, time:3 })
+                this.reboot.dome = res.reboot ? true : false
+                this.modal = res.reboot
+
+            })
+            .catch(err => {
+                try {
+                    const errorData = JSON.parse(err.message);
+                    console.log("Errors:", errorData.errors);
+                    this.addToast({ type: "error", text: "Errore: " + errorData.errors.join(", "), time:3 });
+                } catch (parseError) {
+                    console.log("Errore sconosciuto:", err);
+                    this.addToast({ type: "error", text: "Errore sconosciuto.", time:3 });
+                }
+            });
     },
 
     validateDome(){
@@ -64,27 +65,27 @@ export function dome(){
         let err = false;
 
         //input open
-        err |= new Validator(this.dome.pinOpen.pin,"dome_in_open").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinOpen.pin,"dome_in_open").isInvalidPin("input").evaluate()
         err |= new Validator(this.dome.pinOpen.dOn,"dome_in_open_don").negativeValue().evaluate()
         err |= new Validator(this.dome.pinOpen.dOff,"dome_in_open_doff").negativeValue().evaluate()
-        err |= new Validator(this.dome.pinOpen.invert,"dome_in_open_invert").negativeValue().greaterThen(1).evaluate()
+        err |= new Validator(this.dome.pinOpen.invert,"dome_in_open_invert").negativeValue().greaterThan(1).evaluate()
         //input close
-        err |= new Validator(this.dome.pinClose.pin,"dome_in_close").invalidInputPin().evaluate()
+        err |= new Validator(this.dome.pinClose.pin,"dome_in_close").isInvalidPin("input").evaluate()
         err |= new Validator(this.dome.pinClose.dOn,"dome_in_close_don").negativeValue().evaluate()
         err |= new Validator(this.dome.pinClose.dOff,"dome_in_close_doff").negativeValue().evaluate()
-        err |= new Validator(this.dome.pinClose.invert,"dome_in_close_invert").negativeValue().greaterThen(1).evaluate()
+        err |= new Validator(this.dome.pinClose.invert,"dome_in_close_invert").negativeValue().greaterThan(1).evaluate()
 
         //outputs
-        err |= new Validator(this.dome.pinStart.pin,"dome_out_start").invalidInputPin().evaluate()
-        err |= new Validator(this.dome.pinStart.invert,"dome_out_start_invert").negativeValue().greaterThen(1).evaluate()
+        err |= new Validator(this.dome.pinStart.pin,"dome_out_start").isInvalidPin("output").evaluate()
+        err |= new Validator(this.dome.pinStart.invert,"dome_out_start_invert").negativeValue().greaterThan(1).evaluate()
 
         //outputs
-        err |= new Validator(this.dome.pinHalt.pin,"dome_out_halt").invalidInputPin().evaluate()
-        err |= new Validator(this.dome.pinHalt.invert,"dome_out_halt_invert").negativeValue().greaterThen(1).evaluate()
+        err |= new Validator(this.dome.pinHalt.pin,"dome_out_halt").isInvalidPin("output").evaluate()
+        err |= new Validator(this.dome.pinHalt.invert,"dome_out_halt_invert").negativeValue().greaterThan(1).evaluate()
 
         //timers
-        err |= new Validator(this.dome.movTimeOut,"dome_timeout").negativeValue().greaterThen(1000).evaluate()
-        err |= new Validator(this.dome.autoclose.minutes,"dome_autoclose_time").negativeValue().greaterThen(1).evaluate()
+        err |= new Validator(this.dome.movTimeOut,"dome_timeout").negativeValue().greaterThan(1000).evaluate()
+        err |= new Validator(this.dome.autoclose.minutes,"dome_autoclose_time").negativeValue().greaterThan(1).evaluate()
 
         return err
     },

@@ -48,6 +48,8 @@ public:
     bool isMoving();
     void loop();
     void setMax(int _value);
+    void goTo(int _angle,bool slowPermitted); //used only for switch, software decide to perform a direct or slow moviment
+    bool isReferenced();
 };
 
 #endif

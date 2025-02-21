@@ -1,3 +1,4 @@
+
 import { toast } from './utils/toast.js'
 import { validation } from './utils/validation.js'
 import { translations } from './utils/translations.js'
@@ -5,6 +6,7 @@ import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
 import { checkFirmwareUpdate } from './utils/checkFirmwareUpdate.js'
+
 
 export default function GlobalData() {
     return {
