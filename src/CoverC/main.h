@@ -44,6 +44,7 @@ void coverCycle(){
     
   }
 
+
   if(CoverC.command.cover.move){
     if(CoverC.status.cover.status == CoverStatusUnknow){
       Cover.write(CoverC.command.cover.angle);
