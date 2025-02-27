@@ -21,7 +21,6 @@ void calibratorhandlerloop() {
     }
 
     if(CoverC.command.calibrator.change){
-        logMessageFormatted(coverc,lInfo,"Brightness changed to: %d", CoverC.command.calibrator.brightness);
         CoverC.command.calibrator.change = false;
         Calibrator.write(CoverC.command.calibrator.brightness);
     }

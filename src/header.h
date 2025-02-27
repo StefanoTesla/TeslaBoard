@@ -255,11 +255,6 @@ int assignLedChannel(ledcType type){
   Global.pwm[channel].type = type;
   setupLedcChannel(channel,type);
   return channel;
-
-    
-  return -1;
-
-
 }
 
 void printLEDChannelStatus(){
@@ -314,18 +309,3 @@ void printLEDChannelStatus(){
   
 }
 
-void logMessage(LogMachine machine, LogType type, const char* message) {
-    char buffer[200];
-    snprintf(buffer, sizeof(buffer), "%d#%d#%s", type, machine, message);
-    ws.textAll(buffer);
-}
-
-void logMessageFormatted(LogMachine machine, LogType type, const char* format, ...) {
-    char message[256]; // Buffer per il messaggio finale
-    va_list args;
-    va_start(args, format);
-    vsnprintf(message, sizeof(message), format, args);
-    va_end(args);
-
-    logMessage(machine, type, message); // Chiama la tua funzione logMessage
-}

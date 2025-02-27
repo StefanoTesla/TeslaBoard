@@ -6,7 +6,6 @@
 
 #include "libraries.h"
 
-AsyncWebSocket ws("/ws");
 AsyncWebServer server(80);
 AsyncWebServer alpaca(ALPACA_PORT);
 
@@ -66,7 +65,6 @@ void setup() {
   }
   wifiManager.autoConnect("TeslaBoard");
 
-  server.addHandler(&ws);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();

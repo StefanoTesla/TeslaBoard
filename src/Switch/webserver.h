@@ -91,28 +91,23 @@ void switchWebServer(){
             } 
         }
         if(id < 0 || id >= Switch.config.configuredSwitch){
-            logMessageFormatted(Switches,lErr,"cmd. not exec, ID out of range",id);
             doc["error"] = "SwIdOutOfRange";
             err= true;
         }
         if(SwitchObjects[id] == nullptr){
-            logMessageFormatted(Switches,lErr,"cmd. not exec, ID is nullPointer",id);
             doc["error"] = "SwIdOutOfRange";
             err= true;
         }
         if(value < 0){
             doc["error"] = "SwValueAbsent";
-            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d value not provided or less than 0",id);
             err= true;
         } else {
             if(value < SwitchObjects[id]->getMin()){
                 doc["error"] = "SwValueBehindMin";
-                logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d below min",id,value);
                 err= true;
             }
             if(value > SwitchObjects[id]->getMax()){
                 doc["error"] = "SwValueOverMax";
-                logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d exceeded max",id,value);
                 err= true;
             }
         }
@@ -121,7 +116,6 @@ void switchWebServer(){
         {
             err = true;
             doc["error"] = "SwNotWritable";
-            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d switch cannot be writable",id);
         }
 
 
@@ -157,7 +151,6 @@ void switchWebServer(){
             bool reboot = false;
             int count = 0;
             unsigned int type = 0;
-            logMessageFormatted(Switches,lInfo,"New incoming config");
 
             //clear the temporary configration and rebuild the structure
             tmpSwitchCfg.clear();
@@ -168,14 +161,12 @@ void switchWebServer(){
                 if(!Switche["name"].is<String>()){
                     error = true;
                     err.add("Name not provided");
-                    logMessageFormatted(Switches,lErr,"Name not provided - id: %d",count);
                     continue;
                 }
                 //check if a desc is provided
                 if(!Switche["desc"].is<String>()){
                     error = true;
                     err.add("Desc not provided");
-                    logMessageFormatted(Switches,lErr,"Description not provided - id: %d",count);
                     continue;
                 }
 
@@ -183,21 +174,18 @@ void switchWebServer(){
                 if(!Switche["type"].is<unsigned int>()){
                     error = true;
                     err.add("Type not passed");
-                    logMessageFormatted(Switches,lErr,"Type not provided - id: %d",count);
                     continue;
                 }
 
                 if(Switche["type"].as<unsigned int>() < 0 || Switche["type"].as<unsigned int>()>4){
                     error = true;
                     err.add("Type not defined");
-                    logMessageFormatted(Switches,lErr,"undefinded GPIO Type - id: %d",count);
                     continue;
                 }
 
                 type = Switche["type"].as<unsigned int>();
 
                 if(type == 0){
-                    logMessageFormatted(Switches,lErr,"Switch of type 0, skipped - id: %d",count);
                     continue;
                 }
 
@@ -206,14 +194,12 @@ void switchWebServer(){
                 if(!Switche["pin"].is<unsigned int>()){
                     error = true;
                     err.add("Pin number not provided");
-                    logMessageFormatted(Switches,lErr,"Pin number not provided - id: %d",count);
                     continue;
                 }
 
                 if(count>= _MAX_SWITCH_ID_){
                     error = true;
                     err.add("More than possibile Switch Configured");
-                    logMessageFormatted(Switches,lErr,"More than possibile Switch Configured - id: %d",count);
                     continue;
                 }
 
@@ -223,7 +209,6 @@ void switchWebServer(){
                     if(!pinUsableAsInput(Switche["pin"].as<unsigned int>())){
                         error = true;
                         err.add("pin can't be used as input");
-                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
                         continue;
                     }
                     JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -252,7 +237,6 @@ void switchWebServer(){
                     if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
                         error = true;
                         err.add("pin can't be used as input");
-                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
                         continue;
                     }
                     JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -269,7 +253,6 @@ void switchWebServer(){
                     if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
                         error = true;
                         err.add("pin can't be used as input");
-                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
                         continue;
                     }
                     JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -281,7 +264,6 @@ void switchWebServer(){
                     if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
                         error = true;
                         err.add("pin can't be used as input");
-                        logMessageFormatted(Switches,lErr,"Pin can't be used as input - id: %d",count);
                         continue;
                     }
                     JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -318,10 +300,8 @@ void switchWebServer(){
             }
 
             if(!error){
-                logMessage(Switches,lInfo,"Config don't have any errors, I'm going to store it");
                 Switch.config.save.execute = true;
             } else {
-                logMessage(Switches,lErr,"Config got errors, I'm NOT going to store it");
                 response->setCode(500);
             }
 

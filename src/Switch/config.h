@@ -5,14 +5,9 @@
 void saveSwitchConfig(){
     File file = LittleFS.open("/cfg/switchcfg.txt", FILE_WRITE);
     Serial.println("Switch save in progress..");
-    logMessage(Switches,lInfo,"Saving config file");
-
     serializeJson(tmpSwitchCfg, file);
     tmpSwitchCfg.clear();
-    file.close();
-
-    logMessage(Switches,lInfo,"Config saved");
-    
+    file.close();    
 }
 
 
