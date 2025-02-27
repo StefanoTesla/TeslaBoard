@@ -1,3 +1,5 @@
+import { Validator } from "./Validator";
+
 export function coverc(){
     return {
 
@@ -123,7 +125,7 @@ export function coverc(){
                 .then(res => {
                     if (res.execute){
                         this.addToast({ type:"success", text: this.text.gen.cmdAck })
-                        this.coverC.calibrator.brightness = 4096;
+                        this.coverC.calibrator.brightness = 4095;
                     }
                 })
                 .catch(err => {
@@ -159,75 +161,82 @@ export function coverc(){
 
         validateCoverC(){
             let valid = true
-            this.parseObjectToInt(this.coverC)
-
+            
+            let err = false;
             if(this.coverC.calibrator.present){
-                if(this.invalidOutputPin( this.coverC.calibrator.pin, "coverc_calibrator_out" )){ valid = false }
+                this.coverC.calibrator.pin = parseInt(this.coverC.calibrator.pin)
+                err |= new Validator(this.coverC.calibrator.pin,"coverc_calibrator_out").isInvalidPin("output").evaluate()
             } else {
                 this.removeValidationErrorClass("coverc_calibrator_out")
             }
             if(this.coverC.cover.present){
-                if(this.invalidOutputPin(this.coverC.cover.pin,"coverc_cover_out")){ valid = false }
-                if(this.negativeValue(this.coverC.cover.maxDeg)){ valid = false }
-                if(this.negativeValue(this.coverC.cover.closeDeg)){ valid = false }
-                if(this.negativeValue(this.coverC.cover.openDeg) ){ valid = false }
-                if(this.coverC.cover.maxDeg>360) { this.addValidationErrorClass("coverc_cover_max_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_max_deg") }
-                if(this.coverC.cover.closeDeg > this.coverC.cover.maxDeg){ this.addValidationErrorClass("coverc_cover_close_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_close_deg") }
-                if( this.coverC.cover.openDeg > this.coverC.cover.maxDeg){ this.addValidationErrorClass("coverc_cover_open_deg");  valid = false } else { this.removeValidationErrorClass("coverc_cover_open_deg") }
+                this.coverC.cover.pin = parseInt(this.coverC.cover.pin) 
+                this.coverC.cover.maxDeg = parseInt(this.coverC.cover.maxDeg) 
+                this.coverC.cover.closeDeg = parseInt(this.coverC.cover.closeDeg) 
+                this.coverC.cover.openDeg  = parseInt(this.coverC.cover.openDeg) 
+                this.coverC.cover.movTime = parseInt(this.coverC.cover.movTime) 
+                err |= new Validator(this.coverC.cover.pin,"coverc_cover_out").isInvalidPin("output").evaluate()
+                err |= new Validator(this.coverC.cover.maxDeg,"coverc_cover_max_deg").negativeValue().evaluate()
+                err |= new Validator(this.coverC.cover.closeDeg,"coverc_cover_close_deg").negativeValue().greaterThan(this.coverC.cover.maxDeg).evaluate()
+                err |= new Validator(this.coverC.cover.openDeg,"coverc_cover_open_deg").negativeValue().greaterThan(this.coverC.cover.maxDeg).evaluate()
+                err |= new Validator(this.coverC.cover.movTime,"coverc_cover_mov_time").negativeValue().evaluate()
             } else {
                 this.removeValidationErrorClass("coverc_cover_out")
                 this.removeValidationErrorClass("coverc_cover_max_deg")
                 this.removeValidationErrorClass("coverc_cover_close_deg")
                 this.removeValidationErrorClass("coverc_cover_open_deg")
+                this.removeValidationErrorClass("coverc_cover_mov_time")
             }
-            return valid
+            return err
         
         },
 
         saveCoverCSetting(){
             if(this.validateCoverC()){
-                const ip = import.meta.env.VITE_BOARD_IP
-                fetch(ip + '/api/coverc/cfg', {
-                    method: 'POST',
-                    headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(this.coverC)
-                }).then(res => {
-                    // Controllo dello stato HTTP
-                    if (!res.ok) {
-                        // Analizzo la risposta JSON anche per errori 500
-                        return res.json().then(errorResponse => {
-                            throw { status: res.status, ...errorResponse };
-                        });
-                    }
-                    return res.json();
-                })
-                .then(res => {
-                    if(res.reboot){
-                        this.reboot.cover = res.reboot
-                        this.modal = true
-                    } else {
-                        this.reboot.cover = false
-                    }
-                    
-                    this.addToast({ type: "success", text: this.text.gen.configSaved, time:3 });
-                })
-                .catch(err => {
-                    if (err.errors) {
-                        err.errors.forEach((error, index) => {
-                            setTimeout(() => {
-                                console.log(`Errore ${index + 1}: ${error}`);
-                                this.addToast({ type: "error", text: `Errore: ${error}` });
-                            }, 1 * index);  // put a delay to avoid toat crash
-                        });
-                    } else {
-                        console.log("Errore sconosciuto:", err);
-                        this.addToast({ type: "error", text: "Errore sconosciuto." });
-                    }
-                });
+                this.addToast({type:"error", message:"Validation Error"})
+                return
             }
+            const ip = import.meta.env.VITE_BOARD_IP
+            fetch(ip + '/api/coverc/cfg', {
+                method: 'POST',
+                headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.coverC)
+            }).then(res => {
+                // Controllo dello stato HTTP
+                if (!res.ok) {
+                    // Analizzo la risposta JSON anche per errori 500
+                    return res.json().then(errorResponse => {
+                        throw { status: res.status, ...errorResponse };
+                    });
+                }
+                return res.json();
+            })
+            .then(res => {
+                if(res.reboot){
+                    this.reboot.cover = res.reboot
+                    this.modal = true
+                } else {
+                    this.reboot.cover = false
+                }
+                
+                this.addToast({ type: "success", text: this.text.gen.configSaved, time:3 });
+            })
+            .catch(err => {
+                if (err.errors) {
+                    err.errors.forEach((error, index) => {
+                        setTimeout(() => {
+                            console.log(`Errore ${index + 1}: ${error}`);
+                            this.addToast({ type: "error", text: `Errore: ${error}` });
+                        }, 1 * index);  // put a delay to avoid toat crash
+                    });
+                } else {
+                    console.log("Errore sconosciuto:", err);
+                    this.addToast({ type: "error", text: "Errore sconosciuto." });
+                }
+            });
         }
 
     }

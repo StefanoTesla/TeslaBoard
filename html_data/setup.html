@@ -69,44 +69,105 @@
                       <div :id="'sw_' + index" class="card">
                         <div class="setting_table">
                           <div class="row">
-                            <p x-text="text.switch.name">{name}</p>
+                            <p x-text="text.IOBase.name">{name}</p>
                             <input :id="'sw_'+ index + '_name'" class="in_text" type="text" x-model="sw.name" maxlength=20/>
                           </div>
                           <div class="row">
-                            <p x-text="text.switch.description">{description}</p>
+                            <p x-text="text.IOBase.description">{description}</p>
                             <input :id="'sw_'+ index + '_desc'" class="in_text" type="text" x-model="sw.desc" maxlength=20/>
                           </div>
                           <div class="row">
-                            <p x-text="text.gen.type">{Type}</p>
+                            <p x-text="text.IOBase.type">{Type}</p>
                             <select 
                               name="type" 
                               :id="'sw_' + index + '_type'" 
                               x-model.defer="sw.type"
                               x-init="$nextTick(() => { $el.value = sw.type })"
                               >
-                              <template x-for="[key, value] in Object.entries(text.switch.typeEnum)" :key="key">
+                              <template x-for="[key, value] in Object.entries(text.IOBase.typeEnum)" :key="key">
                                 <option :value="parseInt(key)" x-text="value"></option>
                               </template>
                             </select>
                           </div>
+
+                          <!-- DIGITAL INPUT CUSTOM DATA -->
                           <div class="row" x-show="sw.type > 0">
                             <p>Pin:</p>
                             <div class="input_with_unit">
                               <span class="unit">n</span><input :id="'sw_'+ index + '_pin'" class="with_unit" type="number" x-model="sw.pin" min=1 max=39/>
                             </div>
                           </div>
-                          <div class="row" x-show="sw.type == 5">
-                            <p>Min:</p>
+                          <div class="row" x-show="sw.type == 1">
+                            <p x-text="text.IOBase.DI.onDelay">{onDelay}</p>
                             <div class="input_with_unit">
-                              <span class="unit">°</span><input :id="'sw_'+ index + '_min'" class="with_unit" type="number" x-model="sw.min"/>
+                              <span class="unit">ms</span><input :id="'sw_'+ index + '_dOn'" class="with_unit" type="number" x-model="sw.dOn"/>
                             </div>
                           </div>
-                          <div class="row" x-show="sw.type == 5">
-                            <p>Max:</p>
+                          <div class="row" x-show="sw.type == 1">
+                            <p x-text="text.IOBase.DI.onDelay">{offDelay}</p>
                             <div class="input_with_unit">
-                              <span class="unit">°</span><input :id="'sw_'+ index + '_max'" class="with_unit" type="number" x-model="sw.max"/>
+                              <span class="unit">ms</span><input :id="'sw_'+ index + '_dOff'" class="with_unit" type="number" x-model="sw.dOff"/>
                             </div>
                           </div>
+                          <div class="row" x-show="sw.type == 1">
+                            <p x-text="text.IOBase.DI.func">{Function}</p>
+                            <select  
+                              :id="'sw_' + index + '_invert'" 
+                              x-model.defer="sw.invert"
+                              x-init="$nextTick(() => { $el.value = sw.invert })"
+                              >
+                              <template x-for="[key, value] in Object.entries(text.IOBase.DI.invertEnum)" :key="key">
+                                <option :value="parseInt(key)" x-text="value"></option>
+                              </template>
+                            </select>
+                          </div>
+
+                          <!-- DIGITAL OUTPUT CUSTOM DATA -->
+                          <div class="row" x-show="sw.type == 2">
+                            <p x-text="text.IOBase.DO.func">{Function}</p>
+                            <select 
+                              :id="'sw_'+ index +'_trigger'" 
+                              x-model.defer="sw.invert"
+                              x-init="$nextTick(() => { $el.value = sw.invert })"
+                              >
+                              <template x-for="[key, value] in Object.entries(text.IOBase.DO.invertEnum)" :key="key">
+                                <option :value="parseInt(key)" x-text="value"></option>
+                              </template>
+                            </select>
+                          </div>
+                          <!-- SERVO CUSTOM DATA -->
+                          <div class="row" x-show="sw.type == 4">
+                            <p x-text="text.IOBase.Servo.closeDeg">{closeDeg}</p>
+                            <div class="input_with_unit">
+                              <span class="unit">°</span><input :id="'sw_'+ index + '_closeDeg'" class="with_unit" type="number" x-model="sw.closeDeg"/>
+                            </div>
+                          </div>
+                          <div class="row" x-show="sw.type == 4">
+                            <p x-text="text.IOBase.Servo.openDeg">{openDeg}</p>
+                            <div class="input_with_unit">
+                              <span class="unit">°</span><input :id="'sw_'+ index + '_openDeg'" class="with_unit" type="number" x-model="sw.openDeg"/>
+                            </div>
+                          </div>
+                          <div class="row" x-show="sw.type == 4">
+                            <p x-text="text.IOBase.Servo.maxDeg">{maxDeg}</p>
+                            <select 
+                              name="type" 
+                              :id="'sw_' + index + '_maxDeg'" 
+                              x-model.defer="sw.maxDeg"
+                              x-init="$nextTick(() => { $el.value = sw.maxDeg })"
+                              >
+                              <template x-for="[key, value] in Object.entries(text.IOBase.Servo.maxDegEnum)" :key="key">
+                                <option :value="parseInt(key)" x-text="value"></option>
+                              </template>
+                            </select>
+                          </div>
+                          <div class="row" x-show="sw.type == 4">
+                            <p>Moving Time:</p>
+                            <div class="input_with_unit">
+                              <span class="unit">ms</span><input :id="'sw_'+ index + '_movTime'" class="with_unit" type="number" x-model="sw.movTime"/>
+                            </div>
+                          </div>
+                          
                         </div>
                         <div class="sw_delete">
                           <button x-show="index > 0" @click=moveUp(index)><svg fill="#000000" width="30px" height="30px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M11.25 15.688l-7.656 7.656-3.594-3.688 11.063-11.094 11.344 11.344-3.5 3.5z"></path></svg></button>
@@ -121,7 +182,7 @@
 
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalSwitchesConfig()">{loadFromBoard}</button>
-                  <a href="./switch/switchconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a href="./switch/switchconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveSwitchesSetting()">{save}</button>
                 </div>
               </div>
@@ -150,6 +211,28 @@
             </div>
             <template x-if="open.dome">
               <div @change="validateDome($event)">
+                <!--Driver Type -->
+                <div class="card" >
+
+                  <div class="setting_table">
+                    <div class="st_title">
+                      <p class="text-center font-bold mb-4" x-text="text.setting.dome.driverType">Tipo di scheda</p>
+                    </div>
+                    <div class="row order-2 lg:order-3">
+                      <select 
+                        name="type" 
+                        id="dome_cmd_type" 
+                        x-model.defer="dome.driverType"
+                        x-init="$nextTick(() => { $el.value = dome.driverType })"
+                        >
+                        <template x-for="[key, value] in Object.entries(text.setting.dome.driverTypeEnum)" :key="key">
+                          <option :value="parseInt(key)" x-text="value"></option>
+                        </template>
+                      </select>
+                    </div>
+              
+                  </div>
+                </div>
                 <!--Input Open -->
                 <div class="card" >
 
@@ -179,13 +262,17 @@
                     </div>
 
                     <div class="row order-2 lg:order-3">
-                      <p x-text="text.gen.type">{type}</p>
-                      <div>
-                        <select name="type" id="dome_in_open_type" x-model="dome.pinOpen.type">
-                          <option value=0>N.O.</option>
-                          <option value=1>N.C.</option>
-                        </select>
-                      </div>
+                      <p x-text="text.IOBase.DI.func">{Function}</p>
+                      <select 
+                        name="type" 
+                        id="dome_in_open_invert" 
+                        x-model.defer="dome.pinOpen.invert"
+                        x-init="$nextTick(() => { $el.value = dome.pinOpen.invert })"
+                        >
+                        <template x-for="[key, value] in Object.entries(text.IOBase.DI.invertEnum)" :key="key">
+                          <option :value="parseInt(key)" x-text="value"></option>
+                        </template>
+                      </select>
                     </div>
 
                   </div>
@@ -203,13 +290,17 @@
                           </div>
                       </div>
                       <div class="row order-2 lg:order-3">
-                        <p x-text="text.gen.type">{type}</p>
-                        <div class="row">
-                          <select name="type" id="dome_in_close_type" x-model="dome.pinClose.type">
-                            <option value=0>N.O.</option>
-                            <option value=1>N.C.</option>
-                          </select>
-                        </div>
+                        <p x-text="text.IOBase.DI.func">{Function}</p>
+                        <select 
+                          name="type" 
+                          id="dome_in_close_invert" 
+                          x-model.defer="dome.pinClose.invert"
+                          x-init="$nextTick(() => { $el.value = dome.pinClose.invert })"
+                          >
+                          <template x-for="[key, value] in Object.entries(text.IOBase.DI.invertEnum)" :key="key">
+                            <option :value="parseInt(key)" x-text="value"></option>
+                          </template>
+                        </select>
                       </div>
                       <div class="row order-3 lg:order-2">
                         <p x-text="text.setting.dome.onDelay">{onDelay}</p>
@@ -233,18 +324,47 @@
 
                     <div class="setting_table">
                       <div class="row">
-                        <p x-show="dome.driverType == 0" x-text="text.setting.dome.outStart">{GPIO}</p>
+                        <!-- Start/Open/Start Output -->
+                        <p x-show="dome.driverType == 0 || dome.driverType == 2" x-text="text.setting.dome.outStart">{GPIO}</p>
                         <p x-show="dome.driverType == 1" x-text="text.setting.dome.outOpen">{GPIO}</p>
                         <div class="input_with_unit">
-                          <span class="unit">n</span><input class="with_unit" id="dome_out_start" type="number" x-model="dome.pinStart" min=1 max=39/>
+                          <span class="unit">n</span><input class="with_unit" id="dome_out_start" type="number" x-model="dome.pinStart.pin" min=1 max=39/>
                         </div>
                       </div>
                       <div class="row">
+                        <p x-text="text.IOBase.DO.func">{Function}</p>
+                        <select 
+                          name="type" 
+                          id="dome_out_start_invert" 
+                          x-model.defer="dome.pinStart.invert"
+                          x-init="$nextTick(() => { $el.value = dome.pinStart.invert })"
+                          >
+                          <template x-for="[key, value] in Object.entries(text.IOBase.DO.invertEnum)" :key="key">
+                            <option :value="parseInt(key)" x-text="value"></option>
+                          </template>
+                        </select>
+                      </div>
+                      <div class="row">
+                        <!-- HALT/Close/Direction Output -->
                         <p x-show="dome.driverType == 0" x-text="text.setting.dome.outHalt">{GPIO}</p>
                         <p x-show="dome.driverType == 1" x-text="text.setting.dome.outClose">{GPIO}</p>
+                        <p x-show="dome.driverType == 2" x-text="text.setting.dome.outDir">{GPIO}</p>
                         <div class="input_with_unit">
-                          <span class="unit">n</span><input class="with_unit" id="dome_out_halt" type="number" x-model="dome.pinHalt" min=1 max=39/>
+                          <span class="unit">n</span><input class="with_unit" id="dome_out_halt" type="number" x-model="dome.pinHalt.pin" min=1 max=39/>
                         </div>
+                      </div>
+                      <div class="row">
+                        <p x-text="text.IOBase.DO.func">{Function}</p>
+                        <select 
+                          name="type" 
+                          id="dome_out_halt_invert" 
+                          x-model.defer="dome.pinHalt.invert"
+                          x-init="$nextTick(() => { $el.value = dome.pinHalt.invert })"
+                          >
+                          <template x-for="[key, value] in Object.entries(text.IOBase.DO.invertEnum)" :key="key">
+                            <option :value="parseInt(key)" x-text="value"></option>
+                          </template>
+                        </select>
                       </div>
                     </div>
                 </div>
@@ -296,7 +416,7 @@
 
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalDomeConfig()">{loadFromBoard}</button>
-                  <a href="./dome/domeconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a href="./dome/domeconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveDomeSetting()">{save}</button>
                 </div>
 
@@ -347,7 +467,7 @@
                 <div class="card">
                   <div class="setting_table">
                     <div class="st_title">
-                      <p x-text="text.setting.coverC.cover.cover">{cover}</p>
+                      <p x-text="text.setting.coverC.cover">{cover}</p>
                     </div>
                     <div class="row order 1">
                       <p x-text="text.gen.enable">{enable}</p>
@@ -357,31 +477,38 @@
                       </label>
                     </div>
                     <div class="row order-2 lg:order-3">
-                      <p x-text="text.gen.pin">{GPIO}</p>
+                      <p x-text="text.IOBase.pin">{GPIO}</p>
                       <div class="input_with_unit">
                         <span class="unit">n</span><input id="coverc_cover_out" class="with_unit" type="number" x-model="coverC.cover.pin" min=0 max=39/>
                       </div>
                     </div>
                     <div class="row order-3 lg:order-5">
-                      <p x-text="text.setting.coverC.cover.movingTime">{movingtime}</p>
+                      <p x-text="text.IOBase.Servo.movingTime">{movingtime}</p>
                       <div class="input_with_unit">
                         <span class="unit">ms</span><input id="coverc_cover_mov_time" class="with_unit" type="number" x-model="coverC.cover.movTime" min=0/>
                       </div>
                     </div>
                     <div class="row order-4 lg:order-2">
-                      <p x-text="text.setting.coverC.cover.maxDeg">{maxDeg}</p>
-                      <div class="input_with_unit">
-                        <span class="unit">deg</span><input id="coverc_cover_max_deg" class="with_unit" type="number" x-model="coverC.cover.maxDeg" min=0 max=360/>
-                      </div>
+                      <p x-text="text.IOBase.Servo.maxDeg">{maxDeg}</p>
+                      <select 
+                        name="type" 
+                        id="coverc_cover_max_deg" 
+                        x-model.defer="coverC.cover.maxDeg"
+                        x-init="$nextTick(() => { $el.value = coverC.cover.maxDeg })"
+                        >
+                        <template x-for="[key, value] in Object.entries(text.IOBase.Servo.maxDegEnum)" :key="key">
+                          <option :value="parseInt(key)" x-text="value"></option>
+                        </template>
+                      </select>
                     </div>
                     <div class="row order-5 lg:order-4">
-                      <p x-text="text.setting.coverC.cover.openDeg">{openDeg}</p>
+                      <p x-text="text.IOBase.Servo.openDeg">{openDeg}</p>
                       <div class="input_with_unit">
                         <span class="unit">deg</span><input id="coverc_cover_open_deg" class="with_unit" type="number" x-model="coverC.cover.openDeg" min=0 max=39/>
                       </div>
                     </div>
                     <div class="row order-6">
-                      <p x-text="text.setting.coverC.cover.closeDeg">{closeDeg}</p>
+                      <p x-text="text.IOBase.Servo.closeDeg">{closeDeg}</p>
                       <div class="input_with_unit">
                         <span class="unit">deg</span><input id="coverc_cover_close_deg" class="with_unit" type="number" x-model="coverC.cover.closeDeg" min=0 max=39/>
                       </div>
@@ -390,7 +517,7 @@
                 </div>
                 <div class="config_buttons">
                   <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalCoverCConfig()">{loadFromBoard}</button>
-                  <a href="./cover/ccconfig.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                  <a class="f_button orange" href="./cover/ccconfig.txt" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
                   <button class="red" x-text="text.gen.save" @click="saveCoverCSetting()">{save}</button>
                 </div>
               </div>
@@ -507,7 +634,7 @@
                 </div>
               </div>
               <div class="config_buttons">
-                <a href="./board/boarcfg.txt" download><button class="orange" x-text="text.gen.downloadFile" >{downloadSetting}</button></a>
+                <a href="./board/boarcfg.txt" class="f_button orange" x-text="text.gen.downloadFile"> download></a>
                 <button class="red" x-text="text.gen.save" @click="saveBoardConfig()">{save}</button>
               </div>
             </div>

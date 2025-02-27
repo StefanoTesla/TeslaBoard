@@ -1,11 +1,16 @@
 export function checkFirmwareUpdate(){
     return {
         checkUpdate(){
+            
             let av = this.getCookie("version")
+            console.log(av)
             if (av){
                 this.version.available = av
                 if(av > this.version.actual){
                     this.version.upgrade= true
+                } else {
+                    console.log("aggiornaa")
+                    this.addToast({type:"info",text:"New update availabe",time:10})
                 }
                 return
             }
@@ -35,7 +40,7 @@ export function checkFirmwareUpdate(){
                         this.addToast({ type:"success", text: "new board update available!", time:10})
                     }
             })
-            .catch(error => console.clear());
+            .catch(error => /*console.clear()*/console.log(error));
         },
 
         setCookie(name, value, days) {

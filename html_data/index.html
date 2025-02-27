@@ -60,14 +60,14 @@
                 </div>
            
                 <!-- digital output -->
-                <div x-show="sw.type==3">
+                <div x-show="sw.type==2">
                   <label class="toggle" :for="'sw_t3_'+index+'_status'">
                     <input class="toggle__input" name="'sw_t3_'+index+'_status'" type="checkbox" :id="'sw_t3_'+index+'_status'" x-model="sw.boValue" @change="switchChangeDigital(index)">
                     <div class="toggle__fill"></div>
                   </label>
                 </div>
-                <!-- pwm servo ao-->
-                <div class="sw_analog" x-show="sw.type==4 || sw.type==5 || sw.type==6">
+                <!-- pwm servo-->
+                <div class="sw_analog" x-show="sw.type==3 || sw.type==4">
                   <div class="range sw_analog">
                     <input type="range" :id="'sw_t45_'+index+'_slider'" :min='sw.min' :max='sw.max' step='1' x-model="sw.intValue" @change="switchChangeValue(index)"/>
                   </div>
@@ -76,21 +76,6 @@
                   </div>
                   
                 </div>
-                <!-- ai-->
-                <div x-show="sw.type==2">
-                  <div class="range sw_analog">
-                    <input type="range" :id="'sw_t45_'+index+'_slider'" :min='sw.min' :max='sw.max' step='1' x-model="sw.intValue" disabled/>
-                  </div>
-                  <div class="sw_value">
-                    <p x-text="text.gen.actualValue">{Valore Attuale:}</p>
-                    <div>
-                      <span x-text="sw.intValue"></span><span>&nbsp;/&nbsp;</span><span x-text="sw.max"></span>
-                    </div>
-                  </div>
-                  
-                </div>
-
-
 
               </div>
 
@@ -214,9 +199,9 @@
               <div x-show="coverC.calibrator.status > 0" class="card">
                 <p x-text="text.coverC.calibrator" class="font-semibold pb-4">{calibrator}</p>
                 <div class="range">
-                  <input type="range" min='0' max='4096' step='1' x-model="coverC.calibrator.brightness" @change="calibratorBrightness(coverC.calibrator.brightness)" />
+                  <input type="range" min='0' max='4095' step='1' x-model="coverC.calibrator.brightness" @change="calibratorBrightness(coverC.calibrator.brightness)" />
                 </div>
-                <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="coverC.calibrator.brightness"></span> / 4096
+                <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="coverC.calibrator.brightness"></span> / 4095
                 <div class="flex justify-around w-full">
                   <button @click="calibratorOff()" :class="{
                     'disactivated' : coverC.calibrator.brightness == 0,

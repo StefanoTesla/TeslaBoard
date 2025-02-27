@@ -10,11 +10,9 @@
 		"typeEnum": {
 			"0": "No utilizado",
 			"1": "Entrada Digital",
-			"2": "Entrada Analógica",
-			"3": "Salida Digital",
-			"4": "Salida PWM",
-			"5": "Salida Servo",
-			"6": "Salida Analógica"
+			"2": "Salida Digital",
+			"3": "Salida PWM",
+			"4": "Salida Servo"
 		}
 	},
 	"dome": {

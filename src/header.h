@@ -1,15 +1,4 @@
-/* input structure */
-struct InputStructure {
-  unsigned int pin;
-  bool type; //0=NO 1=NC
-  unsigned long delayON;
-  unsigned long delayOFF;
-  unsigned long _ackOn;
-  unsigned long _ackOff;
-  bool reInput;
-  bool feInput;
-};
-
+#define _SW_VERSION_ 399;
 /* ALPACA DATA */
 
 struct AlpacaCommonData{
@@ -26,7 +15,6 @@ AlpacaCommonData AlpacaData;
 /** CONFIG STRUCT **/
 struct boardSaveConfigStruct{
   bool execute = false;
-  bool failed = false;
   bool restartNeeded = false;
 };
 
@@ -129,21 +117,26 @@ enum LogType{
 };
 
 bool pinExist(unsigned int pin){
-  if(pin > 39 || pin == 20 || pin == 24 || pin==38 || (pin >=6 && pin <= 11) || (pin >=28 && pin <= 31)){
+
+  if(pin > 39 or pin == 20 or pin == 24 or pin==38 or (pin >=6 and pin <= 11) or (pin >=28 and pin <= 31)){
     return false;
   }
+
   return true;
 }
 
 bool pinUsableAsInput(unsigned int pin){
-  if(!pinExist(pin) || pin==1){
+
+  if(!pinExist(pin) or pin==1){
     return false;
   }
   return true;
 }
 
 bool pinUsableAsOutput(unsigned int pin){
-  if(!pinExist(pin) || pin == 3 || pin > 33){
+
+  if(!pinExist(pin) or pin == 3 or pin > 33){
+
     return false;
   }
   return true;
@@ -155,6 +148,16 @@ bool pinUsableAsAnalogInput(unsigned int pin){
   }
   return true;
 }
+
+
+bool pinUsableAsAnalogOutput(unsigned int pin){
+  if(pin < 25 or pin > 25){
+    return false;
+  }
+  return true;
+}
+
+
 
 bool usableLedChannel(unsigned int channel,ledcType type){
 
@@ -220,7 +223,7 @@ int setupLedcChannel(unsigned int channel, ledcType type){
   return -1;
 }
 
-unsigned int checkForFreeLedChannel(ledcType type){
+int checkForFreeLedChannel(ledcType type){
 
   if (type == notAssigned){
     return -1;
@@ -248,8 +251,8 @@ unsigned int checkForFreeLedChannel(ledcType type){
   return -1;
 }
 
-unsigned int assignLedChannel(ledcType type){
-  unsigned int channel = checkForFreeLedChannel(type);
+int assignLedChannel(ledcType type){
+  int channel = checkForFreeLedChannel(type);
   if (channel < 0 ){
     Serial.println("[ERR] LEDC: error during the search of a free channel.");
     return -1;
@@ -257,11 +260,6 @@ unsigned int assignLedChannel(ledcType type){
   Global.pwm[channel].type = type;
   setupLedcChannel(channel,type);
   return channel;
-
-    
-  return -1;
-
-
 }
 
 void printLEDChannelStatus(){
@@ -294,8 +292,7 @@ void printLEDChannelStatus(){
     } else {
 
       Serial.print(i);
-      Serial.print(" |");
-      Serial.print(" ");
+      Serial.print(" | ");
       switch (Global.pwm[i].type)
       {
       case notAssigned:
@@ -317,18 +314,3 @@ void printLEDChannelStatus(){
   
 }
 
-void logMessage(LogMachine machine, LogType type, const char* message) {
-    char buffer[200];
-    snprintf(buffer, sizeof(buffer), "%d#%d#%s", type, machine, message);
-    ws.textAll(buffer);
-}
-
-void logMessageFormatted(LogMachine machine, LogType type, const char* format, ...) {
-    char message[256]; // Buffer per il messaggio finale
-    va_list args;
-    va_start(args, format);
-    vsnprintf(message, sizeof(message), format, args);
-    va_end(args);
-
-    logMessage(machine, type, message); // Chiama la tua funzione logMessage
-}

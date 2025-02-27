@@ -1,15 +1,11 @@
 #define ALPACA_PORT 4567
 
 #define DOME
-#ifdef DOME
-	#define GATE_BOARD
-#endif
 #define COVER_CALIBRATOR
 #define SWITCH
 
 #include "libraries.h"
 
-AsyncWebSocket ws("/ws");
 AsyncWebServer server(80);
 AsyncWebServer alpaca(ALPACA_PORT);
 
@@ -69,7 +65,6 @@ void setup() {
   }
   wifiManager.autoConnect("TeslaBoard");
 
-  server.addHandler(&ws);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();

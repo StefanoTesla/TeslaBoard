@@ -1,15 +1,16 @@
 import { toast } from './utils/toast.js'
-import { validation } from './utils/validation.js'
 import { translations } from './utils/translations.js'
 import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
 import { board} from './utils/board.js'
+import { validation } from './utils/validation.js'
+import { checkFirmwareUpdate } from './utils/checkFirmwareUpdate.js'
 
 export default function BoardSetting() {
     return {
         textLoaded:false,
-        exist: {switch:true},
+        exist: {},
         dome:{},
         domeOrig:{},
         coverC:{},
@@ -61,6 +62,12 @@ export default function BoardSetting() {
         const ip = import.meta.env.VITE_BOARD_IP
         fetch(ip+'/api/board/reboot')
         .then(response => response.json())
+        .then(response => {
+            setTimeout(function(){
+                location.reload();
+            }, 3000);
+        }
+        )
         .catch(error => console.error('Error fetching board data:', error));
     },
     wifiReset(){
@@ -75,6 +82,7 @@ export default function BoardSetting() {
     ...translations(),
     ...validation(),
     ...toast(),
+    ...checkFirmwareUpdate(),
     ...dome(),
     ...coverc(),
     ...switches(),

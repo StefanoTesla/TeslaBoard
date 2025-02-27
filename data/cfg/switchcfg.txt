@@ -1,1 +1,76 @@
-{"Switches":[{"name":"bellaa","desc":"vivalagnagna","type":1,"pin":5},{"name":"Uscita","desc":"ciaoneeeeeee","type":3,"pin":15},{"name":"gnaaaa","desc":"","type":4,"min":0,"max":1000,"pin":4}]}
+{"Switches":[{"name":"bellaa","desc":"vivalagnagna","type":1,"pin":5},{"name":"Uscita","desc":"ciaoneeeeeee","type":3,"pin":15},{"name":"gnaaaa","desc":"","type":4,"min":0,"max":1000,"pin":4}]}{
+Switches: [
+{
+name: "23",
+desc: "vivalagnagna",
+type: 3,
+pin: 23
+},
+{
+name: "22",
+desc: "ciaoneeeeeee",
+type: 3,
+pin: 22
+},
+{
+name: "21",
+desc: "",
+type: 3,
+pin: 21
+},
+{
+name: "19",
+desc: "",
+type: 3,
+pin: 19
+},
+{
+name: "18",
+desc: "",
+type: 2,
+pin: 18
+},
+{
+name: "17",
+desc: "",
+type: 2,
+pin: 17
+},
+{
+name: "4",
+desc: "",
+type: 2,
+pin: 4
+},
+{
+name: "33",
+desc: "",
+type: 2,
+pin: 33
+},
+{
+name: "25",
+desc: "",
+type: 2,
+pin: 25
+},
+{
+name: "27",
+desc: "",
+type: 2,
+pin: 27
+},
+{
+name: "13",
+desc: "",
+type: 2,
+pin: 13
+},
+{
+name: "16",
+desc: "",
+type: 2,
+pin: 16
+}
+]
+}

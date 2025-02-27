@@ -1,3 +1,5 @@
+import { Validator } from "./Validator";
+
 export function switches(){
     return{
     
@@ -95,7 +97,7 @@ export function switches(){
 
     addNewSwitch(){
         if(this.swi.Switches.length <= 14){
-            this.swi.Switches.push({"name":"","desc":"","type":0,"pin":0,"min":0,"max":0})
+            this.swi.Switches.push({"name":"","desc":"","type":0,"pin":null,"invert":0,"maxDeg":90,"closeDeg":0,"openDeg":0,"dOn":0,"dOff":0})
         } else {
             this.addToast({type:"error", text:"Limite Raggiunto" })
         }
@@ -115,44 +117,45 @@ export function switches(){
     },
 
     validateSwitch(index){
+        let err = false
         this.swi.Switches[index].name = this.swi.Switches[index].name.replace(/[@#$*<>:;!]/g, '')
         this.swi.Switches[index].desc = this.swi.Switches[index].desc.replace(/[@#$*<>:;!]/g, '')
         this.swi.Switches[index].type = parseInt(this.swi.Switches[index].type)
         this.swi.Switches[index].pin = parseInt(this.swi.Switches[index].pin)
-        this.swi.Switches[index].min = parseInt(this.swi.Switches[index].min)
-        this.swi.Switches[index].max = parseInt(this.swi.Switches[index].max)
-
+        console.log("Validating switch id: " + index)
         switch (this.swi.Switches[index].type) {
             case 0:
-                return true;
+                return false;
                 break;
             case 1: //di
-            case 2: //ai
-                if(this.invalidInputPin(this.swi.Switches[index].pin,'sw_'+ index +'_pin')){ return false }
-                return true
+                this.swi.Switches[index].invert = parseInt(this.swi.Switches[index].invert)
+                this.swi.Switches[index].dOn = parseInt(this.swi.Switches[index].dOn)
+                this.swi.Switches[index].dOff = parseInt(this.swi.Switches[index].dOff)
+                err |= new Validator(this.swi.Switches[index].pin,'sw_'+ index +'_pin').isInvalidPin("input").evaluate()
+                err |= new Validator(this.swi.Switches[index].dOn,'sw_'+ index +'_dOn').negativeValue().evaluate()
+                err |= new Validator(this.swi.Switches[index].dOff,'sw_'+ index +'_dOff').negativeValue().evaluate()
+                err |= new Validator(this.swi.Switches[index].invert,'sw_'+ index +'_invert').negativeValue().greaterThan(1).evaluate()
+                return err;
                 break;
-
-            case 5://servo
-
-                if(this.swi.Switches[index].max <= this.swi.Switches[index].min){
-                    this.addValidationErrorClass('sw_'+ index +'_max')
-                    return false
-                } else {
-                    this.removeValidationErrorClass('sw_'+ index +'_max')
-                }
-                if(this.swi.Switches[index].min >= this.swi.Switches[index].max){
-                    this.addValidationErrorClass('sw_'+ index +'_min')
-                    return false
-                } else {
-                    this.removeValidationErrorClass('sw_'+ index +'_min')
-                }
-            case 6://ao
-            case 4://pwm
-            case 3://do
-                if(this.invalidOutputPin(this.swi.Switches[index].pin,'sw_'+ index +'_pin')){ return false }
-                return true
-                break;
-
+            case 2://do
+                this.swi.Switches[index].invert = parseInt(this.swi.Switches[index].invert)
+                err |= new Validator(this.swi.Switches[index].pin,'sw_'+ index +'_pin').isInvalidPin("output").evaluate()
+                err |= new Validator(this.swi.Switches[index].invert,'sw_'+ index +'_trigger').negativeValue().evaluate()
+                return err
+            case 3://pwm
+                err |= new Validator(this.swi.Switches[index].pin,'sw_'+ index +'_pin').isInvalidPin("output").evaluate()
+                return err
+            case 4://servo
+                this.swi.Switches[index].maxDeg = parseInt(this.swi.Switches[index].maxDeg)
+                this.swi.Switches[index].openDeg = parseInt(this.swi.Switches[index].openDeg)
+                this.swi.Switches[index].closeDeg = parseInt(this.swi.Switches[index].closeDeg)
+                this.swi.Switches[index].movTime = parseInt(this.swi.Switches[index].movTime)
+                err |= new Validator(this.swi.Switches[index].pin,'sw_'+ index +'_pin').isInvalidPin("output").evaluate()
+                err |= new Validator(this.swi.Switches[index].maxDeg,'sw_'+ index +'_maxDeg').negativeValue().greaterThan(360).evaluate()
+                err |= new Validator(this.swi.Switches[index].openDeg,'sw_'+ index +'_openDeg').negativeValue().greaterThan(this.swi.Switches[index].maxDeg).evaluate()
+                err |= new Validator(this.swi.Switches[index].closeDeg,'sw_'+ index +'_closeDeg').negativeValue().greaterThan(this.swi.Switches[index].maxDeg).evaluate()
+                err |= new Validator(this.swi.Switches[index].movTime,'sw_'+ index +'_movTime').negativeValue().evaluate()
+                return err;
             default:
                 // codice da eseguire se nessun case corrisponde
                 break;
@@ -166,8 +169,9 @@ export function switches(){
   
     let error = false;
         this.swi.Switches.forEach((element,index) => {
-            if(!this.validateSwitch(index)){
+            if(this.validateSwitch(index)){
                 error = true;
+                this.addToast({type:"error",text:'Validation Error at switch ' + index,time:4})
             }
         });
     if(error){

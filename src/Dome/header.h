@@ -23,7 +23,6 @@ enum ShCommands {
   ShCommandHalt
 };
 
-
 struct ShutterStruct {
   ShInputState input;
   ShStatus status;
@@ -33,18 +32,13 @@ struct ShutterStruct {
   unsigned int LastDomeCommand;
   unsigned long lastCommunicationMillis;
   unsigned long timeOutAck;
-  bool inOpen;
-  bool inClose;
 };
 
 struct domeHeader{
-  InputStructure inOpen;
-  InputStructure inClose;
-  unsigned int outStart_Open;
-  unsigned int outHalt_Close;
   unsigned int movingTimeOut = 20000;
   bool enAutoClose;
   unsigned int autoCloseTimeOut = 20;
+  int driverType = 0; //0=Gate Board; 1=Direction; 2=Move+Direction
 };
 
 struct domeSaveConfigStruct{
@@ -61,7 +55,6 @@ struct DomeConfig {
   domeHeader data;
   domeSaveConfigStruct Save;
   domeLoadConfigStruct Load;
-  domeHeader tmpCfg;
 };
 
 struct DomeStruct{
@@ -70,7 +63,7 @@ struct DomeStruct{
 };
 
 DomeStruct Dome;
-
+JsonDocument DomeConfigTmp;
 /* CONFIG AREA */
 
 

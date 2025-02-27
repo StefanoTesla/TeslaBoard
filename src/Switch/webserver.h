@@ -10,20 +10,38 @@ void switchWebServer(){
 
         JsonArray array = doc["Switches"].to<JsonArray>();
 
-        for(int i=0;i<_MAX_SWITCH_ID_;i++){
-            if(Switch.data[i].property.type == SwTypeNull  ){
-                continue;
-            }
+        for(int i=0; i < Switch.config.configuredSwitch; i++){
+            if (SwitchObjects[i] == nullptr) { continue; }
             JsonObject jsonSwitch = array.add<JsonObject>();
-            jsonSwitch["name"] = Switch.data[i].property.Name;
-            jsonSwitch["desc"] = Switch.data[i].property.Description;
-            jsonSwitch["type"] = Switch.data[i].property.type;
-            jsonSwitch["pin"] = Switch.data[i].property.pin;
-            jsonSwitch["min"] = Switch.data[i].property.minValue;
-            jsonSwitch["max"] = Switch.data[i].property.maxValue;
+            jsonSwitch["name"] = SwitchObjects[i]->getName();
+            jsonSwitch["desc"] = SwitchObjects[i]->getDescription();
+            jsonSwitch["type"] = SwitchObjects[i]->getType(); 
+            jsonSwitch["pin"] = SwitchObjects[i]->getPinNumber();
+            // uncommon parameters
+            
+            //digital input
+            if(SwitchObjects[i]->getType() == SwTypeDInput){
+                //digital input
+                DigitalInput* input = static_cast<DigitalInput*>(SwitchObjects[i]);
+                jsonSwitch["dOn"] = input->dOn;
+                jsonSwitch["dOff"] = input->dOff;
+                jsonSwitch["invert"] = input->invert;
+                
+            } else if(SwitchObjects[i]->getType() == SwTypeDOutput){
+                //digital output
+                DigitalOutput* output = static_cast<DigitalOutput*>(SwitchObjects[i]);
+                jsonSwitch["invert"] = output->invert;
+
+            } else if (SwitchObjects[i]->getType() == SwTypeServo){
+                //servo
+                ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
+                jsonSwitch["openDeg"] = servo->openDeg;
+                jsonSwitch["closeDeg"] = servo->closeDeg;
+                jsonSwitch["maxDeg"] = servo->getMax();
+                jsonSwitch["movTime"] = servo->movingTime;
+            }
 
         }
-        
         response->setLength();
         request->send(response);
     });
@@ -31,31 +49,22 @@ void switchWebServer(){
     server.on("/api/switch/status", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-
         JsonArray array = doc["Switches"].to<JsonArray>();
-
-        for(int i=0;i<_MAX_SWITCH_ID_;i++){
-            if(Switch.data[i].property.type == SwTypeNull  ){
+        for(int i=0; i< Switch.config.configuredSwitch; i++){
+            if (SwitchObjects[i] == nullptr) {
                 continue;
-            }
+            } 
             JsonObject jsonSwitch = array.add<JsonObject>();
-            jsonSwitch["name"] = Switch.data[i].property.Name;
-            jsonSwitch["desc"] = Switch.data[i].property.Description;
-            jsonSwitch["type"] = Switch.data[i].property.type;
-            jsonSwitch["min"] = Switch.data[i].property.minValue;
-            jsonSwitch["max"] = Switch.data[i].property.maxValue;
-            if( Switch.data[i].actualValue.boValue ){
-                jsonSwitch["boValue"] = true;   
-            } else {
-                jsonSwitch["boValue"] = false;   
-            }
-            
-            jsonSwitch["intValue"] = Switch.data[i].actualValue.intValue;
+            jsonSwitch["name"] = SwitchObjects[i]->getName();
+            jsonSwitch["desc"] = SwitchObjects[i]->getDescription();
+            jsonSwitch["type"] = SwitchObjects[i]->getType(); 
+            jsonSwitch["min"] = SwitchObjects[i]->getMin(); 
+            jsonSwitch["max"] = SwitchObjects[i]->getMax();
+            jsonSwitch["boValue"] = SwitchObjects[i]->status() ? true : false;
+            jsonSwitch["intValue"] = SwitchObjects[i]->status();
         }
         
         response->setLength();
-
-
         request->send(response);
     });
 
@@ -68,7 +77,7 @@ void switchWebServer(){
         bool exist = false;
         bool inRange = false;
         int id = -1;
-        int value = 0;
+        int value = -1;
         int paramsNr = request->params();
         
         for (int i = 0; i < paramsNr; i++) {
@@ -78,58 +87,53 @@ void switchWebServer(){
                 id = p->value().toInt();
             } 
             if (parameter == "value") {
-                exist = true;
                 value = p->value().toInt();
             } 
         }
-        if(id < 0 || id >= _MAX_SWITCH_ID_){
-            logMessageFormatted(Switches,lErr,"cmd. not exec, ID out of range",id);
+        if(id < 0 || id >= Switch.config.configuredSwitch){
             doc["error"] = "SwIdOutOfRange";
             err= true;
         }
-        if(exist){
-            if(value < Switch.data[id].property.minValue){
-                doc["error"] = "SwValueBehindMin";
-                logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d below min",id,value);
-                err= true;
-            }
-            if(value > Switch.data[id].property.maxValue){
-                doc["error"] = "SwValueOverMax";
-                logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d with val: %d exceeded max",id,value);
-                err= true;
-            }
-        } else {
-            doc["error"] = "SwValueAbsent";
-            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d value not provided",id);
+        if(SwitchObjects[id] == nullptr){
+            doc["error"] = "SwIdOutOfRange";
             err= true;
         }
+        if(value < 0){
+            doc["error"] = "SwValueAbsent";
+            err= true;
+        } else {
+            if(value < SwitchObjects[id]->getMin()){
+                doc["error"] = "SwValueBehindMin";
+                err= true;
+            }
+            if(value > SwitchObjects[id]->getMax()){
+                doc["error"] = "SwValueOverMax";
+                err= true;
+            }
+        }
 
-        switch (Switch.data[id].property.type)
+        if (SwitchObjects[id]->getType() < static_cast<int>(SwTypeDOutput))
         {
-        case SwTypeAInput:
-        case SwTypeDInput:
-        case SwTypeNull:
             err = true;
             doc["error"] = "SwNotWritable";
-            logMessageFormatted(Switches,lErr,"cmd. not exec on ID %d switch cannot be writable",id);
-            err= true;
-            break;
+        }
+
+
+        if(err){
+            response->setLength();
+            request->send(response);
+            return;
+        }
+
+        if (SwitchObjects[id]->getType() != static_cast<int>(SwTypeServo)){
+            SwitchObjects[id]->write(value);
+        } else {
+            ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+            servo->goTo(value,true);
+        }
         
-        default:
-            break;
-        }
-
-
-        if(!err){
-            Switch.data[id].command.intValue = value;
-            if(value == Switch.data[id].property.minValue){
-                Switch.data[id].command.boValue = false;
-            } else {
-                Switch.data[id].command.boValue = true;
-            }
-            Switch.data[id].command.execute = true;
-            doc["execute"] = true;
-        }
+        doc["execute"] = true;
+        
 
         response->setLength();
         request->send(response);
@@ -147,119 +151,157 @@ void switchWebServer(){
             bool reboot = false;
             int count = 0;
             unsigned int type = 0;
-            logMessageFormatted(Switches,lInfo,"New incoming config");
-            for (JsonObject Switche : json["Switches"].as<JsonArray>()) {
-                SwitchProperty propertyStruct;
 
-                if(!Switche["name"].is<String>() || !Switche["type"].is<unsigned int>() || !Switche["pin"].is<unsigned int>()){
-                    err.add("Name, type or pin not defined");
-                    logMessageFormatted(Switches,lErr,"Name, type or pin not defined");
+            //clear the temporary configration and rebuild the structure
+            tmpSwitchCfg.clear();
+            JsonArray IncomingSwitch = tmpSwitchCfg["Switches"].to<JsonArray>();
+            for (JsonObject Switche : json["Switches"].as<JsonArray>()) {
+
+                //check if a name is provided
+                if(!Switche["name"].is<String>()){
+                    error = true;
+                    err.add("Name not provided");
+                    continue;
+                }
+                //check if a desc is provided
+                if(!Switche["desc"].is<String>()){
+                    error = true;
+                    err.add("Desc not provided");
+                    continue;
+                }
+
+                //check the IO type
+                if(!Switche["type"].is<unsigned int>()){
+                    error = true;
+                    err.add("Type not passed");
+                    continue;
+                }
+
+                if(Switche["type"].as<unsigned int>() < 0 || Switche["type"].as<unsigned int>()>4){
+                    error = true;
+                    err.add("Type not defined");
                     continue;
                 }
 
                 type = Switche["type"].as<unsigned int>();
 
-                if(type == 0 || type > 6){
-                    err.add("Switch of type 0 skipped");
-                    logMessage(Switches,lErr,"Switch of type 0, skipped");
+                if(type == 0){
                     continue;
                 }
-                propertyStruct.type = static_cast<SwitchType>(type);
 
-                if (propertyStruct.type == SwTypeDInput){
-                    Serial.println("New Input");
-                    propertyStruct.pin = Switche["pin"].as<unsigned int>();
-                    if(!pinUsableAsInput(propertyStruct.pin)){
-                        err.add("pin not usable as input");
-                        logMessage(Switches,lErr,"pin not usable as input");
-                        continue;
-                    }
-                    propertyStruct.minValue = 0;
-                    propertyStruct.maxValue = 1;   
-                } else if ( propertyStruct.type == SwTypeDOutput ) {
-                    Serial.println("New Output");
-                    propertyStruct.pin = Switche["pin"].as<unsigned int>();
-                    if(!pinUsableAsOutput(propertyStruct.pin)){
-                        err.add("pin not usable as output");
-                        logMessage(Switches,lErr,"pin not usable as output");
-                        continue;
-                    }
-                    propertyStruct.minValue = 0;
-                    propertyStruct.maxValue = 1; 
-                } else if ( propertyStruct.type == SwTypePWM ) {
-                    Serial.println("New PWM");
-                    propertyStruct.pin = Switche["pin"].as<unsigned int>();
-                    if(!pinUsableAsOutput(propertyStruct.pin)){
-                        err.add("pin not usable as pwm output");
-                        logMessage(Switches,lErr,"pin not usable as pwm");
-                        continue;
-                    }
-                    propertyStruct.minValue = 0;
-                    propertyStruct.maxValue = 4096;   
-                } else if ( propertyStruct.type == SwTypeServo ) {
-                    Serial.println("New Servo");
-                    propertyStruct.pin = Switche["pin"].as<unsigned int>();
-                    if(!pinUsableAsOutput(propertyStruct.pin)){
-                        err.add("pin not usable as servo output");
-                        logMessage(Switches,lErr,"pin not usable as servo");
-                        continue;
-                    }    
-                    if(!Switche["min"].is<unsigned int>() || !Switche["max"].is<unsigned int>()){
-                        err.add("Min or Max value not defined");
-                        logMessage(Switches,lErr,"Min or Max value not defined");
-                        continue;
-                    }
-                    propertyStruct.minValue = Switche["min"];
-                    propertyStruct.maxValue = Switche["max"];
 
-                } else {
+                //check if pin is a number
+                if(!Switche["pin"].is<unsigned int>()){
+                    error = true;
+                    err.add("Pin number not provided");
+                    continue;
+                }
+
+                if(count>= _MAX_SWITCH_ID_){
+                    error = true;
+                    err.add("More than possibile Switch Configured");
+                    continue;
+                }
+
+                //Digital Input
+                if(type == 1){
+                    //pin, name, type, invert, don, doff
+                    if(!pinUsableAsInput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 1;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                    tmpSwitch["invert"] = 0;
+                    tmpSwitch["dOn"] = 0;
+                    tmpSwitch["dOff"] = 0;
+
+                    if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
+                        tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
+                    }
+
+                    if(Switche["dOn"].as<unsigned int>() >= 0){
+                        tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
+                    }
+
+                    if(Switche["dOff"].as<unsigned int>() >= 0){
+                        tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
+                    }
+
+                } else if(type==2){
+                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 2;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                    tmpSwitch["invert"] = 0;
                     
-                    Serial.println("not implemented");
-                    logMessage(Switches,lErr,"Type not implemented");
+                    if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
+                        tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
+                    }
+                } else if(type==3){
+                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 3;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                } else if(type==4){
+                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
+                        error = true;
+                        err.add("pin can't be used as input");
+                        continue;
+                    }
+                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                    tmpSwitch["name"] = Switche["name"];
+                    tmpSwitch["desc"] = Switche["desc"];
+                    tmpSwitch["type"] = 4;
+                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                    tmpSwitch["openDeg"] = 0;
+                    tmpSwitch["closeDeg"] = 0;
+                    tmpSwitch["movTime"] = 0;
+
+                    if(Switche["maxDeg"].as<unsigned int>() >= 0 && Switche["maxDeg"].as<unsigned int>() <= 360){
+                        tmpSwitch["maxDeg"] = Switche["maxDeg"].as<unsigned int>();
+                    }
+                    if(Switche["openDeg"].as<unsigned int>() >= 0 && Switche["openDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
+                        tmpSwitch["openDeg"] = Switche["openDeg"].as<unsigned int>();
+                    }
+                    if(Switche["closeDeg"].as<unsigned int>() >= 0 && Switche["closeDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
+                        tmpSwitch["closeDeg"] = Switche["invert"].as<unsigned int>();
+                    }
+                    if(Switche["movTime"].as<unsigned int>() >= 0){
+                        tmpSwitch["movTime"] = Switche["movTime"].as<unsigned int>();
+                    }
+                } else {
                     continue;
                 }
-
-                const char* jsonName = Switche["name"].as<const char*>();
-                strncpy(propertyStruct.Name, jsonName, sizeof(propertyStruct.Name) - 1);
-                propertyStruct.Name[sizeof(propertyStruct.Name) - 1] = '\0';
-
-                const char* jsonDesc = Switche["desc"].as<const char*>();
-                strncpy(propertyStruct.Description, jsonDesc, sizeof(propertyStruct.Description) - 1);
-                propertyStruct.Description[sizeof(propertyStruct.Description) - 1] = '\0';
-                Switch.config.tmp[count].property = propertyStruct;
-                count +=1;
             }
 
-            //do I need to reboot?
-            for (int i = 0; i < _MAX_SWITCH_ID_; i++)
-            {
-                if(Switch.data[i].property.type != Switch.config.tmp[i].property.type ||
-                    Switch.data[i].property.pin != Switch.config.tmp[i].property.pin)
-                {
-                    reboot = true;
-                }
-            }
-            
+
             doc["reboot"] = reboot;
 
             if(!reboot){
-                for (int i = 0; i < _MAX_SWITCH_ID_; i++)
-                {
-                    /*just name, desc, min and max*/
-                    strncpy(Switch.data[i].property.Name, Switch.config.tmp[i].property.Name, sizeof(Switch.data[i].property.Name) - 1);
-                    Switch.data[i].property.Name[sizeof(Switch.data[i].property.Name) - 1] = '\0';
-                    strncpy(Switch.data[i].property.Description, Switch.config.tmp[i].property.Description, sizeof(Switch.data[i].property.Description) - 1);
-                    Switch.data[i].property.Description[sizeof(Switch.data[i].property.Description) - 1] = '\0';
-                    Switch.data[i].property.minValue = Switch.config.tmp[i].property.minValue;
-                    Switch.data[i].property.maxValue = Switch.config.tmp[i].property.maxValue;
-                }
+                //reassign data
             }
 
             if(!error){
-                logMessage(Switches,lInfo,"Config don't have any errors, I'm going to store it");
                 Switch.config.save.execute = true;
             } else {
-                logMessage(Switches,lErr,"Config got errors, I'm NOT going to store it");
                 response->setCode(500);
             }
 

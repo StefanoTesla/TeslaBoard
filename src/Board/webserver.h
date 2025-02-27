@@ -26,7 +26,7 @@ void boardWebServer(){
         #else
             define["coverc"] = false;
         #endif
-
+        doc["version"] = _SW_VERSION_
         response->setLength();
         request->send(response);
     });
@@ -93,7 +93,6 @@ void boardWebServer(){
         board["cores"] = ESP.getChipCores();
         board["rev"] = ESP.getChipRevision();
         board["freq"] = ESP.getCpuFreqMHz();
-        board["version"] = 400;
         
 
         JsonArray pwm = doc["pwm"].to<JsonArray>();
