@@ -142,11 +142,10 @@ AsyncMiddlewareFunction getState([](AsyncWebServerRequest* request, ArMiddleware
 void missingValueErrorMessage(AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = new AsyncJsonResponse();
       JsonObject doc = response->getRoot().to<JsonObject>();
-      char message[100];
+
       int tmp = Switch.config.configuredSwitch - 1;
-      sprintf(message, "\"Value\" parameter not provided");
       doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = message;
+      doc["ErrorMessage"] = "\"Value\" parameter not provided";
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
       doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
       response->setLength();
@@ -197,7 +196,7 @@ AsyncMiddlewareFunction isValueable([](AsyncWebServerRequest* request, ArMiddlew
       
 });
 /* used where state is provided */
-AsyncMiddlewareFunction isStatable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+AsyncMiddlewareFunction isSettable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
       int id = request->getAttribute("id").toInt();
       if(canBeWritten(id)){
             next();
@@ -289,7 +288,12 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            doc["Value"] = SwitchObjects[id]->status();
+            Serial.print("Ascom Get Value for: ");
+            Serial.print( SwitchObjects[id]->getName());
+            Serial.print(" it's value is: ");
+            Serial.println( SwitchObjects[id]->status());
+            int value = SwitchObjects[id]->status();
+            doc["Value"] = value;
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -361,7 +365,7 @@ void switchAlpacaDevice(){
                   char message[15];
                   sprintf(message, "GetSwitch%d", i);
                   getSwitch["Name"] = message;
-                  getSwitch["Value"] = SwitchObjects[i].actualValue.boValue;
+                  getSwitch["Value"] = SwitchObjects[i]->status() ? true :false;
             }
             //getSwitchValue
             for (int i = 0; i < Switch.config.configuredSwitch; i++)
@@ -370,7 +374,7 @@ void switchAlpacaDevice(){
                   char message[20];
                   sprintf(message, "GetSwitchValue%d", i);
                   getSwitchValue["Name"] = message;
-                  getSwitchValue["Value"] = Switch.data[i].actualValue.intValue;
+                  getSwitchValue["Value"] = SwitchObjects[i]->status();
             }
             //StateChangeComplete
             for (int i = 0; i < Switch.config.configuredSwitch; i++)
@@ -379,7 +383,7 @@ void switchAlpacaDevice(){
                   char message[25];
                   sprintf(message, "StateChangeComplete%d", i);
                   StateChangeComplete["Name"] = message;
-                  StateChangeComplete["Value"] = !Switch.data[i].command.execute;
+                  StateChangeComplete["Value"] = true;
             }
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
@@ -392,24 +396,26 @@ void switchAlpacaDevice(){
       alpaca.on("/api/v1/switch/0/setswitch", HTTP_PUT, [](AsyncWebServerRequest *request) {
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
-
             int state = request->getAttribute("state").toInt();
             int id = request->getAttribute("id").toInt();
-
-            if(Switch.data[id].property.type == SwTypeDOutput){
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.boValue = state ? true : false;  
-            } else {
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.intValue = state ? Switch.data[id].property.maxValue : Switch.data[id].property.minValue;
+            int value = 0;
+            if(state){
+                  value = SwitchObjects[id]->getMax();
             }
+            if(SwitchObjects[id]->getType() == SwTypeServo){
+                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+                  servo->goTo(value,true);
+            } else {
+                  SwitchObjects[id]->write(value);
+            }
+
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
             doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
-      }).addMiddlewares({&getAlpacaID,&getID,&getState,&isStatable});
+      }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setasync", HTTP_PUT, [](AsyncWebServerRequest *request) {
             AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -417,21 +423,24 @@ void switchAlpacaDevice(){
 
             int state = request->getAttribute("state").toInt();
             int id = request->getAttribute("id").toInt();
-
-            if(Switch.data[id].property.type == SwTypeDOutput){
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.boValue = state ? true : false;  
-            } else {
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.intValue = state ? Switch.data[id].property.maxValue : Switch.data[id].property.minValue;
+            int value = 0;
+            if(state){
+                  value = SwitchObjects[id]->getMax();
             }
+            if(SwitchObjects[id]->getType() == SwTypeServo){
+                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+                  servo->goTo(value,true);
+            } else {
+                  SwitchObjects[id]->write(value);
+            }
+
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
             doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
-      }).addMiddlewares({&getAlpacaID,&getID,&getState,&isStatable});
+      }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setswitchvalue", HTTP_PUT, [](AsyncWebServerRequest *request) {
             AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -440,13 +449,14 @@ void switchAlpacaDevice(){
             int value = request->getAttribute("value").toInt();
             int id = request->getAttribute("id").toInt();
 
-            if(Switch.data[id].property.type == SwTypeDOutput){
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.boValue = value ? true : false;  
+            
+            if(SwitchObjects[id]->getType() == SwTypeServo){
+                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+                  servo->goTo(value,true);
             } else {
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.intValue = value;
+                  SwitchObjects[id]->write(value);
             }
+
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -462,13 +472,13 @@ void switchAlpacaDevice(){
             int value = request->getAttribute("value").toInt();
             int id = request->getAttribute("id").toInt();
 
-            if(Switch.data[id].property.type == SwTypeDOutput){
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.boValue = value ? true : false;  
+            if(SwitchObjects[id]->getType() == SwTypeServo){
+                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+                  servo->goTo(value,true);
             } else {
-                  Switch.data[id].command.execute = true;
-                  Switch.data[id].command.intValue = value;
+                  SwitchObjects[id]->write(value);
             }
+
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;

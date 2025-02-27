@@ -30,7 +30,8 @@
         "thread": "c",
         "cmath": "cpp",
         "bitset": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "memory": "c"
     },
     "C_Cpp.default.includePath": [
 

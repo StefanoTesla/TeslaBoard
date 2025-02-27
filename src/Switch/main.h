@@ -4,16 +4,17 @@
 #include "config.h"
 
 void updateSwitchState(){
+    //used only for run servo positioning
     for(int i=0;i<Switch.config.configuredSwitch;i++){
-        if(SwitchObjects[i] == nullptr){ continue; }
-        SwitchObjects[i]->status();
+        if(SwitchObjects[i] != nullptr and SwitchObjects[i]->getType() == SwTypeServo){
+            SwitchObjects[i]->status();
+        }
     }
 }
 
 
 void SwitchLoop(){
     updateSwitchState();
-    //setSwitchValue();
 
 
     if(Switch.config.save.execute){
@@ -25,11 +26,11 @@ void SwitchLoop(){
 
 #include "webserver.h"
 #include "alpacaManage.h"
-//#include "alpacaDevice.h"
+#include "alpacaDevice.h"
 
 void switchRequestHandler(){
   switchWebServer();
-  //switchAlpacaManage();
-  //switchAlpacaDevice();
+  switchAlpacaManage();
+  switchAlpacaDevice();
 }
 #endif
