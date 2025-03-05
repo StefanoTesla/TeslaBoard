@@ -288,21 +288,7 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-
-            if( SwitchObjects[id]->getType() == SwTypeDInput){
-                  DigitalOutput* dIn = static_cast<DigitalOutput*>(SwitchObjects[id]);
-                  doc["Value"] = dIn->status();
-            } else if (SwitchObjects[id]->getType() == SwTypeDOutput){
-                  DigitalOutput* dOut = static_cast<DigitalOutput*>(SwitchObjects[id]);
-                  doc["Value"] = dOut->status();
-            } else if(SwitchObjects[id]->getType() == SwTypePWM){
-                  PWMOutput* pwm = static_cast<PWMOutput*>(SwitchObjects[id]);
-                  doc["Value"] = pwm->status();
-            } else if( SwitchObjects[id]->getType() == SwTypeServo){
-                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
-                  doc["Value"] = servo->status();
-            }
-            
+            doc["Value"] =SwitchObjects[id]->status();
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
