@@ -10,6 +10,8 @@ private:
     int value;
 
 public:
+
+    unsigned int currentDuty;
     PWMOutput();
     void setup(IOConfigBase* config);
     int readPin() override;

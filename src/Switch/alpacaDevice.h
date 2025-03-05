@@ -288,12 +288,21 @@ void switchAlpacaDevice(){
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
-            Serial.print("Ascom Get Value for: ");
-            Serial.print( SwitchObjects[id]->getName());
-            Serial.print(" it's value is: ");
-            Serial.println( SwitchObjects[id]->status());
-            int value = SwitchObjects[id]->status();
-            doc["Value"] = value;
+
+            if( SwitchObjects[id]->getType() == SwTypeDInput){
+                  DigitalOutput* dIn = static_cast<DigitalOutput*>(SwitchObjects[id]);
+                  doc["Value"] = dIn->status();
+            } else if (SwitchObjects[id]->getType() == SwTypeDOutput){
+                  DigitalOutput* dOut = static_cast<DigitalOutput*>(SwitchObjects[id]);
+                  doc["Value"] = dOut->status();
+            } else if(SwitchObjects[id]->getType() == SwTypePWM){
+                  PWMOutput* pwm = static_cast<PWMOutput*>(SwitchObjects[id]);
+                  doc["Value"] = pwm->status();
+            } else if( SwitchObjects[id]->getType() == SwTypeServo){
+                  ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
+                  doc["Value"] = servo->status();
+            }
+            
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
             doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -402,7 +411,8 @@ void switchAlpacaDevice(){
             if(state){
                   value = SwitchObjects[id]->getMax();
             }
-            if(SwitchObjects[id]->getType() == SwTypeServo){
+            
+            if (SwitchObjects[id]->getType() == SwTypeServo){
                   ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
                   servo->goTo(value,true);
             } else {

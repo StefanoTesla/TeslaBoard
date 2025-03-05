@@ -24,10 +24,6 @@ void PWMOutput::setup(IOConfigBase* config){
 }
 
 int PWMOutput::write(int _value) {
-    Serial.print("Scrittura su Canale: ");
-    Serial.print(channel);
-    Serial.print(" valore: ");
-    Serial.println(_value);
     
     if(_value >= min && _value <= max){
         ledcWrite(channel,_value);
@@ -39,16 +35,13 @@ int PWMOutput::write(int _value) {
 }
 
 int PWMOutput::readPin() {
-    Serial.print("lettura canale: ");
-    Serial.print(channel);
+
     return ledcRead(channel);
 }
 
 int PWMOutput::status(){
-    Serial.print("valore: ");
-    Serial.println(readPin());
-    channel = readPin();
-    return channel;
+    currentDuty = readPin();
+    return currentDuty;
 }
 
 unsigned int PWMOutput::getChannel(){
