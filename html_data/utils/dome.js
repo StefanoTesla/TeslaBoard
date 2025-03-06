@@ -60,7 +60,27 @@ export function dome(){
     },
 
     validateDome(){
-        this.parseObjectToInt(this.dome)
+        this.dome.pinOpen.pin = parseInt(this.dome.pinOpen.pin)
+        this.dome.pinOpen.dOn = parseInt(this.dome.pinOpen.dOn)
+        this.dome.pinOpen.dOff = parseInt(this.dome.pinOpen.dOff)
+        this.dome.pinOpen.invert = parseInt(this.dome.pinOpen.invert)
+
+        this.dome.pinClose.pin = parseInt(this.dome.pinClose.pin)
+        this.dome.pinClose.dOn = parseInt(this.dome.pinClose.dOn)
+        this.dome.pinClose.dOff = parseInt(this.dome.pinClose.dOff)
+        this.dome.pinClose.invert = parseInt(this.dome.pinClose.invert)
+
+        this.dome.pinStart.pin = parseInt(this.dome.pinStart.pin)
+        this.dome.pinStart.invert = parseInt(this.dome.pinStart.invert)
+
+        this.dome.pinHalt.pin = parseInt(this.dome.pinHalt.pin)
+        this.dome.pinHalt.invert = parseInt(this.dome.pinHalt.invert)
+
+        this.dome.movTimeOut = parseInt(this.dome.movTimeOut)
+
+        this.dome.autoclose.minutes = parseInt(this.dome.autoclose.minutes)
+
+
         //input open
         let err = false;
 

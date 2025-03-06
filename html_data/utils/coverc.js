@@ -159,9 +159,12 @@ export function coverc(){
             .catch(error => console.error('Error fetching board data:', error));
         },
 
-        validateCoverC(){
-            let valid = true
-            
+        removeValidationErrorClass(id){
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('validation_error');
+        },
+        
+        validateCoverC(){        
             let err = false;
             if(this.coverC.calibrator.present){
                 this.coverC.calibrator.pin = parseInt(this.coverC.calibrator.pin)
