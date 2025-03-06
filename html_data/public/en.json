@@ -21,9 +21,9 @@
 			}
 		},
 		"setting": {
-			"driverType": "Command Type",
-			"inOpen": "Input Open",
-			"inClose": "Input Closed",
+			"driverType": "Control Type",
+			"inOpen": "Open Input",
+			"inClose": "Close Input",
 			"onDelay": "Activation Delay:",
 			"offDelay": "Deactivation Delay:",
 			"outStart": "GPIO Start:",
@@ -32,17 +32,17 @@
 			"outClose": "GPIO Close:",
 			"outDir": "GPIO Direction:",
 			"timeout": "Timeout",
-			"autoClose": "Auto Close",
+			"autoClose": "Automatic Closing",
 			"timeOutMoviment": "Maximum Movement Time:",
-			"autoclosewarning1": "Warning, read carefully before activating.",
-			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND Wi-Fi is connected AND there is no communication with the board (regarding the DOME).",
-			"autoclosewarning3": "For example, in the case of a temporary blackout, once power is restored, and the PC may remain off or software might not restart to manage the sequence, it will wait for the set minutes, after which the roof will close, REGARDLESS of the equipment's state (telescope).",
-			"autoclosewarning4": "In case of roof maintenance, the browser must remain open on the main page to prevent automatic closure, or even better, disable this function.",
-			"autoclosewarning5": "By enabling this feature, you confirm that you have read and understood the risks it may pose to you and your equipment.",
-			"autoCloseEn": "Enable Auto Close:",
+			"autoclosewarning1": "Warning, read carefully before enabling.",
+			"autoclosewarning2": "This option will automatically close the roof if the roof is open AND the WiFi is connected AND there is no communication with the board (related to the DOME).",
+			"autoclosewarning3": "For example, in case of a temporary blackout, once power is restored, and if the PC remains off or the management software does not restart, it will wait for the set minutes, after which the roof will be closed, REGARDLESS of the equipment status (telescope).",
+			"autoclosewarning4": "During roof maintenance, it will be necessary to keep the browser open on the main page to prevent automatic closing, or even better, disable this function.",
+			"autoclosewarning5": "By enabling this function, you confirm that you have read and understood the risks this feature may pose to you and your equipment.",
+			"autoCloseEn": "Enable Automatic Closing:",
 			"autoCloseMin": "Close after:",
 			"driverTypeEnum": {
-				"0": "Roling gate Card",
+				"0": "Sliding Gate Board",
 				"1": "Direction Signal",
 				"2": "Command + Direction"
 			}
@@ -79,8 +79,8 @@
 			"open": "Open",
 			"close": "Close",
 			"halt": "Stop",
-			"powerOn": "Power On",
-			"powerOff": "Power Off"
+			"powerOn": "Turn On",
+			"powerOff": "Turn Off"
 		},
 		"input": "Input",
 		"output": "Output",
@@ -98,7 +98,7 @@
 	"board": {
 		"home": {
 			"wifi": {
-				"ssdi": "Wi-Fi Network:",
+				"ssdi": "WiFi Network:",
 				"db": "Signal Strength:",
 				"macAddress": "MAC Address"
 			},
@@ -107,7 +107,7 @@
 				"speed": "Speed:"
 			},
 			"uptime": {
-				"from": "Active From",
+				"from": "Active since",
 				"days": "Days,",
 				"hours": "Hours,",
 				"minutes": "Minutes"
@@ -142,21 +142,21 @@
 		},
 		"setting": {
 			"locale": "Language",
-			"wifi": "Wi-Fi",
+			"wifi": "WiFi",
 			"ipAddress": "IP Address:",
 			"gateway": "Gateway Address:",
 			"subnet": "Subnet:",
 			"staticIp": "Static IP Address:",
-			"waitToReconnect": "Wait for Reconnection:",
-			"warningIP": "Warning, a simple validation is performed. If an error occurs, it will not be possible to reach the board.",
+			"waitToReconnect": "Reconnection Wait Time:",
+			"warningIP": "Warning, simple validation is performed. If incorrect, the board will be unreachable.",
 			"configSaved": "Board Configuration Saved",
 			"reboot": "REBOOT BOARD",
 			"wifiReset": "REMOVE WIFI SETTINGS"
 		},
 		"reboot": {
 			"warning": "WARNING",
-			"text1": "The configuration has been saved, but it will only be applied on the next reboot.",
-			"text2": "You can reboot now or later (the button to perform the reset is on the Tesla Board)",
+			"text1": "The configuration has been saved but will only be applied after the next reboot.",
+			"text2": "You can restart now or later (the reset button is in the Tesla Board tab).",
 			"now": "REBOOT NOW",
 			"later": "REBOOT LATER"
 		}
@@ -180,9 +180,9 @@
 		},
 		"switch": {
 			"SwIdOutOfRange": "Switch ID out of range",
-			"SwValueBehindMin": "Minimum value exceeded",
-			"SwValueOverMax": "Maximum value exceeded",
-			"SwValueAbsent": "Value not provided",
+			"SwValueBehindMin": "Minimum Value Exceeded",
+			"SwValueOverMax": "Maximum Value Exceeded",
+			"SwValueAbsent": "Value Not Provided",
 			"SwNotWritable": "Switch not writable"
 		}
 	},
@@ -201,22 +201,22 @@
 		"DI": {
 			"onDelay": "Activation Delay:",
 			"offDelay": "Deactivation Delay:",
-			"func": "Function:",
+			"func": "Operation:",
 			"invertEnum": {
 				"0": "Normally Open",
 				"1": "Normally Closed"
 			}
 		},
 		"DO": {
-			"func": "Function:",
+			"func": "Operation:",
 			"invertEnum": {
 				"0": "Active HIGH",
 				"1": "Active LOW"
 			}
 		},
 		"Servo": {
-			"openDeg": "Open at degrees:",
-			"closeDeg": "Close at degrees:",
+			"openDeg": "Open Degrees:",
+			"closeDeg": "Closed Degrees:",
 			"maxDeg": "Maximum Rotation:",
 			"maxDegEnum": {
 				"90": "90°",

@@ -3,148 +3,180 @@
 		"home": "ACCUEIL",
 		"setting": "PARAMÈTRES"
 	},
-	"switch": {
-		"title": "interrupteur",
-		"name": "Nom :",
-		"description": "Description :",
-		"typeEnum": {
-			"0": "Non utilisé",
-			"1": "Entrée numérique",
-			"2": "Sortie numérique",
-			"3": "Sortie PWM",
-			"4": "Sortie Servo"
-		}
-	},
 	"dome": {
 		"title": "Dôme",
-		"input": "État des Entrées",
-		"roofState": "État du Toit : ",
-		"actualCommand": "Commande actuelle :",
-		"lastCommand": "Dernière commande :",
-		"shutterState": {
-			"open": "Ouvert",
-			"closed": "Fermé",
-			"opening": "En Ouverture",
-			"closing": "En Fermeture",
-			"error": "Erreur"
+		"home": {
+			"input": "État des Entrées",
+			"roofState": "État du Toit : ",
+			"actualCommand": "Commande Actuelle :",
+			"lastCommand": "Dernière Commande :",
+			"shutterState": {
+				"opening": "Ouverture",
+				"closing": "Fermeture",
+				"error": "Erreur"
+			},
+			"shutterCommand": {
+				"idle": "Aucune Commande",
+				"halt": "ARRÊT"
+			}
 		},
-		"shutterCommand": {
-			"idle": "Aucune Commande",
-			"open": "En Ouverture",
-			"close": "En Fermeture",
-			"halt": "ARRÊT"
-		}
-	},
-	"coverC": {
-		"calibrator": "Panneau Plat",
-		"cover": "Couvercle",
-		"coverState": "État du Couvercle : ",
-		"coverEnum": {
-			"notPresent": "Non présent",
-			"close": "Fermé",
-			"moving": "En Mouvement",
-			"open": "Ouvert",
-			"unknow": "Inconnu",
-			"error": "Erreur"
-		}
-	},
-	"gen": {
-		"opened": "ouvert",
-		"closed": "fermé",
-		"open": "ouvrir",
-		"close": "fermer",
-		"halt": "arrêter",
-		"pin": "GPIO :",
-		"type": "Type :",
-		"outputs": "Sorties",
-		"loadFromBoard": "RESTAURER",
-		"downloadFile": "TÉLÉCHARGER LE FICHIER",
-		"save": "ENREGISTRER",
-		"enable": "Activer :",
-		"powerOn": "allumer",
-		"powerOff": "éteindre",
-		"actualPos": "Position actuelle :",
-		"actualValue": "Valeur actuelle :",
-		"locale": "Langue",
-		"cmdAck": "Commande reçue",
-		"cmdRefused": "Commande refusée",
-		"wifi": "WiFi",
-		"ipAddress": "Adresse IP :",
-		"gateway": "Adresse de la Passerelle :",
-		"subnet": "Sous-réseau :",
-		"staticIp": "Adresse IP statique :",
-		"waitToReconnect": "Attente pour reconnexion :",
-		"warningIP": "Attention, une validation simple est effectuée ; en cas d'erreur, il sera impossible d'accéder à la carte.",
-		"configSaved": "Configuration Enregistrée",
-		"utility": "Utilitaire",
-		"reboot": "REDÉMARRER LA CARTE",
-		"wifireset": "SUPPRIMER LES PARAMÈTRES WIFI"
-	},
-	"setting": {
-		"dome": {
-			"inOpen": "Entrée Ouverte",
-			"inClose": "Entrée Fermée",
+		"setting": {
+			"driverType": "Type de Commande",
+			"inOpen": "Entrée Ouverture",
+			"inClose": "Entrée Fermeture",
 			"onDelay": "Délai d'Activation :",
 			"offDelay": "Délai de Désactivation :",
 			"outStart": "GPIO Démarrage :",
 			"outHalt": "GPIO ARRÊT :",
 			"outOpen": "GPIO Ouverture :",
 			"outClose": "GPIO Fermeture :",
-			"timeout": "Délai d'expiration",
+			"outDir": "GPIO Direction :",
+			"timeout": "Temps d'Expiration",
 			"autoClose": "Fermeture Automatique",
-			"timeOutMoviment": "Délai de Mouvement :",
-			"autoclosewarning1": "Attention, lisez attentivement avant de l'activer.",
-			"autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET que le WiFi est connecté ET qu'il n'y a aucune communication avec la carte (concernant le DÔME).",
-			"autoclosewarning3": "Par exemple, en cas de panne de courant temporaire, une fois le courant rétabli, et probablement le PC éteint ou les logiciels de gestion ne redémarrant pas, il attendra les minutes définies, après quoi le toit se fermera INDÉPENDAMMENT de l'état de l'équipement (télescope).",
-			"autoclosewarning4": "Lors de la maintenance du toit, il sera nécessaire de garder le navigateur ouvert sur la page principale pour éviter une fermeture automatique, ou mieux encore, désactiver cette fonctionnalité.",
-			"autoclosewarning5": "En activant cette fonction, vous confirmez avoir lu et compris les risques qu'elle peut entraîner pour vous et votre équipement.",
+			"timeOutMoviment": "Temps Maximum de Mouvement :",
+			"autoclosewarning1": "Attention, lisez attentivement avant d'activer.",
+			"autoclosewarning2": "Cette option fermera automatiquement le toit si le toit est ouvert ET que le WiFi est connecté ET qu'il n'y a aucune communication avec la carte (concernant le DÔME).",
+			"autoclosewarning3": "Par exemple, en cas de panne de courant temporaire, une fois le courant rétabli, et si le PC reste éteint ou que les logiciels de gestion ne redémarrent pas, il attendra le temps défini, après quoi le toit se fermera, INDÉPENDAMMENT de l'état de l'équipement (télescope).",
+			"autoclosewarning4": "Lors de la maintenance du toit, il sera nécessaire de garder le navigateur ouvert sur la page principale pour éviter la fermeture automatique, ou mieux encore, désactiver cette fonction.",
+			"autoclosewarning5": "En activant cette fonction, vous confirmez avoir lu et compris les risques qu'elle peut représenter pour vous et votre équipement.",
 			"autoCloseEn": "Activation de la Fermeture Automatique :",
-			"autoCloseMin": "Fermer après :"
+			"autoCloseMin": "Fermer après :",
+			"driverTypeEnum": {
+				"0": "Carte pour Portail Coulissant",
+				"1": "Signal de Direction",
+				"2": "Commande + Direction"
+			}
+		}
+	},
+	"coverC": {
+		"title": "Panneau Plat et Couvercle",
+		"calibrator": "Panneau Plat",
+		"cover": "Couvercle",
+		"home": {
+			"coverState": "État du Couvercle : ",
+			"coverEnum": {
+				"notPresent": "Non Présent",
+				"moving": "En Mouvement",
+				"unknow": "Inconnu",
+				"error": "Erreur"
+			}
 		},
-		"coverC": {
-			"calibrator": {
-				"calibrator": "Panneau Plat"
-			},
-			"cover": {
-				"cover": "Couvercle",
-				"openDeg": "Ouvert à degrés :",
-				"closeDeg": "Fermé à degrés :",
-				"maxDeg": "Rotation Maximale :",
-				"movingTime": "Temps de Mouvement :"
-			},
-			"configSaved": "Configuration du Couvercle Calibrateur Enregistrée"
+		"setting": {
+			"configSaved": "Configuration du Couvercle et du Calibrateur Enregistrée"
+		}
+	},
+	"switch": {
+		"title": "Interrupteurs"
+	},
+	"gen": {
+		"status": {
+			"open": "Ouvert",
+			"close": "Fermé",
+			"actualPos": "Position Actuelle :",
+			"actualValue": "Valeur Actuelle :"
 		},
-		"board": {
-			"configSaved": "Configuration de la Carte Enregistrée"
+		"action": {
+			"open": "Ouvrir",
+			"close": "Fermer",
+			"halt": "Arrêter",
+			"powerOn": "Allumer",
+			"powerOff": "Éteindre"
+		},
+		"input": "Entrée",
+		"output": "Sortie",
+		"outputs": "Sorties",
+		"pin": "GPIO",
+		"loadFromBoard": "RESTAURER",
+		"downloadFile": "TÉLÉCHARGER LE FICHIER",
+		"save": "SAUVEGARDER",
+		"enable": "Activer :",
+		"cmdAck": "Commande Reçue",
+		"cmdRefused": "Commande Refusée",
+		"configSaved": "Configuration Enregistrée",
+		"utility": "Utilitaire"
+	},
+	"board": {
+		"home": {
+			"wifi": {
+				"ssdi": "Réseau WiFi :",
+				"db": "Réception :",
+				"macAddress": "Adresse MAC"
+			},
+			"cpu": {
+				"cores": "Processeurs :",
+				"speed": "Vitesse :"
+			},
+			"uptime": {
+				"from": "Actif depuis",
+				"days": "Jours,",
+				"hours": "Heures,",
+				"minutes": "Minutes"
+			},
+			"memory": {
+				"total": "Mémoire Totale :",
+				"free": "Mémoire Libre :",
+				"minFree": "Mémoire Libre Non Fragmentée :"
+			},
+			"update": {
+				"title": "Version",
+				"actual": "Actuelle :",
+				"available": "Disponible :",
+				"check": "Vérifier les Mises à Jour"
+			},
+			"timers": {
+				"channel": "Canal ",
+				"channels": {
+					"0": "Non Initialisé",
+					"1": "PWM",
+					"2": "Servo"
+				}
+			},
+			"gpio": {
+				"module": {
+					"0": "Non Assigné",
+					"1": "Dôme",
+					"2": "Couvercle",
+					"3": "Interrupteur"
+				}
+			}
+		},
+		"setting": {
+			"locale": "Langue",
+			"wifi": "WiFi",
+			"ipAddress": "Adresse IP :",
+			"gateway": "Adresse de la Passerelle :",
+			"subnet": "Sous-réseau :",
+			"staticIp": "Adresse IP Statique :",
+			"waitToReconnect": "Temps d'Attente pour la Reconnexion :",
+			"warningIP": "Attention, une validation simple est effectuée. En cas d'erreur, la carte sera inaccessible.",
+			"configSaved": "Configuration de la Carte Enregistrée",
+			"reboot": "REDÉMARRER LA CARTE",
+			"wifiReset": "SUPPRIMER LES PARAMÈTRES WIFI"
+		},
+		"reboot": {
+			"warning": "ATTENTION",
+			"text1": "La configuration a été enregistrée mais ne sera appliquée qu'au prochain redémarrage.",
+			"text2": "Vous pouvez redémarrer maintenant ou plus tard (le bouton de réinitialisation est dans l'onglet Tesla Board).",
+			"now": "REDÉMARRER MAINTENANT",
+			"later": "REDÉMARRER PLUS TARD"
 		}
 	},
 	"errors": {
-		"noUsableAsInput": "non utilisable comme entrée",
-		"noUsableAsOutput": "non utilisable comme sortie",
-		"coverIsMoving": "Le couvercle est déjà en mouvement",
-		"coverNotPresent": "Le couvercle n'est pas présent",
-		"calibNotPresent": "Le panneau plat n'est pas présent",
-		"calibBrightnessNotPresent": "Paramètre de luminosité manquant",
-		"calibBrightnessNotInRange": "Paramètre de luminosité hors limites",
-		"ShAlreadyMoving": "Le toit est déjà en mouvement",
-		"ShAlreadyOpen": "Le toit est déjà ouvert",
-		"ShAlreadyClosed": "Le toit est déjà fermé",
-		"SwIdOutOfRange": "ID d'Interrupteur hors limites",
-		"SwValueBehindMin": "Valeur Minimum dépassée",
-		"SwValueOverMax": "Valeur Maximum dépassée",
-		"SwValueAbsent": "Valeur Non Fournie",
-		"SwNotWritable": "Interrupteur non inscriptible"
-	},
-	"pwm": {
-		"0": "Non initialisé",
-		"1": "PWM",
-		"2": "Servo"
-	},
-	"reboot": {
-		"warning": "ATTENTION",
-		"text1": "La configuration a été enregistrée, mais elle ne sera appliquée qu'au prochain redémarrage.",
-		"text2": "Vous pouvez redémarrer maintenant ou plus tard (le bouton pour effectuer le redémarrage se trouve dans l'onglet Tesla Board).",
-		"now": "REDÉMARRER MAINTENANT",
-		"later": "REDÉMARRER PLUS TARD"
+		"gpio": {
+			"noUsableAsInput": "non utilisable comme entrée",
+			"noUsableAsOutput": "non utilisable comme sortie"
+		},
+		"dome": {
+			"ShAlreadyMoving": "Le toit est déjà en mouvement",
+			"ShAlreadyOpen": "Le toit est déjà ouvert",
+			"ShAlreadyClosed": "Le toit est déjà fermé"
+		},
+		"coverc": {
+			"coverIsMoving": "Le couvercle est déjà en mouvement",
+			"coverNotPresent": "Le couvercle n'est pas présent",
+			"calibNotPresent": "Le panneau plat n'est pas présent",
+			"calibBrightnessNotPresent": "Paramètre de luminosité manquant",
+			"calibBrightnessNotInRange": "Paramètre de luminosité hors limites"
+		}
 	}
 }

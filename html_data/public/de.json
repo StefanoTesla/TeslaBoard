@@ -3,85 +3,25 @@
 		"home": "STARTSEITE",
 		"setting": "EINSTELLUNGEN"
 	},
-	"switch": {
-		"title": "Schalter",
-		"name": "Name:",
-		"description": "Beschreibung:",
-		"typeEnum": {
-			"0": "Nicht genutzt",
-			"1": "Digitaleingang",
-			"2": "Digitalausgang",
-			"3": "PWM-Ausgang",
-			"4": "Servo-Ausgang"
-		}
-	},
 	"dome": {
 		"title": "Kuppel",
-		"input": "Eingangsstatus",
-		"roofState": "Dachstatus: ",
-		"actualCommand": "Aktueller Befehl:",
-		"lastCommand": "Letzter Befehl:",
-		"shutterState": {
-			"open": "Offen",
-			"closed": "Geschlossen",
-			"opening": "Öffnet",
-			"closing": "Schließt",
-			"error": "Fehler"
+		"home": {
+			"input": "Eingangsstatus",
+			"roofState": "Dachstatus: ",
+			"actualCommand": "Aktueller Befehl:",
+			"lastCommand": "Letzter Befehl:",
+			"shutterState": {
+				"opening": "Wird geöffnet",
+				"closing": "Wird geschlossen",
+				"error": "Fehler"
+			},
+			"shutterCommand": {
+				"idle": "Kein Befehl",
+				"halt": "STOPP"
+			}
 		},
-		"shutterCommand": {
-			"idle": "Kein Befehl",
-			"open": "Öffnen",
-			"close": "Schließen",
-			"halt": "STOPP"
-		}
-	},
-	"coverC": {
-		"calibrator": "Flachfeldschirm",
-		"cover": "Abdeckung",
-		"coverState": "Abdeckungsstatus: ",
-		"coverEnum": {
-			"notPresent": "Nicht vorhanden",
-			"close": "Geschlossen",
-			"moving": "In Bewegung",
-			"open": "Offen",
-			"unknow": "Unbekannt",
-			"error": "Fehler"
-		}
-	},
-	"gen": {
-		"opened": "offen",
-		"closed": "geschlossen",
-		"open": "öffnen",
-		"close": "schließen",
-		"halt": "stopp",
-		"pin": "GPIO:",
-		"type": "Typ:",
-		"outputs": "Ausgänge",
-		"loadFromBoard": "WIEDERHERSTELLEN",
-		"downloadFile": "DATEI HERUNTERLADEN",
-		"save": "SPEICHERN",
-		"enable": "Aktivieren:",
-		"powerOn": "einschalten",
-		"powerOff": "ausschalten",
-		"actualPos": "Aktuelle Position:",
-		"actualValue": "Aktueller Wert:",
-		"locale": "Sprache",
-		"cmdAck": "Befehl empfangen",
-		"cmdRefused": "Befehl abgelehnt",
-		"wifi": "WiFi",
-		"ipAddress": "IP-Adresse:",
-		"gateway": "Gateway-Adresse:",
-		"subnet": "Subnetz:",
-		"staticIp": "Statische IP-Adresse:",
-		"waitToReconnect": "Warten auf erneute Verbindung:",
-		"warningIP": "Achtung, es erfolgt nur eine einfache Validierung; bei einem Fehler ist der Zugriff auf die Karte nicht möglich.",
-		"configSaved": "Konfiguration gespeichert",
-		"utility": "Werkzeug",
-		"reboot": "KARTE NEUSTARTEN",
-		"wifireset": "WIFI-EINSTELLUNGEN LÖSCHEN"
-	},
-	"setting": {
-		"dome": {
+		"setting": {
+			"driverType": "Befehlstyp",
 			"inOpen": "Eingang Offen",
 			"inClose": "Eingang Geschlossen",
 			"onDelay": "Einschaltverzögerung:",
@@ -90,61 +30,153 @@
 			"outHalt": "GPIO STOPP:",
 			"outOpen": "GPIO Öffnen:",
 			"outClose": "GPIO Schließen:",
+			"outDir": "GPIO Richtung:",
 			"timeout": "Zeitüberschreitung",
 			"autoClose": "Automatisches Schließen",
-			"timeOutMoviment": "Bewegungszeitüberschreitung:",
-			"autoclosewarning1": "Achtung, bitte sorgfältig lesen, bevor Sie dies aktivieren.",
-			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn das Dach offen ist UND WiFi verbunden ist UND keine Kommunikation mit der Karte (DOME) besteht.",
-			"autoclosewarning3": "Zum Beispiel, bei einem vorübergehenden Stromausfall, wenn die Stromversorgung wiederhergestellt wird und der PC wahrscheinlich ausgeschaltet bleibt oder die Steuerungssoftware nicht neu startet, wird nach Ablauf der eingestellten Minuten das Dach UNABHÄNGIG vom Zustand der Ausrüstung (Teleskop) geschlossen.",
-			"autoclosewarning4": "Während der Wartung des Dachs muss der Browser auf der Hauptseite geöffnet bleiben, um ein automatisches Schließen zu vermeiden, oder besser, diese Funktion deaktivieren.",
-			"autoclosewarning5": "Durch Aktivieren dieser Funktion bestätigen Sie, dass Sie die Risiken, die sie für Sie und Ihre Ausrüstung bergen kann, gelesen und verstanden haben.",
+			"timeOutMoviment": "Maximale Bewegungszeit:",
+			"autoclosewarning1": "Achtung, bitte sorgfältig lesen, bevor Sie diese Funktion aktivieren.",
+			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn das Dach offen ist UND das WLAN verbunden ist UND keine Kommunikation mit der Steuerplatine (die die KUPPEL betrifft) besteht.",
+			"autoclosewarning3": "Zum Beispiel, im Falle eines vorübergehenden Stromausfalls, wenn der Strom wiederkehrt und der PC möglicherweise ausgeschaltet bleibt oder die Steuerungssoftware nicht neu startet, wird nach der eingestellten Zeit das Dach geschlossen, UNABHÄNGIG vom Zustand der Ausrüstung (Teleskop).",
+			"autoclosewarning4": "Bei Wartungsarbeiten am Dach muss der Browser auf der Hauptseite geöffnet bleiben, um ein automatisches Schließen zu verhindern, oder besser noch, diese Funktion sollte deaktiviert werden.",
+			"autoclosewarning5": "Durch Aktivieren dieser Funktion bestätigen Sie, dass Sie die Risiken verstanden haben, die diese Funktion für Sie und Ihre Ausrüstung haben kann.",
 			"autoCloseEn": "Automatisches Schließen aktivieren:",
-			"autoCloseMin": "Schließen nach:"
+			"autoCloseMin": "Schließen nach:",
+			"driverTypeEnum": {
+				"0": "Steuerkarte für Schiebetore",
+				"1": "Richtungssignal",
+				"2": "Befehl + Richtung"
+			}
+		}
+	},
+	"coverC": {
+		"title": "Flat Panel und Abdeckung",
+		"calibrator": "Flat Panel",
+		"cover": "Abdeckung",
+		"home": {
+			"coverState": "Abdeckungsstatus:",
+			"coverEnum": {
+				"notPresent": "Nicht vorhanden",
+				"moving": "In Bewegung",
+				"unknow": "Unbekannt",
+				"error": "Fehler"
+			}
 		},
-		"coverC": {
-			"calibrator": {
-				"calibrator": "Flachfeldschirm"
-			},
-			"cover": {
-				"cover": "Abdeckung",
-				"openDeg": "Offen bei Grad:",
-				"closeDeg": "Geschlossen bei Grad:",
-				"maxDeg": "Maximale Drehung:",
-				"movingTime": "Bewegungszeit:"
-			},
-			"configSaved": "Kalibratorabdeckung-Konfiguration gespeichert"
+		"setting": {
+			"configSaved": "Abdeckungs- und Kalibrator-Konfiguration gespeichert"
+		}
+	},
+	"switch": {
+		"title": "Schalter"
+	},
+	"gen": {
+		"status": {
+			"open": "Offen",
+			"close": "Geschlossen",
+			"actualPos": "Aktuelle Position:",
+			"actualValue": "Aktueller Wert:"
 		},
-		"board": {
-			"configSaved": "Kartenkonfiguration gespeichert"
+		"action": {
+			"open": "Öffnen",
+			"close": "Schließen",
+			"halt": "Stopp",
+			"powerOn": "Einschalten",
+			"powerOff": "Ausschalten"
+		},
+		"input": "Eingang",
+		"output": "Ausgang",
+		"outputs": "Ausgänge",
+		"pin": "GPIO",
+		"loadFromBoard": "WIEDERHERSTELLEN",
+		"downloadFile": "DATEI HERUNTERLADEN",
+		"save": "SPEICHERN",
+		"enable": "Aktivieren:",
+		"cmdAck": "Befehl empfangen",
+		"cmdRefused": "Befehl abgelehnt",
+		"configSaved": "Konfiguration gespeichert",
+		"utility": "Dienstprogramm"
+	},
+	"board": {
+		"home": {
+			"wifi": {
+				"ssdi": "WLAN-Netzwerk:",
+				"db": "Empfang:",
+				"macAddress": "MAC-Adresse"
+			},
+			"cpu": {
+				"cores": "Prozessoren:",
+				"speed": "Geschwindigkeit:"
+			},
+			"uptime": {
+				"from": "Aktiv seit",
+				"days": "Tagen,",
+				"hours": "Stunden,",
+				"minutes": "Minuten"
+			},
+			"memory": {
+				"total": "Gesamtspeicher:",
+				"free": "Freier Speicher:",
+				"minFree": "Nicht fragmentierter freier Speicher:"
+			},
+			"update": {
+				"title": "Version",
+				"actual": "Aktuell:",
+				"available": "Verfügbar:",
+				"check": "Nach Updates suchen"
+			},
+			"timers": {
+				"channel": "Kanal ",
+				"channels": {
+					"0": "Nicht initialisiert",
+					"1": "PWM",
+					"2": "Servo"
+				}
+			},
+			"gpio": {
+				"module": {
+					"0": "Nicht zugewiesen",
+					"1": "Kuppel",
+					"2": "Abdeckung",
+					"3": "Schalter"
+				}
+			}
+		},
+		"setting": {
+			"locale": "Sprache",
+			"wifi": "WLAN",
+			"ipAddress": "IP-Adresse:",
+			"gateway": "Gateway-Adresse:",
+			"subnet": "Subnetz:",
+			"staticIp": "Statische IP-Adresse:",
+			"waitToReconnect": "Wartezeit für erneute Verbindung:",
+			"warningIP": "Achtung, es wird nur eine einfache Validierung durchgeführt. Bei einem Fehler kann die Steuerplatine nicht erreicht werden.",
+			"configSaved": "Steuerplatinen-Konfiguration gespeichert",
+			"reboot": "STEUERPLATINE NEUSTARTEN",
+			"wifiReset": "WLAN-EINSTELLUNGEN LÖSCHEN"
+		},
+		"reboot": {
+			"warning": "ACHTUNG",
+			"text1": "Die Konfiguration wurde gespeichert, wird aber erst nach dem nächsten Neustart angewendet.",
+			"text2": "Sie können jetzt oder später neu starten (der Reset-Button befindet sich im Tesla-Board-Menü).",
+			"now": "JETZT NEUSTARTEN",
+			"later": "SPÄTER NEUSTARTEN"
 		}
 	},
 	"errors": {
-		"noUsableAsInput": "nicht als Eingang nutzbar",
-		"noUsableAsOutput": "nicht als Ausgang nutzbar",
-		"coverIsMoving": "Die Abdeckung ist bereits in Bewegung",
-		"coverNotPresent": "Die Abdeckung ist nicht vorhanden",
-		"calibNotPresent": "Der Flachfeldschirm ist nicht vorhanden",
-		"calibBrightnessNotPresent": "Helligkeitsparameter fehlt",
-		"calibBrightnessNotInRange": "Helligkeitsparameter außerhalb des Bereichs",
-		"ShAlreadyMoving": "Das Dach bewegt sich bereits",
-		"ShAlreadyOpen": "Das Dach ist bereits geöffnet",
-		"ShAlreadyClosed": "Das Dach ist bereits geschlossen",
-		"SwIdOutOfRange": "Schalter-ID außerhalb des Bereichs",
-		"SwValueBehindMin": "Mindestwert überschritten",
-		"SwValueOverMax": "Höchstwert überschritten",
-		"SwValueAbsent": "Wert nicht angegeben",
-		"SwNotWritable": "Schalter nicht beschreibbar"
-	},
-	"pwm": {
-		"0": "Nicht initialisiert",
-		"1": "PWM",
-		"2": "Servo"
-	},
-	"reboot": {
-		"warning": "WARNUNG",
-		"text1": "Die Konfiguration wurde gespeichert, wird jedoch erst nach dem nächsten Neustart angewendet.",
-		"text2": "Sie können jetzt oder später neu starten (die Schaltfläche zum Zurücksetzen befindet sich auf der Tesla-Board-Seite).",
-		"now": "JETZT NEUSTARTEN",
-		"later": "SPÄTER NEUSTARTEN"
+		"gpio": {
+			"noUsableAsInput": "nicht als Eingang nutzbar",
+			"noUsableAsOutput": "nicht als Ausgang nutzbar"
+		},
+		"dome": {
+			"ShAlreadyMoving": "Das Dach bewegt sich bereits",
+			"ShAlreadyOpen": "Das Dach ist bereits geöffnet",
+			"ShAlreadyClosed": "Das Dach ist bereits geschlossen"
+		},
+		"coverc": {
+			"coverIsMoving": "Die Abdeckung bewegt sich bereits",
+			"coverNotPresent": "Die Abdeckung ist nicht vorhanden",
+			"calibNotPresent": "Das Flat Panel ist nicht vorhanden",
+			"calibBrightnessNotPresent": "Helligkeitsparameter fehlt",
+			"calibBrightnessNotInRange": "Helligkeitsparameter außerhalb des zulässigen Bereichs"
+		}
 	}
 }

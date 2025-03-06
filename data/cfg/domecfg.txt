@@ -1,1 +1,0 @@
-{"pinOpen":{"pin":39,"dOn":100,"dOff":100,"type":false},"pinClose":{"pin":36,"dOn":100,"dOff":100,"type":false},"autoclose":{"enable":false,"minutes":10},"pinStart":33,"pinHalt":32,"movTimeOut":20000}

@@ -1,1 +1,0 @@
-{"Cover":{"present":true,"pin":23,"movingTime":2000,"openDeg":270,"closeDeg":0,"maxDeg":270},"Calibrator":{"present":true,"pin":2}}

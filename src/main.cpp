@@ -63,6 +63,7 @@ void setup() {
     wifiManager.setSTAStaticIPConfig(ip,gw,sn);
 
   }
+
   wifiManager.autoConnect("TeslaBoard");
 
   //start alpaca discovery
