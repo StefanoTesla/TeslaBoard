@@ -31,7 +31,15 @@
         "cmath": "cpp",
         "bitset": "c",
         "algorithm": "c",
-        "memory": "c"
+        "memory": "c",
+        "atomic": "c",
+        "exception": "c",
+        "memory_resource": "c",
+        "random": "c",
+        "iosfwd": "c",
+        "mutex": "c",
+        "sstream": "c",
+        "streambuf": "c"
     },
     "C_Cpp.default.includePath": [
 

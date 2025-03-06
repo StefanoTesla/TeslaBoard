@@ -27,7 +27,6 @@ void calibratorhandlerloop() {
 }
 
 void coverCycle(){
-  int increment;
 
   CoverC.status.cover.angle = Cover.status();
   

@@ -71,9 +71,32 @@ enum ledcType{
   servo
 };
 
+
+enum gpioType{
+  notUsed,
+  input,
+  output,
+  pwmOut,
+  servoOut
+};
+
+enum ModuleType{
+  noModule,
+  domeModule,
+  coverCModule,
+  switchModule
+};
+
 struct PWMChannelStruct{
   ledcType type;
 };
+
+struct GPIOStruct{
+  gpioType type;
+  ModuleType module;
+};
+
+
 
 struct oneMinutePulse{
   unsigned long oldMillis;
@@ -97,24 +120,11 @@ struct globalVariable{
   pulseStruct pulse;
   boarcConfigStruct config;
   PWMChannelStruct pwm[16];
+  GPIOStruct gpio[40];
 };
 
 globalVariable Global;
 /* END OF GLOBAL */
-
-
-enum LogMachine{
-  board,
-  dome,
-  coverc,
-  Switches
-};
-
-enum LogType{
-  lErr,
-  lInfo,
-  lDebug
-};
 
 bool pinExist(unsigned int pin){
 
@@ -149,15 +159,12 @@ bool pinUsableAsAnalogInput(unsigned int pin){
   return true;
 }
 
-
 bool pinUsableAsAnalogOutput(unsigned int pin){
   if(pin < 25 or pin > 25){
     return false;
   }
   return true;
 }
-
-
 
 bool usableLedChannel(unsigned int channel,ledcType type){
 
@@ -314,3 +321,74 @@ void printLEDChannelStatus(){
   
 }
 
+void printGPIOStatus(){
+  Serial.println("");
+  Serial.println("pin | type       | module      |");
+  Serial.println("--------------------------------");
+  for (int i = 0; i < 40; i++)
+  {
+    if(!pinExist(i)){
+      continue;
+    }
+    Serial.print(i);
+    if(i<10){
+      Serial.print("   |");
+    } else {
+      Serial.print("  |");
+    }
+
+    switch (Global.gpio[i].type)
+    {
+    case notUsed:
+      Serial.print("not used    |");
+      break;
+    case input:
+      Serial.print("input       |");
+      break;
+    case output:
+      Serial.print("output      |");
+      break;
+    case pwmOut:
+      Serial.print("pwm         |");
+      break;
+    case servoOut:
+      Serial.print("servo       |");
+      break;
+    
+    default:
+    Serial.print("");
+      break;
+    }
+
+    switch (Global.gpio[i].module)
+    {
+    case noModule:
+      Serial.println("no assigned |");
+      break;
+    case domeModule:
+      Serial.println("dome        |");
+      break;
+    case coverCModule:
+      Serial.println("coverC      |");
+      break;
+    case switchModule:
+      Serial.println("switch      |");
+      break;
+
+    default:
+      Serial.println();
+      break;
+    }
+
+    
+  }
+}
+
+void assingPin(int _pin, gpioType _type, ModuleType _module){
+    Global.gpio[_pin].type = _type;
+    Global.gpio[_pin].module = _module;
+}
+
+bool isFreePin(int _pin){
+  return Global.gpio[_pin].type == notUsed ? true : false;
+}

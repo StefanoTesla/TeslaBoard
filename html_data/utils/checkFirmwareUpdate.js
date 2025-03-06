@@ -1,20 +1,30 @@
 export function checkFirmwareUpdate(){
     return {
-        checkUpdate(){
-            
+
+        initFWUpdate(){
             let av = this.getCookie("version")
-            console.log(av)
             if (av){
                 this.version.available = av
                 if(av > this.version.actual){
                     this.version.upgrade= true
-                } else {
-                    console.log("aggiornaa")
-                    this.addToast({type:"info",text:"New update availabe",time:10})
                 }
-                return
+            } else {
+                this.version.available = "?"
             }
+        },
+
+        checkFWUpdate(){
+            
+            let av = this.getCookie("version")
+            if (av){
+                this.version.available = av
+                if(av > this.version.actual){
+                    this.version.upgrade= true
+                    this.addToast({type:"info",text:"New update availabe",time:30})
+                return
+                }
             this.fetchVersion()
+            }
         },
 
 
@@ -33,7 +43,8 @@ export function checkFirmwareUpdate(){
                 }
               })
             .then(res => {
-                    this.setCookie("version", res.version, 30)
+                    console.log(res);
+                    this.setCookie("version", res.version, 1)
                     this.version.available = res.version
                     if(res.version > this.version.actual){
                         this.version.upgrade= true

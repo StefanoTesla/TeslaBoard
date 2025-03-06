@@ -31,12 +31,12 @@
     <template x-if="modal">
       <div class="modal">
         <div class="modal_box">
-          <p class="error" x-text="text.reboot.warning">{warning}</p>
-          <p x-text="text.reboot.text1">{text1}</p>
-          <p x-text="text.reboot.text2">{text2}</p>
+          <p class="error" x-text="text.board.reboot.warning">{warning}</p>
+          <p x-text="text.board.reboot.text1">{text1}</p>
+          <p x-text="text.board.reboot.text2">{text2}</p>
           <div class="modal_selection">
-            <button class="green" @click="closeModal()" x-text="text.reboot.later">{REBOOT_LATER}</button>
-            <button class="red"  @click="rebootTheBoard()" x-text="text.reboot.now">{REBOOT_NOW}</button>
+            <button class="green" @click="closeModal()" x-text="text.board.reboot.later">{REBOOT_LATER}</button>
+            <button class="red"  @click="rebootTheBoard()" x-text="text.board.reboot.now">{REBOOT_NOW}</button>
           </div>
         </div>
       </div>
@@ -46,7 +46,7 @@
         <template x-if="exist.switch && load.switch">
           <div class="single_grid">
             <div class="single_header" x-on:click="open.switch = ! open.switch">
-              <div class="title"><p>Switches</p></div>
+              <div class="title"><p x-text='text.switch?.title || "{switch-title}"'></p></div>
               <div class="status">
                 <div class="led" :class="{'orange' :reboot.switch}"></div>
               </div>
@@ -69,15 +69,15 @@
                       <div :id="'sw_' + index" class="card">
                         <div class="setting_table">
                           <div class="row">
-                            <p x-text="text.IOBase.name">{name}</p>
+                            <p x-text='text.IOBase?.name || "{IOBase-name}"'></p>
                             <input :id="'sw_'+ index + '_name'" class="in_text" type="text" x-model="sw.name" maxlength=20/>
                           </div>
                           <div class="row">
-                            <p x-text="text.IOBase.description">{description}</p>
+                            <p x-text='text.IOBase?.description || "{IOBase-description}"'></p>
                             <input :id="'sw_'+ index + '_desc'" class="in_text" type="text" x-model="sw.desc" maxlength=20/>
                           </div>
                           <div class="row">
-                            <p x-text="text.IOBase.type">{Type}</p>
+                            <p x-text='text.IOBase?.type || "{IOBase-type}"'></p>
                             <select 
                               name="type" 
                               :id="'sw_' + index + '_type'" 
@@ -92,25 +92,25 @@
 
                           <!-- DIGITAL INPUT CUSTOM DATA -->
                           <div class="row" x-show="sw.type > 0">
-                            <p>Pin:</p>
+                            <p x-text='text.IOBase?.pin || "{IOBase-pin}"'>Pin:</p>
                             <div class="input_with_unit">
                               <span class="unit">n</span><input :id="'sw_'+ index + '_pin'" class="with_unit" type="number" x-model="sw.pin" min=1 max=39/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 1">
-                            <p x-text="text.IOBase.DI.onDelay">{onDelay}</p>
+                            <p x-text='text.IOBase.DI?.onDelay || "{IOBase-DI-onDelay}"'></p>
                             <div class="input_with_unit">
                               <span class="unit">ms</span><input :id="'sw_'+ index + '_dOn'" class="with_unit" type="number" x-model="sw.dOn"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 1">
-                            <p x-text="text.IOBase.DI.onDelay">{offDelay}</p>
+                            <p x-text='text.IOBase.DI?.offDelay || "{IOBase-DI-offDelay}"'></p>
                             <div class="input_with_unit">
                               <span class="unit">ms</span><input :id="'sw_'+ index + '_dOff'" class="with_unit" type="number" x-model="sw.dOff"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 1">
-                            <p x-text="text.IOBase.DI.func">{Function}</p>
+                            <p x-text='text.IOBase.DI?.func || "{IOBase-DI-func}"'></p>
                             <select  
                               :id="'sw_' + index + '_invert'" 
                               x-model.defer="sw.invert"
@@ -124,7 +124,7 @@
 
                           <!-- DIGITAL OUTPUT CUSTOM DATA -->
                           <div class="row" x-show="sw.type == 2">
-                            <p x-text="text.IOBase.DO.func">{Function}</p>
+                            <p x-text='text.IOBase.DO?.func || "{IOBase-DO-func}"'>{Function}</p>
                             <select 
                               :id="'sw_'+ index +'_trigger'" 
                               x-model.defer="sw.invert"
@@ -137,19 +137,19 @@
                           </div>
                           <!-- SERVO CUSTOM DATA -->
                           <div class="row" x-show="sw.type == 4">
-                            <p x-text="text.IOBase.Servo.closeDeg">{closeDeg}</p>
+                            <p x-text='text.IOBase.Servo?.closeDeg || "{IOBase-Servo-closeDeg}"'></p>
                             <div class="input_with_unit">
                               <span class="unit">°</span><input :id="'sw_'+ index + '_closeDeg'" class="with_unit" type="number" x-model="sw.closeDeg"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 4">
-                            <p x-text="text.IOBase.Servo.openDeg">{openDeg}</p>
+                            <p x-text='text.IOBase.Servo?.openDeg || "{IOBase-Servo-openDeg}"'></p>
                             <div class="input_with_unit">
                               <span class="unit">°</span><input :id="'sw_'+ index + '_openDeg'" class="with_unit" type="number" x-model="sw.openDeg"/>
                             </div>
                           </div>
                           <div class="row" x-show="sw.type == 4">
-                            <p x-text="text.IOBase.Servo.maxDeg">{maxDeg}</p>
+                            <p x-text='text.IOBase.Servo?.maxDeg || "{IOBase-Servo-maxDeg}"'>{maxDeg}</p>
                             <select 
                               name="type" 
                               :id="'sw_' + index + '_maxDeg'" 
@@ -162,7 +162,7 @@
                             </select>
                           </div>
                           <div class="row" x-show="sw.type == 4">
-                            <p>Moving Time:</p>
+                            <p x-text='text.IOBase.Servo?.movingTime || "{IOBase-Servo-movingTime}"'></p>
                             <div class="input_with_unit">
                               <span class="unit">ms</span><input :id="'sw_'+ index + '_movTime'" class="with_unit" type="number" x-model="sw.movTime"/>
                             </div>
@@ -181,9 +181,9 @@
                 </div >
 
                 <div class="config_buttons">
-                  <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalSwitchesConfig()">{loadFromBoard}</button>
-                  <a href="./switch/switchconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
-                  <button class="red" x-text="text.gen.save" @click="saveSwitchesSetting()">{save}</button>
+                  <button class="green" x-text='text.gen?.loadFromBoard || "{gen-loadFromBoard}"' @click="getOriginalSwitchesConfig()"></button>
+                  <a href="./switch/switchconfig.txt" class="f_button orange" x-text='text.gen?.downloadFile || "{gen-downloadFile}"' download></a>
+                  <button class="red" x-text='text.gen?.save || "{gen-save}"' @click="saveSwitchesSetting()"></button>
                 </div>
               </div>
             </template>  
@@ -195,7 +195,7 @@
           <div class="single_grid">
             <div class="single_header" x-on:click="open.dome = ! open.dome">
               <div class="title">
-                <p x-text="text.dome.title">Dome</p>
+                <p x-text='text.dome?.title || "{dome-title}"'></p>
               </div>
               <div class="status">
                 <div class="led" :class="{'orange' :reboot.dome}"></div>
@@ -216,7 +216,7 @@
 
                   <div class="setting_table">
                     <div class="st_title">
-                      <p class="text-center font-bold mb-4" x-text="text.setting.dome.driverType">Tipo di scheda</p>
+                      <p class="text-center font-bold mb-4" x-text='text.dome.setting?.driverType || "{dome-setting-driverType}"'></p>
                     </div>
                     <div class="row order-2 lg:order-3">
                       <select 
@@ -225,7 +225,7 @@
                         x-model.defer="dome.driverType"
                         x-init="$nextTick(() => { $el.value = dome.driverType })"
                         >
-                        <template x-for="[key, value] in Object.entries(text.setting.dome.driverTypeEnum)" :key="key">
+                        <template x-for="[key, value] in Object.entries(text.dome.setting.driverTypeEnum)" :key="key">
                           <option :value="parseInt(key)" x-text="value"></option>
                         </template>
                       </select>
@@ -238,7 +238,7 @@
 
                   <div class="setting_table">
                     <div class="st_title">
-                      <p class="text-center font-bold mb-4" x-text="text.setting.dome.inOpen">Input Aperto</p>
+                      <p class="text-center font-bold mb-4" x-text='text.dome.setting?.inOpen || "{dome-setting-inOpen}"'></p>
                     </div>
                     <div class="row lg:order-1">
                       <p x-text="text.gen.pin">{GPIO}</p>
@@ -248,21 +248,21 @@
                     </div>
 
                     <div class="row order-3 lg:order-2">
-                      <p x-text="text.setting.dome.onDelay">{onDelay}</p>
+                      <p x-text='text.IOBase.DI?.onDelay || "{IOBase-DI-onDelay}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">ms</span><input class="with_unit" type="number" id="dome_in_open_don" x-model="dome.pinOpen.dOn" min=1 max=39/>
                       </div>
                     </div>
 
                     <div class="row order-4 lg:order-4">
-                      <p x-text="text.setting.dome.offDelay">{offDelay}</p>
+                      <p x-text='text.IOBase.DI?.offDelay || "{IOBase-DI-offDelay}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">ms</span><input class="with_unit" type="number" id="dome_in_open_doff" x-model="dome.pinOpen.dOff" min=1 max=39/>
                       </div>
                     </div>
 
                     <div class="row order-2 lg:order-3">
-                      <p x-text="text.IOBase.DI.func">{Function}</p>
+                      <p x-text='text.IOBase.DI?.func || "{IOBase-DI-func}"'></p>
                       <select 
                         name="type" 
                         id="dome_in_open_invert" 
@@ -281,16 +281,16 @@
                 <div class="card">
                     <div class="setting_table">
                       <div class="st_title">
-                        <p class="text-center font-bold mb-4" x-text="text.setting.dome.inClose">Input Chiuso</p>
+                        <p class="text-center font-bold mb-4" x-text='text.dome.setting?.inClose || "{dome-setting-inClose}"'></p>
                       </div>
                       <div class="row order-1">
-                          <p x-text="text.gen.pin">{GPIO}</p>
+                          <p x-text='text.gen?.pin || "{gen-pin}"'></p>
                           <div class="input_with_unit">
                             <span class="unit">n</span><input id="dome_in_close" class="with_unit" type="number" x-model="dome.pinClose.pin" min=0 max=39/>
                           </div>
                       </div>
                       <div class="row order-2 lg:order-3">
-                        <p x-text="text.IOBase.DI.func">{Function}</p>
+                        <p x-text='text.IOBase.DI?.func || "{IOBase-DI-func}"'></p>
                         <select 
                           name="type" 
                           id="dome_in_close_invert" 
@@ -303,13 +303,13 @@
                         </select>
                       </div>
                       <div class="row order-3 lg:order-2">
-                        <p x-text="text.setting.dome.onDelay">{onDelay}</p>
+                        <p x-text='text.IOBase.DI?.onDelay || "{IOBase-DI-onDelay}"'></p>
                         <div class="input_with_unit">
                           <span class="unit">ms</span><input class="with_unit" id="dome_in_close_don" type="number" x-model="dome.pinClose.dOn" min=0/>
                         </div>
                       </div>
                       <div class="row order-4">
-                        <p x-text="text.setting.dome.offDelay">{offDelay}</p>
+                        <p x-text='text.IOBase.DI?.offDelay || "{IOBase-DI-offDelay}"'></p>
                         <div class="input_with_unit">
                           <span class="unit">ms</span><input class="with_unit" id="dome_in_close_doff" type="number" x-model="dome.pinClose.dOff" min=0/>
                         </div>
@@ -319,20 +319,20 @@
                 <!--Output -->
                 <div class="card">
                   <div class="st_title">
-                    <p x-text="text.gen.outputs">{output}</p>
+                    <p x-text='text.gen?.outputs || "{gen-outputs}"' x-text="text.gen.outputs"></p>
                   </div>
 
                     <div class="setting_table">
                       <div class="row">
                         <!-- Start/Open/Start Output -->
-                        <p x-show="dome.driverType == 0 || dome.driverType == 2" x-text="text.setting.dome.outStart">{GPIO}</p>
-                        <p x-show="dome.driverType == 1" x-text="text.setting.dome.outOpen">{GPIO}</p>
+                        <p x-show="dome.driverType == 0 || dome.driverType == 2" x-text='text.dome.setting?.outStart || "{dome-setting-outstart}"'></p>
+                        <p x-show="dome.driverType == 1" x-text='text.dome.setting?.outOpen || "{dome-setting-outopen}"'></p>
                         <div class="input_with_unit">
                           <span class="unit">n</span><input class="with_unit" id="dome_out_start" type="number" x-model="dome.pinStart.pin" min=1 max=39/>
                         </div>
                       </div>
                       <div class="row">
-                        <p x-text="text.IOBase.DO.func">{Function}</p>
+                        <p x-text='text.IOBase.DO?.func || "{IOBase-DO-func}"'>{Function}</p>
                         <select 
                           name="type" 
                           id="dome_out_start_invert" 
@@ -346,15 +346,15 @@
                       </div>
                       <div class="row">
                         <!-- HALT/Close/Direction Output -->
-                        <p x-show="dome.driverType == 0" x-text="text.setting.dome.outHalt">{GPIO}</p>
-                        <p x-show="dome.driverType == 1" x-text="text.setting.dome.outClose">{GPIO}</p>
-                        <p x-show="dome.driverType == 2" x-text="text.setting.dome.outDir">{GPIO}</p>
+                        <p x-show="dome.driverType == 0" x-text='text.dome.setting?.outHalt || "{dome-setting-outHalt}"'></p>
+                        <p x-show="dome.driverType == 1" x-text='text.dome.setting?.outClose || "{dome-setting-outClose}"'></p>
+                        <p x-show="dome.driverType == 2" x-text='text.dome.setting?.outDir || "{dome-setting-outDir}"'></p>
                         <div class="input_with_unit">
                           <span class="unit">n</span><input class="with_unit" id="dome_out_halt" type="number" x-model="dome.pinHalt.pin" min=1 max=39/>
                         </div>
                       </div>
                       <div class="row">
-                        <p x-text="text.IOBase.DO.func">{Function}</p>
+                        <p x-text='text.IOBase.DO?.func || "{IOBase-DO-func}"'></p>
                         <select 
                           name="type" 
                           id="dome_out_halt_invert" 
@@ -372,11 +372,11 @@
                 <!--Timeout -->
                 <div class="card">
                   <div class="input_with_unit">
-                    <p class="text-center font-bold mb-4" x-text="text.setting.dome.timeout">{timeouts}</p>
+                    <p class="text-center font-bold mb-4" x-text='text.dome.setting?.timeout || "{dome-setting-timeout}"'></p>
                   </div>
                   <div class="setting_table">
                     <div class="row">
-                      <p x-text="text.setting.dome.timeOutMoviment">{GPIO}</p>
+                      <p x-text='text.dome.setting?.timeOutMoviment || "{dome-setting-timeOutMoviment}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">sec.</span><input class="with_unit" id="dome_timeout" type="number" x-model="dome.movTimeOut" min=1/>
                       </div>
@@ -385,22 +385,22 @@
                 </div>
                 <!--Chiusura Automatica -->
                 <div class="card">
-                  <p class="text-center font-bold mb-4" x-text="text.setting.dome.autoClose">{autoClose}</p>
-                  <p class="pt-4 font-bold" x-text="text.setting.dome.autoclosewarning1">{warning1}</p>
-                  <p class="text-left" x-text="text.setting.dome.autoclosewarning2">{warning2}</p>
-                  <p class="text-left" x-text="text.setting.dome.autoclosewarning3">{warning3}</p>
-                  <p class="text-left" x-text="text.setting.dome.autoclosewarning4">{warning4}</p>
-                  <p class="text-left font-bold mb-4" x-text="text.setting.dome.autoclosewarning5">{warning5}</p>
+                  <p class="text-center font-bold mb-4" x-text='text.dome.setting?.autoClose || "{dome-setting-autoClose}"'></p>
+                  <p class="pt-4 font-bold" x-text='text.dome.setting?.autoclosewarning1 || "{dome-setting-autoclosewarning1}"'></p>
+                  <p class="text-left" x-text='text.dome.setting?.autoclosewarning2 || "{dome-setting-autoclosewarning2}"'></p>
+                  <p class="text-left" x-text='text.dome.setting?.autoclosewarning3 || "{dome-setting-autoclosewarning3}"'></p>
+                  <p class="text-left" x-text='text.dome.setting?.autoclosewarning4 || "{dome-setting-autoclosewarning4}"'></p>
+                  <p class="text-left font-bold mb-4" x-text='text.dome.setting?.autoclosewarning5 || "{dome-setting-autoclosewarning5}"'></p>
                   <div class="setting_table">
                     <div class="row">
-                      <p x-text="text.setting.dome.autoCloseEn">{autoCloseEnable}</p>
+                      <p x-text='text.dome.setting?.autoCloseEn || "{dome-setting-autoCloseEn}"'></p>
                       <label class="toggle" for="dome_autoclose">
                         <input class="toggle__input" name="" type="checkbox" id="dome_autoclose" x-model="dome.autoclose.enable">
                         <div class="toggle__fill"></div>
                       </label>
                     </div>
                     <div class="row">
-                      <p x-text="text.setting.dome.timeOutMoviment">{timeoutautoclose}</p>
+                      <p x-text='text.dome.setting?.timeOutMoviment || "{dome-setting-timeOutMoviment}"'>{timeoutautoclose}</p>
                       <div class="input_with_unit">
                         <span class="unit">min.</span>
                         <input class="with_unit" type="number" id="dome_autoclose_time" x-model="dome.autoclose.minutes" min=1/>
@@ -415,9 +415,9 @@
                 </div>
 
                 <div class="config_buttons">
-                  <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalDomeConfig()">{loadFromBoard}</button>
-                  <a href="./dome/domeconfig.txt" class="f_button orange" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
-                  <button class="red" x-text="text.gen.save" @click="saveDomeSetting()">{save}</button>
+                  <button class="green" x-text='text.gen?.loadFromBoard || "{gen-loadFromBoard}"' @click="getOriginalDomeConfig()">{loadFromBoard}</button>
+                  <a href="./dome/domeconfig.txt" class="f_button orange" x-text='text.gen?.downloadFile || "{gen-downloadFile}"' download>{downloadSetting}</a>
+                  <button class="red" x-text='text.gen?.save || "{gen-save}"' @click="saveDomeSetting()">{save}</button>
                 </div>
 
               </div>
@@ -429,7 +429,7 @@
         <template x-if="exist.coverc && load.cover">
           <div class="single_grid">
             <div class="single_header" x-on:click="open.cover = ! open.cover">
-              <div class="title"><p>CoverCalibrator</p></div>
+              <div class="title"><p x-text='text.coverC?.title || "{coverC-title}"'></p></div>
               <div class="status">
                 <div class="led" :class="{'orange' :reboot.cover}"></div>
               </div>
@@ -446,7 +446,7 @@
                 <div class="card">                  
                     <div class="setting_table">
                       <div class="st_title">
-                        <p x-text="text.setting.coverC.calibrator.calibrator">{calibrator}</p>
+                        <p x-text='text.coverC?.calibrator || "{coverC-calibrator}"'>{calibrator}</p>
                       </div>
                       <div class="row order-1">
                         <p x-text="text.gen.enable">{enable}</p>
@@ -456,7 +456,7 @@
                           </label>
                       </div>
                       <div class="row order-2">
-                        <p x-text="text.gen.pin">{GPIO}</p>
+                        <p x-text='text.IOBase?.pin || "{IOBase-pin}"'></p>
                         <div class="input_with_unit">
                           <span class="unit">n</span>
                           <input id="coverc_calibrator_out" class="with_unit" type="number" x-model="coverC.calibrator.pin" min=0 max=39/>
@@ -467,29 +467,29 @@
                 <div class="card">
                   <div class="setting_table">
                     <div class="st_title">
-                      <p x-text="text.setting.coverC.cover">{cover}</p>
+                      <p x-text='text.coverC?.cover || "{coverC-cover}"'></p>
                     </div>
                     <div class="row order 1">
-                      <p x-text="text.gen.enable">{enable}</p>
+                      <p x-text='text.gen?.enable || "{gen-enable}"'></p>
                       <label class="toggle" for="coverc_cover_present">
                         <input class="toggle__input" name="" type="checkbox" id="coverc_cover_present" x-model="coverC.cover.present">
                         <div class="toggle__fill"></div>
                       </label>
                     </div>
                     <div class="row order-2 lg:order-3">
-                      <p x-text="text.IOBase.pin">{GPIO}</p>
+                      <p x-text='text.IOBase?.pin || "{IOBase-pin}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">n</span><input id="coverc_cover_out" class="with_unit" type="number" x-model="coverC.cover.pin" min=0 max=39/>
                       </div>
                     </div>
                     <div class="row order-3 lg:order-5">
-                      <p x-text="text.IOBase.Servo.movingTime">{movingtime}</p>
+                      <p x-text='text.IOBase.Servo?.movingTime || "{IOBase-Servo-movingTime}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">ms</span><input id="coverc_cover_mov_time" class="with_unit" type="number" x-model="coverC.cover.movTime" min=0/>
                       </div>
                     </div>
                     <div class="row order-4 lg:order-2">
-                      <p x-text="text.IOBase.Servo.maxDeg">{maxDeg}</p>
+                      <p x-text='text.IOBase.Servo?.maxDeg || "{IOBase-Servo-maxDeg}"'></p>
                       <select 
                         name="type" 
                         id="coverc_cover_max_deg" 
@@ -502,13 +502,13 @@
                       </select>
                     </div>
                     <div class="row order-5 lg:order-4">
-                      <p x-text="text.IOBase.Servo.openDeg">{openDeg}</p>
+                      <p x-text='text.IOBase.Servo?.openDeg || "{IOBase-Servo-openDeg}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">deg</span><input id="coverc_cover_open_deg" class="with_unit" type="number" x-model="coverC.cover.openDeg" min=0 max=39/>
                       </div>
                     </div>
                     <div class="row order-6">
-                      <p x-text="text.IOBase.Servo.closeDeg">{closeDeg}</p>
+                      <p x-text='text.IOBase.Servo?.closeDeg || "{IOBase-Servo-closeDeg}"'></p>
                       <div class="input_with_unit">
                         <span class="unit">deg</span><input id="coverc_cover_close_deg" class="with_unit" type="number" x-model="coverC.cover.closeDeg" min=0 max=39/>
                       </div>
@@ -516,9 +516,9 @@
                   </div>
                 </div>
                 <div class="config_buttons">
-                  <button class="green" x-text="text.gen.loadFromBoard" @click="getOriginalCoverCConfig()">{loadFromBoard}</button>
-                  <a class="f_button orange" href="./cover/ccconfig.txt" x-text="text.gen.downloadFile" download>{downloadSetting}</a>
-                  <button class="red" x-text="text.gen.save" @click="saveCoverCSetting()">{save}</button>
+                  <button class="green" x-text='text.gen?.loadFromBoard || "{gen-loadFromBoard}"' @click="getOriginalCoverCConfig()">{loadFromBoard}</button>
+                  <a class="f_button orange" href="./cover/ccconfig.txt" x-text='text.gen?.downloadFile || "{gen-downloadFile}"' download>{downloadSetting}</a>
+                  <button class="red" x-text='text.gen?.save || "{gen-save}"' @click="saveCoverCSetting()">{save}</button>
                 </div>
               </div>
             </template>
@@ -545,9 +545,9 @@
             <div>
               <div class="card">
                 <div class="setting_table">
-                  <div class="st_title"><p x-text="text.gen.locale">{language}</p></div>
+                  <div class="st_title"><p x-text='text.board.setting?.locale || "{board-setting-locale}"'></p></div>
                   <div class="row">
-                    <p x-text="text.gen.locale">{language}</p>
+                    <p x-text='text.board.setting?.locale || "{board-setting-locale}"'></p>
                     <div>
                       <select name="type" id="board_locale" x-model="board.locale">
                         <option value="it">Italiano</option>
@@ -565,20 +565,20 @@
               <div class="card">
                 <div class="setting_table">
                   <div class="st_title">
-                    <p x-text="text.gen.wifi">{wifi}</p>
+                    <p>WiFi</p>
                   </div>
-                  <div class="row">
-                    <p x-text="text.gen.waitToReconnect">{waitToReconnect}</p>
+                  <div class="row" @change="validateBoardCfg($event)">
+                    <p x-text='text.board.setting?.waitToReconnect || "{board-setting-waitToReconnect}"'></p>
                     <div class="input_with_unit">
-                      <span class="unit">sec</span><input id="coverc_cover_close_deg" class="with_unit" type="number" x-model="board.wifi.reconTime" min=0/>
+                      <span class="unit">sec</span><input id="board_wifi_reconn_time" class="with_unit" type="number" x-model="board.wifi.reconTime" min=0/>
                     </div>
                   </div>
                   <div class="full_row">
-                    <button class="red" x-text="text.gen.wifireset" @click="wifiReset()"></button>
+                    <button class="red" x-text='text.board.setting?.wifiReset || "{board-setting-wifiReset}"' @click="wifiReset()"></button>
                   </div>
                   
                   <div class="full_row">
-                    <p x-text="text.gen.staticIp">{enStaticIP}</p>
+                    <p x-text='text.board.setting?.staticIp || "{board-setting-staticIp}"'></p>
                     <label class="toggle" for="board_wifi_staticip">
                       <input class="toggle__input" name="" type="checkbox" id="board_wifi_staticip" x-model="board.address.enStaticIP">
                       <div class="toggle__fill"></div>
@@ -586,9 +586,9 @@
                   </div>
 
                   <p x-text="text.gen.warningIP" x-show="board.address.enStaticIP"></p>
-                  <div class="full_row" x-show="board.address.enStaticIP">
-                    <p x-text="text.gen.ipAddress">{ipAddress}</p>
-                    <div @change="checkIPField()">
+                  <div class="full_row" x-show="board.address.enStaticIP"  @change="validateBoardCfg($event)">
+                    <p x-text='text.board.setting?.ipAddress || "{board-setting-ipAddress}"'></p>
+                    <div>
                       <input id="board_wifi_staticIP_0" class="input_address" type="number" x-model="board.address.staticIp[0]" min="0" max="255" />
                       <span>.</span>
                       <input id="board_wifi_staticIP_1" class="input_address" type="number" x-model="board.address.staticIp[1]" min="0" max="255" />
@@ -598,9 +598,9 @@
                       <input id="board_wifi_staticIP_3" class="input_address" type="number" x-model="board.address.staticIp[3]" min="0" max="255" />
                     </div>
                   </div>
-                  <div class="full_row" x-show="board.address.enStaticIP">
-                    <p x-text="text.gen.gateway">{subnet}</p>
-                    <div @change="checkIPField()"> 
+                  <div class="full_row" x-show="board.address.enStaticIP" @change="validateBoardCfg($event)">
+                    <p x-text='text.board.setting?.gateway || "{board-setting-gateway}"'></p>
+                    <div> 
                       <input id="board_wifi_staticGat_0" class="input_address" type="number" x-model="board.address.staticGateway[0]" min="0" max="255" />
                       <span>.</span>
                       <input id="board_wifi_staticGat_1" class="input_address" type="number" x-model="board.address.staticGateway[1]" min="0" max="255" />
@@ -610,9 +610,9 @@
                       <input id="board_wifi_staticGat_3" class="input_address" type="number" x-model="board.address.staticGateway[3]" min="0" max="255" />
                     </div>
                   </div>
-                  <div class="full_row" x-show="board.address.enStaticIP">
-                    <p x-text="text.gen.subnet">{subnet}</p>
-                    <div @change="checkIPField()"> 
+                  <div class="full_row" x-show="board.address.enStaticIP" @change="validateBoardCfg($event)">
+                    <p x-text='text.board.setting?.subnet || "{board-setting-subnet}"'></p>
+                    <div> 
                       <input id="board_wifi_staticSub_0" class="input_address" type="number" x-model="board.address.staticSubnet[0]" min="0" max="255" />
                       <span>.</span>
                       <input id="board_wifi_staticSub_1" class="input_address" type="number" x-model="board.address.staticSubnet[1]" min="0" max="255" />
@@ -630,12 +630,12 @@
                   <p x-text="text.gen.utility">{wifi}</p>
                 </div>
                 <div class="row">
-                  <button class="red" x-text="text.gen.reboot" @click="rebootTheBoard()">RIAVVIA</button>
+                  <button class="red" x-text='text.board.setting?.reboot || "{board-setting-reboot}"' @click="rebootRequest()">RIAVVIA</button>
                 </div>
               </div>
               <div class="config_buttons">
-                <a href="./board/boarcfg.txt" class="f_button orange" x-text="text.gen.downloadFile"> download></a>
-                <button class="red" x-text="text.gen.save" @click="saveBoardConfig()">{save}</button>
+                <a href="./board/boarcfg.txt" class="f_button orange" x-text='text.gen?.downloadFile || "{gen-downloadFile}"'></a>
+                <button class="red" x-text='text.gen?.save || "{gen-save}"' @click="saveBoardConfig()">{save}</button>
               </div>
             </div>
           </template>

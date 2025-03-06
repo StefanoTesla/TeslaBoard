@@ -3,148 +3,227 @@
 		"home": "HOME",
 		"setting": "SETTINGS"
 	},
-	"switch": {
-		"title": "switch",
-		"name": "Name:",
-		"description": "Description:",
-		"typeEnum": {
-			"0": "Not used",
-			"1": "Digital Input",
-			"2": "Digital Output",
-			"3": "PWM Output",
-			"4": "Servo Output"
-		}
-	},
 	"dome": {
 		"title": "Dome",
-		"input": "Input Status",
-		"roofState": "Roof State: ",
-		"actualCommand": "Current Command:",
-		"lastCommand": "Last Command:",
-		"shutterState": {
-			"open": "Open",
-			"closed": "Closed",
-			"opening": "Opening",
-			"closing": "Closing",
-			"error": "Error"
+		"home": {
+			"input": "Input Status",
+			"roofState": "Roof Status: ",
+			"actualCommand": "Current Command:",
+			"lastCommand": "Last Command:",
+			"shutterState": {
+				"opening": "Opening",
+				"closing": "Closing",
+				"error": "Error"
+			},
+			"shutterCommand": {
+				"idle": "No Command",
+				"halt": "HALT"
+			}
 		},
-		"shutterCommand": {
-			"idle": "No Command",
-			"open": "Opening",
-			"close": "Closing",
-			"halt": "HALT"
-		}
-	},
-	"coverC": {
-		"calibrator": "Flat Panel",
-		"cover": "Cover",
-		"coverState": "Cover State: ",
-		"coverEnum": {
-			"notPresent": "Not present",
-			"close": "Closed",
-			"moving": "Moving",
-			"open": "Open",
-			"unknow": "Unknown",
-			"error": "Error"
-		}
-	},
-	"gen": {
-		"opened": "open",
-		"closed": "closed",
-		"open": "open",
-		"close": "close",
-		"halt": "halt",
-		"pin": "GPIO:",
-		"type": "Type:",
-		"outputs": "Outputs",
-		"loadFromBoard": "RESTORE",
-		"downloadFile": "DOWNLOAD FILE",
-		"save": "SAVE",
-		"enable": "Enable:",
-		"powerOn": "power on",
-		"powerOff": "power off",
-		"actualPos": "Current Position:",
-		"actualValue": "Current Value:",
-		"locale": "Language",
-		"cmdAck": "Command received",
-		"cmdRefused": "Command Refused",
-		"wifi": "WiFi",
-		"ipAddress": "IP Address:",
-		"gateway": "Gateway Address:",
-		"subnet": "Subnet:",
-		"staticIp": "Static IP Address:",
-		"waitToReconnect": "Waiting for reconnection:",
-		"warningIP": "Warning, a simple validation is performed; in case of error, it will be impossible to reach the board.",
-		"configSaved": "Configuration Saved",
-		"utility": "Utility",
-		"reboot": "REBOOT BOARD",
-		"wifireset": "REMOVE WIFI SETTINGS"
-	},
-	"setting": {
-		"dome": {
-			"inOpen": "Open Input",
-			"inClose": "Close Input",
+		"setting": {
+			"driverType": "Command Type",
+			"inOpen": "Input Open",
+			"inClose": "Input Closed",
 			"onDelay": "Activation Delay:",
 			"offDelay": "Deactivation Delay:",
 			"outStart": "GPIO Start:",
 			"outHalt": "GPIO HALT:",
-			"outOpen": "GPIO Opening:",
-			"outClose": "GPIO Closing:",
+			"outOpen": "GPIO Open:",
+			"outClose": "GPIO Close:",
+			"outDir": "GPIO Direction:",
 			"timeout": "Timeout",
-			"autoClose": "Automatic Closing",
-			"timeOutMoviment": "Movement Timeout:",
-			"autoclosewarning1": "Warning, read carefully before activating it.",
-			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND WiFi is connected AND there is no communication with the board (related to the DOME).",
-			"autoclosewarning3": "For example, in case of a temporary blackout, once the power returns and the PC is likely off or the management software does not restart, it will wait the set minutes, after which the roof will close REGARDLESS of the state of the equipment (telescope).",
-			"autoclosewarning4": "During roof maintenance, it will be necessary to keep the browser open on the main page to avoid automatic closing, or better yet, deactivate this feature.",
-			"autoclosewarning5": "By activating this feature, you confirm you have read and understood the risks it poses to you and your equipment.",
-			"autoCloseEn": "Automatic Closing Enable:",
-			"autoCloseMin": "Close after:"
+			"autoClose": "Auto Close",
+			"timeOutMoviment": "Maximum Movement Time:",
+			"autoclosewarning1": "Warning, read carefully before activating.",
+			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND Wi-Fi is connected AND there is no communication with the board (regarding the DOME).",
+			"autoclosewarning3": "For example, in the case of a temporary blackout, once power is restored, and the PC may remain off or software might not restart to manage the sequence, it will wait for the set minutes, after which the roof will close, REGARDLESS of the equipment's state (telescope).",
+			"autoclosewarning4": "In case of roof maintenance, the browser must remain open on the main page to prevent automatic closure, or even better, disable this function.",
+			"autoclosewarning5": "By enabling this feature, you confirm that you have read and understood the risks it may pose to you and your equipment.",
+			"autoCloseEn": "Enable Auto Close:",
+			"autoCloseMin": "Close after:",
+			"driverTypeEnum": {
+				"0": "Roling gate Card",
+				"1": "Direction Signal",
+				"2": "Command + Direction"
+			}
+		}
+	},
+	"coverC": {
+		"title": "Flat Panel and Cover",
+		"calibrator": "Flat Panel",
+		"cover": "Cover",
+		"home": {
+			"coverState": "Cover Status: ",
+			"coverEnum": {
+				"notPresent": "Not Present",
+				"moving": "Moving",
+				"unknow": "Unknown",
+				"error": "Error"
+			}
 		},
-		"coverC": {
-			"calibrator": {
-				"calibrator": "Flat Panel"
-			},
-			"cover": {
-				"cover": "Cover",
-				"openDeg": "Open at degrees:",
-				"closeDeg": "Close at degrees:",
-				"maxDeg": "Maximum Rotation:",
-				"movingTime": "Moving Time:"
-			},
-			"configSaved": "Cover Calibrator configuration Saved"
+		"setting": {
+			"configSaved": "Cover Calibrator Configuration Saved"
+		}
+	},
+	"switch": {
+		"title": "Switches"
+	},
+	"gen": {
+		"status": {
+			"open": "Open",
+			"close": "Closed",
+			"actualPos": "Current Position:",
+			"actualValue": "Current Value:"
 		},
-		"board": {
-			"configSaved": "Board configuration Saved"
+		"action": {
+			"open": "Open",
+			"close": "Close",
+			"halt": "Stop",
+			"powerOn": "Power On",
+			"powerOff": "Power Off"
+		},
+		"input": "Input",
+		"output": "Output",
+		"outputs": "Outputs",
+		"pin": "GPIO",
+		"loadFromBoard": "RESTORE",
+		"downloadFile": "DOWNLOAD FILE",
+		"save": "SAVE",
+		"enable": "Enable:",
+		"cmdAck": "Command Received",
+		"cmdRefused": "Command Refused",
+		"configSaved": "Configuration Saved",
+		"utility": "Utility"
+	},
+	"board": {
+		"home": {
+			"wifi": {
+				"ssdi": "Wi-Fi Network:",
+				"db": "Signal Strength:",
+				"macAddress": "MAC Address"
+			},
+			"cpu": {
+				"cores": "Processors:",
+				"speed": "Speed:"
+			},
+			"uptime": {
+				"from": "Active From",
+				"days": "Days,",
+				"hours": "Hours,",
+				"minutes": "Minutes"
+			},
+			"memory": {
+				"total": "Total Memory:",
+				"free": "Free Memory:",
+				"minFree": "Unfragmented Free Memory:"
+			},
+			"update": {
+				"title": "Version",
+				"actual": "Current:",
+				"available": "Available:",
+				"check": "Check for Updates"
+			},
+			"timers": {
+				"channel": "Channel ",
+				"channels": {
+					"0": "Not Initialized",
+					"1": "PWM",
+					"2": "Servo"
+				}
+			},
+			"gpio": {
+				"module": {
+					"0": "Not Assigned",
+					"1": "Dome",
+					"2": "CoverC",
+					"3": "Switch"
+				}
+			}
+		},
+		"setting": {
+			"locale": "Language",
+			"wifi": "Wi-Fi",
+			"ipAddress": "IP Address:",
+			"gateway": "Gateway Address:",
+			"subnet": "Subnet:",
+			"staticIp": "Static IP Address:",
+			"waitToReconnect": "Wait for Reconnection:",
+			"warningIP": "Warning, a simple validation is performed. If an error occurs, it will not be possible to reach the board.",
+			"configSaved": "Board Configuration Saved",
+			"reboot": "REBOOT BOARD",
+			"wifiReset": "REMOVE WIFI SETTINGS"
+		},
+		"reboot": {
+			"warning": "WARNING",
+			"text1": "The configuration has been saved, but it will only be applied on the next reboot.",
+			"text2": "You can reboot now or later (the button to perform the reset is on the Tesla Board)",
+			"now": "REBOOT NOW",
+			"later": "REBOOT LATER"
 		}
 	},
 	"errors": {
-		"noUsableAsInput": "not usable as input",
-		"noUsableAsOutput": "not usable as output",
-		"coverIsMoving": "The cover is already moving",
-		"coverNotPresent": "The cover is not present",
-		"calibNotPresent": "The flat panel is not present",
-		"calibBrightnessNotPresent": "Brightness parameter missing",
-		"calibBrightnessNotInRange": "Brightness parameter out of range",
-		"ShAlreadyMoving": "The roof is already moving",
-		"ShAlreadyOpen": "The roof is already open",
-		"ShAlreadyClosed": "The roof is already closed",
-		"SwIdOutOfRange": "Switch ID out of range",
-		"SwValueBehindMin": "Minimum value exceeded",
-		"SwValueOverMax": "Maximum value exceeded",
-		"SwValueAbsent": "Value Not Provided",
-		"SwNotWritable": "Switch not writable"
+		"gpio": {
+			"noUsableAsInput": "not usable as input",
+			"noUsableAsOutput": "not usable as output"
+		},
+		"dome": {
+			"ShAlreadyMoving": "The roof is already moving",
+			"ShAlreadyOpen": "The roof is already open",
+			"ShAlreadyClosed": "The roof is already closed"
+		},
+		"coverc": {
+			"coverIsMoving": "The cover is already moving",
+			"coverNotPresent": "The cover is not present",
+			"calibNotPresent": "The flat panel is not present",
+			"calibBrightnessNotPresent": "Brightness parameter missing",
+			"calibBrightnessNotInRange": "Brightness parameter out of range"
+		},
+		"switch": {
+			"SwIdOutOfRange": "Switch ID out of range",
+			"SwValueBehindMin": "Minimum value exceeded",
+			"SwValueOverMax": "Maximum value exceeded",
+			"SwValueAbsent": "Value not provided",
+			"SwNotWritable": "Switch not writable"
+		}
 	},
-	"pwm": {
-		"0": "Not initialized",
-		"1": "PWM",
-		"2": "Servo"
-	},
-	"reboot": {
-		"warning": "WARNING",
-		"text1": "The configuration has been saved, but it will only be applied after the next reboot.",
-		"text2": "You can reboot now or later (the reset button is located in the Tesla Board tab).",
-		"now": "REBOOT NOW",
-		"later": "REBOOT LATER"
+	"IOBase": {
+		"name": "Name:",
+		"description": "Description:",
+		"pin": "GPIO:",
+		"type": "Type:",
+		"typeEnum": {
+			"0": "Not Used",
+			"1": "Digital Input",
+			"2": "Digital Output",
+			"3": "PWM Output",
+			"4": "Servo Output"
+		},
+		"DI": {
+			"onDelay": "Activation Delay:",
+			"offDelay": "Deactivation Delay:",
+			"func": "Function:",
+			"invertEnum": {
+				"0": "Normally Open",
+				"1": "Normally Closed"
+			}
+		},
+		"DO": {
+			"func": "Function:",
+			"invertEnum": {
+				"0": "Active HIGH",
+				"1": "Active LOW"
+			}
+		},
+		"Servo": {
+			"openDeg": "Open at degrees:",
+			"closeDeg": "Close at degrees:",
+			"maxDeg": "Maximum Rotation:",
+			"maxDegEnum": {
+				"90": "90°",
+				"180": "180°",
+				"270": "270°"
+			},
+			"movingTime": "Movement Time:"
+		}
 	}
 }

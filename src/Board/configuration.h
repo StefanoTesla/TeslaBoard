@@ -38,6 +38,7 @@ void saveBoardConfig(){
 
 
 void initBoardConfig(){
+
     Serial.println("INIT: Reading Board config...");
     File file = LittleFS.open("/cfg/boarcfg.txt",FILE_READ);
 
@@ -102,6 +103,13 @@ void initBoardConfig(){
         Serial.println(Global.config.wifi.ip.sub[3]);
     }
 
+    for (int i = 0; i < 40; i++)
+    {
+        Global.gpio[i].module = noModule;
+        Global.gpio[i].type = notUsed;
+
+    }
+    
 }
 
 #endif

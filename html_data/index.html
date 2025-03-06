@@ -32,7 +32,7 @@
       <template x-if="exist.switch">
         <div class="single_grid">
           <div class="single_header" x-on:click="open.switch = ! open.switch">
-            <div class="title"><p>Switches</p></div>
+            <div class="title"><p x-text='text.switch?.title || "{switch-title}"'></p></div>
             <div class="status">
               <div class="led active"></div>
             </div>
@@ -72,7 +72,7 @@
                     <input type="range" :id="'sw_t45_'+index+'_slider'" :min='sw.min' :max='sw.max' step='1' x-model="sw.intValue" @change="switchChangeValue(index)"/>
                   </div>
                   <div class="sw_value">
-                    <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="sw.intValue"></span> / <span x-text="sw.max"></span>
+                    <p x-text='text.gen.status?.actualValue || "{gen-status-actualValue}"'></p> <span x-text="sw.intValue"></span> / <span x-text="sw.max"></span>
                   </div>
                   
                 </div>
@@ -93,7 +93,7 @@
         <div class="single_grid">
           <div class="single_header" x-on:click="open.dome = ! open.dome">
             <div class="title">
-              <p x-text="text.dome.title">Dome</p>
+              <p x-text='text.dome?.title || "{dome-title}"'></p>
             </div>
             <div class="status">
               <div class="led" :class="{
@@ -115,27 +115,27 @@
           <template x-if="open.dome">
             <div>
               <div class="card flex">
-                <p x-text="text.dome.roofState">{roofstate}</p>
-                <p x-show="dome.status.roofState === 0" x-text="text.dome.shutterState.open">{open}</p>
-                <p x-show="dome.status.roofState === 1" x-text="text.dome.shutterState.closed">{closed}</p>
-                <p x-show="dome.status.roofState === 2" x-text="text.dome.shutterState.opening">{opening}</p>
-                <p x-show="dome.status.roofState === 3" x-text="text.dome.shutterState.closing">{closing}</p>
-                <p class="red" x-show="dome.status.roofState >= 4" x-text="text.dome.shutterState.error">{error}</p>
+                <p x-text='text.dome.home?.roofState || "{dome-gen-roofstate}"'></p>
+                <span> </span>
+                <p x-show="dome.status.roofState === 0" x-text='text.gen.status?.open || "{gen-status-open}"'></p>
+                <p x-show="dome.status.roofState === 1" x-text='text.gen.status?.close || "{gen-status-close}"'></p>
+                <p x-show="dome.status.roofState === 2" x-text='text.dome.home.shutterState?.opening || "{dome-gen-shutterState-opening}"'></p>
+                <p x-show="dome.status.roofState === 3" x-text='text.dome.home.shutterState?.closing || "{dome-gen-shutterState-closing}"'></p>
+                <p x-show="dome.status.roofState >= 4" class="red" x-text='text.dome.home.shutterState?.error || "{dome-gen-shutterState-error}"'></p>
               </div>
-              
               <div class="card flex justify-around">
                 <button :class="{
                   'disactivated' : dome.status.actualCommand != 0 || dome.status.roofState == 0,
                   'green' :  dome.status.actualCommand == 0 && dome.status.roofState != 0
                  }"
-                  x-text="text.gen.open" @click="openDome()">{open}</button>
+                  x-text='text.gen.action?.open || "{gen-action-open}"' @click="openDome()"></button>
                 <button :class="{
                   'disactivated' : dome.status.actualCommand != 0 || dome.status.roofState == 1,
                   'green' :  dome.status.actualCommand == 0 && dome.status.roofState != 1
                  }"
-                  x-text="text.gen.close" @click="closeDome()">{close}</button>
+                  x-text='text.gen.action?.close || "{gen-action-close}"' @click="closeDome()"></button>
 
-                <button class="red" x-text="text.gen.halt" @click="haltDome()">{stop}</button>
+                <button class="red" x-text='text.gen.action?.halt || "{gen-action-halt}"' @click="haltDome()"></button>
               </div>
               
               <div>
@@ -144,31 +144,25 @@
               
               <div class="card center dome_input">
                 <div class="col-span-2">
-                  <p class="uppercase font-bold" x-text="text.dome.input">Stato ingressi</p>
+                  <p class="uppercase font-bold" x-text='text.dome.home?.input || "{dome-home-input}"'></p>
                 </div> 
-                <div x-text="text.gen.opened">
-                    OPEN
-                </div>
-                <div x-text="text.gen.closed">
-                  CLOSE
-                </div>
+                <div x-text='text.gen.status?.open || "{gen-status-open}"' class="uppercase"></div>
+                <div x-text='text.gen.status?.close || "{gen-status-close}"' class="uppercase"></div>
                 <div class="led" :class="dome.input.open ? 'green' : 'red'"></div>
                 <div class="led" :class="dome.input.close ? 'green' : 'red'"></div>
               </div>
               <div class="card flex flex-col">
-                <p x-text="text.dome.actualCommand">{actualCommand}</p>
-                <span x-show="dome.status.actualCommand === 0" x-text="text.dome.shutterCommand.idle">{idle}</span>
-                <span x-show="dome.status.actualCommand === 1" x-text="text.dome.shutterCommand.open">{opening}</span>
-                <span x-show="dome.status.actualCommand === 2" x-text="text.dome.shutterCommand.close">{closing}</span>
-                <span x-show="dome.status.actualCommand === 3" x-text="text.dome.shutterCommand.halt">{halt}</span>
-                <p x-text="text.dome.lastCommand">{lastCommand}</p>
-                <span x-show="dome.status.lastCommand == 0" x-text="text.dome.shutterCommand.idle">{idle}</span>
-                <span x-show="dome.status.lastCommand == 1" x-text="text.dome.shutterCommand.open">{opening}</span>
-                <span x-show="dome.status.lastCommand == 2" x-text="text.dome.shutterCommand.close">{closing}</span>
-                <span x-show="dome.status.lastCommand == 3" x-text="text.dome.shutterCommand.halt">{halt}</span>
-
+                <p x-text='text.dome.home?.actualCommand || "{dome-home-actualCommand}"'></p>
+                <span x-show="dome.status.actualCommand === 0" x-text='text.dome.home.shutterCommand?.idle || "{dome-home-shutterCommand-idle}"'></span>
+                <span x-show="dome.status.actualCommand === 1" x-text='text.dome.home.shutterState?.opening || "{dome-home-shutterState-opening}"'></span>
+                <span x-show="dome.status.actualCommand === 2" x-text='text.dome.home.shutterState?.closing || "{dome-home-shutterState-closing}"'></span>
+                <span x-show="dome.status.actualCommand === 3" x-text='text.dome.home.shutterCommand?.halt || "{dome-home-shutterCommand-halt}"'></span>
+                <p x-text='text.dome.home?.lastCommand || "{dome-home-lastCommand}"'></p>
+                <span x-show="dome.status.lastCommand === 0" x-text='text.dome.home.shutterCommand?.idle || "{dome-home-shutterCommand-idle}"'></span>
+                <span x-show="dome.status.lastCommand === 1" x-text='text.dome.home.shutterState?.opening || "{dome-home-shutterState-opening}"'></span>
+                <span x-show="dome.status.lastCommand === 2" x-text='text.dome.home.shutterState?.closing || "{dome-home-shutterState-closing}"'></span>
+                <span x-show="dome.status.lastCommand === 3" x-text='text.dome.home.shutterCommand?.halt || "{dome-home-shutterCommand-halt}"'></span>
               </div>
-
             </div>
           </template>
         </div> 
@@ -178,7 +172,7 @@
         <template x-if="exist.coverc && load.cover">
           <div class="single_grid">
             <div class="single_header" x-on:click="open.cover = ! open.cover">
-              <div class="title"><p>CoverCalibrator</p></div>
+              <div class="title"><p x-text='text.coverC?.title || "{coverc-home-title}"'></p></div>
               <div class="status">
                 <div class="led" :class="{
                   'green' : coverC.cover.status == 1 || coverC.cover.status == 3,
@@ -197,46 +191,46 @@
             <template x-if="open.cover">
             <div>
               <div x-show="coverC.calibrator.status > 0" class="card">
-                <p x-text="text.coverC.calibrator" class="font-semibold pb-4">{calibrator}</p>
+                <p x-text='text.coverC?.calibrator || "{coverc-calibrator}"' class="font-semibold pb-4"></p>
                 <div class="range">
                   <input type="range" min='0' max='4095' step='1' x-model="coverC.calibrator.brightness" @change="calibratorBrightness(coverC.calibrator.brightness)" />
                 </div>
-                <p x-text="text.gen.actualValue">{Valore Attuale:}</p> <span x-text="coverC.calibrator.brightness"></span> / 4095
+                <p x-text='text.gen.status?.actualValue || "{gen-status-actualValue}"'></p> <span x-text="coverC.calibrator.brightness"></span> / 4095
                 <div class="flex justify-around w-full">
                   <button @click="calibratorOff()" :class="{
                     'disactivated' : coverC.calibrator.brightness == 0,
                     'green' : coverC.calibrator.brightness > 0
-                   }" x-text="text.gen.powerOff">{SPEGNI}</button>
+                   }" x-text='text.gen.action?.powerOff || "{gen-action-powerOff}"'></button>
                   <button @click="calibratorOn()" :class="{
-                    'disactivated' : coverC.calibrator.brightness == 4096,
-                    'green' : coverC.calibrator.brightness < 4096
-                   }"  x-text="text.gen.powerOn">{ACCENDI}</button>
+                    'disactivated' : coverC.calibrator.brightness >= 4095,
+                    'green' : coverC.calibrator.brightness <= 4095
+                   }"  x-text='text.gen.action?.powerOn || "{gen-action-powerOn}"'></button>
                 </div>
               </div>
 
               <div x-show="coverC.cover.status > 0" class="card">
+                <p x-text='text.coverC?.cover || "{coverC-cover}"' class="font-semibold pb-4"></p>
                 <div class="content">
-                  <p x-text="text.coverC.cover" class="font-semibold pb-4">{cover}</p>
-                  <p x-text="text.coverC.coverState">{actualState}</p>
-                  <span x-show="coverC.cover.status === 0" x-text="text.coverC.coverEnum.notPresent">{notPresent}</span>
-                  <span x-show="coverC.cover.status === 1" x-text="text.coverC.coverEnum.close">{close}</span>
-                  <span x-show="coverC.cover.status === 2" x-text="text.coverC.coverEnum.moving">{moving}</span>
-                  <span x-show="coverC.cover.status === 3" x-text="text.coverC.coverEnum.open">{open}</span>
-                  <span x-show="coverC.cover.status === 4" x-text="text.coverC.coverEnum.unknow">{unknow}</span>
-                  <span x-show="coverC.cover.status === 5" x-text="text.coverC.coverEnum.error">{error}</span>
-
+                  <div class="flex">
+                    <p x-text='text.coverC.home?.coverState || "{coverC-home-coverState}"'></p>
+                    <span x-show="coverC.cover.status === 1" x-text='text.gen.status?.close || "{gen-status-close}"'></span>
+                    <span x-show="coverC.cover.status === 2" x-text='text.coverC.home.coverEnum?.moving || "{coverC-home-coverEnum-moving}"'></span>
+                    <span x-show="coverC.cover.status === 3" x-text='text.gen.status?.open || "{gen-status-open}"'></span>
+                    <span x-show="coverC.cover.status === 4" x-text='text.coverC.home.coverEnum?.unknow || "{coverC-home-coverEnum-unknow}"'></span>
+                    <span x-show="coverC.cover.status === 5" x-text='text.coverC.home.coverEnum?.error || "{coverC-home-coverEnum-error}"'></span>
+                  </div>
                   <div class="flex justify-around w-full">
                     <button @click="coverClose()" :class="{
                       'disactivated' : coverC.cover.status == 1 || coverC.cover.status == 2,
                       'green': coverC.cover.status != 1 
-                     }" x-text="text.gen.close" >{CHIUDI}</button>
+                     }" x-text='text.gen.action?.close || "{gen-action-close}"' ></button>
                     <button @click="coverOpen()" :class="{
                       'disactivated' : coverC.cover.status == 3 || coverC.cover.status == 2,
                       'green' : coverC.cover.status != 3
-                     }" x-text="text.gen.open">{APRI}</button>
+                     }" x-text='text.gen.action?.open || "{gen-action-open}"'></button>
                   </div>
-                  <div class="flex" x-show="coverC.cover.status > 0 && coverC.cover.status < 4">
-                    <p x-text="text.gen.actualPos">{Posizione Attuale:}</p><span x-text="coverC.cover.angle"></span><span>°</span>
+                  <div class="flex">
+                    <p x-text='text.gen.status?.actualPos || "{gen-status-actualPos}"'></p><span x-text="coverC.cover.angle"></span><span>°</span>
                   </div>
 
 
@@ -272,35 +266,36 @@
                   <p class="text-center font-bold mb-4">WiFi</p>
                   <div class="setting_table">
                     <div class="row">                    
-                      <p>SSID:</p>
+                      <p x-text='text.board.home.wifi?.ssdi || "{board-home-wifi-ssdi}"'>:</p>
                       <p x-text="board.wifi.ssid"></p>
                     </div>
                     <div class="row">                    
-                      <p>db:</p>
+                      <p x-text='text.board.home.wifi?.db || "{board-home-wifi-db}"'></p>
                       <p x-text="board.wifi.db"></p>
+                      <p> db</p>
                     </div>
                     <div class="row">
                       <p>IP:</p>
                       <p x-text="board.wifi.ip"></p>
                     </div>
                     <div class="row">
-                      <p>MAC Address:</p>
+                      <p x-text='text.board.home.wifi?.macAddress || "{board-home-wifi-macAddress}"'></p>
                       <p x-text="board.wifi.mac"></p>
                     </div>
                     <div class="row">
-                      <p>Uptime:</p>
+                      <p x-text='text.board.home.uptime?.from || "{board-home-uptime-from}"'></p>
                       <p>
                         <span x-show="board.wifi.days > 0">
                           <span x-text="board.wifi.days"></span>
-                          <span> Giorni,</span>
+                          <span x-text='text.board.home.uptime?.days || "{board-home-uptime-days}"'></span>
                         </span>
                         <span x-show="board.wifi.days > 0 || board.wifi.hours > 0">
                           <span x-text="board.wifi.hours"></span>
-                          <span> Ore,</span>
+                          <span x-text='text.board.home.uptime?.hours || "{board-home-uptime-hours}"'></span>
                         </span>
                         <span>
                           <span x-text="board.wifi.minutes"></span>
-                          <span> Minuti</span>
+                          <span x-text='text.board.home.uptime?.minutes || "{board-home-uptime-minutes}"'></span>
                         </span>
                       </p>
                     </div>
@@ -317,46 +312,46 @@
                       <span x-text="board.board.rev"></span>
                     </div>
                     <div class="row">
-                      <p>Cores:</p>
+                      <p x-text='text.board.home.cpu?.cores || "{board-home-cpu-cores}"'></p>
                       <p x-text="board.board.cores"></p>
                     </div>
                     <div class="row">
-                      <p>Speed:</p>
+                      <p x-text='text.board.home.cpu?.speed || "{board-home-cpu-speed}"'></p>
                       <p>
                         <span x-text="board.board.freq"></span>
                         <span> MHz</span>
                       </p>
                     </div>
                     <div class="row">
-                      <p>Uptime:</p>
+                      <p x-text='text.board.home.uptime?.from || "{board-home-uptime-from}"'></p>
                       <p>
                         <span x-show="board.board.days > 0">
                           <span x-text="board.board.days"></span>
-                          <span> Giorni,</span>
+                          <span x-text='text.board.home.uptime?.days || "{board-home-uptime-days}"'></span>
                         </span>
                         <span x-show="board.board.days > 0 || board.board.hours > 0">
                           <span x-text="board.board.hours"></span>
-                          <span> Ore,</span>
+                          <span x-text='text.board.home.uptime?.hours || "{board-home-uptime-hours}"'></span>
                         </span>
                         <span>
                           <span x-text="board.board.minutes"></span>
-                          <span> Minuti</span>
+                          <span x-text='text.board.home.uptime?.minutes || "{board-home-uptime-minutes}"'></span>
                         </span>
                       </p>
 
                     </div>
                     <div class="row">
-                      <p>Heap size:</p>
+                      <p x-text='text.board.home.memory?.total || "{board-home-memory-total}"'></p>
                       <p x-text="board.memory.heapSize"></p>
                     </div>
                     <div class="row">
-                      <p>Free Heap:</p>
+                      <p x-text='text.board.home.memory?.free || "{board-home-memory-free}"'></p>
                         <p x-text="board.memory.freeHeap"></p>
                         <p>(<span x-text="board.memory.freeHeapPerc"></span> %)</p>
 
                     </div>
                     <div class="row">
-                      <p>Min Free Heap:</p>
+                      <p x-text='text.board.home.memory?.minFree || "{board-home-memory-minFree}"'></p>
                         <p x-text="board.memory.minHeap"></p>
                         <p>(<span x-text="board.memory.minHeapPerc"></span> %)</p>
                     </div>
@@ -366,23 +361,26 @@
                   <p class="text-center font-bold mb-4">Timer</p>
                   <ul>                
                   <template x-for="(ch,index) in board.pwm">
-                    <li><span>Channel </span><span x-text="index"></span>
+                    <li><span x-text='text.board.home.timers?.channel || "{board-home-timers-channel}"'>Channel </span><span x-text="index"></span>
                       <span> - </span>
-                      <span x-text="text.pwm[ch]"></span>
+                      <span x-text="text.board.home.timers.channels[ch]"></span>
                     </li>
                   </template>
                 </ul>
                 </div>
                 <div class="card">
-                  <p class="text-center font-bold mb-4">Version <div class="led" :class="{ 'red' : version.upgrade,  }"></div></p>                  
+                  <p x-text='text.board.home.update?.title || "{board-home-update-title}"' class="text-center font-bold mb-4"><div class="led" :class="{ 'red' : version.upgrade,  }"></div></p>                  
                   <div class="setting_table">
                     <div class="row">
-                      <p>Actual:</p>
+                      <p x-text='text.board.home.update?.actual || "{board-home-update-actual}"'>Actual:</p>
                       <span x-text="version.actual"></span>
                     </div>
                     <div class="row">
-                      <p>Available:</p>
+                      <p x-text='text.board.home.update?.available || "{board-home-update-available}"'>Available:</p>
                       <span x-text="version.available"></span>
+                    </div>
+                    <div class="row">
+                      <button class="green" x-text='text.board.home.update?.check || "{board-home-update-check}"' @click="checkFWUpdate()"></button>
                     </div>
                 </div>
               </div>

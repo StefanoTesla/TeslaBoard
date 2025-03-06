@@ -1,6 +1,6 @@
 
 import { toast } from './utils/toast.js'
-import { validation } from './utils/validation.js'
+//import { validation } from './utils/validation.js'
 import { translations } from './utils/translations.js'
 import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
@@ -42,13 +42,11 @@ export default function GlobalData() {
             this.fetchTexts(data.locale);
             this.exist = data.define;
             this.updateData()
-            
             this.version.actual = data.version
-            
-            console.log(this.version.actual)
+
             this.updateBoard()
-            this.checkUpdate()
-            
+
+            this.initFWUpdate()            
         })
         .catch(error => console.error('Error fetching board data:', error))
     },
@@ -93,7 +91,7 @@ export default function GlobalData() {
     ...toast(),
     ...checkFirmwareUpdate(),
     ...translations(),
-    ...validation(),
+//    ...validation(),
     ...dome(),
     ...coverc(),
     ...switches()

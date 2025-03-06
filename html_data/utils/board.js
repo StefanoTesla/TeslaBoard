@@ -53,36 +53,26 @@ export function board(){
 
         },
 
-        checkIPField(){
-            this.ipAddress(this.board.address.staticIp[0],"board_wifi_staticIP_0")
-            this.ipAddress(this.board.address.staticIp[1],"board_wifi_staticIP_1")
-            this.ipAddress(this.board.address.staticIp[2],"board_wifi_staticIP_2")
-            this.ipAddress(this.board.address.staticIp[3],"board_wifi_staticIP_3")
-            this.ipAddress(this.board.address.staticGateway[0],"board_wifi_staticGat_0")
-            this.ipAddress(this.board.address.staticGateway[1],"board_wifi_staticGat_1")
-            this.ipAddress(this.board.address.staticGateway[2],"board_wifi_staticGat_2")
-            this.ipAddress(this.board.address.staticGateway[3],"board_wifi_staticGat_3")
-            this.ipAddress(this.board.address.staticSubnet[0],"board_wifi_staticSub_0")
-            this.ipAddress(this.board.address.staticSubnet[1],"board_wifi_staticSub_1")
-            this.ipAddress(this.board.address.staticSubnet[2],"board_wifi_staticSub_2")
-            this.ipAddress(this.board.address.staticSubnet[3],"board_wifi_staticSub_3")
-        },
-
         validateBoardCfg(){
             let err=false;
+
             if(this.board.address.enStaticIP){
-                err |= new Validator(this.board.address.staticIp[0],"board_wifi_staticIP_0").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticIp[1],"board_wifi_staticIP_1").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticIp[2],"board_wifi_staticIP_2").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticIp[3],"board_wifi_staticIP_3").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticSubnet[0],"board_wifi_staticSub_0").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticSubnet[1],"board_wifi_staticSub_1").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticSubnet[2],"board_wifi_staticSub_2").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticSubnet[3],"board_wifi_staticSub_3").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticGateway[0],"board_wifi_staticGat_0").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticGateway[1],"board_wifi_staticGat_1").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticGateway[2],"board_wifi_staticGat_2").negativeValue().greaterThen(255).evalutate()
-                err |= new Validator(this.board.address.staticGateway[3],"board_wifi_staticGat_3").negativeValue().greaterThen(255).evalutate()
+                this.board.address.staticIp[0] = parseInt(this.board.address.staticIp[0])
+                console.log(this.board.address.staticIp[0])
+                err |= new Validator(this.board.address.staticIp[0],"board_wifi_staticIP_0").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticIp[1],"board_wifi_staticIP_1").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticIp[2],"board_wifi_staticIP_2").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticIp[3],"board_wifi_staticIP_3").negativeValue().greaterThan(255).evaluate()
+
+                err |= new Validator(this.board.address.staticSubnet[0],"board_wifi_staticSub_0").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticSubnet[1],"board_wifi_staticSub_1").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticSubnet[2],"board_wifi_staticSub_2").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticSubnet[3],"board_wifi_staticSub_3").negativeValue().greaterThan(255).evaluate()
+
+                err |= new Validator(this.board.address.staticGateway[0],"board_wifi_staticGat_0").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticGateway[1],"board_wifi_staticGat_1").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticGateway[2],"board_wifi_staticGat_2").negativeValue().greaterThan(255).evaluate()
+                err |= new Validator(this.board.address.staticGateway[3],"board_wifi_staticGat_3").negativeValue().greaterThan(255).evaluate()
             }
 
             if(err){

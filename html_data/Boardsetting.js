@@ -4,7 +4,6 @@ import { dome } from './utils/dome.js'
 import { coverc } from './utils/coverc.js'
 import { switches } from './utils/swtiches.js'
 import { board} from './utils/board.js'
-import { validation } from './utils/validation.js'
 import { checkFirmwareUpdate } from './utils/checkFirmwareUpdate.js'
 
 export default function BoardSetting() {
@@ -57,6 +56,11 @@ export default function BoardSetting() {
     closeModal(){
         this.modal = false
     },
+
+    rebootRequest(){
+        this.modal = true
+    },
+
     rebootTheBoard(){
         this.modal = false
         const ip = import.meta.env.VITE_BOARD_IP
@@ -70,6 +74,7 @@ export default function BoardSetting() {
         )
         .catch(error => console.error('Error fetching board data:', error));
     },
+
     wifiReset(){
         this.modal = false
         const ip = import.meta.env.VITE_BOARD_IP
@@ -80,7 +85,6 @@ export default function BoardSetting() {
 
 
     ...translations(),
-    ...validation(),
     ...toast(),
     ...checkFirmwareUpdate(),
     ...dome(),

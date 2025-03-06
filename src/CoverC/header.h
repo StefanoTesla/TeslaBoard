@@ -19,10 +19,7 @@ struct calibratorConfig{
 struct coverConfig{
   bool present;
 };
-struct structTmpCoverCalibratorConfig{
-  calibratorConfig calibrator;
-  coverConfig cover;
-};
+
 
 struct structCoverCalibratorConfig{
   calibratorConfig calibrator;
@@ -77,7 +74,7 @@ enum coverStatusEnum{
 
 struct coverStatus{
   coverStatusEnum status;
-  unsigned int angle;
+  int angle;
 };
 
 struct coverStruct {

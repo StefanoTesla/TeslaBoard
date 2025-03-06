@@ -85,7 +85,7 @@ export function dome(){
 
         //timers
         err |= new Validator(this.dome.movTimeOut,"dome_timeout").negativeValue().greaterThan(1000).evaluate()
-        err |= new Validator(this.dome.autoclose.minutes,"dome_autoclose_time").negativeValue().greaterThan(1).evaluate()
+        err |= new Validator(this.dome.autoclose.minutes,"dome_autoclose_time").negativeValue().evaluate()
 
         return err
     },
