@@ -17,6 +17,7 @@ void DigitalOutput::setup(IOConfigBase* config){
         pinMode(pin, OUTPUT);
         Serial.print("New DO setup at pin: ");
         Serial.println(pin);
+        write(0);
     } else {
         Serial.println("Errore: DO tipo di configurazione non valido!");
     }
