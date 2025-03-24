@@ -1,0 +1,182 @@
+{
+	"menu": {
+		"home": "INICIO",
+		"setting": "AJUSTES"
+	},
+	"dome": {
+		"title": "Cúpula",
+		"home": {
+			"input": "Estado de entradas",
+			"roofState": "Estado del techo: ",
+			"actualCommand": "Comando actual:",
+			"lastCommand": "Último comando:",
+			"shutterState": {
+				"opening": "Abriendo",
+				"closing": "Cerrando",
+				"error": "Error"
+			},
+			"shutterCommand": {
+				"idle": "Ningún comando",
+				"halt": "DETENER"
+			}
+		},
+		"setting": {
+			"driverType": "Tipo de comando",
+			"inOpen": "Entrada Abierta",
+			"inClose": "Entrada Cerrada",
+			"onDelay": "Retardo de activación:",
+			"offDelay": "Retardo de desactivación:",
+			"outStart": "GPIO Inicio:",
+			"outHalt": "GPIO DETENER:",
+			"outOpen": "GPIO Abrir:",
+			"outClose": "GPIO Cerrar:",
+			"outDir": "GPIO Dirección:",
+			"timeout": "Tiempo de espera",
+			"autoClose": "Cierre automático",
+			"timeOutMoviment": "Tiempo máximo de movimiento:",
+			"autoclosewarning1": "Atención, lea atentamente antes de activarlo.",
+			"autoclosewarning2": "Esta opción cierra automáticamente el techo si está abierto Y el WiFi está conectado Y no hay comunicación con la placa de control (referente a la CÚPULA).",
+			"autoclosewarning3": "Por ejemplo, en caso de un corte temporal de energía, cuando la electricidad regrese y posiblemente la PC permanezca apagada o el software de control no se reinicie, después de los minutos configurados, el techo se cerrará, INDEPENDIENTEMENTE del estado del equipo (telescopio).",
+			"autoclosewarning4": "En caso de mantenimiento del techo, será necesario mantener el navegador abierto en la página principal para evitar el cierre automático, o mejor aún, desactivar esta función.",
+			"autoclosewarning5": "Al activar esta función, confirmas que has leído y comprendido los riesgos que esta función puede tener para ti y tu equipo.",
+			"autoCloseEn": "Habilitar cierre automático:",
+			"autoCloseMin": "Cerrar después de:",
+			"driverTypeEnum": {
+				"0": "Tarjeta para portón corredizo",
+				"1": "Señal de dirección",
+				"2": "Comando + Dirección"
+			}
+		}
+	},
+	"coverC": {
+		"title": "Flat Panel y Cubierta",
+		"calibrator": "Flat Panel",
+		"cover": "Cubierta",
+		"home": {
+			"coverState": "Estado de la cubierta:",
+			"coverEnum": {
+				"notPresent": "No presente",
+				"moving": "En movimiento",
+				"unknow": "Desconocido",
+				"error": "Error"
+			}
+		},
+		"setting": {
+			"configSaved": "Configuración de la cubierta y calibrador guardada"
+		}
+	},
+	"switch": {
+		"title": "Interruptores"
+	},
+	"gen": {
+		"status": {
+			"open": "Abierto",
+			"close": "Cerrado",
+			"actualPos": "Posición actual:",
+			"actualValue": "Valor actual:"
+		},
+		"action": {
+			"open": "Abrir",
+			"close": "Cerrar",
+			"halt": "Detener",
+			"powerOn": "Encender",
+			"powerOff": "Apagar"
+		},
+		"input": "Entrada",
+		"output": "Salida",
+		"outputs": "Salidas",
+		"pin": "GPIO",
+		"loadFromBoard": "RESTAURAR",
+		"downloadFile": "DESCARGAR ARCHIVO",
+		"save": "GUARDAR",
+		"enable": "Habilitar:",
+		"cmdAck": "Comando recibido",
+		"cmdRefused": "Comando rechazado",
+		"configSaved": "Configuración guardada",
+		"utility": "Utilidad"
+	},
+	"board": {
+		"home": {
+			"wifi": {
+				"ssdi": "Red WiFi:",
+				"db": "Recepción:",
+				"macAddress": "Dirección MAC"
+			},
+			"cpu": {
+				"cores": "Procesadores:",
+				"speed": "Velocidad:"
+			},
+			"uptime": {
+				"from": "Activo desde",
+				"days": "Días,",
+				"hours": "Horas,",
+				"minutes": "Minutos"
+			},
+			"memory": {
+				"total": "Memoria total:",
+				"free": "Memoria libre:",
+				"minFree": "Memoria libre no fragmentada:"
+			},
+			"update": {
+				"title": "Versión",
+				"actual": "Actual:",
+				"available": "Disponible:",
+				"check": "Buscar actualizaciones"
+			},
+			"timers": {
+				"channel": "Canal ",
+				"channels": {
+					"0": "No inicializado",
+					"1": "PWM",
+					"2": "Servo"
+				}
+			},
+			"gpio": {
+				"module": {
+					"0": "No asignado",
+					"1": "Cúpula",
+					"2": "Cubierta",
+					"3": "Interruptor"
+				}
+			}
+		},
+		"setting": {
+			"locale": "Idioma",
+			"wifi": "WiFi",
+			"ipAddress": "Dirección IP:",
+			"gateway": "Dirección de puerta de enlace:",
+			"subnet": "Subred:",
+			"staticIp": "Dirección IP estática:",
+			"waitToReconnect": "Tiempo de espera para reconexión:",
+			"warningIP": "Atención, se realiza una validación simple, en caso de error será imposible acceder a la placa.",
+			"configSaved": "Configuración de la placa guardada",
+			"reboot": "REINICIAR PLACA",
+			"wifiReset": "ELIMINAR CONFIGURACIÓN WIFI"
+		},
+		"reboot": {
+			"warning": "ATENCIÓN",
+			"text1": "La configuración ha sido guardada, pero se aplicará solo en el próximo reinicio.",
+			"text2": "Puedes reiniciar ahora o más tarde (el botón para restablecer está en el menú de la placa Tesla).",
+			"now": "REINICIAR AHORA",
+			"later": "REINICIAR MÁS TARDE"
+		}
+	},
+	"errors": {
+		"gpio": {
+			"noUsableAsInput": "no se puede usar como entrada",
+			"noUsableAsOutput": "no se puede usar como salida"
+		},
+		"dome": {
+			"ShAlreadyMoving": "El techo ya está en movimiento",
+			"ShAlreadyOpen": "El techo ya está abierto",
+			"ShAlreadyClosed": "El techo ya está cerrado"
+		},
+		"coverc": {
+			"coverIsMoving": "La cubierta ya está en movimiento",
+			"coverNotPresent": "La cubierta no está presente",
+			"calibNotPresent": "El panel de calibración no está presente",
+			"calibBrightnessNotPresent": "Parámetro de brillo ausente",
+			"calibBrightnessNotInRange": "Parámetro de brillo fuera de rango"
+		}
+	}
+}

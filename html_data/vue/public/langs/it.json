@@ -1,0 +1,245 @@
+{
+	"menu":{
+		"home": "HOME",
+		"setting": "IMPOSTAZIONI"
+	},
+	"dome":{
+		"title":"Cupola",
+		"home":{
+			"input":"Stato Ingressi",
+			"roofState": "Stato del Tetto: ",
+			"actualCommand": "Comando attuale:",
+			"lastCommand":"Ultimo comando:",
+			"shutterState":{
+				"opening": "In Apertura",
+				"closing": "In Chiusura",
+				"error": "In Errore"
+			},
+			"shState":{
+				"0": "In Apertura",
+				"1": "In Chiusura",
+				"2": "In Errore"
+			},
+			"shutterCommand":{
+				"idle": "Nessun comando",
+				"halt": "HALT"
+			}
+		},
+		"setting":{
+			"driverType": "Tipo di comando",
+			"inOpen": "Ingresso Aperto",
+			"inClose": "Ingresso Chiuso",
+			"onDelay": "Ritardo Attivazione:",
+			"offDelay": "Ritardo Disattivazione:",
+			"outStart": "GPIO Start:",
+			"outHalt": "GPIO HALT:",
+			"outOpen": "GPIO Apertura:",
+			"outClose": "GPIO Chiusura:",
+			"outDir": "GPIO Direzione:",
+			"timeout": "Timeout",
+			"autoClose": "Chiusura Automatica",
+			"timeOutMoviment" : "Tempo massimo di movimento:",
+			"autoclosewarning1": "Attenzione, leggere attentamente prima di attivarla.",
+			"autoclosewarning2": "Questa opzione chiude il tetto in automatico se il tetto è aperto E il wifi è connesso E non c'è nessuna comunicazione con la scheda (riguardante la CUPOLA)",
+			"autoclosewarning3": "Ad esempio, nel caso di blackout temporaneo, una volta che ritorna la corrente, e probabilmente il PC rimane spento o non si riavviano i software per gestire la sequenza, aspetterà i minuti impostati, dopo di che, il tetto verrà chiuso, INDIPENDENTEMENTE dallo stato dell'attrezzatura (telescopio).",
+			"autoclosewarning4": "In caso di manutenzione al tetto, sarà necessario mantenere il browser aperto sulla pagina principale, per evitare la chiusura automatica, o ancora meglio disattivare questa funzione.",
+			"autoclosewarning5": "Attivando questa funzione confermi di aver letto e compreso i rischi che questa funzione può avere per te e la tua attrezzatura.",
+			"autoCloseEn": "Abilitazione Chiusura Automatica:",
+			"autoCloseMin": "Chiudi dopo:",
+			"driverTypeEnum":{
+				"0": "Scheda per Cancello Scorrevole",
+				"1": "Segnale di direzione",
+				"2": "Comando + Direzione"
+			}
+		}
+	},
+	"coverC":{
+		"title": "Flat Panel e Coperchio",
+		"calibrator" :"Flat Panel",
+		"cover": "Coperchio",
+		"home":{
+			"coverState": "Stato del coperchio: ",
+			"coverEnum":{
+				"notPresent": "Non presente",
+				"moving": "In Movimento",
+				"unknow": "Sconosciuto",
+				"error" : "Errore"
+			}
+		},
+		"setting":{
+			"configSaved": "configurazione Cover Calibrator Salvata"
+		}
+
+	},
+	"switch":{
+		"title": "Interruttori"
+	},
+	"gen":{
+		"status":{
+			"open":"Aperto",
+			"close":"Chiuso",
+			"actualPos": "Posizione attuale:",
+			"actualValue": "Valore Attuale:"
+		},
+		"action":{
+			"open" : "Apri",
+			"close" : "Chiudi",
+			"halt" : "Ferma",
+			"powerOn": "Accendi",
+			"powerOff": "Spegni"
+		},
+		"input": "Ingresso",
+		"output": "Uscita",
+		"outputs": "Uscite",
+		"pin" : "GPIO",
+		"loadFromBoard": "RIPRISTINA",
+		"downloadFile": "SCARICA FILE",
+		"save":"SALVA",
+		"enable": "Abilita:",
+		"cmdAck": "Comando ricevuto",
+		"cmdRefused": "Comando Rifiutato",
+		"configSaved": "Configurazione Salvata",
+		"utility":"Utility"
+	},
+
+	"board":{
+		"home": {
+			"wifi":{
+				"ssid":"Rete WiFi:",
+				"db": "Ricezione:",
+				"macAddress": "Indirizzo MAC"
+			},
+			"cpu":{
+				"cores": "Processori:",
+				"speed": "Velocità :"
+			},
+			"uptime":{
+				"from": "Attiva da",
+				"days": "Giorni,",
+				"hours": "Ore,",
+				"minutes": "Minuti"
+			},
+			"memory":{
+				"total": "Memoria totale:",
+				"free": "Memoria libera:",
+				"minFree": "Memoria libera non frammentata:"
+			},
+			"update":{
+				"title": "Versione",
+				"actual": "Attuale:",
+				"available": "Disponibile:",
+				"check": "Controlla Aggiornamenti"
+			},
+			"timers":{
+				"channel": "Canale ",
+				"channels":{
+					"0": "Non inizializzato",
+					"1": "PWM",
+					"2": "Servo"
+				}
+			},
+			"gpio":{
+				"module":
+				{
+					"0": "Non associato",
+					"1": "Cupola",
+					"2": "CoverC",
+					"3": "Switch"
+				}
+			}
+		},
+		"setting": {
+			"locale": "Lingua",
+			"wifi": "WiFi",
+			"ipAddress": "Indirizzo IP:",
+			"gateway": "Indirizzo Gateway:",
+			"subnet": "Sotto Rete:",
+			"staticIp": "Indirizzo Ip statico:",
+			"waitToReconnect": "Attesa per riconnessione:",
+			"warningIP": "Attenzione, viene effettuata una validazione semplice, in caso di errore sarà impossibile raggiungere la scheda.",
+			"configSaved": "configurazione Scheda Salvata",
+			"reboot": "RIAVVIA SCHEDA",
+			"wifiReset": "RIMUOVI IMPOSTAZIONI WIFI"
+		},
+		"reboot":{
+			"warning": "ATTENZIONE",
+			"text1": "La configurazione è stata salvata, ma verrà applicata solamente al prossimo riavvio.",
+			"text2": "Puoi riavviare adesso, o successivamente (il tasto per eseguire il reset è nella scheda Tesla Board)",
+			"now": "RIAVVIA ADESSO",
+			"later": "RIAVVIA DOPO"
+		}
+	},
+
+	"errors":{
+		"gpio":{
+			"noUsableAsInput" : "Non utilizzabile come ingresso",
+			"noUsableAsOutput" : "Non utilizzabile come uscita"
+		},
+		"dome":{
+			"ShAlreadyMoving" : "Il tetto è già in movimento",
+			"ShAlreadyOpen" : "Il tetto è già aperto",
+			"ShAlreadyClosed" : "Il tetto è già chiuso"
+		},
+		"coverc":{
+			"coverIsMoving" : "Il coperchio è già in movimento",
+			"coverNotPresent": "Il coperchio non è presente",
+			"calibNotPresent": "Il flat panel non è presente",
+			"calibBrightnessNotPresent" : "Parametro di luminosità assente",
+			"calibBrightnessNotInRange": "Parametro di luminosità fuori dai limiti"
+		},
+		"switch":{
+			"SwIdOutOfRange" : "ID Switch fuori range",
+			"SwValueBehindMin" : "Valore Minimo oltrepassato",
+			"SwValueOverMax" : "Valore Massimo oltrepassato",
+			"SwValueAbsent" : "Valore Non Fornito",
+			"SwNotWritable": "Switch non scrivibile",
+			"limitReached": "Non è possibile aggiungere altri Interruttori"
+		},
+		"general":{
+			"negativeValue":"Il valore non può essere negativo",
+			"greaterThan":"Valore maggiore di: ",
+			"configRejected": "Dati non validi. Configurazione non salvata",
+			"validationFailed": "Validazione fallita"
+		}
+	},
+	"IOBase":{
+		"name":"Nome:",
+		"description":"Descrizione:",
+		"pin" : "GPIO:",
+		"type": "Tipo:",
+		"typeEnum": {
+			"0": "Non utilizzata",
+			"1": "Ingresso Digitale",
+			"2": "Uscita Digitale",
+			"3": "Uscita PWM",
+			"4": "Uscita Servo"
+		},
+		"DI":{
+			"onDelay": "Ritardo Attivazione:",
+			"offDelay": "Ritardo Disattivazione:",
+			"func": "Funzionamento:",
+			"invertEnum":{
+				"0": "Norm. Aperto",
+				"1": "Norm. Chiuso"
+			}
+		},
+		"DO":{
+			"func": "Funzionamento:",
+			"invertEnum":{
+				"0": "Attivo HIGH",
+				"1": "Attivo LOW"
+			}
+		},
+		"Servo":{
+			"openDeg": "Aperto a gradi:",
+			"closeDeg": "Chiuso a gradi:",
+			"maxDeg": "Massima Rotazione:",
+			"maxDegEnum":{
+				"90": "90°",
+				"180": "180°",
+				"270": "270°"
+			},
+			"movingTime": "Tempo di movimento:"
+		}
+	}
+}

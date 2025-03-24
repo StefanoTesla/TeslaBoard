@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
@@ -20,6 +18,7 @@ input[type=number] {
   --orange: #ecb94a;
   --red: #ec4a4a;
   --black: #212121;
+
 }
 
 *{
@@ -36,6 +35,9 @@ body{
 
 header {
   background: var(--divbkg);
+}
+
+header{
   @apply flex  font-bold py-4 justify-between
 }
 
@@ -46,27 +48,52 @@ header {
 .menu > * {
   @apply pr-4
 }
-.main_grid{
-  @apply grid grid-cols-1 w-11/12 mx-auto gap-6 mt-6 max-w-5xl
-}
 
 a.active{
   color: #CBF05F;
 }
+
+.container{
+  background: var(--divbkg);
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12  rounded-xl shadow-[#2e2e33] shadow-sm
+}
+
+.container_header {
+    @apply grid grid-flow-col grid-cols-12 justify-around items-center p-4 text-lg cursor-pointer
+}
+
+.container_header > .title{
+    @apply font-bold col-span-8 text-left
+}
+.container_header > .status{
+    @apply col-span-3 justify-items-center content-center
+}
+.container_header > .icon{
+    @apply col-span-1 items-center justify-items-center content-center
+}
+.container > .body{
+    @apply pb-4
+}
+
+
+
+.card{
+  background: var(--divhig);
+  @apply rounded-lg p-4 mx-4 mb-4
+}
+
+.card > .content{
+  @apply w-full px-4
+}
+
+
+.title{
+  @apply text-center font-bold w-full
+}
+
 .single_grid{
   background: var(--divbkg);
   @apply rounded-xl shadow-[#2e2e33] shadow-sm
-}
-
-.single_grid > .single_header{
-  @apply grid grid-flow-col grid-cols-12 justify-around text-lg p-4  cursor-pointer
-}
-
-.single_header > .title{
-  @apply text-blue-400 font-bold col-span-8 content-center
-}
-.single_header > .status{
-  @apply col-span-3 justify-items-center content-center
 }
 
 .led {
@@ -142,14 +169,6 @@ li.switch{
   transform: translateX(var(--height));
 }
 
-.card{
-  background: var(--divhig);
-  @apply justify-items-center items-center rounded-lg p-4 mx-4 mb-4
-}
-
-.card > .content{
-  @apply w-full px-4
-}
 
 .dome_input {
   
@@ -179,6 +198,10 @@ button{
 .red{
   background-color: var(--red);
 }
+
+.black{
+  background-color: var(--black);
+}
 .disactivated{
   background-color: var(--black);
   color: #FDFDFD;
@@ -188,7 +211,8 @@ button{
 
 input, select{
   background: #212121;
-  @apply px-4 py-2 m-0 h-full w-24 lg:w-32
+  color: #FDFDFD;
+  @apply px-4 py-2 m-0
 }
 
 select{
@@ -231,7 +255,7 @@ select{
 }
 
 .row{
-  @apply flex flex-col lg:flex-row items-center
+  @apply flex flex-wrap lg:flex-row items-center
 }
 
 .row > p{
@@ -312,7 +336,7 @@ input[type="range"] {
 }
 
 .sw_delete{
-@apply flex w-full justify-end pt-2
+@apply flex w-full justify-end pt-2 cursor-pointer
 }
 
 .sw_delete > button {
@@ -329,22 +353,19 @@ input[type="range"] {
 
 
 .sw_grid{
-  @apply grid grid-flow-row grid-cols-1 lg:grid-cols-2 gap-4 mx-4 mb-4
+  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mx-4 mb-4
 }
 
 .sw_grid > .card{
   @apply mx-0 my-0;
 }
 
-.sw_title{
-  @apply font-bold text-lg
-}
-.sw_desc{
-  @apply italic
+.sw_header{
+  @apply text-center
 }
 
-.sw_analog {
-  @apply w-full py-2
+.sw_containter {
+  @apply w-full py-2 text-center
 }
 .sw_value {
   @apply flex py-2 justify-center
@@ -361,8 +382,6 @@ input[type="range"] {
 .modal_box > p{
   @apply text-black text-center
 }
-
-
 
 .modal_box > .error{
   @apply text-red-600 font-bold
