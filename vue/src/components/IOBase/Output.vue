@@ -1,16 +1,18 @@
 <template>
-
+  <div>
     <p>{{ props.txt.IOBase.pin }}</p>
     <div class="input_with_unit">
-      <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" min=1 max=39 @change="validate()"/>
+      <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" @change="validate()"/>
     </div>
+  </div>
+  <div>
     <p>{{ props.txt.IOBase.DI.func }}</p>
     <select :id="`sw_${index}_invert`" :class="[invertUnvalid ? 'validation_error' : '']" v-model="swi.invert" @change="validate()">
-       <option v-for="[key, value] in Object.entries(props.txt.IOBase.DO.invertEnum)" :key="key" :value="key">
-         {{ value }}
-       </option>
-     </select>
-
+      <option v-for="[key, value] in Object.entries(props.txt.IOBase.DO.invertEnum)" :key="key" :value="key">
+        {{ value }}
+      </option>
+    </select>
+  </div>
 </template>
 
 
@@ -69,7 +71,7 @@
 }
 
  onMounted(()=>{
-
+  props.swi.pin = props.swi.pin ?? null
   props.swi.invert = props.swi.invert ?? 0;
   validate()
   

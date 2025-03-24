@@ -38,7 +38,15 @@
  const props = defineProps({
    txt: Object,
    index: Number,
-   swi: Object
+   swi: {
+    type: Object,
+    default: () => ({
+        maxDeg: 90,
+        openDeg: 0,
+        closeDeg: 0,
+        movTime: 0
+      })
+    }
  })
  const emit = defineEmits(['update:validated']);
 
@@ -123,12 +131,12 @@
 }
 
  onMounted(()=>{
-
+  props.swi.pin = props.swi.pin ?? null
   props.swi.maxDeg = props.swi.maxDeg ?? 90;
   props.swi.openDeg = props.swi.openDeg ?? 0;
   props.swi.closeDeg = props.swi.closeDeg ?? 0;
   props.swi.movTime = props.swi.movTime ?? 0;
-  
+  console.log("mount")
   validate()
  })
 

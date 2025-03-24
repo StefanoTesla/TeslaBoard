@@ -88,7 +88,7 @@ validation.value[index] = isValid;
 }
 
 const getOriginal = () => {
-  coverC.value = JSON.parse(JSON.stringify(coverC.value));
+  coverC.value = JSON.parse(JSON.stringify(originalData.value));
 }
 
 const fetchData = async () => {
@@ -101,7 +101,14 @@ const fetchData = async () => {
     coverC.value = data
     dataLoaded.value = true
 
+    if(!coverC.value.cover.servo){
+      coverC.value.cover.servo = {}
+    }
 
+    if(!coverC.value.calibrator.pwm){
+      coverC.value.calibrator.pwm = {}
+    }
+    setupWatch()
     if(data.reboot){
       statusClass.value = 'orange'
     }
@@ -173,10 +180,13 @@ onMounted(() => {
   fetchData()
 })
 
+function setupWatch(){
 
-watch(
+  watch(
   () => [validation.value, coverC.value.calibrator.present, coverC.value.cover.present],
   () => {
+
+    
     if (coverC.value.calibrator.present && validation.value[0] === false) {
       validationState.value = false;
     } else if (coverC.value.cover.present && validation.value[1] === false) {
@@ -187,4 +197,6 @@ watch(
   },
   { deep: true } // Per rilevare modifiche all'interno dell'array
 );
+}
+
 </script>

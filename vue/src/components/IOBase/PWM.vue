@@ -45,7 +45,8 @@
 }
 
  onMounted(()=>{
-   validate()
+  props.swi.pin = props.swi.pin ?? null
+  validate()
  })
 
 </script>
