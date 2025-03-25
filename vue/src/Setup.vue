@@ -16,13 +16,13 @@
     <CoverCalibrator 
       v-if="components.coverc"
       :txt="translations"
-
+      v-model:reboot="modal"
       />
 
     <Dome
       v-if="components.dome"
       :txt="translations"
-
+      v-model:reboot="modal"
       /> 
 
     <BoardHome 

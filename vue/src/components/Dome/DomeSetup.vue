@@ -11,11 +11,14 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.driverType }}</p>
       </div>
-      <select :id="`dome_cmd_type`" :class="[invertUnvalid ? 'validation_error' : '']" v-model="dome.driverType" @change="validate()">
+      <div class="setting_row">
+        <select :id="`dome_cmd_type`" :class="[boardTypeUnvalid ? 'validation_error' : '']" v-model="dome.driverType" @change="validate()">
         <option v-for="[key, value] in Object.entries(props.txt.dome.setting.driverTypeEnum)" :key="key" :value="key">
           {{ value }}
         </option>
       </select> 
+      </div>
+
     </div>
   </div>
   <div class="card">
@@ -23,6 +26,7 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.inOpen }}</p>
       </div>
+      <div></div>
       <Input
             :txt="props.txt"
             :index = 0
@@ -36,6 +40,7 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.inClose }}</p>
       </div>
+      <div></div>
       <Input
             :txt="props.txt"
             :index = 1
@@ -49,6 +54,7 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.outStart }}</p>
       </div>
+      <div></div>
       <Output
             :txt="props.txt"
             :index = 2
@@ -62,9 +68,10 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.outHalt }}</p>
       </div>
+      <div></div>
       <Output
             :txt="props.txt"
-            :index = 2
+            :index = 3
             :swi = "dome.pinHalt"
              @update:validated="handleValidation"
           />
@@ -75,9 +82,12 @@
       <div class="sw_header">
         <p>{{ props.txt.dome.setting.timeOutMoviment }}</p>
       </div>
-      <div class="input_with_unit">
-        <span class="unit">sec</span><input :id="`dome_timeout`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="dome.movTimeOut" @change="validate()"/>
+      <div class="setting_row">
+        <div class="input_with_unit">
+          <span class="unit">sec</span><input :id="`dome_timeout`" :class="['with_unit', movTimeOutUnvalid ? 'validation_error' : '']" type="number" v-model="dome.movTimeOut" @change="validate()"/>
+        </div>
       </div>
+
     </div>
   </div>
   <div class="card">
@@ -90,12 +100,16 @@
       <p>{{ props.txt.dome.setting.autoclosewarning3 }}</p>
       <p>{{ props.txt.dome.setting.autoclosewarning4 }}</p>
       <p>{{ props.txt.dome.setting.autoclosewarning5 }}</p>
-      <label class="toggle" for="dome_autoclose_enable">
-        <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.autoclose.enable">
-        <div class="toggle__fill"></div>
-      </label>
-      <div class="input_with_unit">
-        <span class="unit">min</span><input :id="`dome_timeout`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="dome.autoclose.minutes" @change="validate()"/>
+      <div class="setting_row">
+        <label class="toggle " for="dome_autoclose_enable">
+          <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.autoclose.enable">
+          <div class="toggle__fill"></div>
+        </label>
+      </div>
+      <div class="setting_row">
+        <div class="input_with_unit">
+          <span class="unit">min</span><input :id="`dome_autoclose_minutes`" :class="['with_unit', autoCloseTimeUnvalid ? 'validation_error' : '']" type="number" v-model="dome.autoclose.minutes" @change="validate()"/>
+        </div>
       </div>
     </div>
   </div>
@@ -117,11 +131,14 @@ import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
 import Input from '../IOBase/Input.vue';
 import Output from '../IOBase/Output.vue';
+import { useValidator } from '../../composables/Validator';
 
 const props = defineProps({
   txt: Object,
   reboot: Boolean
 })
+
+const { isInvalidPin, isGreaterThan, isNegative } = useValidator();
 
 const emit = defineEmits(['update:reboot']);
 
@@ -132,6 +149,9 @@ let dataLoaded = ref(false)
 let statusClass = ref('green')
 let validation = ref([])
 let validationState = ref(true)
+let boardTypeUnvalid = ref(false)
+let movTimeOutUnvalid = ref(false)
+let autoCloseTimeUnvalid = ref(false)
 
 
 const handleValidation = (data) => {
@@ -165,7 +185,43 @@ const fetchData = async () => {
   }
 }
 
+const validate = () => {
 
+  validationState.value = false
+
+  dome.value.driverType = parseInt(dome.value.driverType)
+  boardTypeUnvalid.value = false
+  if(isNegative(dome.value.driverType)){
+    boardTypeUnvalid.value = true;
+    errorResponseNotify(props.txt.errors.general.negativeValue)
+    return
+  }
+
+  if(isGreaterThan(dome.value.driverType,2)){
+    boardTypeUnvalid.value = true;
+    const errorMessage = props.txt.errors.general.greaterThan + " " + "2"
+    errorResponseNotify(errorMessage)
+    return
+  }
+  
+  dome.value.movTimeOut = parseInt(dome.value.movTimeOut);
+  movTimeOutUnvalid.value = false;
+  if(isNegative(dome.value.movTimeOut)){
+    movTimeOutUnvalid.value = true;
+    errorResponseNotify(props.txt.errors.general.negativeValue)
+    return
+  }
+
+
+  dome.value.autoclose.minutes = parseInt(dome.value.autoclose.minutes);
+  autoCloseTimeUnvalid.value = false;
+  if(isNegative(dome.value.autoclose.minutes)){
+    autoCloseTimeUnvalid.value = true;
+    errorResponseNotify(props.txt.errors.general.negativeValue)
+    return
+  }
+  validationState.value = true
+}
 
 const saveData = async () => {
 
@@ -225,7 +281,8 @@ onMounted(() => {
 })
 
 watch(() => validation.value.some(item => item === false), (containsFalse) => {
-    validationState.value = containsFalse ? false : true;    
+    validationState.value = containsFalse ? false : true;
+    validate()
   });
 
 </script>

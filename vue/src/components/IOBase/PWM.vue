@@ -1,10 +1,10 @@
 <template>
-
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.pin }}</p>
     <div class="input_with_unit">
       <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" min=1 max=39 @change="validate()"/>
     </div>
-
+  </div>
 </template>
 
 

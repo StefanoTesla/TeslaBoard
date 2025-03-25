@@ -1,23 +1,23 @@
 <template>
-  <div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.pin }}</p>
       <div class="input_with_unit">
         <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" @change="validate()"/>
       </div>
   </div>
-  <div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.DI.onDelay }}</p>
     <div class="input_with_unit">
        <span class="unit">ms</span><input :id="`sw_${index}_dOn`" :class="['with_unit', dOnUnvalid ? 'validation_error' : '']" type="number" v-model="swi.dOn" @change="validate()"/>
     </div>
   </div>
-  <div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.DI.offDelay }}</p>
     <div class="input_with_unit">
       <span class="unit">ms</span><input :id="`sw_${index}_dOff`" :class="['with_unit', dOffUnvalid ? 'validation_error' : '']" type="number" v-model="swi.dOff" @change="validate()"/>
     </div>
   </div>
-  <div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.DI.func }}</p>
     <select :id="`sw_${index}_invert`" :class="[invertUnvalid ? 'validation_error' : '']" v-model="swi.invert" @change="validate()">
       <option v-for="[key, value] in Object.entries(props.txt.IOBase.DI.invertEnum)" :key="key" :value="key">

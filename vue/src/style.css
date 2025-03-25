@@ -212,7 +212,7 @@ button{
 input, select{
   background: #212121;
   color: #FDFDFD;
-  @apply px-4 py-2 m-0
+  @apply px-4 py-2 m-0 w-40
 }
 
 select{
@@ -248,8 +248,13 @@ select{
 
 
 .setting_table{
-  @apply grid grid-flow-row grid-cols-1 lg:grid-cols-2 md:px-10 items-center w-full gap-2
+  @apply grid grid-flow-row grid-cols-1 lg:grid-cols-2 items-center w-full gap-2
 }
+
+.setting_row{
+  @apply justify-items-center text-center
+}
+
 .st_title{
   @apply col-span-1 lg:col-span-2 text-center font-bold
 }
@@ -361,7 +366,7 @@ input[type="range"] {
 }
 
 .sw_header{
-  @apply text-center
+  @apply text-center font-bold
 }
 
 .sw_containter {

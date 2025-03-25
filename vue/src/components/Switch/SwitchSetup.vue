@@ -19,11 +19,11 @@
         </div>
         <div class="sw_header">
           <p>{{ props.txt.IOBase.name }}</p>
-          <input type="text" :id="`sw_${index}_name`" class="w-full" v-model="swi.name" maxlength=20/>
+          <input type="text" :id="`sw_${index}_name`" class="w-full" v-model="swi.name" maxlength=20  @change="sanitize(index)"/>
         </div>
         <div class="sw_header">
           <p>{{ props.txt.IOBase.description }}</p>
-          <input type="text" :id="`sw_${index}_desc`" class="w-full" v-model="swi.desc" maxlength=20/>
+          <input type="text" :id="`sw_${index}_desc`" class="w-full" v-model="swi.desc" maxlength=20 @change="sanitize(index)"/>
         </div>
         <div class="sw_header">
           <p>{{ props.txt.IOBase.type }}</p>
@@ -231,6 +231,11 @@
     }
   }
 
+  const sanitize = (index) => {
+    switches.value.Switches[index].name = switches.value.Switches[index].name.replace(/[<>#!?*]/g, "").slice(0, 20);
+    switches.value.Switches[index].desc = switches.value.Switches[index].desc.replace(/[<>#!?*]/g, "").slice(0, 20);
+  }
+
   const addNewSwitch = () =>{
         if(switches.value.Switches.length <= 14){
           switches.value.Switches.push({"name":"","desc":"","type":0,"pin":null,"invert":0,"maxDeg":90,"closeDeg":0,"openDeg":0,"dOn":0,"dOff":0})
@@ -256,8 +261,6 @@
     fetchData()
   })
   
-
-
   watch(() => validation.value.some(item => item === false), (containsFalse) => {
     validationState.value = containsFalse ? false : true;    
   });

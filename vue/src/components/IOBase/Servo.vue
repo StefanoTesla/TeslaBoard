@@ -1,29 +1,36 @@
 <template>
-
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.pin }}</p>
     <div class="input_with_unit">
       <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" min=1 max=39 @change="validate()"/>
     </div>
+  </div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.maxDeg }}</p>
     <select :id="`sw_${index}_invert`" :class="[maxDegUnvalid ? 'validation_error' : '']" v-model="swi.maxDeg" @change="validate()">
        <option v-for="[key, value] in Object.entries(props.txt.IOBase.Servo.maxDegEnum)" :key="key" :value="key">
          {{ value }}
        </option>
      </select>
+  </div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.openDeg }}</p>
     <div class="input_with_unit">
       <span class="unit">°</span><input :id="`sw_${index}_open`" :class="['with_unit', openDegUnvalid ? 'validation_error' : '']" type="number" v-model="swi.openDeg" @change="validate()"/>
     </div>
+  </div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.closeDeg }}</p>
     <div class="input_with_unit">
       <span class="unit">°</span><input :id="`sw_${index}_close`" :class="['with_unit', closeDegUnvalid ? 'validation_error' : '']" type="number" v-model="swi.closeDeg" @change="validate()"/>
     </div>
+  </div>
+  <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.movingTime }}</p>
     <div class="input_with_unit">
       <span class="unit">sec</span><input :id="`sw_${index}_movTime`" :class="['with_unit', movTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.movTime" @change="validate()"/>
     </div>
-
-
+  </div>
 </template>
 
 
