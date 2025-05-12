@@ -1,1 +1,1 @@
-{"pinstart":33,"pinhalt":32,"pinopen":34,"pinclose":35,"tout":20,"enautoclose":false,"autoclose":10}
+{"pinstart":16,"pinhalt":16,"pinopen":32,"pinclose":25,"pinmanual":27,"tout":20,"enautoclose":false,"autoclose":10,"mountip":"192.168.248.6","mountport":9997,"seccheck":true,"secstrict":true}

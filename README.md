@@ -1,4 +1,4 @@
-# Ascom Alpacha Switch, Dome, CoverCalibrator Board ESP32
+# Ascom Alpaca Switch, Dome, CoverCalibrator Board ESP32
 
 Do you have a remote observatory? This board is made for you!
 The Ascom-compatible WiFi board using the Alpaca protocol is here!
@@ -8,6 +8,7 @@ Main Feature:
 - Dome controller (Only R.O.R)
 - Switch Controller
 - CoverCalibration (flat frame)
+- lidar securtity scan
 
 Each device is recognized by Ascom via the Alpaca protocol, with no need for USB connection or drivers, just WiFi!
 
@@ -21,10 +22,10 @@ Dome support only R.O.R. type.
 
 You can use a normal gate board or two realy to provide open and close functions.
 
-If you have a **gate board**, you don't have to do nothing.
+If you have a **gate board**, you don't have to do nothing. Except is your board is an Aleko, in that case uncomment the ALEKO define
 If you have **two realy to command a motor directly**, you need to do some steps:
 - Open main.cpp
-- comment the line `#define GATE_BOARD` adding two \ before;
+- comment the line `#define GATE_BOARD` adding two / before;
 
 Open the directory
 
@@ -57,8 +58,11 @@ A configuration page with validation is provided, so you don’t need to manuall
 > At the state of art, this board work only with PNP relay boards or any things you want, the reason is to be sure that command will be executed when you decide, using NPN board will bring you in strange problem (ex: with NPN realy board, if ESP32 is borken, your ralay will be activated)
 
 ## CoverCalibration (aka Automatic Flat Panel)
-You can have a PWM signlat to handle a mofset to encrease or decrease the flat panel brightness, for a bettere experience (avoid led flickering) you can command a led power supply with the PWM or a mofset
+You can have a PWM signal to handle a mosfet to encrease or decrease the flat panel brightness, for a bettere experience (avoid led flickering) you can command a led power supply with the PWM or a mosfet
 The CoverCalibrator is a must have to have perfect flat frame!
+
+## Lidar based security scan
+By using a low cost LD06 Lidar you can check if something is in the way of your roof and prevent it from operating. Connect the data pin to pin GPIO6 (Serial1 Rx) and place the lidar in the plane you want to check (like 5cm under the roof line). Configure the mindist and scan angle (start and end) and if something is inside of that region the lidar will flag as UNSAFE.
 
 ## Tested with
 - Voyager
@@ -71,13 +75,20 @@ The CoverCalibrator is a must have to have perfect flat frame!
 If you don't use a module you can comment the respective row at the beginning of the main.cpp:
 
 `#define DOME`
+
 `#define SWITCH`
+
 `#define COVERC`
+
+`#define LIDAR`
 
 You don't use the dome?
 `\\#define DOME`
+
 `#define SWITCH`
+
 `#define COVERC`
+
 
 2.0.0 - Now all the board can be setupped by the browser. Dome I/O and Switch setting is now editable from the browser and you can save the confi files.
 Before update write in a memo all your setting.

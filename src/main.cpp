@@ -1,3 +1,11 @@
+// Uncomment the follwing line if your board is a ESP32-S3 (some relay boards)
+// #define ESP32S3
+#ifdef ESP32S3
+  #define _MAXPIN 48
+#else
+  #define _MAXPIN 40
+#endif
+
 #define DOME
 
 #ifdef DOME
@@ -8,10 +16,20 @@ Only in this case comment the #define GATE_BOARD
 #halt pin will be close command
 */
 #define GATE_BOARD
+  #ifdef GATE_BOARD
+    /* un-commnent the following line if your board only activates when the button is released (falling signal)
+       if your board activates as soon as the button is pressed (rising signal) then comment the line (//)
+    */
+    #define ALEKO
+  #endif
 #endif
 
-#define SWITCH
-#define COVERC
+// uncomment the following line if you want your dome to check if your onstep mount is parked
+#define ONSTEP_MOUNT
+
+//#define SWITCH
+//#define COVERC
+#define LIDAR
 
 #include <WiFi.h>
 #include "AsyncJson.h"
@@ -24,6 +42,7 @@ Only in this case comment the #define GATE_BOARD
 #include "Dome/domeVariable.h"
 #include "Switches/switchVariable.h"
 #include "CoverC/coverVariable.h"
+#include "Lidar/lidarVariable.h"
 #include "header.h"
 #include <ElegantOTA.h>
 
@@ -31,6 +50,7 @@ AsyncWebServer server(80);
 AsyncWebServer Alpserver(4567);
 
 #include "Alpaca/AlpacaManageFunction.h"
+
 #ifdef DOME
 #include "Dome/dome.h"
 #endif
@@ -42,6 +62,11 @@ AsyncWebServer Alpserver(4567);
 #ifdef COVERC
 #include "CoverC/cover.h"
 #endif
+
+#ifdef LIDAR
+#include "Lidar/lidar.h"
+#endif
+
 #include "browserServer.h"
 #include "configuration.h"
 
@@ -59,7 +84,7 @@ void setup()
 {
   Serial.begin(115200);
   AlpacaData.serverTransactionID = 0;
-/* reading configuration from file */
+  /* reading configuration from file */
   if (!SPIFFS.begin()) { Serial.println("An Error has occurred while mounting SPIFFS"); return; }
 
   #ifdef DOME
@@ -75,6 +100,11 @@ void setup()
   #ifdef COVERC
   initCoverCConfig();
   Serial.println("cover init done");
+  #endif
+
+  #ifdef LIDAR
+  initLidarConfig();
+  Serial.println("LIDAR init done");
   #endif
 
   Serial.println("Listening for discovery requests...");
@@ -115,6 +145,10 @@ void setup()
 
   #ifdef COVERC
   coverServer();
+  #endif
+
+  #ifdef LIDAR
+  lidarServer();
   #endif
 
   browserServer();

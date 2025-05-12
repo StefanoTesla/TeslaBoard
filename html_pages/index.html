@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <script defer src="/alpine.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/style.css" />
     <title>Home - TeslaBoard</title>
   </head>
@@ -62,7 +63,10 @@
       </div>
 
       <div class="tab-content" x-show="open" x-transition>
-
+        <p class="flex text-xl pt-6 pr-2">Roof safe:
+          <template x-if="dome.safe === 0"><b>Unsafe</b></template>
+          <template x-if="dome.safe === 1"><b>Safe</b></template>
+        </p>
         <p class="flex text-xl pt-6 pr-2">Roof State: 
           <template x-if="dome.actualState === 0"><b>Open</b></template>
           <template x-if="dome.actualState === 1"><b>Close</b></template>
@@ -77,15 +81,15 @@
           <template x-if="dome.lastCommand === 3"><b>HALT</b></template>
         </div>
         <div class="grid grid-flow-row grid-rows-3 mx-auto gap-10 pt-6">
-            <button @click="shutterCmd(1)" class="px-12 py-2 bg-green-600 w-full" >Apri</button>
-            <button @click="shutterCmd(2)" class="px-12 py-2 bg-red-600 w-full">Chiudi</button>
+            <button @click="shutterCmd(1)" class="px-12 py-2 bg-green-600 w-full" >Open</button>
+            <button @click="shutterCmd(2)" class="px-12 py-2 bg-red-600 w-full">Close</button>
             <button @click="shutterCmd(3)" class="text-black font-bold px-12 py-2 bg-yellow-300 w-full">HALT</button>
         </div>
         <template x-if="dome.error == 1">
-          <div class="message message-ok">Command Send Succesfully!!</div>
+          <div class="message message-ok">Command Sent Succesfully!!</div>
         </template>
         <template x-if="dome.error > 1">
-          <div class="message message-ko">Errore</div>
+          <div class="message message-ko">Error</div>
         </template>
 
       </div>
@@ -158,7 +162,7 @@
 
               </div>
 
-              <p>Valore Attuale:</p>
+              <p>Current Value:</p>
                 <template x-if="swi.type >= 2"> 
                   <div class="flex w-full flex-col justify-around ">
                     <p class="font-semibold" x-text="swi.actualValue"></p>
@@ -183,6 +187,35 @@
       </div>
       </div>
     </template>
+
+    <!-- LIDAR -->
+    <template x-if="exist.lidar">
+      <div class="main-tab bg-slate-600" x-data="{open:false}" x-init="lidarShow = 1">
+  
+        <div class="tab-header" >
+          <div class="grow"><b>LIDAR</b></div>
+          <div><button @click="open = ! open"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="#fff" fill="#fff"><path d="M12 3v2h5.586L5 17.586V12H3v9h9v-2H6.414L19 6.414V12h2V3h-9z"/></svg></button></div>
+        </div>
+  
+        <div class="tab-content" x-show="open" x-transition>
+          <div>
+            <p>Rotation speed: <span x-text="lidar.speed"></span></p>
+            <p>Angle steps: <span x-text="lidar.anglestep"></span></p>
+            <p>Points in the scan: <span x-text="lidar.pointsinscan"></span></p>
+            <p>Safe: 
+              <template x-if="lidar.safe === 0"><b>Unsafe</b></template>
+              <template x-if="lidar.safe === 1"><b>Safe</b></template>
+            </p>
+          </div>
+          <div>
+            <canvas id="myScatterChart" x-ref="myScatterChart"></canvas>
+          </div>
+        </div>
+  
+      </div>
+      </template>
+  
+  
       <!--STATISTIC-->
       <div class="main-tab bg-slate-600"
       x-data="{open:false}"
@@ -216,12 +249,16 @@
         exist: {
           dome : false,
           switch: false,
-          coverc: false
+          coverc: false,
+          lidar: false
         },
+        lidarShow: 0,
         ready :false,
         dome: [],
         cover: [],
         switches: [],
+        lidar: [],
+        myChart: [],
         upTime : 0,
         upTimeWiFi: 0,
         freeHeap: 0,
@@ -232,6 +269,7 @@
           this.dome = [];
           this.switches = [];
           this.cover = [];
+          this.lidar = [];
         },
 
         getDomeData(){
@@ -270,12 +308,69 @@
               this.cover = response.cover;
               })
             .catch(error => console.log(error))
-            .finally(() => setTimeout(() => {this.getDomeData()}, 3000));
+            .finally(() => this.getLidarData());
           } else {
-            setTimeout(() => {this.getDomeData()}, 3000);
+            this.getLidarData()
           }
+        },
 
-          },
+        getLidarData(){
+          if (this.exist.lidar) {
+            fetch('/api/lidar')
+            .then(response => response.json())
+            .then(response => {
+              this.lidar = response.lidar;
+              this.displayChart();
+            })
+            .catch(error => console.log(error))
+            .finally(() => setTimeout(() => {this.getDomeData()}, 10000));
+          } else {
+            setTimeout(() => {this.getDomeData()}, 10000);
+          }
+        },
+
+        displayChart() {
+          if (this.lidarShow == 1) {
+            this.myChart = new Chart(document.getElementById('myScatterChart').getContext('2d'), {
+              type: 'scatter',
+              data: {
+                datasets: [{
+                  label: 'LIDAR Data',
+                  data: this.lidar.points,
+                  backgroundColor: 'rgba(54, 162, 235, 0.8)', // Customize point color
+                  pointRadius: 2 // Customize point size
+                }]
+              },
+              options: {
+                scales: {
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'X-axis Label',
+                      type: 'linear',
+                      min: -4000,
+                      max: 4000
+                    }
+                  },
+                  y: {
+                    title: {
+                      display: true,
+                      text: 'Y-axis Label',
+                      type: 'linear',
+                      min: -4000,
+                      max: 4000
+                    }
+                  }
+                }
+              }
+            });
+            this.lidarShow = this.lidarShow + 1;
+          }
+          if (this.lidarShow >= 2) {
+            this.myChart.data.datasets[0].data = this.lidar.points;
+            this.myChart.update();
+          }
+        },
 
         updateData(){
           fetch('/status')
@@ -293,14 +388,15 @@
           fetch('/status')
             .then(response => response.json())
             .then(response => {
-              this.exist.dome = response.dome
-              this.exist.switch = response.switch
-              this.exist.coverc = response.cover
+              this.exist.dome = response.dome;
+              this.exist.switch = response.switch;
+              this.exist.coverc = response.cover;
+              this.exist.lidar = response.lidar;
               this.upTime = this.toHoursAndMinutes(response.upTime);
               this.upTimeWiFi = this.toHoursAndMinutes(response.upWiFiTime);
               this.freeHeap = ((response.freeHeap * 100) / response.totalHeap).toFixed(2);
               this.minFreeHeap = ((response.minFreeHeap * 100) / response.totalHeap).toFixed(2);
-              if(this.exist.dome || this.exist.switch || this.exist.coverc){ this.getDomeData() }
+              if(this.exist.dome || this.exist.switch || this.exist.coverc || this.exist.lidar){ this.getDomeData() }
               })
             .catch(error => console.log(error))
             .finally(() => setInterval(() => this.updateData(), 30000));

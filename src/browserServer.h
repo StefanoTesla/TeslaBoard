@@ -33,8 +33,14 @@ void browserServer(){
         #else
             response->printf("0");
         #endif
-                response->printf(",\"cover\":");
+            response->printf(",\"cover\":");
         #ifdef COVERC
+            response->printf("1");
+        #else
+            response->printf("0");
+        #endif
+        response->printf(",\"lidar\":");
+        #ifdef LIDAR
             response->printf("1");
         #else
             response->printf("0");
@@ -68,8 +74,14 @@ void browserServer(){
         #else
             response->printf("0");
         #endif
-                response->printf(",\"cover\":");
+            response->printf(",\"cover\":");
         #ifdef COVERC
+            response->printf("1");
+        #else
+            response->printf("0");
+        #endif
+            response->printf(",\"lidar\":");
+        #ifdef LIDAR
             response->printf("1");
         #else
             response->printf("0");

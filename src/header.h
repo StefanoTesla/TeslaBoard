@@ -28,6 +28,7 @@ struct saveConfigStruct{
   domeSaveConfigStruct dome;
   switchSaveConfigStruct switches;
   coverCSaveConfigStruct coverC;
+  lidarSaveConfigStruct lidar;
   boardSaveConfigStruct board;
 };
 
@@ -35,6 +36,7 @@ struct validConfig{
   domeLoadConfigStruct dome ;
   switchLoadConfigStruct switches;
   coverCLoadConfigStruct coverC;
+  lidarLoadConfigStruct lidar;
 };
 
 struct coverCalibrationSetting {
@@ -52,6 +54,7 @@ struct ConfigStruct{
   domeConfig dome;
   coverCalibrationSetting coverC;
   switchConfig switches;
+  lidarConfig lidar;
   AlpacaPortsStruct alpacaPort;
 };
 
@@ -108,23 +111,32 @@ bool validatePin(int pin, int type){
   switch(type){
       case 1: //Digital Output
       case 3: //PWM Output
+              #ifdef ESP32S3
+              return pin >= 1 ? true : false;
+              #else
               return pin >=34 ? false : true;
+              #endif
               break;
       case 2: //Digital Input
               return pin >= 4 ? true : false;
               break;
       case 4: //Analog Input
               if(
+                #ifdef ESP32S3
+                (pin >= 4 && pin <= 18) ||
+                (pin >= 20 && pin <= 21) )
+                #else
                 pin == 2 ||
                 pin == 4 ||
                 (pin >= 12 && pin <= 15) ||
                 (pin >= 25 && pin <= 27) ||
                 (pin >= 32 && pin <= 39) )
+                #endif
                 { return true; } else { return false;}
               break;
 
       default:
         return false;
-         break;
+        break;
   }
 }

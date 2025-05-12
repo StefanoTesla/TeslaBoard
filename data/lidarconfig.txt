@@ -1,0 +1,1 @@
+{"startangle":0,"endangle":359,"mindist":3000}

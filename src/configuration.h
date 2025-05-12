@@ -41,9 +41,16 @@ void saveConfig(){
     }
     #endif
 
+    #ifdef LIDAR
+    if(Config.save.lidar.execute){  
+        saveLidarConfig();
+    }
+    #endif
+
     Config.save.dome.execute = false;
     Config.save.switches.execute = false;
     Config.save.coverC.execute = false;
+    Config.save.lidar.execute = false;
 
     if(Config.save.coverC.restartNeeded || Config.save.dome.restartNeeded || Config.save.switches.restartNeeded || Config.save.board.restartNeeded){
         Serial.println("restarting...");
