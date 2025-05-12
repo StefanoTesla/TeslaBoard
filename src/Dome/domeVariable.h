@@ -8,7 +8,7 @@ enum ShInEnum {
   ShInNoOne,
   ShOnlyClose,
   ShOnlyOpen,
-  ShInAll,
+  ShInAll
 };
 enum ShStEnum {
   ShOpen,
@@ -28,7 +28,9 @@ struct DomeStruct{
   ShCmdEnum ShutterCommand;
   ShStEnum ShutterState;
   ShInEnum ShutterInputState;
+  bool ShutterManualInputState;
   int Cycle;
+  bool Safe;
   bool MoveRetry;
   unsigned int LastDomeCommand =0;
   unsigned long lastCommunicationMillis;
@@ -51,9 +53,14 @@ struct domeConfig{
   unsigned int pinHalt;
   unsigned int pinOpen;
   unsigned int pinClose;
+  unsigned int pinManual;
   unsigned int movingTimeOut = 20;
   bool enAutoClose;
   unsigned int autoCloseTimeOut = 20;
+  String mountIP;
+  unsigned int mountPort;
+  bool secCheck;
+  bool secStrict;
 };
 
 struct domeSaveConfigStruct{

@@ -15,6 +15,10 @@ void main_loop(){
     #ifdef SWITCH
     switchLoop();
     #endif
+
+    #ifdef LIDAR
+    lidarLoop();
+    #endif
     
     ElegantOTA.loop();
     unsigned long currentMillis = millis();

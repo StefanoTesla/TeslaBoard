@@ -46,7 +46,7 @@ void switchWebServer(){
         for (JsonObject elem : json.as<JsonArray>()) {
             type = elem["type"].as<unsigned int>();
             pin = elem["pin"].as<unsigned int>();
-            if((type > 0 && type <= 4) && pin < 40 && validatePin(pin,type)){
+            if((type > 0 && type <= 4) && pin < _MAXPIN && validatePin(pin,type)){
                 if((pin != Switch[i].pin && pin != 0) || type != Switch[i].property.type) { reboot = true; } //avoid reboot if delete switch
                 Switch[i].pin = pin;
                 Switch[i].property.type = type;

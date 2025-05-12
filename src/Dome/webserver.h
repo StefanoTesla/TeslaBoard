@@ -14,12 +14,22 @@ void domeWebServer(){
         response->print(Config.dome.pinOpen);
         response->print(",\"pinclose\":");
         response->print(Config.dome.pinClose);
+        response->print(",\"pinmanual\":");
+        response->print(Config.dome.pinManual);
         response->print(",\"tout\":");
         response->print(Config.dome.movingTimeOut);
         response->print(",\"enautoclose\":");
         Config.dome.enAutoClose ? response->print("true") : response->print("false");
         response->print(",\"autoclose\":");
         response->print(Config.dome.autoCloseTimeOut);
+        response->print(",\"mountip\":\"");
+        response->print(Config.dome.mountIP);
+        response->print("\",\"mountport\":");
+        response->print(Config.dome.mountPort);
+        response->print(",\"seccheck\":");
+        Config.dome.secCheck ? response->print("true") : response->print("false");
+        response->print(",\"secstrict\":");
+        Config.dome.secStrict ? response->print("true") : response->print("false");
         response->print("}}");
 
         request->send(response);
@@ -37,10 +47,16 @@ void domeWebServer(){
         Config.dome.pinOpen = doc["pinopen"];
         if (Config.dome.pinClose != doc["pinclose"]) {reboot=true;}
         Config.dome.pinClose = doc["pinclose"];
+        if (Config.dome.pinManual != doc["pinmanual"]) {reboot=true;}
+        Config.dome.pinManual = doc["pinmanual"];
         
         Config.dome.movingTimeOut = doc["tout"];
         Config.dome.enAutoClose = doc["enautoclose"];
         Config.dome.autoCloseTimeOut = doc["autoclose"];
+        Config.dome.mountIP = doc["mountip"].as<String>();
+        Config.dome.mountPort = doc["mountport"];
+        Config.dome.secCheck = doc["seccheck"];
+        Config.dome.secStrict = doc["secstrict"];
         Config.save.dome.execute = true;
         if (reboot){
             Config.save.dome.restartNeeded = true;
@@ -91,6 +107,8 @@ void domeWebServer(){
         response->print(Dome.ShutterState);
         response->print(",\"lastCommand\":");
         response->print(Dome.LastDomeCommand);
+        response->print(",\"safe\":");
+        response->print(Dome.Safe);
         response->print("}");
         response->print("}");
         request->send(response);

@@ -45,9 +45,7 @@
     <div x-data="globalData()">
     <!--DOME-->
     <template x-if="exist.dome">
-    <div class="main-tab bg-slate-600"
-      x-data="{open:false}"
-      >
+    <div class="main-tab bg-slate-600" x-data="{open:false}">
 
       <div class="tab-header" >
         <div class="grow">Dome</div>
@@ -60,24 +58,31 @@
           <p>Pin Halt Shutter: <input type="number" x-on:change="validatePinNumber($event)"  x-model="dome.pinhalt"/></p>
           <p>Pin Shutter Open: <input type="number" x-on:change="validatePinNumber($event)"  x-model="dome.pinopen"/></p>
           <p>Pin Shutter Close: <input type="number" x-on:change="validatePinNumber($event)"  x-model="dome.pinclose"/></p>
-      </div>
-        <div>
-            <p>Timeout Posizionamento: <input type="number" id="dometout"  x-bind:value="dome.tout" x-model="dome.tout"/> Sec.</p>
+          <p>Pin Shutter Manual: <input type="number" x-on:change="validatePinNumber($event)"  x-model="dome.pinmanual"/></p>
         </div>
         <div>
-          <p class="pt-2">Abilita chiusura in caso di mancata connessione: <input type="checkbox" id="dome.enautoclose" class="bg-gray-100 p-2 text-gray-500" x-bind:value="dome.enautoclose" x-model="dome.enautoclose"/> </p>
-          <p class="text-xs italic">In caso di mancate richieste da parte dei driver ascom o portale web, lo shutter si chiude automaticamente dopo un tot tempo.</p>
-        <p>Tempo di inattività: <input type="number" id="domeautoclose"  x-bind:value="dome.autoclose" x-model="dome.autoclose"/> Min.</p>
+            <p>Roof Timeout: <input type="number" id="dometout"  x-bind:value="dome.tout" x-model="dome.tout"/> Sec.</p>
+        </div>
+        <div>
+          <p>Security Check: <input type="checkbox" id="dome.seccheck" class="bg-gray-100 p-2 text-gray-500" x-bind:value="dome.seccheck" x-model="dome.seccheck"/></p>
+          <p>Strict Security Check: <input type="checkbox" id="dome.secstrict" class="bg-gray-100 p-2 text-gray-500" x-bind:value="dome.secstrict" x-model="dome.secstrict"/></p>
+          <p>Mount IP: <input type="text" x-model="dome.mountip" maxlength="15"/></p>
+          <p>Mount Port: <input type="number" x-on:change="validatePortNumber($event)" x-model="dome.mountport"/></p>
+        </div>
+        <div>
+          <p class="pt-2">Close on connection loss: <input type="checkbox" id="dome.enautoclose" class="bg-gray-100 p-2 text-gray-500" x-bind:value="dome.enautoclose" x-model="dome.enautoclose"/> </p>
+          <p class="text-xs italic">In case of no requests from the ascom drivers or web portal, the shutter closes automatically after a certain amount of time.</p>
+          <p>Inactivity Timeout: <input type="number" id="domeautoclose"  x-bind:value="dome.autoclose" x-model="dome.autoclose"/> Min.</p>
         </div>
         <div class="pt-2">
-            <button @click="saveDomeSetting()" class="button button_green">Salva</button>
-            <a href="/domeconfig.txt" download class="button button_green">Scarica Configurazione</a>
+            <button @click="saveDomeSetting()" class="button button_green">Save</button>
+            <a href="/domeconfig.txt" download class="button button_green">Download Configuration</a>
         </div>
 
       </div>
 
     </div>
-  </template>
+    </template>
     <!--DOME-->
 
     <!-- COVER CALIBRATOR -->
@@ -97,8 +102,8 @@
         </div>
 
           <div class="pt-2">
-              <button @click="saveCoverSetting()" class="button button_green">Salva</button>
-              <a href="/ccalibconfig.txt" download class="button button_green">Scarica Configurazione</a>
+              <button @click="saveCoverSetting()" class="button button_green">Save</button>
+              <a href="/ccalibconfig.txt" download class="button button_green">Download Configuration</a>
           </div>
 
         </div>
@@ -120,12 +125,12 @@
 
         <template  x-for="(swi, index) in switches" >
             <div class="my-2 py-2 px-2 rounded-md bg-slate-900">
-                <p class="pt-2">Nome: <input type="text" x-on:change.debounce="validateString($event)" x-model="swi.name"  maxlength="32"/></p>
-                <p class="pt-2">Descrizione: <input type="text" x-on:change.debounce="validateString($event)" x-model="swi.desc"  maxlength="32"/> </p>
+                <p class="pt-2">Name: <input type="text" x-on:change.debounce="validateString($event)" x-model="swi.name"  maxlength="32"/></p>
+                <p class="pt-2">Description: <input type="text" x-on:change.debounce="validateString($event)" x-model="swi.desc"  maxlength="32"/> </p>
                 <div class="flex">
-                  <p class="pt-2">Tipo: </p>
+                  <p class="pt-2">Type: </p>
                   <select class="text-gray-800 px-2" x-model="swi.type">
-                    <option id="0" value="0">-- SELEZIONA --</option>
+                    <option id="0" value="0">-- SELECT --</option>
                     <option id="1" value="1">Digital Output</option>
                     <option id="2" value="2">Digital Input</option>
                     <option id="3" value="3">PWM Output</option>
@@ -133,22 +138,47 @@
                   </select>
                 </div>
                 <p class="pt-2">Pin: <input x-on:change="validatePinNumber($event)" x-model="swi.pin" type="number" id="dometout" min="1" max="39" /></p>
-                <button @click="removePin(index)" class=" mt-4 button button_red">Rimuovi</button>
+                <button @click="removePin(index)" class=" mt-4 button button_red">Remove</button>
             </div>
         </template>
 
         <div class="py-4">
-          <button @click="addPin()" class="button bg-yellow-600">Aggiungi Nuovo Switch</button>
+          <button @click="addPin()" class="button bg-yellow-600">Add New Switch</button>
 
       </div>
     <div class="pt-2">
-        <button @click="savePinSetting()" class="button button_green">Salva</button>
-        <a href="/switchconfig.txt" download class="button button_green">Scarica Configurazione</a>
+        <button @click="savePinSetting()" class="button button_green">Save</button>
+        <a href="/switchconfig.txt" download class="button button_green">Download Configuration</a>
     </div>
     </div>
     </div>
     </template>
-    <!-- Ascom-->
+    <!--LIDAR-->
+    <template x-if="exist.lidar">
+      <div class="main-tab bg-slate-600" x-data="{open:false}">
+  
+        <div class="tab-header" >
+          <div class="grow">LIDAR</div>
+          <div><button @click="open = ! open"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" stroke="#fff" fill="#fff"><path d="M12 3v2h5.586L5 17.586V12H3v9h9v-2H6.414L19 6.414V12h2V3h-9z"/></svg></button></div>
+        </div>
+  
+        <div class="tab-content" x-show="open" x-transition>
+          <div>
+              <p>Start Angle: <input type="number" id="lidar.startangle"  x-bind:value="lidar.startangle" x-model="lidar.startangle"/> Deg.</p>
+              <p>Stop Angle: <input type="number" id="lidar.endangle"  x-bind:value="lidar.endangle" x-model="lidar.endangle"/> Deg.</p>
+              <p>Min distance: <input type="number" id="lidar.mindist"  x-bind:value="lidar.mindist" x-model="lidar.mindist"/> mm.</p>
+          </div>
+          <div class="pt-2">
+              <button @click="saveLidarSetting()" class="button button_green">Save</button>
+              <a href="/lidarconfig.txt" download class="button button_green">Download Configuration</a>
+          </div>
+  
+        </div>
+  
+      </div>
+      </template>
+      <!--LIDAR-->
+      <!-- Ascom-->
 <!--
     <div class="main-tab bg-slate-600"
       x-data="{open:false}"
@@ -178,8 +208,8 @@
     <template x-if="relodRequest">
       <div class="fixed top-0 left-0 h-full w-full backdrop-blur-sm flex align-middle items-center">
         <div class="flex flex-col h-1/4 w-full lg:w-1/4 mx-auto justify-center items-center  rounded-md bg-white text-black">
-          <p>Riavvio della scheda in corso</p>
-          <p>Ricaricare la pagina tra 10 sec</p>
+          <p>Restarting the board</p>
+          <p>Reload the page in 10 sec</p>
         </div>
       </div>
     </template>
@@ -217,10 +247,11 @@
   <script>
     function globalData() {
       return {
-        exist: {switch:false,dome:false,coverc:false},
+        exist: {switch:false,dome:false,coverc:false,lidar:false},
         board: [],
         dome: [],
         cover: [],
+        lidar: [],
         switches : [],
         relodRequest : 0,
         pinIdError:0,
@@ -228,12 +259,13 @@
 		    visible: [],
         unusablePinForInput: [0,6,7,8,9,10,11,20,21,24,28,29,30,31,37,38],
         unusablePinForOutput: [0,6,7,8,9,10,11,20,21,24,28,29,30,31,34,35,36,37,38,39],
-        ports: [80,443,43,3389,21,22],
+        ports: [80,443,43,3389,21,22,9997],
         reload() {
           this.board = [],
           this.dome = [];
           this.switches = [];
           this.cover = [];
+          this.lidar = [];
           relodRequest : 0;
           pinIdError:0;
           notices: [];
@@ -267,6 +299,14 @@
           });
         },
         
+        getLidarConfig(){
+          fetch('/api/lidar-getconfig')
+          .then(response => response.json())
+          .then(response => {
+            this.lidar = response.lidar;
+          });
+        },
+        
         updateData(){
           fetch('/get-config')
           .then(response => response.json())
@@ -275,6 +315,7 @@
             if (response.dome) { this.exist.dome = true,this.getDomeConfig()}
             if (response.switch) {this.exist.switch = true,this.getSwitchConfig()}
             if (response.cover) {this.exist.coverc = true,this.getCoverCConfig()}
+            if (response.lidar) {this.exist.lidar = true,this.getLidarConfig()}
           });
         },
 
@@ -289,6 +330,13 @@
             }
         },
         
+        validatePortNumber(event){
+            let ionumber = parseInt(event.target.value);
+            if (ionumber > 65535){
+              this.addToast({type:"error", text:"PORT " + ionumber + " UNUSABLE"})
+            }
+        },
+
         saveDomeSetting(){
             this.dome.autoclose = parseInt(this.dome.autoclose);
             this.dome.tout = parseInt(this.dome.tout);
@@ -296,6 +344,7 @@
             this.dome.pinhalt = parseInt(this.dome.pinhalt);
             this.dome.pinclose = parseInt(this.dome.pinclose);
             this.dome.pinopen = parseInt(this.dome.pinopen);
+            this.dome.pinmanual = parseInt(this.dome.pinmanual);
             if(this.unusablePinForInput.includes(this.dome.pinopen)){
               this.addToast({type:"error", text:"Dome Validation Error, PIN " + this.dome.pinopen + "cannot be used as input"});
               return;
@@ -312,6 +361,11 @@
               this.addToast({type:"error", text:"Dome Validation Error, PIN " + this.dome.pinhalt + " cannot be used as output"});
               return;
             }
+            if(this.unusablePinForInput.includes(this.dome.pinmanual)){
+              this.addToast({type:"error", text:"Dome Validation Error, PIN " + this.dome.pinmanual + " cannot be used as input"});
+              return;
+            }
+            this.dome.mountport = parseInt(this.dome.mountport);
             fetch('/api/dome-saveconfig',{ 
               method: 'POST',
               headers: {"Content-Type": "application/json",},
@@ -340,6 +394,24 @@
               }
               if (response.accept){
                 this.addToast({type:"success", text:"Cover Saved."})
+              }
+            });
+        },
+
+        saveLidarSetting(){
+            fetch('/api/lidar-saveconfig',{ 
+              method: 'POST',
+              headers: {"Content-Type": "application/json",},
+              body: JSON.stringify(this.lidar)
+            })
+            .then(response => response.json())
+            .then(response => { 
+              if (response.reboot){
+                this.pageRefresh();
+                return
+              }
+              if (response.accept){
+                this.addToast({type:"success", text:"Lidar Saved."})
               }
             });
         },
