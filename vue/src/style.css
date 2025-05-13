@@ -252,7 +252,7 @@ select{
 }
 
 .setting_row{
-  @apply justify-items-center text-center
+  @apply justify-items-center text-center pt-2 pb-2
 }
 
 .st_title{

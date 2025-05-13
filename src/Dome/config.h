@@ -47,7 +47,6 @@ void initDomeConfig(){
     DomeInOpen.setup(&OpenConfig);
     DomeInOpen.dOn = pinOpen["dOn"];
     DomeInOpen.dOff = pinOpen["dOff"];
-    assingPin(OpenConfig.pin,input,domeModule);
 
     JsonObject pinClose = doc["pinClose"];
     DigitalInputConfig CloseConfig;
@@ -56,21 +55,18 @@ void initDomeConfig(){
     DomeInClose.setup(&CloseConfig);
     DomeInClose.dOn = pinClose["dOn"];
     DomeInClose.dOff = pinClose["dOff"];
-    assingPin(CloseConfig.pin,input,domeModule);
 
     JsonObject pinStart = doc["pinStart"];
     DigitalOutputConfig StartConfig;
     StartConfig.pin = pinStart["pin"];
     StartConfig.invert = pinStart["invert"];
     DomeOutMoveOpen.setup(&StartConfig);
-    assingPin(StartConfig.pin,input,domeModule);
 
     JsonObject pinHalt = doc["pinHalt"];
     DigitalOutputConfig HaltConfig;
     HaltConfig.pin = pinHalt["pin"];
     HaltConfig.invert = pinHalt["invert"];
     DomeOutHaltClose.setup(&HaltConfig);
-    assingPin(HaltConfig.pin,input,domeModule);
 
     /* Dome strict configuration */
     JsonObject autoClose = doc["autoclose"];

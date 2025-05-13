@@ -50,7 +50,6 @@ void initCoverCConfig(){
             CalibConfig.pin = calibrator["pin"];
             CalibConfig.channel = tmpCh;
             Calibrator.setup(&CalibConfig);
-            assingPin(CalibConfig.pin,pwmOut,coverCModule);
         } 
     }
 
@@ -68,7 +67,6 @@ void initCoverCConfig(){
             CoverConfig.movTime = cover["movTime"];
             Cover.setup(&CoverConfig);
 
-            assingPin(CoverConfig.pin,servoOut,coverCModule);
         }
     }
 

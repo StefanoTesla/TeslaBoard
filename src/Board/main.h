@@ -21,7 +21,6 @@ void startupTask(){
     #endif
 
     printLEDChannelStatus();
-    printGPIOStatus();
 
 }
 

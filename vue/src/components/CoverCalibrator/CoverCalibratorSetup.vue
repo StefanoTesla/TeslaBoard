@@ -22,6 +22,7 @@
           :index = 0
           :swi = "coverC.calibrator.pwm"
           @update:validated="handleValidation"
+          @update:pinUsed="updateCalibratorPin"
         />
     </div>
     </div>
@@ -43,6 +44,7 @@
         :index = 1
         :swi = "coverC.cover.servo"
         @update:validated="handleValidation"
+        @update:pinUsed="updateCoverPin"
       />
     </div>
   </div>
@@ -71,9 +73,10 @@ const props = defineProps({
   reboot: Boolean
 })
 
-const emit = defineEmits(['update:reboot']);
+const emit = defineEmits(['update:reboot','update:pinUsed']);
 
 const coverC = ref({})
+const pinUsed = ref([])
 
 const originalData = ref({})
 let dataLoaded = ref(false)
@@ -93,7 +96,7 @@ const getOriginal = () => {
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/coverc/cfg')  // Sostituisci con il tuo endpoint API
+    const response = await fetch('http://localhost:3000/api/coverc/cfg')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -108,6 +111,7 @@ const fetchData = async () => {
     if(!coverC.value.calibrator.pwm){
       coverC.value.calibrator.pwm = {}
     }
+    updatePinsforObserver(data)
     setupWatch()
     if(data.reboot){
       statusClass.value = 'orange'
@@ -185,7 +189,6 @@ function setupWatch(){
   watch(
   () => [validation.value, coverC.value.calibrator.present, coverC.value.cover.present],
   () => {
-
     
     if (coverC.value.calibrator.present && validation.value[0] === false) {
       validationState.value = false;
@@ -197,6 +200,23 @@ function setupWatch(){
   },
   { deep: true } // Per rilevare modifiche all'interno dell'array
 );
+}
+
+const updatePinsforObserver = (data) => {
+  pinUsed.value=[]
+  pinUsed.value[0]={"pin":data.calibrator.pwm.pin,"type":3,"module": 2}
+  pinUsed.value[1]={"pin":data.cover.servo.pin,"type":4,"module": 2}
+  emit('update:pinUsed', pinUsed.value);
+}
+
+const updateCalibratorPin = (data) => {
+  pinUsed.value[0]={"pin":data.pin,"type":3,"module": 2}
+  emit('update:pinUsed', pinUsed.value);
+}
+
+const updateCoverPin = (data) => {
+  pinUsed.value[1]={"pin":data.pin,"type":4,"module": 2}
+  emit('update:pinUsed', pinUsed.value);
 }
 
 </script>

@@ -49,14 +49,13 @@ void initSwitchConfig(){
             DiConfig.pin=Switche["pin"];
             DiConfig.invert=Switche["invert"];
             SwitchObjects[count]->setup(&DiConfig);
-            assingPin(DiConfig.pin,input,switchModule);
+            
         } else if(Switche["type"] == static_cast<int>(SwTypeDOutput)){
             SwitchObjects[count] = new DigitalOutput;
             DigitalOutputConfig DOConfig;
             DOConfig.pin=Switche["pin"];
             DOConfig.invert=Switche["invert"];
             SwitchObjects[count]->setup(&DOConfig);
-            assingPin(DOConfig.pin,output,switchModule);
         //PWM Output
         } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
             tmpCh = assignLedChannel(pwm);
@@ -66,7 +65,6 @@ void initSwitchConfig(){
                 PWMConfig.pin=Switche["pin"];
                 PWMConfig.channel=tmpCh;
                 SwitchObjects[count]->setup(&PWMConfig);
-                assingPin(PWMConfig.pin,pwmOut,switchModule);
             }
         //Servo Output
         } else if(Switche["type"] == static_cast<int>(SwTypeServo)){
@@ -82,7 +80,6 @@ void initSwitchConfig(){
                 ServoConfig.movTime = Switche["movTime"];
 
                 SwitchObjects[count]->setup(&ServoConfig);
-                assingPin(ServoConfig.pin,servoOut,switchModule);
             }
         }
 

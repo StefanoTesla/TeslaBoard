@@ -55,7 +55,7 @@
       })
     }
  })
- const emit = defineEmits(['update:validated']);
+ const emit = defineEmits(['update:validated','update:pinUsed']);
 
  let pinUnvalid = ref(false)
  let openDegUnvalid = ref(false)
@@ -128,7 +128,7 @@
    }
 
    emit('update:validated', { index: props.index, isValid: true});
-
+   emit('update:pinUsed', { pin: props.swi.pin, type:4, index:props.index});
  }
 
  const errorResponseNotify = (errorMessage) => {
@@ -143,7 +143,6 @@
   props.swi.openDeg = props.swi.openDeg ?? 0;
   props.swi.closeDeg = props.swi.closeDeg ?? 0;
   props.swi.movTime = props.swi.movTime ?? 0;
-  console.log("mount")
   validate()
  })
 

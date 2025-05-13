@@ -42,7 +42,7 @@
     swi: Object
   })
 
-  const emit = defineEmits(['update:validated']);
+  const emit = defineEmits(['update:validated','update:pinUsed']);
 
   let pinUnvalid = ref(false)
   let dOnUnvalid = ref(false)
@@ -94,6 +94,7 @@
     }
 
     emit('update:validated', { index: props.index, isValid: true });
+    emit('update:pinUsed', { pin: props.swi.pin, type:1 , index:props.index});
   }
 
   const errorResponseNotify = (errorMessage) => {

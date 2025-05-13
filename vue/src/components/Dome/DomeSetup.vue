@@ -32,6 +32,7 @@
             :index = 0
             :swi = "dome.pinOpen"
              @update:validated="handleValidation"
+             @update:pinUsed="updatePin"
           />
     </div>
   </div>
@@ -45,7 +46,8 @@
             :txt="props.txt"
             :index = 1
             :swi = "dome.pinClose"
-             @update:validated="handleValidation"
+             @update:validated="handleValidation" 
+             @update:pinUsed="updatePin"
           />
     </div>
   </div>
@@ -60,6 +62,7 @@
             :index = 2
             :swi = "dome.pinStart"
              @update:validated="handleValidation"
+             @update:pinUsed="updatePin"
           />
     </div>
   </div>
@@ -74,6 +77,7 @@
             :index = 3
             :swi = "dome.pinHalt"
              @update:validated="handleValidation"
+             @update:pinUsed="updatePin"
           />
     </div>
   </div>
@@ -135,12 +139,13 @@ import { useValidator } from '../../composables/Validator';
 
 const props = defineProps({
   txt: Object,
-  reboot: Boolean
+  reboot: Boolean,
+  pinUsed: Array
 })
 
-const { isInvalidPin, isGreaterThan, isNegative } = useValidator();
+const { isGreaterThan, isNegative } = useValidator();
 
-const emit = defineEmits(['update:reboot']);
+const emit = defineEmits(['update:reboot','update:pinUsed']);
 
 const dome = ref({})
 
@@ -148,11 +153,11 @@ const originalData = ref({})
 let dataLoaded = ref(false)
 let statusClass = ref('green')
 let validation = ref([])
+let pinUsed = ref([])
 let validationState = ref(true)
 let boardTypeUnvalid = ref(false)
 let movTimeOutUnvalid = ref(false)
 let autoCloseTimeUnvalid = ref(false)
-
 
 const handleValidation = (data) => {
 const { index, isValid } = data;
@@ -173,6 +178,7 @@ const fetchData = async () => {
     dome.value = data
     dataLoaded.value = true
 
+    updatePinsforObserver(data)
     if(data.reboot){
       statusClass.value = 'orange'
     }
@@ -188,7 +194,7 @@ const fetchData = async () => {
 const validate = () => {
 
   validationState.value = false
-
+  statusClass.value = 'red'
   dome.value.driverType = parseInt(dome.value.driverType)
   boardTypeUnvalid.value = false
   if(isNegative(dome.value.driverType)){
@@ -220,6 +226,8 @@ const validate = () => {
     errorResponseNotify(props.txt.errors.general.negativeValue)
     return
   }
+  console.log("ok")
+  statusClass.value = 'green'
   validationState.value = true
 }
 
@@ -281,8 +289,28 @@ onMounted(() => {
 })
 
 watch(() => validation.value.some(item => item === false), (containsFalse) => {
+    statusClass.value = 'red'
     validationState.value = containsFalse ? false : true;
-    validate()
+    if(validationState.value){
+      validate()
+    }
+    
   });
+
+
+
+const updatePinsforObserver = (data) => {
+  pinUsed.value=[]
+  pinUsed.value[0]={"pin":data.pinOpen.pin,"type":1,"module": 2}
+  pinUsed.value[1]={"pin":data.pinClose.pin,"type":1,"module": 2}
+  pinUsed.value[2]={"pin":data.pinStart.pin,"type":2,"module": 2}
+  pinUsed.value[3]={"pin":data.pinHalt.pin,"type":2,"module": 2}
+  emit('update:pinUsed', pinUsed.value);
+}
+
+const updatePin = (data) => {
+  pinUsed.value[data.index]={pin:data.pin, type:data.type, module: 1}
+  emit('update:pinUsed', pinUsed.value);
+}
 
 </script>

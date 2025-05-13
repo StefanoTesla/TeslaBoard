@@ -40,6 +40,7 @@
             :index = "index"
             :swi = "swi"
              @update:validated="handleValidation"
+             @update:pinUsed="updatePin"
           />
 
           <Output
@@ -48,6 +49,7 @@
             :index = "index"
             :swi = "swi"
             @update:validated="handleValidation"
+            @update:pinUsed="updatePin"
           />
 
           <PWM
@@ -56,6 +58,7 @@
             :index = "index"
             :swi = "swi"
             @update:validated="handleValidation"
+            @update:pinUsed="updatePin"
           />
           <Servo
             v-if="swi.type==4"
@@ -63,6 +66,7 @@
             :index = "index"
             :swi = "swi"
             @update:validated="handleValidation"
+            @update:pinUsed="updatePin"
           />
 
       </div>
@@ -92,9 +96,10 @@
     reboot: Boolean
   })
 
-  const emit = defineEmits(['update:reboot']);
+  const emit = defineEmits(['update:reboot','update:pinUsed']);
 
   const switches = ref({})
+  let pinUsed = ref([])
 
   const originalData = ref({})
   let dataLoaded = ref(false)
@@ -114,7 +119,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/switch/cfg')  // Sostituisci con il tuo endpoint API
+      const response = await fetch('http://localhost:3000/api/switch/cfg')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -122,7 +127,8 @@
       switches.value = data
       dataLoaded.value = true
 
-
+      updatePinsforObserver(data)
+      
       if(data.reboot){
         statusClass.value = 'orange'
       }
@@ -264,4 +270,18 @@
   watch(() => validation.value.some(item => item === false), (containsFalse) => {
     validationState.value = containsFalse ? false : true;    
   });
+
+
+  const updatePinsforObserver = (data) => {
+  pinUsed.value=[]
+    data.Switches.forEach((element,i) => {
+      pinUsed.value[i] = {pin:element.pin, type:element.type, module: 3}
+    });
+  emit('update:pinUsed', pinUsed.value);
+}
+
+const updatePin = (data) => {
+  pinUsed.value[data.index]={pin:data.pin, type:data.type, module: 3}
+  emit('update:pinUsed', pinUsed.value);
+}
 </script>

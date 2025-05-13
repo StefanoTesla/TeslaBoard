@@ -65,7 +65,7 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/switch/status')  // Sostituisci con il tuo endpoint API
+      const response = await fetch('http://localhost:3000/api/switch/status')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }

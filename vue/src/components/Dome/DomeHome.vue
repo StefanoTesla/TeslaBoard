@@ -64,7 +64,7 @@ let statusClass = ref('red')
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/dome/status')  // Sostituisci con il tuo endpoint API
+    const response = await fetch('http://localhost:3000/api/dome/status')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }

@@ -11,20 +11,17 @@ void boardWebServer(){
         doc["locale"] = Global.config.language.locale;
 
         JsonObject define = doc["define"].to<JsonObject>();
+        define["dome"] = false;
+        define["switch"] = false;
+        define["coverc"] = false;
         #ifdef DOME
             define["dome"] = true;
-        #else
-            define["dome"] = false;
         #endif
         #ifdef SWITCH
             define["switch"] = true;
-        #else
-            define["switch"] = false;
         #endif
         #ifdef COVER_CALIBRATOR
             define["coverc"] = true;
-        #else
-            define["coverc"] = false;
         #endif
         doc["version"] = _SW_VERSION_
         response->setLength();
