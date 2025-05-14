@@ -321,3 +321,163 @@ void printLEDChannelStatus(){
   
 }
 
+
+int validateJsonInput(JsonObject json){
+/*
+return code table:
+1 validation is ok
+-1: pin is not unsigned integer
+-10: pin is not usable as input
+-2: dOn is not unsigned integer
+-3: dOff is not unsigned integer
+-4: invert is not unsigned integer
+-400: invert is out of range
+
+*/
+  if(!json["pin"].is<unsigned int>()){
+      return -1;
+  } else {
+    if(!pinUsableAsInput(json["pin"].as<unsigned int>())){
+        return -10;
+    }
+  }
+  if(!json["dOn"].is<unsigned int>()){
+      return -2;
+  }
+  if(!json["dOff"].is<unsigned int>()){
+      return -3;
+  }
+  if(!json["invert"].is<unsigned int>()){
+      return -4;
+    } else {
+      int i;
+      i = json["invert"].as<unsigned int>();
+      if(i<0 || i>1){
+        return -400;
+      }
+  }
+
+  return 1;
+  
+}
+
+
+int validateJsonOutput(JsonObject json){
+/*
+return code table:
+1 validation is ok
+-1: pin is not unsigned integer
+-10: pin is not usable as output
+-4: invert is not unsigned integer
+-400: invert is out of range
+*/
+  if(!json["pin"].is<unsigned int>()){
+      return -1;
+    } else {
+      if(!pinUsableAsOutput(json["pin"].as<unsigned int>())){
+        return -10;
+      }
+    }
+
+  if(!json["invert"].is<unsigned int>()){
+      return -4;
+    } else {
+      int i;
+      i = json["invert"].as<unsigned int>();
+      if(i<0 || i>1){
+        return -400;
+      }
+    }
+
+  return 1;
+  
+}
+
+int validateJsonPwm(JsonObject json){
+/*
+return code table:
+1 validation is ok
+-1: pin is not unsigned integer
+-10: pin is not usable as output
+*/
+
+  if(!json["pin"].is<unsigned int>()){
+      return -1;
+    } else {
+      if(!pinUsableAsOutput(json["pin"].as<unsigned int>())){
+        return -10;
+      }
+    }
+
+  return 1;
+  
+}
+
+int validateJsonServo(JsonObject json){
+/*
+return code table:
+1 validation is ok
+-1: pin is not unsigned integer
+-10: pin is not asable as output
+-2:maxServo not unsigned integer
+-200: maxServo is out of range
+-3:openDeg not unsigned integer
+-300: openDeg is out of range
+-301: openDeg is bigger than maxDeg
+-4:closeDeg not unsigned integer
+-400: closeDeg is out of range
+-401: closeDeg is bigger than maxDeg
+-5:movingTime not unsigned integer
+*/
+
+  int maxDeg = 0;
+  int openDeg = 0;
+  int closeDeg = 0;
+
+  if(!json["pin"].is<unsigned int>()){
+      return -1;
+    } else {
+      if(!pinUsableAsOutput(json["pin"].as<unsigned int>())){
+        return -10;
+      }
+  }
+
+  if(!json["maxDeg"].is<unsigned int>()){
+      return -2;
+    } else {
+      maxDeg = json["maxDeg"].as<unsigned int>();
+      if(maxDeg>360){
+        return -200;
+      }
+  }
+  if(!json["openDeg"].is<unsigned int>()){
+      return -3;
+    } else {
+      openDeg = json["openDeg"].as<unsigned int>();
+      if(openDeg>360){
+        return -300;
+      }
+      if(openDeg>maxDeg){
+        return -301;
+      }
+  }
+  
+  if(!json["closeDeg"].is<unsigned int>()){
+      return -4;
+    } else {
+      closeDeg = json["closeDeg"].as<unsigned int>();
+      if(closeDeg>360){
+        return -400;
+      }
+      if(closeDeg>maxDeg){
+        return -401;
+      }
+  }
+
+  if(!json["movTime"].is<unsigned int>()){
+      return -5;
+  }
+
+  return 1;
+  
+}

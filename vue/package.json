@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.40.2",
     "@tailwindcss/postcss": "^4.0.15",
     "@tailwindcss/vite": "^4.0.12",
     "vue": "^3.5.13",

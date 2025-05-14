@@ -137,54 +137,54 @@ void boardWebServer(){
             JsonObject address_staticSubnet = address["staticSubnet"];
             if(enable){
                 
-                if(!address_staticIp["0"].is<unsigned int>() || address_staticIp["0"] > 255){
+                if(!address_staticIp["0"].is<unsigned int>() || address_staticIp["0"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong IP [0]");
                 }
-                if(!address_staticIp["1"].is<unsigned int>() || address_staticIp["1"] > 255){
+                if(!address_staticIp["1"].is<unsigned int>() || address_staticIp["1"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong IP [1]");
                 }
-                if(!address_staticIp["2"].is<unsigned int>() || address_staticIp["2"] > 255 ){
+                if(!address_staticIp["2"].is<unsigned int>() || address_staticIp["2"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong IP [2]");
                 }
-                if(!address_staticIp["3"].is<unsigned int>() || address_staticIp["3"] > 255){
+                if(!address_staticIp["3"].is<unsigned int>() || address_staticIp["3"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong IP [3]");
                 }
 
-                if(!address_staticGateway["0"].is<unsigned int>() || address_staticGateway["0"] > 255){
+                if(!address_staticGateway["0"].is<unsigned int>() || address_staticGateway["0"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong Gateway [0]");
                 }
-                if(!address_staticGateway["1"].is<unsigned int>() || address_staticGateway["1"] > 255){
+                if(!address_staticGateway["1"].is<unsigned int>() || address_staticGateway["1"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong Gateway [1]");
                 }
-                if(!address_staticGateway["2"].is<unsigned int>() || address_staticGateway["2"] > 255 ){
+                if(!address_staticGateway["2"].is<unsigned int>() || address_staticGateway["2"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong Gateway [2]");
                 }
-                if(!address_staticGateway["3"].is<unsigned int>() || address_staticGateway["3"] > 255){
+                if(!address_staticGateway["3"].is<unsigned int>() || address_staticGateway["3"].as<int>() > 255){
                     error = true;
                     doc["errors"].add("Wrong Gateway [3]");
                 }
                 
                 
-                if(!address_staticSubnet["0"].is<unsigned int>() || address_staticSubnet["0"] > 255 ){
+                if(!address_staticSubnet["0"].is<unsigned int>() || address_staticSubnet["0"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong subnet [0]");
                 }
-                if(!address_staticSubnet["1"].is<unsigned int>() || address_staticSubnet["1"] > 255 ){
+                if(!address_staticSubnet["1"].is<unsigned int>() || address_staticSubnet["1"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong subnet [1]");
                 }
-                if(!address_staticSubnet["2"].is<unsigned int>() || address_staticSubnet["2"] > 255 ){
+                if(!address_staticSubnet["2"].is<unsigned int>() || address_staticSubnet["2"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong subnet [2]");
                 }
-                if(!address_staticSubnet["3"].is<unsigned int>() || address_staticSubnet["3"] > 255 ){
+                if(!address_staticSubnet["3"].is<unsigned int>() || address_staticSubnet["3"].as<int>() > 255 ){
                     error = true;
                     doc["errors"].add("Wrong subnet [3]");
                 }

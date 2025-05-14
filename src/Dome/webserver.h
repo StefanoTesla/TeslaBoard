@@ -1,7 +1,6 @@
 #ifndef DOME_WEBSERVER
 #define DOME_WEBSERVER
 
-
 void domeWebServer(){
 
     server.on("/api/dome/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -84,7 +83,7 @@ void domeWebServer(){
         request->send(response);
     });
 
-        server.on("/api/dome/close", HTTP_POST, [](AsyncWebServerRequest * request) {
+    server.on("/api/dome/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
@@ -106,7 +105,7 @@ void domeWebServer(){
         request->send(response);
     });
 
-        server.on("/api/dome/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
+    server.on("/api/dome/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
@@ -120,165 +119,226 @@ void domeWebServer(){
     AsyncCallbackJsonWebHandler* domeConfigHandler = new AsyncCallbackJsonWebHandler("/api/dome/cfg");
 
     domeConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
-    domeConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& json) {
+    domeConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
         JsonArray err = doc["errors"].to<JsonArray>();
-        bool error = false;
+        bool docError = false;
+        bool validError = false;
+        int retVal = 0;
         bool reboot = false;
-        
-        /* open pin */
-        JsonObject pinOpen = json.as<JsonObject>()["pinOpen"];
-        if( pinOpen["pin"].is<unsigned int>() and commonValidateInputPin(pinOpen["pin"])){
-            if (pinOpen["pin"] != DomeInOpen.getPinNumber()){
-                reboot = true;
-            }
-        } else {
-            error=true;
-            err.add("GPIO Open Input");
-        }
 
-        if( !pinOpen["dOn"].is<unsigned long>() ){
-            error=true;
-            err.add("Open Input delay ON error");
-        }
+        /* check json structure */
 
-        if( !pinOpen["dOff"].is<unsigned long>()){
-            error=true;
-            err.add("Open Input delay OFF error");
+        if (!root["pinOpen"].is<JsonObject>()) {
+            docError = true;
+            err.add("Open Input data doesn't exist");
         }
-
-        if( !pinOpen["invert"].is<int>()){
-            error=true;
-            err.add("Open Input type");
-        } else if(pinOpen["invert"] < 0 || pinOpen["invert"] > 1){
-            error=true;
-            err.add("Open pin Type error");
+        if (!root["pinClose"].is<JsonObject>()) {
+            docError = true;
+            err.add("Close Input data doesn't exist");
         }
-
-        /* close pin */
-        JsonObject pinClose = json.as<JsonObject>()["pinClose"];
-
-        if( pinClose["pin"].is<unsigned int>() and commonValidateInputPin(pinClose["pin"])){
-            if (pinClose["pin"] != DomeInClose.getPinNumber()){
-                reboot = true;
-            }
-        } else {
-            error=true;
-            err.add("GPIO Close Input");
+        if (!root["pinStart"].is<JsonObject>()) {
+            docError = true;
+            err.add("Start/Open data doesn't exist");
         }
-        if( !pinClose["dOn"].is<unsigned int>() ){
-            error=true;
-            err.add("Open Close delay ON error");
+        if (!root["pinHalt"].is<JsonObject>()) {
+            docError = true;
+            err.add("Halt/Close data doesn't exist");
         }
-        if( !pinClose["dOff"].is<unsigned int>()){
-            error=true;
-            err.add("Open Close delay OFF error");
+        if (!root["autoclose"].is<JsonObject>()) {
+            docError = true;
+            err.add("Open Input data doesn't exist");
         }
-        if( !pinClose["invert"].is<int>()){
-            error=true;
-            err.add("Close pin Type error");
-        } else if(pinClose["invert"] < 0 || pinClose["invert"] > 1){
-            error=true;
-            err.add("Close pin Type error");
+        if (!root["movTimeOut"].is<unsigned int>()) {
+            docError = true;
+            err.add("Moving timeout data doesn't exist or wrong data type");
         }
         
+        if (docError){
+            response->setCode(500);
+            response->setLength();
+            request->send(response);
+            return;
+        }
+        /* peek the objects */
+        JsonObject pinOpen = root.as<JsonObject>()["pinOpen"];
+        JsonObject pinClose = root.as<JsonObject>()["pinClose"];
+        JsonObject pinStart = root.as<JsonObject>()["pinStart"];
+        JsonObject pinHalt = root.as<JsonObject>()["pinHalt"];
+        JsonObject autoClose = root.as<JsonObject>()["autoclose"];
 
-
-        /* outputs */
-
-        /* start pin */
-        JsonObject pinStart = json.as<JsonObject>()["pinStart"];
-        if( pinStart["pin"].is<unsigned int>() and commonValidateOutputPin(pinStart["pin"])){
-            if (pinStart["pin"] != DomeOutMoveOpen.getPinNumber()){
-                reboot = true;
+        /* data validation */
+        retVal = validateJsonInput(pinOpen);
+        if(retVal != 1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("Input open: pin wrong data type");
+                break;
+            case -10:
+                err.add("Input open: the pin can't use as input");
+                break;
+            case -2:
+                err.add("Input open: dOn wrong data type");
+                break;
+            case -3:
+                err.add("Input open: dOff wrong data type");
+                break;
+            case -4:
+                err.add("Input open: Invert wrong data type");
+                break;
+            case -400:
+                err.add("Input open: Invert value outside range");
+                break;
+            
+            default:
+                err.add("Input open: general error");
+                break;
             }
-        } else {
-            error=true;
-            err.add("GPIO Start Output");
         }
-    
-        if( !pinStart["invert"].is<int>()){
-            error=true;
-            err.add("GPIO Start Output type");
-        } else if(pinStart["invert"] < 0 || pinStart["invert"] > 1){
-            error=true;
-            err.add("GPIO Start Output Type error");
-        }
-
-        
-
-        JsonObject pinHalt = json.as<JsonObject>()["pinHalt"];
-        if( pinHalt["pin"].is<unsigned int>() and commonValidateOutputPin(pinHalt["pin"])){
-            if (pinHalt["pin"] != DomeOutHaltClose.getPinNumber()){
-                reboot = true;
+        retVal=0;
+        retVal = validateJsonInput(pinClose);
+        if(retVal != 1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("Input close: pin wrong data type");
+                break;
+            case -10:
+                err.add("Input close: the pin can't use as input");
+                break;
+            case -2:
+                err.add("Input close: dOn wrong data type");
+                break;
+            case -3:
+                err.add("Input close: dOff wrong data type");
+                break;
+            case -4:
+                err.add("Input close: Invert wrong data type");
+                break;
+            case -40:
+                err.add("Input close: Invert value outside range");
+                break;
+            
+            default:
+                err.add("Input close: general error");
+                break;
             }
-        } else {
-            error=true;
-            err.add("GPIO HALT Output");
+        }
+        retVal=0;
+        retVal = validateJsonOutput(pinStart);
+        if(retVal != 1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("Output start/open: pin wrong data type");
+                break;
+            case -10:
+                err.add("Output start/open: the pin can't use as input");
+                break;
+            case -4:
+                err.add("Output start/open: Invert wrong data type");
+                break;
+            case -40:
+                err.add("Output start/open: Invert value outside range");
+                break;
+            
+            default:
+                err.add("Output start/open: general error");
+                break;
+            }
+        }
+        retVal=0;
+        retVal = validateJsonOutput(pinHalt);
+        if(retVal != 1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("Output halt/close: pin wrong data type");
+                break;
+            case -10:
+                err.add("Output halt/close: the pin can't use as input");
+                break;
+            case -4:
+                err.add("Output halt/close: Invert wrong data type");
+                break;
+            case -40:
+                err.add("Output halt/close: Invert value outside range");
+                break;
+            default:
+                err.add("Output halt/close: general error");
+                break;
+            }
         }
 
-        if( !pinHalt["invert"].is<int>()){
-            error=true;
-            err.add("GPIO Start Output type");
-        } else if(pinHalt["invert"] < 0 || pinHalt["invert"] > 1){
-            error=true;
-            err.add("GPIO Start Output Type error");
-        }
-
-        /* timeout */
-        if( !json["movTimeOut"].is<unsigned int>()){
-            error=true;
-            err.add("Move Time Out");
-        }
-
-        /* auto close*/
-        JsonObject autoClose = json.as<JsonObject>()["autoclose"];
         if( !autoClose["enable"].is<bool>()){
-            error=true;
-            err.add("Enable Auto Close");
+            validError=true;
+            err.add("Auto Close: enable wrong data type");
         }
         if( !autoClose["minutes"].is<unsigned int>()){
-            error=true;
-            err.add("Minutes for Auto Close");
+            validError=true;
+            err.add("Auto Close:  minutes wrong data type");
         }
 
-        if(!error){
-            /* input open */
-            DomeConfigTmp.clear();
-            DomeConfigTmp = json;
-            
-            /* apply data that don't require reboot */
-            DomeInOpen.invert = pinOpen["invert"].as<int>();
-            DomeInOpen.dOn = pinOpen["dOn"].as<unsigned long>();
-            DomeInOpen.dOff = pinOpen["dOff"].as<unsigned long>();
-
-            DomeInClose.invert = pinClose["invert"].as<int>();
-            DomeInClose.dOn = pinClose["dOn"].as<unsigned long>();
-            DomeInClose.dOff = pinClose["dOff"].as<unsigned long>();
-
-            DomeOutMoveOpen.invert = pinStart["invert"].as<int>();
-            DomeOutHaltClose.invert = pinHalt["invert"].as<int>();
-
-            /* timeout */
-            Dome.config.data.movingTimeOut = json["movTimeOut"].as<unsigned int>();
-            
-            /* autoclose */
-            Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
-            Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();
-            Dome.config.Save.execute = true;
-        } else {
+        if (validError){
             response->setCode(500);
+            response->setLength();
+            request->send(response);
+            return;
         }
-        doc["reboot"] = reboot;
+
+        /* check if module need reboot */
+        if (pinOpen["pin"].as<unsigned int>() != DomeInOpen.getPinNumber()){
+            reboot = true;
+        }
+
+        if (pinClose["pin"].as<unsigned int>() != DomeInClose.getPinNumber()){
+            reboot = true;
+        }
+       
+        if (pinStart["pin"].as<unsigned int>() != DomeOutMoveOpen.getPinNumber()){
+            reboot = true;
+        }
+        if (pinHalt["pin"].as<unsigned int>() != DomeOutHaltClose.getPinNumber()){
+            reboot = true;
+        }
+
+
+        DomeConfigTmp.clear();
+        DomeConfigTmp = root;
+        
+        if(!reboot){
+        DomeInOpen.invert = pinOpen["invert"].as<int>();
+        DomeInOpen.dOn = pinOpen["dOn"].as<unsigned long>();
+        DomeInOpen.dOff = pinOpen["dOff"].as<unsigned long>();
+
+        DomeInClose.invert = pinClose["invert"].as<int>();
+        DomeInClose.dOn = pinClose["dOn"].as<unsigned long>();
+        DomeInClose.dOff = pinClose["dOff"].as<unsigned long>();
+
+        DomeOutMoveOpen.invert = pinStart["invert"].as<int>();
+        DomeOutHaltClose.invert = pinHalt["invert"].as<int>();
+
+        Dome.config.data.movingTimeOut = root["movTimeOut"].as<unsigned int>();
+            
+        Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
+        Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();
+        }
+
+        Dome.config.Save.execute = true;
         Dome.config.Save.restartNeeded = reboot;
+        doc["reboot"] = reboot;
 
         response->setLength();
         request->send(response);
     });
 
     server.addHandler(domeConfigHandler);
-
     server.serveStatic("/dome/domeconfig.txt", LittleFS, "/cfg/domecfg.txt");
 
 ;

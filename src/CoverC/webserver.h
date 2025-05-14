@@ -173,85 +173,166 @@ void coverWebServer(){
     AsyncCallbackJsonWebHandler* coverCConfigHandler = new AsyncCallbackJsonWebHandler("/api/coverc/cfg");
 
     coverCConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
-    coverCConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& json) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
-            JsonObject doc = response->getRoot().to<JsonObject>();
-            JsonArray err = doc["errors"].to<JsonArray>();
-            bool error = false;
-            bool reboot = false;
-            
-            /* calibrator */
-            JsonObject calibrator = json.as<JsonObject>()["calibrator"];
-            if( calibrator["present"].is<bool>()){
-                if(calibrator["present"] != CoverC.config.calibrator.present){
-                    reboot = true;
-                }
-            } else {
-                error=true;
-                err.add("Calibrator present");
-            }
-            if( calibrator["pin"].is<unsigned int>() && commonValidateOutputPin(calibrator["pin"])){
-                if (calibrator["pin"] != Calibrator.getPinNumber()){
-                    reboot = true;
-                }
-            } else {
-                error=true;
-                err.add("GPIO Calibrator pin");
-            }
+    coverCConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
+        AsyncJsonResponse* response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
+        JsonArray err = doc["errors"].to<JsonArray>();
 
-            /* cover */
-            JsonObject cover = json.as<JsonObject>()["cover"];
-            if( cover["present"].is<bool>()){
-                if(cover["present"] != CoverC.config.cover.present){
-                    reboot = true;
-                }
-            } else {
-                error=true;
-                err.add("Cover enable");
-            }
-            if( cover["pin"].is<unsigned int>() and commonValidateOutputPin(cover["pin"])){
-                if (cover["pin"] != Cover.getPinNumber()){
-                    reboot = true;
-                }
-            } else {
-                error=true;
-                err.add("GPIO Cover pin");
-            }
-            if( !cover["maxDeg"].is<unsigned int>() || ( cover["openDeg"] > 360 || cover["closeDeg"] > 360)){
-                error=true;
-                err.add("Cover MaxDeg");
-            }
-            if( !cover["closeDeg"].is<unsigned int>() || cover["closeDeg"] > 360){
-                error=true;
-                err.add("Close Cover deg");
-            }
-            if( !cover["openDeg"].is<unsigned int>() || cover["openDeg"] > 360){
-                error=true;
-                err.add("Open Cover deg");
-            }
-            if( !cover["movTime"].is<unsigned int>()){
-                error=true;
-                err.add("mov time out");
-            }
+        bool docError = false;
+        bool validError = false;
+        int retVal = 0;
+        bool reboot = false;
+        
+        /* check json structure */
+        if (!root["calibrator"].is<JsonObject>()) {
+            docError = true;
+            err.add("Calibrator data doesn't exist");
+        }
+        if (!root["cover"].is<JsonObject>()) {
+            docError = true;
+            err.add("Cover data doesn't exist");
+        }
 
-            if(!error){
-                CoverCConfigTmp = json;
-                CoverC.config.save.execute = true;
-
-                if(!reboot ){
-                    Cover.openDeg = cover["openDeg"];
-                    Cover.closeDeg = cover["closeDeg"];
-                    Cover.setMax(cover["maxDeg"]);
-                    Cover.movingTime = cover["movTime"];
-                }
-            } else {
-                response->setCode(500);
-            }
-            doc["reboot"] = reboot;
-            CoverC.config.save.restartNeeded = reboot;
-
+        if (docError){
+            response->setCode(500);
             response->setLength();
             request->send(response);
+            return;
+        }  
+
+        /* peek the objects */
+        JsonObject calibrator = root.as<JsonObject>()["calibrator"];
+        JsonObject cover = root.as<JsonObject>()["cover"];
+
+
+        /* data validation */
+        if(!calibrator["present"].is<bool>()){
+            validError = true;
+            err.add("CoverC: calibrator present wrong data tpye");
+        }
+
+        bool calibPresent = calibrator["present"].as<bool>();
+
+        if(calibPresent){
+           retVal = validateJsonPwm(calibrator["pwm"]);
+
+           if(retVal !=1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("CoverC: calibrator pin wrong data tpye");
+                break;
+            case -10:
+                err.add("CoverC: calibrator pin not usable as output");
+                break;
+            
+            default:
+                break;
+            }
+           }
+        }
+
+        if(!cover["present"].is<bool>()){
+            validError = true;
+            err.add("CoverC: calibrator present wrong data tpye");
+        }
+
+        bool coverPresent = cover["present"].as<bool>();
+
+        if(coverPresent){
+            retVal = validateJsonServo(calibrator["pwm"]);
+
+           if(retVal !=1){
+            validError = true;
+            switch (retVal)
+            {
+            case -1:
+                err.add("CoverC: cover pin wrong data type");
+                break;
+            case -10:
+                err.add("CoverC: cover pin not usable as output");
+                break;
+            case -2:
+                err.add("CoverC: cover maxDeg wrong data tpye");
+                break;
+            case -200:
+                err.add("CoverC: cover maxDeg is out of range");
+                break;
+            case -3:
+                err.add("CoverC: cover openDeg wrong data type");
+                break;
+            case -300:
+                err.add("CoverC: cover openDeg is out of range");
+                break;
+            case -301:
+                err.add("CoverC: cover openDeg is bigger than maxDeg");
+                break;
+            case -4:
+                err.add("CoverC: cover closeDeg wrong data type");
+                break;
+            case -400:
+                err.add("CoverC: cover closeDeg is out of range");
+                break;
+            case -401:
+                err.add("CoverC: cover closeDeg is bigger than maxDeg");
+                break;
+            case -5:
+                err.add("CoverC: cover movTime wrong data type");
+                break;            
+            default:
+                break;
+            }
+           }
+        }
+
+        if (validError){
+            response->setCode(500);
+            response->setLength();
+            request->send(response);
+            return;
+        }
+
+        /* check if module need reboot */
+
+        if(calibPresent != CoverC.config.calibrator.present){
+            reboot = true;
+        }
+
+        //if it was present and I want it present,check the pin
+        if(calibPresent && CoverC.config.calibrator.present){
+            if(calibrator["pwm"]["pin"].as<unsigned int>() != Calibrator.getPinNumber()){
+                reboot = true;
+            }
+        }
+
+
+        if(coverPresent != CoverC.config.cover.present){
+            reboot = true;
+        }
+
+        if(coverPresent && CoverC.config.cover.present){
+            if(cover["servo"]["pin"].as<unsigned int>() != Cover.getPinNumber()){
+                reboot = true;
+            }
+        }
+
+        /* store data that don't need setup */
+
+        Cover.openDeg = cover["openDeg"];
+        Cover.closeDeg = cover["closeDeg"];
+        Cover.setMax(cover["maxDeg"]);
+        Cover.movingTime = cover["movTime"];
+
+        CoverCConfigTmp.clear();
+        CoverCConfigTmp = reboot;
+        doc["reboot"] = reboot;
+        CoverC.config.save.restartNeeded = reboot;
+        CoverC.config.save.execute = true;
+        
+        response->setLength();
+        request->send(response);
+        
         });
 
     server.addHandler(coverCConfigHandler);

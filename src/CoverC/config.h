@@ -47,7 +47,7 @@ void initCoverCConfig(){
         tmpCh = assignLedChannel(pwm);
         if(tmpCh >= 0 && tmpCh < 16){
             PWMOutputConfig CalibConfig;
-            CalibConfig.pin = calibrator["pin"];
+            CalibConfig.pin = calibrator["pwm"]["pin"];
             CalibConfig.channel = tmpCh;
             Calibrator.setup(&CalibConfig);
         } 
