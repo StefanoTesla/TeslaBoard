@@ -481,3 +481,39 @@ return code table:
   return 1;
   
 }
+
+const char* retValTranslate(int retVal) {
+  switch (retVal) {
+    case -1:
+      return "IOPinNotInt";
+    case -10:
+      return "IOPinNotUsable";
+      break;
+    case -2:
+      return "IOdOnNotInt";
+      break;
+    case -3:
+      return "IOdOffNotInt";
+    case -4:
+      return "IOInvertNotInt";
+    case -400:
+      return "IOInvertOutRange";
+    case -5:
+      return "IOMaxDNotInt";
+    case -500:
+      return "IOMaxDOutRange";
+    case -6:
+      return "IOOpDNotInt";
+    case -600:
+      return "IOOpDBig";
+    case -7:
+      return "IOClDNotInt";
+    case -700:
+      return "IOClDBig";
+    case -8:
+      return "IOMovTimeNotInt";
+    // Aggiungi altri casi se necessario
+    default:
+      return "IOGenErr";
+  }
+}

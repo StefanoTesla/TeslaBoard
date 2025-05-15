@@ -243,31 +243,7 @@ void switchWebServer(){
                 if (retVal !=1){
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
-                    switch (retVal)
-                        {
-                        case -1:
-                           e["error"] ="Input open: pin wrong data type";
-                            break;
-                        case -10:
-                            e["error"] = "Input open: the pin can't use as input";
-                            break;
-                        case -2:
-                            e["error"] ="Input open: dOn wrong data type";
-                            break;
-                        case -3:
-                            e["error"] = "Input open: dOff wrong data type";
-                            break;
-                        case -4:
-                            e["error"] = "Input open: Invert wrong data type";
-                            break;
-                        case -400:
-                            e["error"] = "Input open: Invert value outside range";
-                            break;
-                        
-                        default:
-                            e["error"] = "General error";
-                            break;
-                        }
+                    e["error"] = retValTranslate(retVal);
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -285,25 +261,7 @@ void switchWebServer(){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
-                    switch (retVal)
-                        {
-                        case -1:
-                           e["error"] ="Pin wrong data type";
-                            break;
-                        case -10:
-                            e["error"] = "The pin can't use as input";
-                            break;
-                        case -4:
-                            e["error"] = "Invert wrong data type";
-                            break;
-                        case -400:
-                            e["error"] = "Invert value outside range";
-                            break;
-                        
-                        default:
-                            e["error"] = "General error";
-                            break;
-                        }
+                    e["error"] = retValTranslate(retVal);
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -319,18 +277,7 @@ void switchWebServer(){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
-                    switch (retVal)
-                        {
-                        case -1:
-                           e["error"] ="Pin wrong data type";
-                            break;
-                        case -10:
-                            e["error"] = "The pin can't use as input";
-                            break;                        
-                        default:
-                            e["error"] = "General error";
-                            break;
-                        }
+                    e["error"] = retValTranslate(retVal);
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -345,18 +292,7 @@ void switchWebServer(){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
-                    switch (retVal)
-                        {
-                        case -1:
-                           e["error"] ="Pin wrong data type";
-                            break;
-                        case -10:
-                            e["error"] = "The pin can't use as input";
-                            break;                        
-                        default:
-                            e["error"] = "General error";
-                            break;
-                        }
+                    e["error"] = retValTranslate(retVal);
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
