@@ -241,7 +241,7 @@ void coverWebServer(){
         bool coverPresent = cover["present"].as<bool>();
 
         if(coverPresent){
-            retVal = validateJsonServo(calibrator["pwm"]);
+            retVal = validateJsonServo(cover["servo"]);
 
            if(retVal !=1){
             validError = true;

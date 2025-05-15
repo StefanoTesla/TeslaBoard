@@ -134,23 +134,23 @@ void domeWebServer(){
             docError = true;
             err.add("Open Input data doesn't exist");
         }
-        if (!root["pinClose"].is<JsonObject>()) {
+        if (!root["pinClose"].is<JsonObject>() && !docError) {
             docError = true;
             err.add("Close Input data doesn't exist");
         }
-        if (!root["pinStart"].is<JsonObject>()) {
+        if (!root["pinStart"].is<JsonObject>() && !docError) {
             docError = true;
             err.add("Start/Open data doesn't exist");
         }
-        if (!root["pinHalt"].is<JsonObject>()) {
+        if (!root["pinHalt"].is<JsonObject>() && !docError) {
             docError = true;
             err.add("Halt/Close data doesn't exist");
         }
-        if (!root["autoclose"].is<JsonObject>()) {
+        if (!root["autoclose"].is<JsonObject>() && !docError) {
             docError = true;
             err.add("Open Input data doesn't exist");
         }
-        if (!root["movTimeOut"].is<unsigned int>()) {
+        if (!root["movTimeOut"].is<unsigned int>() && !docError) {
             docError = true;
             err.add("Moving timeout data doesn't exist or wrong data type");
         }

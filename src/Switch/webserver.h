@@ -142,171 +142,173 @@ void switchWebServer(){
     AsyncCallbackJsonWebHandler* switchConfigHandler = new AsyncCallbackJsonWebHandler("/api/switch/cfg");
 
     switchConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
-    switchConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& json) {
+    switchConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
             AsyncJsonResponse* response = new AsyncJsonResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             JsonArray err = doc["errors"].to<JsonArray>();
 
-            bool error = false;
+            bool docError = false;
+            bool validError = false;
+            int retVal = 0;
+
             bool reboot = false;
             int count = 0;
             unsigned int type = 0;
 
-            //clear the temporary configration and rebuild the structure
-            tmpSwitchCfg.clear();
-            JsonArray IncomingSwitch = tmpSwitchCfg["Switches"].to<JsonArray>();
-            for (JsonObject Switche : json["Switches"].as<JsonArray>()) {
-
-                //check if a name is provided
-                if(!Switche["name"].is<String>()){
-                    error = true;
-                    err.add("Name not provided");
-                    continue;
-                }
-                //check if a desc is provided
-                if(!Switche["desc"].is<String>()){
-                    error = true;
-                    err.add("Desc not provided");
-                    continue;
-                }
-
-                //check the IO type
-                if(!Switche["type"].is<unsigned int>()){
-                    error = true;
-                    err.add("Type not passed");
-                    continue;
-                }
-
-                if(Switche["type"].as<unsigned int>() < 0 || Switche["type"].as<unsigned int>()>4){
-                    error = true;
-                    err.add("Type not defined");
-                    continue;
-                }
-
-                type = Switche["type"].as<unsigned int>();
-
-                if(type == 0){
-                    continue;
-                }
-
-
-                //check if pin is a number
-                if(!Switche["pin"].is<unsigned int>()){
-                    error = true;
-                    err.add("Pin number not provided");
-                    continue;
-                }
-
-                if(count>= _MAX_SWITCH_ID_){
-                    error = true;
-                    err.add("More than possibile Switch Configured");
-                    continue;
-                }
-
-                //Digital Input
-                if(type == 1){
-                    //pin, name, type, invert, don, doff
-                    if(!pinUsableAsInput(Switche["pin"].as<unsigned int>())){
-                        error = true;
-                        err.add("pin can't be used as input");
-                        continue;
-                    }
-                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
-
-                    tmpSwitch["name"] = Switche["name"];
-                    tmpSwitch["desc"] = Switche["desc"];
-                    tmpSwitch["type"] = 1;
-                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                    tmpSwitch["invert"] = 0;
-                    tmpSwitch["dOn"] = 0;
-                    tmpSwitch["dOff"] = 0;
-
-                    if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
-                        tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
-                    }
-
-                    if(Switche["dOn"].as<unsigned int>() >= 0){
-                        tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
-                    }
-
-                    if(Switche["dOff"].as<unsigned int>() >= 0){
-                        tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
-                    }
-
-                } else if(type==2){
-                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
-                        error = true;
-                        err.add("pin can't be used as input");
-                        continue;
-                    }
-                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
-                    tmpSwitch["name"] = Switche["name"];
-                    tmpSwitch["desc"] = Switche["desc"];
-                    tmpSwitch["type"] = 2;
-                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                    tmpSwitch["invert"] = 0;
-                    
-                    if(Switche["invert"].as<unsigned int>() >= 0 && Switche["invert"].as<unsigned int>() <= 1){
-                        tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
-                    }
-                } else if(type==3){
-                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
-                        error = true;
-                        err.add("pin can't be used as input");
-                        continue;
-                    }
-                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
-                    tmpSwitch["name"] = Switche["name"];
-                    tmpSwitch["desc"] = Switche["desc"];
-                    tmpSwitch["type"] = 3;
-                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                } else if(type==4){
-                    if(!pinUsableAsOutput(Switche["pin"].as<unsigned int>())){
-                        error = true;
-                        err.add("pin can't be used as input");
-                        continue;
-                    }
-                    JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
-                    tmpSwitch["name"] = Switche["name"];
-                    tmpSwitch["desc"] = Switche["desc"];
-                    tmpSwitch["type"] = 4;
-                    tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                    tmpSwitch["openDeg"] = 0;
-                    tmpSwitch["closeDeg"] = 0;
-                    tmpSwitch["movTime"] = 0;
-
-                    if(Switche["maxDeg"].as<unsigned int>() >= 0 && Switche["maxDeg"].as<unsigned int>() <= 360){
-                        tmpSwitch["maxDeg"] = Switche["maxDeg"].as<unsigned int>();
-                    }
-                    if(Switche["openDeg"].as<unsigned int>() >= 0 && Switche["openDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
-                        tmpSwitch["openDeg"] = Switche["openDeg"].as<unsigned int>();
-                    }
-                    if(Switche["closeDeg"].as<unsigned int>() >= 0 && Switche["closeDeg"].as<unsigned int>() <= Switche["maxDeg"].as<unsigned int>()){
-                        tmpSwitch["closeDeg"] = Switche["invert"].as<unsigned int>();
-                    }
-                    if(Switche["movTime"].as<unsigned int>() >= 0){
-                        tmpSwitch["movTime"] = Switche["movTime"].as<unsigned int>();
-                    }
-                } else {
-                    continue;
-                }
+            /* check json structure */
+            if (!root["Switches"].is<JsonObject>()) {
+                docError = true;
+                err.add("Open Input data doesn't exist");
             }
 
-
-            doc["reboot"] = reboot;
-
-            if(!reboot){
-                //reassign data
+            for (JsonVariant element : root["Switches"].as<JsonArray>()) {
+                if (!element.is<JsonObject>()) {
+                    docError = true;
+                    err.add("Switch malformed json");
+                    break; // oppure break, o gestisci come vuoi
+                }
+                count += 1;
             }
 
-            if(!error){
-                Switch.config.save.execute = true;
-            } else {
+            if(count>=_MAX_SWITCH_ID_){
+                docError = true;
+                err.add("More than possibile Switch Configured");
+            }
+
+            if (docError){
                 response->setCode(500);
+                response->setLength();
+                request->send(response);
+            return;
+        }
+
+
+        //clear the temporary configration and rebuild the structure
+        tmpSwitchCfg.clear();
+        JsonArray IncomingSwitch = tmpSwitchCfg["Switches"].to<JsonArray>();
+
+        /* validate data and store them*/
+        for (JsonObject Switche : root["Switches"].as<JsonArray>()) {
+
+            //check if a name is provided
+            if(!Switche["name"].is<String>()){
+                validError = true;
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = count;
+                e["errore"] = "Name not provided";
+                continue;
+            }
+            //check if a desc is provided
+            if(!Switche["desc"].is<String>()){
+                validError = true;
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = count;
+                e["errore"] = "Description not provided";
+                continue;
+            }
+            //check the IO type
+            if(!Switche["type"].is<unsigned int>()){
+                validError = true;
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = count;
+                e["errore"] = "Type not provided";
+                continue;
+            }
+            unsigned int type = 0;
+            type = Switche["type"].as<unsigned int>();
+
+            if(type>4){
+                validError = true;
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = count;
+                e["errore"] = "Type out of range";
+                continue;
             }
 
-            response->setLength();
-            request->send(response);
+            if(type == 0){ continue; }
+
+            if(!Switche["pin"].is<unsigned int>()){
+                validError = true;
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = count;
+                e["errore"] = "Pin not provided";
+                continue;
+            }
+                
+            retVal = 0;
+            //Digital Input
+            if(type==1){
+                retVal=validateJsonInput(Switche);
+                if (retVal !=1){
+                    validError = true;
+                    continue;
+                }
+                JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                tmpSwitch["name"] = Switche["name"];
+                tmpSwitch["desc"] = Switche["desc"];
+                tmpSwitch["type"] = 1;
+                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
+                tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
+                tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
+            
+            } else if (type==2){
+                retVal=validateJsonOutput(Switche);
+                if (retVal !=1){
+                    validError = true;
+                    continue;
+                }
+                JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                tmpSwitch["name"] = Switche["name"];
+                tmpSwitch["desc"] = Switche["desc"];
+                tmpSwitch["type"] = 2;
+                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
+
+            } else if (type==3){
+                retVal=validateJsonOutput(Switche);
+                if (retVal !=1){
+                    validError = true;
+                    continue;
+                }
+                JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                tmpSwitch["name"] = Switche["name"];
+                tmpSwitch["desc"] = Switche["desc"];
+                tmpSwitch["type"] = 3;
+                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+
+            } else if(type==4){
+                retVal=validateJsonServo(Switche);
+                if (retVal !=1){
+                    validError = true;
+                    continue;
+                }
+                JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
+                tmpSwitch["name"] = Switche["name"];
+                tmpSwitch["desc"] = Switche["desc"];
+                tmpSwitch["type"] = 4;
+                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                tmpSwitch["maxDeg"] = Switche["maxDeg"].as<unsigned int>();
+                tmpSwitch["openDeg"] = Switche["openDeg"].as<unsigned int>();
+                tmpSwitch["closeDeg"] = Switche["closeDeg"].as<unsigned int>();
+            }
+        }
+
+
+        doc["reboot"] = reboot;
+
+        if(!reboot){
+            //reassign data
+        }
+
+        if(!validError){
+            Switch.config.save.execute = true;
+        } else {
+            response->setCode(500);
+        }
+
+        response->setLength();
+        request->send(response);
         });
 
     server.addHandler(switchConfigHandler);

@@ -2,7 +2,7 @@
 
 #define DOME
 #define COVER_CALIBRATOR
-//#define SWITCH
+#define SWITCH
 
 #include "libraries.h"
 
@@ -18,7 +18,7 @@ AsyncWebServer alpaca(ALPACA_PORT);
 #include "CoverC/variables.h"
 #endif
 #ifdef SWITCH
-#include "Switch/header.h"
+#include "Switch/variables.h"
 #endif
 
 #include "Alpaca/middleware.h"

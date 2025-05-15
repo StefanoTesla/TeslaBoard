@@ -1,7 +1,6 @@
 #ifndef SWITCH_ALPACA_DEVICE
 #define SWITCH_ALPACA_DEVICE
-#include "libraries.h"
-#include "header.h"
+
 
 
 bool canBeWritten(unsigned int id){
