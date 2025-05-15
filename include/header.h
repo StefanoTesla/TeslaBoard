@@ -419,15 +419,15 @@ return code table:
 1 validation is ok
 -1: pin is not unsigned integer
 -10: pin is not asable as output
--2:maxServo not unsigned integer
--200: maxServo is out of range
--3:openDeg not unsigned integer
--300: openDeg is out of range
--301: openDeg is bigger than maxDeg
--4:closeDeg not unsigned integer
--400: closeDeg is out of range
--401: closeDeg is bigger than maxDeg
--5:movingTime not unsigned integer
+-5:maxServo not unsigned integer
+-500: maxServo is out of range
+-6:openDeg not unsigned integer
+-600: openDeg is out of range
+-601: openDeg is bigger than maxDeg
+-7:closeDeg not unsigned integer
+-700: closeDeg is out of range
+-701: closeDeg is bigger than maxDeg
+-8:movingTime not unsigned integer
 */
 
   int maxDeg = 0;
@@ -443,39 +443,39 @@ return code table:
   }
 
   if(!json["maxDeg"].is<unsigned int>()){
-      return -2;
+      return -5;
     } else {
       maxDeg = json["maxDeg"].as<unsigned int>();
       if(maxDeg>360){
-        return -200;
+        return -500;
       }
   }
   if(!json["openDeg"].is<unsigned int>()){
-      return -3;
+      return -6;
     } else {
       openDeg = json["openDeg"].as<unsigned int>();
       if(openDeg>360){
-        return -300;
+        return -600;
       }
       if(openDeg>maxDeg){
-        return -301;
+        return -601;
       }
   }
   
   if(!json["closeDeg"].is<unsigned int>()){
-      return -4;
+      return -7;
     } else {
       closeDeg = json["closeDeg"].as<unsigned int>();
       if(closeDeg>360){
-        return -400;
+        return -700;
       }
       if(closeDeg>maxDeg){
-        return -401;
+        return -701;
       }
   }
 
   if(!json["movTime"].is<unsigned int>()){
-      return -5;
+      return -8;
   }
 
   return 1;

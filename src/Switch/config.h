@@ -48,6 +48,8 @@ void initSwitchConfig(){
             DigitalInputConfig DiConfig;
             DiConfig.pin=Switche["pin"];
             DiConfig.invert=Switche["invert"];
+            DiConfig.dOn=Switche["dOn"];
+            DiConfig.dOff=Switche["dOff"];
             SwitchObjects[count]->setup(&DiConfig);
             
         } else if(Switche["type"] == static_cast<int>(SwTypeDOutput)){

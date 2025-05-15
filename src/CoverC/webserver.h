@@ -248,37 +248,37 @@ void coverWebServer(){
             switch (retVal)
             {
             case -1:
-                err.add("CoverC: cover pin wrong data type");
+                err.add("pin wrong data type");
                 break;
             case -10:
-                err.add("CoverC: cover pin not usable as output");
-                break;
-            case -2:
-                err.add("CoverC: cover maxDeg wrong data tpye");
-                break;
-            case -200:
-                err.add("CoverC: cover maxDeg is out of range");
-                break;
-            case -3:
-                err.add("CoverC: cover openDeg wrong data type");
-                break;
-            case -300:
-                err.add("CoverC: cover openDeg is out of range");
-                break;
-            case -301:
-                err.add("CoverC: cover openDeg is bigger than maxDeg");
-                break;
-            case -4:
-                err.add("CoverC: cover closeDeg wrong data type");
-                break;
-            case -400:
-                err.add("CoverC: cover closeDeg is out of range");
-                break;
-            case -401:
-                err.add("CoverC: cover closeDeg is bigger than maxDeg");
+                err.add("pin not usable as output");
                 break;
             case -5:
-                err.add("CoverC: cover movTime wrong data type");
+                err.add("maxDeg wrong data tpye");
+                break;
+            case -500:
+                err.add("maxDeg is out of range");
+                break;
+            case -6:
+                err.add("openDeg wrong data type");
+                break;
+            case -600:
+                err.add("openDeg is out of range");
+                break;
+            case -601:
+                err.add("openDeg is bigger than maxDeg");
+                break;
+            case -7:
+                err.add("closeDeg wrong data type");
+                break;
+            case -700:
+                err.add("closeDeg is out of range");
+                break;
+            case -701:
+                err.add("closeDeg is bigger than maxDeg");
+                break;
+            case -8:
+                err.add("movTime wrong data type");
                 break;            
             default:
                 break;

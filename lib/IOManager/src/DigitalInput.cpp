@@ -10,6 +10,8 @@ void DigitalInput::setup(IOConfigBase* config){
         DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
         pin = cfg->pin;
         invert = cfg->invert;
+        dOn = cfg->dOn;
+        dOff = cfg->dOff;
         min = 0;
         max = 1;
         pinMode(pin, INPUT);

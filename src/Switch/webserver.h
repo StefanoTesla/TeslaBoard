@@ -155,10 +155,11 @@ void switchWebServer(){
             int count = 0;
             unsigned int type = 0;
 
+            serializeJson(root, Serial);
             /* check json structure */
-            if (!root["Switches"].is<JsonObject>()) {
+            if (!root["Switches"].is<JsonArray>()) {
                 docError = true;
-                err.add("Open Input data doesn't exist");
+                err.add("Switches data doesn't exist");
             }
 
             for (JsonVariant element : root["Switches"].as<JsonArray>()) {
@@ -195,7 +196,7 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["errore"] = "Name not provided";
+                e["error"] = "Name not provided";
                 continue;
             }
             //check if a desc is provided
@@ -203,7 +204,7 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["errore"] = "Description not provided";
+                e["error"] = "Description not provided";
                 continue;
             }
             //check the IO type
@@ -211,7 +212,7 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["errore"] = "Type not provided";
+                e["error"] = "Type not provided";
                 continue;
             }
             unsigned int type = 0;
@@ -221,7 +222,7 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["errore"] = "Type out of range";
+                e["error"] = "Type out of range";
                 continue;
             }
 
@@ -237,10 +238,36 @@ void switchWebServer(){
                 
             retVal = 0;
             //Digital Input
-            if(type==1){
+            if(type== static_cast<int>(SwTypeDInput)){
                 retVal=validateJsonInput(Switche);
                 if (retVal !=1){
-                    validError = true;
+                    JsonObject e = err.add<JsonObject>();
+                    e["id"] = count;
+                    switch (retVal)
+                        {
+                        case -1:
+                           e["error"] ="Input open: pin wrong data type";
+                            break;
+                        case -10:
+                            e["error"] = "Input open: the pin can't use as input";
+                            break;
+                        case -2:
+                            e["error"] ="Input open: dOn wrong data type";
+                            break;
+                        case -3:
+                            e["error"] = "Input open: dOff wrong data type";
+                            break;
+                        case -4:
+                            e["error"] = "Input open: Invert wrong data type";
+                            break;
+                        case -400:
+                            e["error"] = "Input open: Invert value outside range";
+                            break;
+                        
+                        default:
+                            e["error"] = "General error";
+                            break;
+                        }
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -252,10 +279,31 @@ void switchWebServer(){
                 tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
                 tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
             
-            } else if (type==2){
+            } else if (type == static_cast<int>(SwTypeDOutput)){
                 retVal=validateJsonOutput(Switche);
                 if (retVal !=1){
                     validError = true;
+                    JsonObject e = err.add<JsonObject>();
+                    e["id"] = count;
+                    switch (retVal)
+                        {
+                        case -1:
+                           e["error"] ="Pin wrong data type";
+                            break;
+                        case -10:
+                            e["error"] = "The pin can't use as input";
+                            break;
+                        case -4:
+                            e["error"] = "Invert wrong data type";
+                            break;
+                        case -400:
+                            e["error"] = "Invert value outside range";
+                            break;
+                        
+                        default:
+                            e["error"] = "General error";
+                            break;
+                        }
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -265,10 +313,24 @@ void switchWebServer(){
                 tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
                 tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
 
-            } else if (type==3){
+            } else if (type == static_cast<int>(SwTypePWM)){
                 retVal=validateJsonOutput(Switche);
                 if (retVal !=1){
                     validError = true;
+                    JsonObject e = err.add<JsonObject>();
+                    e["id"] = count;
+                    switch (retVal)
+                        {
+                        case -1:
+                           e["error"] ="Pin wrong data type";
+                            break;
+                        case -10:
+                            e["error"] = "The pin can't use as input";
+                            break;                        
+                        default:
+                            e["error"] = "General error";
+                            break;
+                        }
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -277,10 +339,24 @@ void switchWebServer(){
                 tmpSwitch["type"] = 3;
                 tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
 
-            } else if(type==4){
+            } else if(type == static_cast<int>(SwTypeServo)){
                 retVal=validateJsonServo(Switche);
                 if (retVal !=1){
                     validError = true;
+                    JsonObject e = err.add<JsonObject>();
+                    e["id"] = count;
+                    switch (retVal)
+                        {
+                        case -1:
+                           e["error"] ="Pin wrong data type";
+                            break;
+                        case -10:
+                            e["error"] = "The pin can't use as input";
+                            break;                        
+                        default:
+                            e["error"] = "General error";
+                            break;
+                        }
                     continue;
                 }
                 JsonObject tmpSwitch = IncomingSwitch.add<JsonObject>();
@@ -293,6 +369,15 @@ void switchWebServer(){
                 tmpSwitch["closeDeg"] = Switche["closeDeg"].as<unsigned int>();
             }
         }
+
+        if(validError){
+            response->setCode(500);
+            response->setLength();
+            request->send(response);
+            return;
+        }
+        //* Check if I need to reboot
+
 
 
         doc["reboot"] = reboot;

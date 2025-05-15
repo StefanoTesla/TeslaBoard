@@ -9,6 +9,8 @@ struct IOConfigBase {
 struct DigitalInputConfig : public IOConfigBase {
     int pin;
     int invert; // 0=N.O. 1=N.C.
+    int dOn;
+    int dOff;
     int getType() const override { return 1; }
 };
 
