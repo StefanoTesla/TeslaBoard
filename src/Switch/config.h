@@ -80,7 +80,6 @@ void initSwitchConfig(){
                 ServoConfig.closeDeg= Switche["closeDeg"];
                 ServoConfig.openDeg = Switche["openDeg"];
                 ServoConfig.movTime = Switche["movTime"];
-
                 SwitchObjects[count]->setup(&ServoConfig);
             }
         }

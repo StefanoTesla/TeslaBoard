@@ -155,7 +155,6 @@ void switchWebServer(){
             int count = 0;
             unsigned int type = 0;
 
-            serializeJson(root, Serial);
             /* check json structure */
             if (!root["Switches"].is<JsonArray>()) {
                 docError = true;
@@ -189,6 +188,7 @@ void switchWebServer(){
         JsonArray IncomingSwitch = tmpSwitchCfg["Switches"].to<JsonArray>();
 
         /* validate data and store them*/
+        /* to avoid a new loop olso reboot check is performed */
         for (JsonObject Switche : root["Switches"].as<JsonArray>()) {
 
             //check if a name is provided
@@ -312,22 +312,93 @@ void switchWebServer(){
             request->send(response);
             return;
         }
-        //* Check if I need to reboot
 
+        Serial.println();
+        /* check if I need to reboot 
+        If the GPIO under analysis don't need reboot we store new data directly
+        */
+        int incomingType;
+        bool gpioRebootNeeded;
+        for (int i = 0; i < _MAX_SWITCH_ID_; i++)
+        {
+            gpioRebootNeeded = false;
+            incomingType = IncomingSwitch[i]["type"].as<unsigned int>();
+            Serial.print(i);
+            Serial.print(": ");
+            // if switch is not configured and 
+            if(SwitchObjects[i] == nullptr){
+                //1
+                //incoming is null don't need nothing
+                if(incomingType == 0){ 
+                    Serial.println(1);
+                    continue;
+                } else {
+                    //2
+                    //incoming is defined required a startup process
+                    gpioRebootNeeded = true;
+                    Serial.println(2);
+                    continue;
+                }
+            }
+            
+            //since now switch is configured.
 
+            //3
+            // deleted by incoming data require a startup process
+            if(incomingType == 0){
+                gpioRebootNeeded = true;
+                Serial.println(3);
+                continue;
+            }
+            //4
+            // switch is configured but incoming type is different require a startup process
+            if(SwitchObjects[i]->getType() != incomingType){
+                gpioRebootNeeded = true;
+                Serial.println(4);
+                continue;
+            } else {
+                //from now switch and incoming type is equal
+                //5
+                //pin is different
+                if(SwitchObjects[i]->getPinNumber() != IncomingSwitch[i]["pin"].as<unsigned int>()){
+                    gpioRebootNeeded = true;
+                    Serial.println(5);
+                    continue;
+                }
+
+                //type is checked in two step before, pin is checked in the step before
+                //now we should pass data don't need reboot if reboot 
+                if(!gpioRebootNeeded){
+                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDInput)){
+                        DigitalInput* di = static_cast<DigitalInput*>(SwitchObjects[i]);
+                        di->dOn = IncomingSwitch[i]["dOn"].as<unsigned int>();
+                        di->dOff = IncomingSwitch[i]["dOff"].as<unsigned int>();
+                        di->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
+                    }
+                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDOutput)){
+                        DigitalOutput* out = static_cast<DigitalOutput*>(SwitchObjects[i]);
+                        out->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
+                    }
+                    //pwm switch got only pin
+                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeServo)){
+                        ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
+                        servo->setMax(IncomingSwitch[i]["maxDeg"].as<unsigned int>());
+                        servo->openDeg = IncomingSwitch[i]["openDeg"].as<unsigned int>();
+                        servo->closeDeg = IncomingSwitch[i]["closeDeg"].as<unsigned int>();
+                        servo->movingTime = IncomingSwitch[i]["movTime"].as<unsigned int>();
+                    }
+                } else {
+                    reboot = true;
+                }
+
+            }
+
+            Serial.println();
+        }        
 
         doc["reboot"] = reboot;
-
-        if(!reboot){
-            //reassign data
-        }
-
-        if(!validError){
-            Switch.config.save.execute = true;
-        } else {
-            response->setCode(500);
-        }
-
+        Switch.config.save.restartNeeded = reboot;
+        Switch.config.save.execute = true;
         response->setLength();
         request->send(response);
         });

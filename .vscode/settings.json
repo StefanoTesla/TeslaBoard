@@ -48,5 +48,6 @@
     "${workspaceFolder}/src",
     "${workspaceFolder}/src/**"
     ],
-    "C_Cpp.intelliSenseMode": "gcc-x64"
+    "C_Cpp.intelliSenseMode": "gcc-x64",
+    "C_Cpp.default.compilerPath": "C:/Users/Tesla/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc.exe"
 }
