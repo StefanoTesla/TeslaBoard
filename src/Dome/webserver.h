@@ -218,18 +218,10 @@ void domeWebServer(){
         }
 
         /* check if module need reboot */
-        if (pinOpen["pin"].as<unsigned int>() != DomeInOpen.getPinNumber()){
-            reboot = true;
-        }
-
-        if (pinClose["pin"].as<unsigned int>() != DomeInClose.getPinNumber()){
-            reboot = true;
-        }
-       
-        if (pinStart["pin"].as<unsigned int>() != DomeOutMoveOpen.getPinNumber()){
-            reboot = true;
-        }
-        if (pinHalt["pin"].as<unsigned int>() != DomeOutHaltClose.getPinNumber()){
+        if (pinOpen["pin"].as<unsigned int>() != DomeInOpen.getPinNumber()
+        || pinClose["pin"].as<unsigned int>() != DomeInClose.getPinNumber()
+        || pinStart["pin"].as<unsigned int>() != DomeOutMoveOpen.getPinNumber()
+        || pinHalt["pin"].as<unsigned int>() != DomeOutHaltClose.getPinNumber()){
             reboot = true;
         }
 

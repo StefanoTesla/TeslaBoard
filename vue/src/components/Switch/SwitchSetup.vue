@@ -118,8 +118,9 @@
   }
 
   const fetchData = async () => {
+    const ip = import.meta.env.VITE_API_IP;
     try {
-      const response = await fetch('http://localhost:3000/api/switch/cfg')
+      const response = await fetch(ip+'/api/switch/cfg')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -188,8 +189,8 @@
     }
 
     try {
-
-      const response = await fetch("http://localhost:3000/api/switch/cfg", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/switch/cfg", {
           method: "POST",
           headers: {
           'Accept': 'application/json, text/plain, */*',
@@ -198,15 +199,9 @@
           body: JSON.stringify(switches.value)
         });
 
-      if (!response.ok) { 
-        if (response.status === 500) {
-          throw new Error(props.txt.errors.general.configRejected)
-        } else {
-          throw new Error('Network response was not ok')
-        }
-      }
-
       const data = await response.json()
+      if (!response.ok) throw { status: response.status, data }
+
       cmdExecutedNotify()
 
       if(data.reboot){
@@ -216,8 +211,16 @@
       }
 
       
-    } catch (error) {
-      errorResponseNotify(error)
+    } catch (err) {
+    if (err?.status === 500 && Array.isArray(err.data?.errors)) {
+      err.data.errors.forEach(e =>
+        typeof e === 'object'
+          ?  errorResponseNotify(props.txt.switch.switch +" n°"+ e.id + ": " + props.txt.errors.gpioValidation[e.error])
+          : errorResponseNotify(e)
+      )
+    } else {
+      errorResponseNotify(err?.message || props.txt.errors.general.configRejected)
+    }
     }
   }
 

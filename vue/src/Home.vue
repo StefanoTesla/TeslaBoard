@@ -39,7 +39,8 @@ const txtLoaded = ref(false)
 
 const loadInitConfig = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/cfg')
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/cfg')
     const data = await response.json()
 
     components.value = data.define

@@ -332,8 +332,8 @@ return code table:
 -3: dOff is not unsigned integer
 -4: invert is not unsigned integer
 -400: invert is out of range
-
 */
+
   if(!json["pin"].is<unsigned int>()){
       return -1;
   } else {
@@ -365,12 +365,14 @@ return code table:
 int validateJsonOutput(JsonObject json){
 /*
 return code table:
+0: wrong type
 1 validation is ok
 -1: pin is not unsigned integer
 -10: pin is not usable as output
 -4: invert is not unsigned integer
 -400: invert is out of range
 */
+
   if(!json["pin"].is<unsigned int>()){
       return -1;
     } else {
@@ -428,6 +430,8 @@ return code table:
 -700: closeDeg is out of range
 -701: closeDeg is bigger than maxDeg
 -8:movingTime not unsigned integer
+-10: type is not unsigned integer
+-1010: wrong type passed
 */
 
   int maxDeg = 0;

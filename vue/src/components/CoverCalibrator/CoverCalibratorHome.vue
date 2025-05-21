@@ -67,7 +67,8 @@
   let coverStatus = ref('')
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/coverc/status')
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+'/api/coverc/status')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -122,7 +123,8 @@
       return
     }
     try {
-      const response = await fetch("http://localhost:3000/api/coverc/on", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/coverc/on", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -157,7 +159,8 @@
       return
     }
     try {
-      const response = await fetch("http://localhost:3000/api/coverc/off", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/coverc/off", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,7 +195,8 @@
       return
     }
     try {
-      const response = await fetch("http://localhost:3000/api/coverc/brightness", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/coverc/brightness", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -228,7 +232,8 @@
       return
     }
     try {
-      const response = await fetch("http://localhost:3000/api/coverc/open", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/coverc/open", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -256,7 +261,8 @@
       return
     }
     try {
-      const response = await fetch("http://localhost:3000/api/coverc/close", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/coverc/close", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

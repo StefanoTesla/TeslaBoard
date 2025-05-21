@@ -64,7 +64,8 @@ let statusClass = ref('red')
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/dome/status')
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/dome/status')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -117,7 +118,8 @@ const cmdShutterOpen = async() =>{
     return
   }
   try {
-      const response = await fetch("http://localhost:3000/api/dome/open", {
+    const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/dome/open", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -149,7 +151,8 @@ const cmdShutterClose = async() =>{
     return
   }
   try {
-      const response = await fetch("http://localhost:3000/api/dome/close", {
+    const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/dome/close", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -181,7 +184,8 @@ const cmdShutterClose = async() =>{
 
 const cmdShutterHalt= async() =>{
   try {
-      const response = await fetch("http://localhost:3000/api/dome/halt", {
+    const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/dome/halt", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

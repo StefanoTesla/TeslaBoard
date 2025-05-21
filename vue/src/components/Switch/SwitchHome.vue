@@ -51,7 +51,7 @@
   
   
   <script setup>
-  import { ref,defineProps,onMounted,onUnmounted,computed } from 'vue'
+  import { ref,onMounted,onUnmounted,computed } from 'vue'
   import { toast } from 'vue3-toastify';
   import Card from '../Card.vue';
   
@@ -65,7 +65,8 @@
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/switch/status')
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+'/api/switch/status')
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
@@ -94,7 +95,8 @@
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/switch/set-value", {
+      const ip = import.meta.env.VITE_API_IP;
+      const response = await fetch(ip+"/api/switch/set-value", {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -142,9 +144,6 @@
     });
   }
   const errorResponseNotify = (errorKey) => {
-    console.log("errori")
-    console.log(errorKey)
-    console.log(props.txt.errors.switch)
       const errorMessage = props.txt.errors.switch[errorKey]
       toast.error(errorMessage, {
       autoClose: 3000,

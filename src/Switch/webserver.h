@@ -191,12 +191,16 @@ void switchWebServer(){
         /* to avoid a new loop olso reboot check is performed */
         for (JsonObject Switche : root["Switches"].as<JsonArray>()) {
 
+            unsigned int type = 0;
+            type = Switche["type"].as<unsigned int>();
+            if(type == 0){ continue; }
+
             //check if a name is provided
             if(!Switche["name"].is<String>()){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["error"] = "Name not provided";
+                e["error"] = "IONameUndef";
                 continue;
             }
             //check if a desc is provided
@@ -204,7 +208,7 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["error"] = "Description not provided";
+                e["error"] = "IODescUndef";
                 continue;
             }
             //check the IO type
@@ -212,27 +216,15 @@ void switchWebServer(){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["error"] = "Type not provided";
+                e["error"] = "IOTypeUndef";
                 continue;
             }
-            unsigned int type = 0;
-            type = Switche["type"].as<unsigned int>();
 
             if(type>4){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = count;
-                e["error"] = "Type out of range";
-                continue;
-            }
-
-            if(type == 0){ continue; }
-
-            if(!Switche["pin"].is<unsigned int>()){
-                validError = true;
-                JsonObject e = err.add<JsonObject>();
-                e["id"] = count;
-                e["errore"] = "Pin not provided";
+                e["error"] = "IOTypeOutRange";
                 continue;
             }
                 

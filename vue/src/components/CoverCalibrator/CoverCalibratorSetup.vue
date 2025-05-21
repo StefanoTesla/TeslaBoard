@@ -96,7 +96,8 @@ const getOriginal = () => {
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/coverc/cfg')
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/coverc/cfg')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -135,8 +136,8 @@ const saveData = async () => {
   }
 
   try {
-
-    const response = await fetch("http://localhost:3000/api/coverc/cfg", {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+"/api/coverc/cfg", {
         method: "POST",
         headers: {
         'Accept': 'application/json, text/plain, */*',

@@ -72,7 +72,8 @@
 
 	},
 	"switch":{
-		"title": "Interruttori"
+		"title": "Interruttori",
+		"switch": "Interruttore"
 	},
 	"gen":{
 		"status":{
@@ -172,7 +173,7 @@
 
 	"errors":{
 		"gpioValidation":{
-			"IOPinNotInt": "Pin non è un valore valido",
+			"IOPinNotInt": "Pin non definito",
 			"IOPinNotUsable": "Pin non utilizzabile",
 			"IOdOnNotInt": "dOn non è un valore valido",
 			"IOdOffNotInt": "dOff non è un valore valido",
@@ -185,6 +186,10 @@
 			"IOClDNotInt": "Pin non è un valore valido",
 			"IOClDBig":"Angolo di Chiusura più grande dell'angolo massimo",
 			"IOMovTimeNotInt":"Tempo di movimento non è un valore valido",
+			"IOTypeUndef": "Tipo non definito",
+			"IOTypeOutRange": "Tipo fuori range",
+			"IONameUndef": "Nome non definito",
+			"IODescUndef" : "Descrizione non definita",
 			"IOGenErr":"Errore generale"
 		},
 		"gpio":{

@@ -132,7 +132,8 @@ const getOriginal = () => {
 
 const fetchData = async () => {
   try {
-    const response = await fetch('http://localhost:3000/api/board/cfg')
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/board/cfg')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -157,7 +158,8 @@ const rebootBoard = () => {
 const deleteWiFiData = async() => {
 
   try {
-    const response = await fetch('http://localhost:3000/api/board/wifi-reset') 
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/board/wifi-reset') 
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -180,8 +182,8 @@ const saveData = async () => {
   }
 
   try {
-
-    const response = await fetch("http://localhost:3000/api/board/cfg", {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+"/api/board/cfg", {
         method: "POST",
         headers: {
         'Accept': 'application/json, text/plain, */*',
