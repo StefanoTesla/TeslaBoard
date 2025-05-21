@@ -172,108 +172,33 @@ void domeWebServer(){
         retVal = validateJsonInput(pinOpen);
         if(retVal != 1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("Input open: pin wrong data type");
-                break;
-            case -10:
-                err.add("Input open: the pin can't use as input");
-                break;
-            case -2:
-                err.add("Input open: dOn wrong data type");
-                break;
-            case -3:
-                err.add("Input open: dOff wrong data type");
-                break;
-            case -4:
-                err.add("Input open: Invert wrong data type");
-                break;
-            case -400:
-                err.add("Input open: Invert value outside range");
-                break;
-            
-            default:
-                err.add("Input open: general error");
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 1;
+            e["error"] = retValTranslate(retVal);
         }
         retVal=0;
         retVal = validateJsonInput(pinClose);
         if(retVal != 1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("Input close: pin wrong data type");
-                break;
-            case -10:
-                err.add("Input close: the pin can't use as input");
-                break;
-            case -2:
-                err.add("Input close: dOn wrong data type");
-                break;
-            case -3:
-                err.add("Input close: dOff wrong data type");
-                break;
-            case -4:
-                err.add("Input close: Invert wrong data type");
-                break;
-            case -40:
-                err.add("Input close: Invert value outside range");
-                break;
-            
-            default:
-                err.add("Input close: general error");
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 2;
+            e["error"] = retValTranslate(retVal);
         }
         retVal=0;
         retVal = validateJsonOutput(pinStart);
         if(retVal != 1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("Output start/open: pin wrong data type");
-                break;
-            case -10:
-                err.add("Output start/open: the pin can't use as input");
-                break;
-            case -4:
-                err.add("Output start/open: Invert wrong data type");
-                break;
-            case -40:
-                err.add("Output start/open: Invert value outside range");
-                break;
-            
-            default:
-                err.add("Output start/open: general error");
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 3;
+            e["error"] = retValTranslate(retVal);
         }
         retVal=0;
         retVal = validateJsonOutput(pinHalt);
         if(retVal != 1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("Output halt/close: pin wrong data type");
-                break;
-            case -10:
-                err.add("Output halt/close: the pin can't use as input");
-                break;
-            case -4:
-                err.add("Output halt/close: Invert wrong data type");
-                break;
-            case -40:
-                err.add("Output halt/close: Invert value outside range");
-                break;
-            default:
-                err.add("Output halt/close: general error");
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 4;
+            e["error"] = retValTranslate(retVal);
         }
 
         if( !autoClose["enable"].is<bool>()){

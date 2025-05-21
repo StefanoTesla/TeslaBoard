@@ -249,15 +249,9 @@ const saveData = async () => {
         body: JSON.stringify(dome.value)
       });
 
-    if (!response.ok) { 
-      if (response.status === 500) {
-        throw new Error(props.txt.errors.general.configRejected)
-      } else {
-        throw new Error('Network response was not ok')
-      }
-    }
-
     const data = await response.json()
+    if (!response.ok) throw { status: response.status, data }
+
     cmdExecutedNotify()
 
     if(data.reboot){
@@ -267,9 +261,41 @@ const saveData = async () => {
     }
 
     
-  } catch (error) {
-    errorResponseNotify(error)
+  } catch (err) {
+    if (err?.status === 500 && Array.isArray(err.data?.errors)) {
+      err.data.errors.forEach(e =>
+        typeof e === 'object'
+          ?  handleStructuredError(e)
+          : errorResponseNotify(e)
+      )
+    } else {
+      errorResponseNotify(err?.message || props.txt.errors.general.configRejected)
+    }
   }
+}
+
+const handleStructuredError = (e) => {
+  let msg
+  let pinName
+  switch (e.id) {
+    case 1:
+      pinName = props.txt.dome.setting.inOpen
+      break
+    case 2:
+      pinName = props.txt.dome.setting.inClose
+      break
+    case 3:
+      pinName = props.txt.dome.setting.outStart
+      break
+    case 4:
+      pinName = props.txt.dome.setting.outHalt
+      break
+    default:
+      pinName = `Pin ${e.id}`
+  }
+  
+  msg = pinName + ": " + props.txt.errors.gpioValidation[e.error]
+  errorResponseNotify(msg)
 }
 
 const cmdExecutedNotify = () => {

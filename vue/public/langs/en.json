@@ -162,6 +162,22 @@
 		}
 	},
 	"errors": {
+		"gpioValidation":{
+			"IOPinNotInt": "Pin is not a valid value",
+			"IOPinNotUsable": "Pin not usable",
+			"IOdOnNotInt": "dOn non è un valore valido",
+			"IOdOffNotInt": "dOff non è un valore valido",
+			"IOInvertNotInt": "Inverti non è un valore valido",
+			"IOInvertOutRange": "Inverti non è fuori dai limiti",
+			"IOMaxDNotInt": "Angolo Massimo non è un valore valido",
+			"IOMaxDOutRange":"Angolo Massimo è fuori dai limiti",
+			"IOOpDNotInt": "Pin non è un valore valido",
+			"IOOpDBig":"Angolo di Apertura più grande dell'angolo massimo",
+			"IOClDNotInt": "Pin non è un valore valido",
+			"IOClDBig":"Angolo di Chiusura più grande dell'angolo massimo",
+			"IOMovTimeNotInt":"Tempo di movimento non è un valore valido",
+			"IOGenErr":"Errore generale"
+		},
 		"gpio": {
 			"noUsableAsInput": "not usable as input",
 			"noUsableAsOutput": "not usable as output"

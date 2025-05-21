@@ -218,18 +218,9 @@ void coverWebServer(){
 
            if(retVal !=1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("CoverC: calibrator pin wrong data tpye");
-                break;
-            case -10:
-                err.add("CoverC: calibrator pin not usable as output");
-                break;
-            
-            default:
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 1;
+            e["error"] = retValTranslate(retVal);
            }
         }
 
@@ -245,44 +236,9 @@ void coverWebServer(){
 
            if(retVal !=1){
             validError = true;
-            switch (retVal)
-            {
-            case -1:
-                err.add("pin wrong data type");
-                break;
-            case -10:
-                err.add("pin not usable as output");
-                break;
-            case -5:
-                err.add("maxDeg wrong data tpye");
-                break;
-            case -500:
-                err.add("maxDeg is out of range");
-                break;
-            case -6:
-                err.add("openDeg wrong data type");
-                break;
-            case -600:
-                err.add("openDeg is out of range");
-                break;
-            case -601:
-                err.add("openDeg is bigger than maxDeg");
-                break;
-            case -7:
-                err.add("closeDeg wrong data type");
-                break;
-            case -700:
-                err.add("closeDeg is out of range");
-                break;
-            case -701:
-                err.add("closeDeg is bigger than maxDeg");
-                break;
-            case -8:
-                err.add("movTime wrong data type");
-                break;            
-            default:
-                break;
-            }
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = 2;
+            e["error"] = retValTranslate(retVal);
            }
         }
 
