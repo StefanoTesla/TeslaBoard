@@ -8,6 +8,7 @@ import viteCompression from 'vite-plugin-compression';
 export default defineConfig({
   plugins: [vue(),tailwindcss(),viteCompression(
     {
+      threshold: 0,
       deleteOriginFile:true
     })],
     build: {

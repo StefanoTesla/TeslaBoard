@@ -126,6 +126,8 @@ void switchWebServer(){
         }
 
         if (SwitchObjects[id]->getType() != static_cast<int>(SwTypeServo)){
+            Serial.println(SwitchObjects[id]->getType());
+            Serial.println(value);
             SwitchObjects[id]->write(value);
         } else {
             ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
@@ -143,25 +145,25 @@ void switchWebServer(){
 
     switchConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
     switchConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
-            JsonObject doc = response->getRoot().to<JsonObject>();
-            JsonArray err = doc["errors"].to<JsonArray>();
+        AsyncJsonResponse* response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
+        JsonArray err = doc["errors"].to<JsonArray>();
 
-            bool docError = false;
-            bool validError = false;
-            int retVal = 0;
+        bool docError = false;
+        bool validError = false;
+        int retVal = 0;
 
-            bool reboot = false;
-            int count = 0;
-            unsigned int type = 0;
+        bool reboot = false;
+        int count = 0;
+        unsigned int type = 0;
 
-            /* check json structure */
-            if (!root["Switches"].is<JsonArray>()) {
+        /* check json structure */
+        if (!root["Switches"].is<JsonArray>()) {
                 docError = true;
                 err.add("Switches data doesn't exist");
             }
 
-            for (JsonVariant element : root["Switches"].as<JsonArray>()) {
+        for (JsonVariant element : root["Switches"].as<JsonArray>()) {
                 if (!element.is<JsonObject>()) {
                     docError = true;
                     err.add("Switch malformed json");
@@ -170,12 +172,12 @@ void switchWebServer(){
                 count += 1;
             }
 
-            if(count>=_MAX_SWITCH_ID_){
+        if(count>=_MAX_SWITCH_ID_){
                 docError = true;
                 err.add("More than possibile Switch Configured");
             }
 
-            if (docError){
+        if (docError){
                 response->setCode(500);
                 response->setLength();
                 request->send(response);
@@ -189,6 +191,7 @@ void switchWebServer(){
 
         /* validate data and store them*/
         /* to avoid a new loop olso reboot check is performed */
+        count = 0;
         for (JsonObject Switche : root["Switches"].as<JsonArray>()) {
 
             unsigned int type = 0;
@@ -220,6 +223,8 @@ void switchWebServer(){
                 continue;
             }
 
+            type = Switche["type"].as<unsigned int>();
+            Serial.println(type);
             if(type>4){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
@@ -264,7 +269,7 @@ void switchWebServer(){
                 tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
 
             } else if (type == static_cast<int>(SwTypePWM)){
-                retVal=validateJsonOutput(Switche);
+                retVal=validateJsonPwm(Switche);
                 if (retVal !=1){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
@@ -310,10 +315,9 @@ void switchWebServer(){
         If the GPIO under analysis don't need reboot we store new data directly
         */
         int incomingType;
-        bool gpioRebootNeeded;
+        
         for (int i = 0; i < _MAX_SWITCH_ID_; i++)
         {
-            gpioRebootNeeded = false;
             incomingType = IncomingSwitch[i]["type"].as<unsigned int>();
             Serial.print(i);
             Serial.print(": ");
@@ -327,7 +331,7 @@ void switchWebServer(){
                 } else {
                     //2
                     //incoming is defined required a startup process
-                    gpioRebootNeeded = true;
+                    reboot = true;
                     Serial.println(2);
                     continue;
                 }
@@ -338,14 +342,14 @@ void switchWebServer(){
             //3
             // deleted by incoming data require a startup process
             if(incomingType == 0){
-                gpioRebootNeeded = true;
+                reboot = true;
                 Serial.println(3);
                 continue;
             }
             //4
             // switch is configured but incoming type is different require a startup process
             if(SwitchObjects[i]->getType() != incomingType){
-                gpioRebootNeeded = true;
+                reboot = true;
                 Serial.println(4);
                 continue;
             } else {
@@ -353,35 +357,33 @@ void switchWebServer(){
                 //5
                 //pin is different
                 if(SwitchObjects[i]->getPinNumber() != IncomingSwitch[i]["pin"].as<unsigned int>()){
-                    gpioRebootNeeded = true;
+                    reboot = true;
                     Serial.println(5);
                     continue;
                 }
 
                 //type is checked in two step before, pin is checked in the step before
                 //now we should pass data don't need reboot if reboot 
-                if(!gpioRebootNeeded){
-                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDInput)){
-                        DigitalInput* di = static_cast<DigitalInput*>(SwitchObjects[i]);
-                        di->dOn = IncomingSwitch[i]["dOn"].as<unsigned int>();
-                        di->dOff = IncomingSwitch[i]["dOff"].as<unsigned int>();
-                        di->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
-                    }
-                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDOutput)){
-                        DigitalOutput* out = static_cast<DigitalOutput*>(SwitchObjects[i]);
-                        out->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
-                    }
-                    //pwm switch got only pin
-                    if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeServo)){
-                        ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
-                        servo->setMax(IncomingSwitch[i]["maxDeg"].as<unsigned int>());
-                        servo->openDeg = IncomingSwitch[i]["openDeg"].as<unsigned int>();
-                        servo->closeDeg = IncomingSwitch[i]["closeDeg"].as<unsigned int>();
-                        servo->movingTime = IncomingSwitch[i]["movTime"].as<unsigned int>();
-                    }
-                } else {
-                    reboot = true;
+
+                if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDInput)){
+                    DigitalInput* di = static_cast<DigitalInput*>(SwitchObjects[i]);
+                    di->dOn = IncomingSwitch[i]["dOn"].as<unsigned int>();
+                    di->dOff = IncomingSwitch[i]["dOff"].as<unsigned int>();
+                    di->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
                 }
+                if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDOutput)){
+                    DigitalOutput* out = static_cast<DigitalOutput*>(SwitchObjects[i]);
+                    out->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
+                }
+                //pwm switch got only pin
+                if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeServo)){
+                    ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
+                    servo->setMax(IncomingSwitch[i]["maxDeg"].as<unsigned int>());
+                    servo->openDeg = IncomingSwitch[i]["openDeg"].as<unsigned int>();
+                    servo->closeDeg = IncomingSwitch[i]["closeDeg"].as<unsigned int>();
+                    servo->movingTime = IncomingSwitch[i]["movTime"].as<unsigned int>();
+                }
+                
 
             }
 

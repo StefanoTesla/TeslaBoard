@@ -91,7 +91,7 @@
     }
     if( switches.value.Switches[index].type == 2){
       switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
-      switches.value.Switches[index].intValue = switches.value.Switches[index].boValue
+      switches.value.Switches[index].intValue = !switches.value.Switches[index].boValue
     }
 
     try {
