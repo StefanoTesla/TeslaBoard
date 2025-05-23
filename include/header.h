@@ -487,6 +487,7 @@ return code table:
 }
 
 const char* retValTranslate(int retVal) {
+
   switch (retVal) {
     case -1:
       return "IOPinNotInt";
@@ -520,4 +521,31 @@ const char* retValTranslate(int retVal) {
     default:
       return "IOGenErr";
   }
+}
+
+
+
+//Utilities to copy GPIO faster avoiding keys injection
+
+void copyInputJson(JsonObject input,JsonObject out){
+  out["pin"] = input["pin"].as<unsigned int>();
+  out["dOn"] = input["dOn"].as<unsigned int>();
+  out["dOff"] = input["dOff"].as<unsigned int>();
+  out["invert"] = input["invert"].as<unsigned int>();  
+}
+
+void copyOutputJson(JsonObject input,JsonObject out){
+  out["pin"] = input["pin"].as<unsigned int>();
+  out["invert"] = input["invert"].as<unsigned int>();
+}
+
+void copyPWMJson(JsonObject input, JsonObject out){
+  out["pin"] = input["pin"].as<unsigned int>();
+}
+void copyServoJson(JsonObject input, JsonObject out){
+  out["pin"] = input["pin"].as<unsigned int>();
+  out["maxDeg"] = input["maxDeg"].as<unsigned int>();
+  out["openDeg"] = input["openDeg"].as<unsigned int>();
+  out["closeDeg"] = input["closeDeg"].as<unsigned int>();
+  out["movTime"] = input["movTime"].as<unsigned int>();
 }

@@ -9,16 +9,17 @@ void coverWebServer(){
 
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
         calibrator["present"] = CoverC.config.calibrator.present;
-        calibrator["pin"] = Calibrator.getPinNumber();
-
+        calibrator["pwm"]["pin"] = Calibrator.getPinNumber();
 
         JsonObject cover = doc["cover"].to<JsonObject>();
         cover["present"] = CoverC.config.cover.present;
-        cover["pin"] = Cover.getPinNumber();
-        cover["closeDeg"] = Cover.closeDeg;
-        cover["openDeg"] = Cover.openDeg;
-        cover["maxDeg"] = Cover.getMax();
-        cover["movTime"] = Cover.movingTime;
+        
+        JsonObject servo = cover["servo"].to<JsonObject>();
+        servo["pin"] = Cover.getPinNumber();
+        servo["closeDeg"] = Cover.closeDeg;
+        servo["openDeg"] = Cover.openDeg;
+        servo["maxDeg"] = Cover.getMax();
+        servo["movTime"] = Cover.movingTime;
         
         doc["reboot"] = CoverC.config.save.restartNeeded;
 
@@ -182,7 +183,8 @@ void coverWebServer(){
         bool validError = false;
         int retVal = 0;
         bool reboot = false;
-        
+        CoverCConfigTmp.clear();
+
         /* check json structure */
         if (!root["calibrator"].is<JsonObject>()) {
             docError = true;
@@ -201,20 +203,22 @@ void coverWebServer(){
         }  
 
         /* peek the objects */
-        JsonObject calibrator = root.as<JsonObject>()["calibrator"];
-        JsonObject cover = root.as<JsonObject>()["cover"];
+        JsonObject inCalibrator = root.as<JsonObject>()["calibrator"];
+        JsonObject inCover = root.as<JsonObject>()["cover"];
 
 
         /* data validation */
-        if(!calibrator["present"].is<bool>()){
+        if(!inCalibrator["present"].is<bool>()){
             validError = true;
             err.add("CoverC: calibrator present wrong data tpye");
+        } else {
+    
         }
 
-        bool calibPresent = calibrator["present"].as<bool>();
+        bool calibPresent = inCalibrator["present"].as<bool>();
 
         if(calibPresent){
-           retVal = validateJsonPwm(calibrator["pwm"]);
+           retVal = validateJsonPwm(inCalibrator["pwm"]);
 
            if(retVal !=1){
             validError = true;
@@ -224,15 +228,15 @@ void coverWebServer(){
            }
         }
 
-        if(!cover["present"].is<bool>()){
+        if(!inCover["present"].is<bool>()){
             validError = true;
             err.add("CoverC: calibrator present wrong data tpye");
         }
 
-        bool coverPresent = cover["present"].as<bool>();
+        bool coverPresent = inCover["present"].as<bool>();
 
         if(coverPresent){
-            retVal = validateJsonServo(cover["servo"]);
+            retVal = validateJsonServo(inCover["servo"]);
 
            if(retVal !=1){
             validError = true;
@@ -249,15 +253,44 @@ void coverWebServer(){
             return;
         }
 
+        /* creating the new file */
+        /*
+        I don't know if is the most beutiful way, the old way was to copy the json coming from the request,
+        but if I send large json with unused keys them was stored...
+        */
+        JsonObject newDoc = CoverCConfigTmp.to<JsonObject>(); // prepara l'oggetto JSON
+        JsonObject calib = newDoc["calibrator"].to<JsonObject>();
+
+        calib["present"] = calibPresent;
+        if(calibPresent){
+            JsonObject pwm = calib["pwm"].to<JsonObject>();
+            copyPWMJson(inCalibrator["pwm"],pwm);
+        }
+
+        JsonObject cover = newDoc["cover"].to<JsonObject>();
+        cover["present"] = coverPresent;
+
+        if(coverPresent){
+            JsonObject servo = cover["servo"].to<JsonObject>();
+            copyServoJson(inCover["servo"],servo);
+        }
+
+
+        serializeJson(CoverCConfigTmp,Serial);
         /* check if module need reboot */
 
         if(calibPresent != CoverC.config.calibrator.present){
             reboot = true;
         }
 
+        
+
+
+
+
         //if it was present and I want it present,check the pin
         if(calibPresent && CoverC.config.calibrator.present){
-            if(calibrator["pwm"]["pin"].as<unsigned int>() != Calibrator.getPinNumber()){
+            if(inCalibrator["pwm"]["pin"].as<unsigned int>() != Calibrator.getPinNumber()){
                 reboot = true;
             }
         }
@@ -268,20 +301,19 @@ void coverWebServer(){
         }
 
         if(coverPresent && CoverC.config.cover.present){
-            if(cover["servo"]["pin"].as<unsigned int>() != Cover.getPinNumber()){
+            if(inCover["servo"]["pin"].as<unsigned int>() != Cover.getPinNumber()){
                 reboot = true;
             }
         }
 
         /* store data that don't need setup */
-
-        Cover.openDeg = cover["openDeg"];
-        Cover.closeDeg = cover["closeDeg"];
-        Cover.setMax(cover["maxDeg"]);
-        Cover.movingTime = cover["movTime"];
-
-        CoverCConfigTmp.clear();
-        CoverCConfigTmp = reboot;
+        if(!reboot){
+            Cover.openDeg = inCover["openDeg"].as<unsigned int>();
+            Cover.closeDeg = inCover["closeDeg"].as<unsigned int>();
+            Cover.setMax(inCover["maxDeg"].as<unsigned int>());
+            Cover.movingTime = inCover["movTime"].as<unsigned int>();
+        }
+        
         doc["reboot"] = reboot;
         CoverC.config.save.restartNeeded = reboot;
         CoverC.config.save.execute = true;

@@ -236,8 +236,7 @@ void switchWebServer(){
             retVal = 0;
             //Digital Input
             if(type== static_cast<int>(SwTypeDInput)){
-                retVal=validateJsonInput(Switche);
-                if (retVal !=1){
+                if(validateJsonInput(Switche) !=1){
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
                     e["error"] = retValTranslate(retVal);
@@ -247,14 +246,10 @@ void switchWebServer(){
                 tmpSwitch["name"] = Switche["name"];
                 tmpSwitch["desc"] = Switche["desc"];
                 tmpSwitch["type"] = 1;
-                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
-                tmpSwitch["dOn"] = Switche["dOn"].as<unsigned int>();
-                tmpSwitch["dOff"] = Switche["dOff"].as<unsigned int>();
+                copyInputJson(Switche,tmpSwitch);
             
             } else if (type == static_cast<int>(SwTypeDOutput)){
-                retVal=validateJsonOutput(Switche);
-                if (retVal !=1){
+                if(validateJsonOutput(Switche) !=1){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
@@ -265,12 +260,10 @@ void switchWebServer(){
                 tmpSwitch["name"] = Switche["name"];
                 tmpSwitch["desc"] = Switche["desc"];
                 tmpSwitch["type"] = 2;
-                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                tmpSwitch["invert"] = Switche["invert"].as<unsigned int>();
+                copyOutputJson(Switche,tmpSwitch);
 
             } else if (type == static_cast<int>(SwTypePWM)){
-                retVal=validateJsonPwm(Switche);
-                if (retVal !=1){
+                if(validateJsonPwm(Switche) !=1){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
@@ -281,11 +274,10 @@ void switchWebServer(){
                 tmpSwitch["name"] = Switche["name"];
                 tmpSwitch["desc"] = Switche["desc"];
                 tmpSwitch["type"] = 3;
-                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
+                copyPWMJson(Switche,tmpSwitch);
 
             } else if(type == static_cast<int>(SwTypeServo)){
-                retVal=validateJsonServo(Switche);
-                if (retVal !=1){
+                if(validateJsonServo(Switche) !=1){
                     validError = true;
                     JsonObject e = err.add<JsonObject>();
                     e["id"] = count;
@@ -296,10 +288,7 @@ void switchWebServer(){
                 tmpSwitch["name"] = Switche["name"];
                 tmpSwitch["desc"] = Switche["desc"];
                 tmpSwitch["type"] = 4;
-                tmpSwitch["pin"] = Switche["pin"].as<unsigned int>();
-                tmpSwitch["maxDeg"] = Switche["maxDeg"].as<unsigned int>();
-                tmpSwitch["openDeg"] = Switche["openDeg"].as<unsigned int>();
-                tmpSwitch["closeDeg"] = Switche["closeDeg"].as<unsigned int>();
+                copyServoJson(Switche,tmpSwitch);
             }
         }
 
@@ -319,20 +308,16 @@ void switchWebServer(){
         for (int i = 0; i < _MAX_SWITCH_ID_; i++)
         {
             incomingType = IncomingSwitch[i]["type"].as<unsigned int>();
-            Serial.print(i);
-            Serial.print(": ");
             // if switch is not configured and 
             if(SwitchObjects[i] == nullptr){
                 //1
                 //incoming is null don't need nothing
                 if(incomingType == 0){ 
-                    Serial.println(1);
                     continue;
                 } else {
                     //2
                     //incoming is defined required a startup process
                     reboot = true;
-                    Serial.println(2);
                     continue;
                 }
             }
@@ -343,14 +328,12 @@ void switchWebServer(){
             // deleted by incoming data require a startup process
             if(incomingType == 0){
                 reboot = true;
-                Serial.println(3);
                 continue;
             }
             //4
             // switch is configured but incoming type is different require a startup process
             if(SwitchObjects[i]->getType() != incomingType){
                 reboot = true;
-                Serial.println(4);
                 continue;
             } else {
                 //from now switch and incoming type is equal
@@ -358,7 +341,6 @@ void switchWebServer(){
                 //pin is different
                 if(SwitchObjects[i]->getPinNumber() != IncomingSwitch[i]["pin"].as<unsigned int>()){
                     reboot = true;
-                    Serial.println(5);
                     continue;
                 }
 

@@ -154,6 +154,10 @@ void domeWebServer(){
             docError = true;
             err.add("Moving timeout data doesn't exist or wrong data type");
         }
+        if (!root["driverType"].is<unsigned int>() && !docError) {
+            docError = true;
+            err.add("Driver Type data doesn't exist or wrong data type");
+        }
         
         if (docError){
             response->setCode(500);
@@ -169,32 +173,28 @@ void domeWebServer(){
         JsonObject autoClose = root.as<JsonObject>()["autoclose"];
 
         /* data validation */
-        retVal = validateJsonInput(pinOpen);
-        if(retVal != 1){
+        if(validateJsonInput(pinOpen) != 1){
             validError = true;
             JsonObject e = err.add<JsonObject>();
             e["id"] = 1;
             e["error"] = retValTranslate(retVal);
         }
-        retVal=0;
-        retVal = validateJsonInput(pinClose);
-        if(retVal != 1){
+
+        if(validateJsonInput(pinClose) != 1){
             validError = true;
             JsonObject e = err.add<JsonObject>();
             e["id"] = 2;
             e["error"] = retValTranslate(retVal);
         }
-        retVal=0;
-        retVal = validateJsonOutput(pinStart);
-        if(retVal != 1){
+
+        if(validateJsonOutput(pinStart) != 1){
             validError = true;
             JsonObject e = err.add<JsonObject>();
             e["id"] = 3;
             e["error"] = retValTranslate(retVal);
         }
-        retVal=0;
-        retVal = validateJsonOutput(pinHalt);
-        if(retVal != 1){
+
+        if(validateJsonOutput(pinHalt) != 1){
             validError = true;
             JsonObject e = err.add<JsonObject>();
             e["id"] = 4;
@@ -205,9 +205,23 @@ void domeWebServer(){
             validError=true;
             err.add("Auto Close: enable wrong data type");
         }
+
         if( !autoClose["minutes"].is<unsigned int>()){
             validError=true;
             err.add("Auto Close:  minutes wrong data type");
+        }
+
+        if( !root["driverType"].is<unsigned int>()){
+            validError=true;
+            err.add("DriverType: wrong data type");
+        }
+        if( root["driverType"].as<unsigned int>() > 2){
+            validError=true;
+            err.add("DriverType: value out of range");
+        }
+        if( !root["movTimeOut"].is<unsigned int>()){
+            validError=true;
+            err.add("Moving Time Out: wrong data type");
         }
 
         if (validError){
@@ -217,6 +231,26 @@ void domeWebServer(){
             return;
         }
 
+        /*
+        Create the new file
+        */
+
+        DomeConfigTmp.clear();
+        JsonObject newDoc = DomeConfigTmp.to<JsonObject>(); // prepara l'oggetto JSON
+        JsonObject newOpen = newDoc["pinOpen"].to<JsonObject>();
+        JsonObject newClose = newDoc["pinClose"].to<JsonObject>();
+        JsonObject newStart = newDoc["pinStart"].to<JsonObject>();
+        JsonObject newHalt = newDoc["pinHalt"].to<JsonObject>();
+        copyInputJson(pinOpen,newOpen);
+        copyInputJson(pinClose,newClose);
+        copyOutputJson(pinStart,newStart);
+        copyOutputJson(pinHalt,newHalt);
+        JsonObject newAutoClose = newDoc["autoclose"].to<JsonObject>();
+        newAutoClose["enable"] = autoClose["enable"].as<bool>();
+        newAutoClose["minutes"] = autoClose["minutes"].as<unsigned int>();
+        newDoc["movTimeOut"] = root["movTimeOut"];
+        newDoc["driverType"] = root["driverType"];
+
         /* check if module need reboot */
         if (pinOpen["pin"].as<unsigned int>() != DomeInOpen.getPinNumber()
         || pinClose["pin"].as<unsigned int>() != DomeInClose.getPinNumber()
@@ -224,24 +258,21 @@ void domeWebServer(){
         || pinHalt["pin"].as<unsigned int>() != DomeOutHaltClose.getPinNumber()){
             reboot = true;
         }
-
-
-        DomeConfigTmp.clear();
-        DomeConfigTmp = root;
         
         if(!reboot){
-        DomeInOpen.invert = pinOpen["invert"].as<int>();
-        DomeInOpen.dOn = pinOpen["dOn"].as<unsigned long>();
-        DomeInOpen.dOff = pinOpen["dOff"].as<unsigned long>();
+        DomeInOpen.invert = newOpen["invert"].as<int>();
+        DomeInOpen.dOn = newOpen["dOn"].as<unsigned long>();
+        DomeInOpen.dOff = newOpen["dOff"].as<unsigned long>();
 
-        DomeInClose.invert = pinClose["invert"].as<int>();
-        DomeInClose.dOn = pinClose["dOn"].as<unsigned long>();
-        DomeInClose.dOff = pinClose["dOff"].as<unsigned long>();
+        DomeInClose.invert = newClose["invert"].as<int>();
+        DomeInClose.dOn = newClose["dOn"].as<unsigned long>();
+        DomeInClose.dOff = newClose["dOff"].as<unsigned long>();
 
-        DomeOutMoveOpen.invert = pinStart["invert"].as<int>();
-        DomeOutHaltClose.invert = pinHalt["invert"].as<int>();
+        DomeOutMoveOpen.invert = newStart["invert"].as<int>();
+        DomeOutHaltClose.invert = newHalt["invert"].as<int>();
 
-        Dome.config.data.movingTimeOut = root["movTimeOut"].as<unsigned int>();
+        Dome.config.data.movingTimeOut = newDoc["movTimeOut"].as<unsigned int>();
+        Dome.config.data.driverType = newDoc["driverType"] .as<unsigned int>();
             
         Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
         Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();

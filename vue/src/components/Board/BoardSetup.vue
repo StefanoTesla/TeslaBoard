@@ -102,7 +102,9 @@
 import { ref,onMounted,watch } from 'vue'
 import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
+import { useValidator } from '../../composables/validator';
 
+const { isNegative,isGreaterThan  } = useValidator();
 const props = defineProps({
   txt: Object,
   reboot: Boolean,

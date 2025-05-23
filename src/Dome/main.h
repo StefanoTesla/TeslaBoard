@@ -65,7 +65,7 @@ void domeAutoClose(){
 void shutterCycle(){
 
   if (Dome.Shutter.command == ShCommandIdle) {
-    if (Dome.Shutter.input == ShInputOnlyClose) {       Dome.Shutter.status = ShStatusClose;}
+    if (Dome.Shutter.input == ShInputOnlyClose) { Dome.Shutter.status = ShStatusClose;}
     if (Dome.Shutter.input == ShInputOnlyOpen) { Dome.Shutter.status = ShStatusOpen;}
     if (Dome.Shutter.input == ShInputNoOne or Dome.Shutter.input == ShInputAll){ Dome.Shutter.status = ShStatusError;}
   }

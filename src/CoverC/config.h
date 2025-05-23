@@ -56,15 +56,17 @@ void initCoverCConfig(){
     tmpCh = -1;
 
     if(CoverC.config.cover.present){
+
+    JsonObject se = cover["servo"];
     tmpCh = assignLedChannel(servo);
         if(tmpCh >= 0 && tmpCh < 16){
             ServoOutputConfig CoverConfig;
-            CoverConfig.pin = cover["pin"];
+            CoverConfig.pin = se["pin"];
             CoverConfig.channel = tmpCh;
-            CoverConfig.maxDeg = cover["maxDeg"];
-            CoverConfig.closeDeg = cover["closeDeg"]; 
-            CoverConfig.openDeg = cover["openDeg"];
-            CoverConfig.movTime = cover["movTime"];
+            CoverConfig.maxDeg = se["maxDeg"];
+            CoverConfig.closeDeg = se["closeDeg"]; 
+            CoverConfig.openDeg = se["openDeg"];
+            CoverConfig.movTime = se["movTime"];
             Cover.setup(&CoverConfig);
 
         }

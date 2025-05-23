@@ -89,9 +89,12 @@
       cmdRefusedNotify()
       return
     }
+
     if( switches.value.Switches[index].type == 2){
+      console.log()
       switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
-      switches.value.Switches[index].intValue = !switches.value.Switches[index].boValue
+      switches.value.Switches[index].intValue = switches.value.Switches[index].boValue ? 1:0
+      console.log(switches.value.Switches[index].intValue)
     }
 
     try {

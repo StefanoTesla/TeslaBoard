@@ -58,9 +58,7 @@ import Navigation from './components/Navigation.vue';
 import Switch from './components/Switch/SwitchSetup.vue'
 import CoverCalibrator from './components/CoverCalibrator/CoverCalibratorSetup.vue'
 import Dome from './components/Dome/DomeSetup.vue';
-import { useValidator } from './composables/validator';
 
-const { isInvalidPin } = useValidator();
 const gpioObserver = ref(Array.from({ length: 40 }, () => ({ type: -1, module: -1 })));
 const domeGPIO = ref([])
 const coverCGPIO = ref([])
