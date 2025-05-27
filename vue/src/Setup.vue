@@ -84,7 +84,6 @@ const loadInitConfig = async () => {
 }
 
 onMounted(async () => {
-  //initGPIOList()
   loadInitConfig()
 })
 

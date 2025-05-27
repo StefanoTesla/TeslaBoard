@@ -277,9 +277,6 @@
       if(res.execute){
         cmdExecutedNotify()
       }
-      if(res.execute){
-        cmdExecutedNotify()
-      }
 
     } catch (error) {
       noResponseNotify(error)

@@ -127,8 +127,7 @@ globalVariable Global;
 /* END OF GLOBAL */
 
 bool pinExist(unsigned int pin){
-
-  if(pin > 39 or pin == 20 or pin == 24 or pin==38 or (pin >=6 and pin <= 11) or (pin >=28 and pin <= 31)){
+  if(pin == 1 or pin == 3 or (pin >=6 and pin <=11) or pin == 20 or pin == 24 or (pin >=28 and pin <= 31) or pin == 37 or pin == 38 or pin > 39){
     return false;
   }
 
@@ -137,7 +136,7 @@ bool pinExist(unsigned int pin){
 
 bool pinUsableAsInput(unsigned int pin){
 
-  if(!pinExist(pin) or pin==1){
+  if(!pinExist(pin) or pin==0 or pin==12){
     return false;
   }
   return true;
@@ -145,7 +144,7 @@ bool pinUsableAsInput(unsigned int pin){
 
 bool pinUsableAsOutput(unsigned int pin){
 
-  if(!pinExist(pin) or pin == 3 or pin > 33){
+  if(!pinExist(pin) or pin > 33){
 
     return false;
   }

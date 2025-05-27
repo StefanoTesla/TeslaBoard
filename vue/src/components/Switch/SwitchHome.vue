@@ -91,10 +91,8 @@
     }
 
     if( switches.value.Switches[index].type == 2){
-      console.log()
       switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
       switches.value.Switches[index].intValue = switches.value.Switches[index].boValue ? 1:0
-      console.log(switches.value.Switches[index].intValue)
     }
 
     try {
@@ -132,7 +130,7 @@
 
 
   const updateStatusData = () => {
-    const hasActive = switches.value.Switches.some(swi => swi.boValue);
+    const hasActive = switches.value.Switches.some(swi => swi.boValue && swi.type !== 1);
     statusClass.value = hasActive ? 'green' : 'black';
   }
   

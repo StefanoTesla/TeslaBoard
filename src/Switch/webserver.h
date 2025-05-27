@@ -126,8 +126,6 @@ void switchWebServer(){
         }
 
         if (SwitchObjects[id]->getType() != static_cast<int>(SwTypeServo)){
-            Serial.println(SwitchObjects[id]->getType());
-            Serial.println(value);
             SwitchObjects[id]->write(value);
         } else {
             ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);

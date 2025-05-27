@@ -28,6 +28,7 @@ void ServoOutput::setup(IOConfigBase* config){
     min = 0;
     max = cfg->maxDeg;
     openDeg = cfg->openDeg;
+    closeDeg = cfg->closeDeg;
     movingTime = cfg->movTime;
     ledcAttachPin(pin, channel);
     Serial.print("New Servo setup at pin: ");
@@ -36,6 +37,10 @@ void ServoOutput::setup(IOConfigBase* config){
     Serial.print(channel);
     Serial.print(" max Deg: ");
     Serial.print(max);
+    Serial.print(" open Deg: ");
+    Serial.print(openDeg);
+    Serial.print(" close Deg: ");
+    Serial.print(closeDeg);
     Serial.print(" moviment time: ");
     Serial.println(movingTime);
 } else {
@@ -48,7 +53,6 @@ int ServoOutput::write(int _angle) {
       int dutyMicros = map(_angle, 0, max, 544, 2500);
       int dutyValue = map(dutyMicros, 0, 20000, 0, 4095); 
       ledcWrite(channel, dutyValue);
-      Serial.println(" done");
       return 1;
     }
     return 0;
@@ -118,7 +122,6 @@ void ServoOutput::goTo(int _angle,bool slowPermitted){
 bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
       if(moving){
-        Serial.println("Servo is already moving");
          return false;
       }
 
@@ -132,6 +135,10 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
         return false;
       }
 
+      Serial.print(" open Deg: ");
+      Serial.print(openDeg);
+      Serial.print(" close Deg: ");
+      Serial.print(closeDeg);
       // get in how many ms I need to do a degree
       MoveToSlowly.destination = _angle;
       MoveToSlowly.intervall = movingTime / max;
@@ -140,15 +147,6 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
       }
       MoveToSlowly.increment = readAngle() > _angle ? false : true; 
       moving = true;
-      Serial.println();
-      Serial.print("Destinazione: ");
-      Serial.print(MoveToSlowly.destination);
-      Serial.print(" Intervallo: ");
-      Serial.print(MoveToSlowly.intervall);
-      Serial.print(" Angolo attuale: ");
-      Serial.print(readAngle());
-      Serial.print(" Incremento: ");
-      Serial.println(MoveToSlowly.increment);
       overridePosition = _overridePosition ? true : false;
       return true;
 }
@@ -178,9 +176,6 @@ switch (cycle){
         } else {
           write(MoveToSlowly.destination);
           cycle = 0;
-          Serial.println("Servo cylce is finish");
-          Serial.println(millis()-MoveToSlowly.startTime);
-
           moving = false;
         }
       }

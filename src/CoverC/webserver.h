@@ -179,6 +179,7 @@ void coverWebServer(){
         JsonObject doc = response->getRoot().to<JsonObject>();
         JsonArray err = doc["errors"].to<JsonArray>();
 
+        JsonObject servo = JsonObject();
         bool docError = false;
         bool validError = false;
         int retVal = 0;
@@ -271,22 +272,15 @@ void coverWebServer(){
         cover["present"] = coverPresent;
 
         if(coverPresent){
-            JsonObject servo = cover["servo"].to<JsonObject>();
+            servo = cover["servo"].to<JsonObject>();
             copyServoJson(inCover["servo"],servo);
         }
 
-
-        serializeJson(CoverCConfigTmp,Serial);
         /* check if module need reboot */
 
         if(calibPresent != CoverC.config.calibrator.present){
             reboot = true;
         }
-
-        
-
-
-
 
         //if it was present and I want it present,check the pin
         if(calibPresent && CoverC.config.calibrator.present){
@@ -298,20 +292,18 @@ void coverWebServer(){
 
         if(coverPresent != CoverC.config.cover.present){
             reboot = true;
-        }
-
-        if(coverPresent && CoverC.config.cover.present){
-            if(inCover["servo"]["pin"].as<unsigned int>() != Cover.getPinNumber()){
+        } else if(coverPresent && CoverC.config.cover.present){
+            if(servo["pin"].as<unsigned int>() != Cover.getPinNumber()){
                 reboot = true;
             }
         }
 
         /* store data that don't need setup */
-        if(!reboot){
-            Cover.openDeg = inCover["openDeg"].as<unsigned int>();
-            Cover.closeDeg = inCover["closeDeg"].as<unsigned int>();
-            Cover.setMax(inCover["maxDeg"].as<unsigned int>());
-            Cover.movingTime = inCover["movTime"].as<unsigned int>();
+        if(!reboot && coverPresent){
+            Cover.openDeg = servo["openDeg"].as<unsigned int>();
+            Cover.closeDeg = servo["closeDeg"].as<unsigned int>();
+            Cover.setMax(servo["maxDeg"].as<unsigned int>());
+            Cover.movingTime = servo["movTime"].as<unsigned int>();
         }
         
         doc["reboot"] = reboot;
