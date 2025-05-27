@@ -130,7 +130,7 @@ const handleSwitchPinUpdate = (data) => {
   switchGPIO.value = []
   data.forEach(element => {
     let i = element.pin
-    switchGPIO.value[i] = { type: data.type, module: 0 };
+    switchGPIO.value[i] = { type: element.type, module: 3 };
   });
   rebuildGPIOPinList()
 }
@@ -149,7 +149,6 @@ const rebuildGPIOPinList = () => {
   }
   if(switchGPIO.value.length > 0){
     switchGPIO.value.forEach((data,pin) =>{
-      console.log(data)
       Object.assign(gpioObserver.value[pin], { type: data.type, module: data.module });
     });
   }

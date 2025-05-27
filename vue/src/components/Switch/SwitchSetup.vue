@@ -284,12 +284,15 @@
 }
 
 const updatePin = (data) => {
- if(data.type !== undefined){
-  pinUsed.value[data.index]={pin:data.pin, type:data.type, module: 3}
-  emit('update:pinUsed', pinUsed.value);
-  console.log(pinUsed)
- }
+  pinUsed.value = []
+  switches.value.Switches.forEach((element,i) => {
+    pinUsed.value[i] = {pin:element.pin, type:element.type, module: 3}
+  });
 
+  emit('update:pinUsed', pinUsed.value);
+  
 }
+
+
   
 </script>
