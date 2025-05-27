@@ -284,7 +284,12 @@
 }
 
 const updatePin = (data) => {
+ if(data.type !== undefined){
   pinUsed.value[data.index]={pin:data.pin, type:data.type, module: 3}
   emit('update:pinUsed', pinUsed.value);
+  console.log(pinUsed)
+ }
+
 }
+  
 </script>

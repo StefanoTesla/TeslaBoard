@@ -149,9 +149,11 @@ const rebuildGPIOPinList = () => {
   }
   if(switchGPIO.value.length > 0){
     switchGPIO.value.forEach((data,pin) =>{
+      console.log(data)
       Object.assign(gpioObserver.value[pin], { type: data.type, module: data.module });
     });
   }
+
 }
 
 </script>

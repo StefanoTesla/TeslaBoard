@@ -302,14 +302,12 @@ const errorResponseNotify = (errorMessage) => {
 
 
 watch(() => props.gpio, (newValue) => {
-  console.info(newValue)
   freeGPIO.value = []
   newValue.forEach((element,i) => {
     if(element.type == 0){
       freeGPIO.value[i] = { type:element.type, module:element.module}
     }
   });
-  console.log(freeGPIO.value)
 }, { deep: true });
 
 </script>
