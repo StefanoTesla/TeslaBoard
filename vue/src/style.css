@@ -399,3 +399,19 @@ input[type="range"] {
 .blur{
   filter: blur(5px);
 }
+
+
+
+.notify{
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12 px-2 py-2 shadow-[#2e2e33] shadow-sm
+}
+
+.error{
+  @apply bg-red-700 text-white
+}
+.warning{
+  @apply bg-yellow-700
+}
+.info{
+  @apply bg-blue-700 text-white
+}

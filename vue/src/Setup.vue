@@ -4,8 +4,11 @@
     :home = false
   />
  
-
   <div v-if="txtLoaded" :class="[modal ? 'blur' : '']">
+
+    <Advise
+    :notifies = "permNotify"
+    />
 
     <Switch 
       v-if="components.switch" 
@@ -58,11 +61,13 @@ import Navigation from './components/Navigation.vue';
 import Switch from './components/Switch/SwitchSetup.vue'
 import CoverCalibrator from './components/CoverCalibrator/CoverCalibratorSetup.vue'
 import Dome from './components/Dome/DomeSetup.vue';
+import Advise from './components/Advise/Advise.vue';
 
 const gpioObserver = ref(Array.from({ length: 40 }, () => ({ type: -1, module: -1 })));
 const domeGPIO = ref([])
 const coverCGPIO = ref([])
 const switchGPIO = ref([])
+const permNotify = ref([])
 
 const components = ref([])
 const { translations, loadTranslations } = useTranslations()
@@ -102,10 +107,6 @@ const rebootNow = () => {
 }
 
 
-const initGPIOList = () => {
-  gpioObserver.value = Array.from({ length: 40 }, () => ({ type: 0, module: 0 }));
-}
-
 const handleDomePinUpdate = (data) => {
   domeGPIO.value = []
   data.forEach(element => {
@@ -118,10 +119,7 @@ const handleDomePinUpdate = (data) => {
 const handleCoverCPinUpdate = (data) => {
   coverCGPIO.value = []
   data.forEach(element => {
-    let i = element.pin
-    coverCGPIO.value[i] = {}
-    coverCGPIO.value[i].type = element.type
-    coverCGPIO.value[i].module = 2
+    coverCGPIO.value.push({pin:element.pin, type:element.type , module:2})
   });
   rebuildGPIOPinList()
 }
@@ -129,30 +127,46 @@ const handleCoverCPinUpdate = (data) => {
 const handleSwitchPinUpdate = (data) => {
   switchGPIO.value = []
   data.forEach(element => {
-    let i = element.pin
-    switchGPIO.value[i] = { type: element.type, module: 3 };
+    switchGPIO.value.push({pin:element.pin, type:element.type , module:3})
   });
   rebuildGPIOPinList()
 }
 
 const rebuildGPIOPinList = () => {
-  initGPIOList()
-  if(domeGPIO.value.length > 0){
-    domeGPIO.value.forEach((data,pin) =>{
-      Object.assign(gpioObserver.value[pin], { type: data.type, module: data.module });
-    });
-  }
-  if(coverCGPIO.value.length > 0){
-    coverCGPIO.value.forEach((data,pin) =>{
-      Object.assign(gpioObserver.value[pin], { type: data.type, module: data.module });
-    });
-  }
-  if(switchGPIO.value.length > 0){
-    switchGPIO.value.forEach((data,pin) =>{
-      Object.assign(gpioObserver.value[pin], { type: data.type, module: data.module });
-    });
+  gpioObserver.value = [...domeGPIO.value,...coverCGPIO.value,...switchGPIO.value]
+
+
+  //performances: STONK!
+  //clean oldest message
+  gpioObserver.value.forEach(element =>{
+    removePermanentNotifiy(
+      "warning",
+      translations.value.errors.general.error + " " + translations.value.IOBase.pin + element.pin + " " + translations.value.errors.gpio.doubleUsage
+      )
+  });
+
+  const doubledGipo = gpioObserver.value
+    .map(item => item.pin)
+    .filter((pin, index, self) => self.indexOf(pin) !== index && self.lastIndexOf(pin) === index);
+
+  doubledGipo.forEach(gpio =>{  
+    addPermanentNotifiy(
+      "warning",
+      translations.value.errors.general.error + " " + translations.value.IOBase.pin + gpio + " " + translations.value.errors.gpio.doubleUsage
+      )
+  });
+ 
+}
+
+
+
+const addPermanentNotifiy = (type,message) => {
+  if (!permNotify.value.some(n => n.type === type && n.message === message)) {
+    permNotify.value.push({type:type,message:message})
   }
 
 }
-
+const removePermanentNotifiy = (type,message) => {
+  permNotify.value = permNotify.value.filter(n => !(n.type === type && n.message === message))
+}
 </script>

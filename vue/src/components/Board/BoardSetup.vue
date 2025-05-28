@@ -73,12 +73,26 @@
       <p>{{ props.txt.IOBase.pin }}</p>
     </div>
 
-    <p>Pin Liberi:</p>aaa
-      <template>
-        <div v-for="(item, index) in freeGPIO.value" :key="index">
-          <p>{{ item.type }} - {{ item.module }}{{ item}} {{ index }}</p>
-        </div>
-      </template>
+    <div class="grid grid-cols-2 justify-items-center">
+      <div>
+        <p>Input:</p>
+        <ul>
+          <li v-for="el in inputGPIO">
+            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }}</p>
+            
+          </li>
+        </ul>
+      </div>
+      <div>
+      <p>Output:</p>
+        <ul>
+          <li v-for="el in outputGPIO">
+            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }}</p>
+            
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 
 
@@ -104,7 +118,7 @@ import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
 import { useValidator } from '../../composables/validator';
 
-const { isNegative,isGreaterThan  } = useValidator();
+const { isNegative,isGreaterThan,isInvalidPin  } = useValidator();
 const props = defineProps({
   txt: Object,
   reboot: Boolean,
@@ -115,7 +129,8 @@ const emit = defineEmits(['update:reboot']);
 
 const board = ref({})
 const originalData = ref({})
-const freeGPIO = ref([])
+const inputGPIO = ref([])
+const outputGPIO = ref([])
 
 let dataLoaded = ref(false)
 let statusClass = ref('green')
@@ -302,12 +317,39 @@ const errorResponseNotify = (errorMessage) => {
 
 
 watch(() => props.gpio, (newValue) => {
-  freeGPIO.value = []
-  newValue.forEach((element,i) => {
-    if(element.type == 0){
-      freeGPIO.value[i] = { type:element.type, module:element.module}
+  
+  const gpios = Array.from({ length: 39 }, (_, i) => ({
+    pin: i + 1,
+    module: 0
+  }));
+
+  const usedPins = newValue
+    .filter(obj => obj.pin)
+    .map(obj => obj.pin);
+
+  inputGPIO.value = []
+  outputGPIO.value = []
+  gpios.forEach(element => {
+    if(!isInvalidPin(element.pin,'input')){
+      if(usedPins.includes(element.pin)){
+
+        inputGPIO.value.push({pin:element.pin,used:1})
+      } else {
+        inputGPIO.value.push({pin:element.pin,used:0})
+      }
+      
+    }
+    if(!isInvalidPin(element.pin,'output')){
+      if(usedPins.includes(element.pin)){
+        outputGPIO.value.push({pin:element.pin,used:1})
+      } else {
+        outputGPIO.value.push({pin:element.pin,used:0})
+      }
+      
     }
   });
+
+
 }, { deep: true });
 
 </script>

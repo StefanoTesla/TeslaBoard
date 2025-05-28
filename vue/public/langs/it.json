@@ -194,7 +194,8 @@
 		},
 		"gpio":{
 			"noUsableAsInput" : "Non utilizzabile come ingresso",
-			"noUsableAsOutput" : "Non utilizzabile come uscita"
+			"noUsableAsOutput" : "Non utilizzabile come uscita",
+			"doubleUsage": "Utilizzato più volte"
 		},
 		"dome":{
 			"ShAlreadyMoving" : "Il tetto è già in movimento",
@@ -221,7 +222,9 @@
 			"greaterThan":"Valore maggiore di: ",
 			"configRejected": "Dati non validi. Configurazione non salvata",
 			"validationFailed": "Validazione fallita",
-			"wrongValue":"Valore errato"
+			"wrongValue":"Valore errato",
+			"error": "Errore",
+			"warning": "Attenzione"
 		}
 	},
 	"IOBase":{
