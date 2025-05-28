@@ -15,6 +15,11 @@
 				"closing": "Closing",
 				"error": "Error"
 			},
+			"shState":{
+				"0": "Opening",
+				"1": "Closing",
+				"2": "Error"
+			},
 			"shutterCommand": {
 				"idle": "No Command",
 				"halt": "HALT"
@@ -66,7 +71,8 @@
 		}
 	},
 	"switch": {
-		"title": "Switches"
+		"title": "Switches",
+		"switch": "Switch"
 	},
 	"gen": {
 		"status": {
@@ -165,22 +171,27 @@
 		"gpioValidation":{
 			"IOPinNotInt": "Pin is not a valid value",
 			"IOPinNotUsable": "Pin not usable",
-			"IOdOnNotInt": "dOn non è un valore valido",
-			"IOdOffNotInt": "dOff non è un valore valido",
-			"IOInvertNotInt": "Inverti non è un valore valido",
-			"IOInvertOutRange": "Inverti non è fuori dai limiti",
-			"IOMaxDNotInt": "Angolo Massimo non è un valore valido",
-			"IOMaxDOutRange":"Angolo Massimo è fuori dai limiti",
-			"IOOpDNotInt": "Pin non è un valore valido",
-			"IOOpDBig":"Angolo di Apertura più grande dell'angolo massimo",
-			"IOClDNotInt": "Pin non è un valore valido",
-			"IOClDBig":"Angolo di Chiusura più grande dell'angolo massimo",
-			"IOMovTimeNotInt":"Tempo di movimento non è un valore valido",
-			"IOGenErr":"Errore generale"
+			"IOdOnNotInt": "dOn is not a valid value",
+			"IOdOffNotInt": "dOff is not a valid value",
+			"IOInvertNotInt": "Invert is not a valid value",
+			"IOInvertOutRange": "Invert is out of range",
+			"IOMaxDNotInt": "Max angle is not a valid value",
+			"IOMaxDOutRange":"Max Angle is out of range",
+			"IOOpDNotInt": "Open Angle is not a valid value",
+			"IOOpDBig":"Open Angle is bigger than maximum angle",
+			"IOClDNotInt": "Close Angle is not a valid value",
+			"IOClDBig":"Close Angle is bigger than maximum angle",
+			"IOMovTimeNotInt":"Movement time is out of range",
+			"IOTypeUndef": "Type not defined",
+			"IOTypeOutRange": "Type is out of range",
+			"IONameUndef": "Name not defined",
+			"IODescUndef" : "Descriptione not defined",
+			"IOGenErr":"General Error"
 		},
 		"gpio": {
 			"noUsableAsInput": "not usable as input",
-			"noUsableAsOutput": "not usable as output"
+			"noUsableAsOutput": "not usable as output",
+			"doubleUsage": "Used many times"
 		},
 		"dome": {
 			"ShAlreadyMoving": "The roof is already moving",
@@ -199,8 +210,18 @@
 			"SwValueBehindMin": "Minimum Value Exceeded",
 			"SwValueOverMax": "Maximum Value Exceeded",
 			"SwValueAbsent": "Value Not Provided",
-			"SwNotWritable": "Switch not writable"
-		}
+			"SwNotWritable": "Switch not writable",
+			"limitReached": "You can't add new switches"
+		},
+		"general":{
+			"negativeValue":"Value can't be negative",
+			"greaterThan":"Value greater of: ",
+			"configRejected": "Data not valid. Configuration was not saved",
+			"validationFailed": "Validation failed",
+			"wrongValue":"Wrong Value",
+			"error": "Error",
+			"warning": "Warning"
+		}		
 	},
 	"IOBase": {
 		"name": "Name:",
@@ -213,6 +234,12 @@
 			"2": "Digital Output",
 			"3": "PWM Output",
 			"4": "Servo Output"
+		},
+		"moduleEnum": {
+			"0": "Not used",
+			"1": "Dome",
+			"2": "Flat Panel and Cover",
+			"3": "Switch"
 		},
 		"DI": {
 			"onDelay": "Activation Delay:",

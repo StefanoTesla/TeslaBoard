@@ -69,7 +69,6 @@
 		"setting":{
 			"configSaved": "configurazione Cover Calibrator Salvata"
 		}
-
 	},
 	"switch":{
 		"title": "Interruttori",
@@ -102,7 +101,6 @@
 		"configSaved": "Configurazione Salvata",
 		"utility":"Utility"
 	},
-
 	"board":{
 		"home": {
 			"wifi":{
@@ -140,8 +138,7 @@
 				}
 			},
 			"gpio":{
-				"module":
-				{
+				"module": {
 					"0": "Non associato",
 					"1": "Cupola",
 					"2": "CoverC",
@@ -170,7 +167,6 @@
 			"later": "RIAVVIA DOPO"
 		}
 	},
-
 	"errors":{
 		"gpioValidation":{
 			"IOPinNotInt": "Pin non definito",
@@ -178,7 +174,7 @@
 			"IOdOnNotInt": "dOn non è un valore valido",
 			"IOdOffNotInt": "dOff non è un valore valido",
 			"IOInvertNotInt": "Inverti non è un valore valido",
-			"IOInvertOutRange": "Inverti non è fuori dai limiti",
+			"IOInvertOutRange": "Inverti è fuori dai limiti",
 			"IOMaxDNotInt": "Angolo Massimo non è un valore valido",
 			"IOMaxDOutRange":"Angolo Massimo è fuori dai limiti",
 			"IOOpDNotInt": "Pin non è un valore valido",
