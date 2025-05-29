@@ -6,8 +6,8 @@
 	"dome": {
 		"title": "Cúpula",
 		"home": {
-			"input": "Estado de entradas",
-			"roofState": "Estado del techo: ",
+			"input": "Estado Entradas",
+			"roofState": "Estado del Techo:",
 			"actualCommand": "Comando actual:",
 			"lastCommand": "Último comando:",
 			"shutterState": {
@@ -15,35 +15,40 @@
 				"closing": "Cerrando",
 				"error": "Error"
 			},
+			"shState": {
+				"0": "Abriendo",
+				"1": "Cerrando",
+				"2": "Error"
+			},
 			"shutterCommand": {
 				"idle": "Ningún comando",
 				"halt": "DETENER"
 			}
 		},
 		"setting": {
-			"driverType": "Tipo de comando",
-			"inOpen": "Entrada Abierta",
-			"inClose": "Entrada Cerrada",
+			"driverType": "Tipo de control",
+			"inOpen": "Entrada Abrir",
+			"inClose": "Entrada Cerrar",
 			"onDelay": "Retardo de activación:",
 			"offDelay": "Retardo de desactivación:",
-			"outStart": "GPIO Inicio:",
-			"outHalt": "GPIO DETENER:",
-			"outOpen": "GPIO Abrir:",
-			"outClose": "GPIO Cerrar:",
+			"outStart": "GPIO Start:",
+			"outHalt": "GPIO HALT:",
+			"outOpen": "GPIO Apertura:",
+			"outClose": "GPIO Cierre:",
 			"outDir": "GPIO Dirección:",
-			"timeout": "Tiempo de espera",
-			"autoClose": "Cierre automático",
+			"timeout": "Timeout",
+			"autoClose": "Cierre Automático",
 			"timeOutMoviment": "Tiempo máximo de movimiento:",
-			"autoclosewarning1": "Atención, lea atentamente antes de activarlo.",
-			"autoclosewarning2": "Esta opción cierra automáticamente el techo si está abierto Y el WiFi está conectado Y no hay comunicación con la placa de control (referente a la CÚPULA).",
-			"autoclosewarning3": "Por ejemplo, en caso de un corte temporal de energía, cuando la electricidad regrese y posiblemente la PC permanezca apagada o el software de control no se reinicie, después de los minutos configurados, el techo se cerrará, INDEPENDIENTEMENTE del estado del equipo (telescopio).",
-			"autoclosewarning4": "En caso de mantenimiento del techo, será necesario mantener el navegador abierto en la página principal para evitar el cierre automático, o mejor aún, desactivar esta función.",
-			"autoclosewarning5": "Al activar esta función, confirmas que has leído y comprendido los riesgos que esta función puede tener para ti y tu equipo.",
-			"autoCloseEn": "Habilitar cierre automático:",
+			"autoclosewarning1": "Atención, leer atentamente antes de activarlo.",
+			"autoclosewarning2": "Esta opción cierra el techo automáticamente si el techo está abierto Y el wifi está conectado Y no hay comunicación con la placa (referente a la CÚPULA).",
+			"autoclosewarning3": "Por ejemplo, en caso de corte temporal de energía, una vez que vuelva la corriente, y probablemente el PC permanezca apagado o los softwares no se reinicien para gestionar la secuencia, esperará los minutos configurados, después de lo cual el techo se cerrará, INDEPENDIENTEMENTE del estado del equipo (telescopio).",
+			"autoclosewarning4": "En caso de mantenimiento en el techo, será necesario mantener el navegador abierto en la página principal, para evitar el cierre automático, o aún mejor, desactivar esta función.",
+			"autoclosewarning5": "Al activar esta función, confirmas haber leído y comprendido los riesgos que esta función puede tener para ti y tu equipo.",
+			"autoCloseEn": "Habilitar Cierre Automático:",
 			"autoCloseMin": "Cerrar después de:",
 			"driverTypeEnum": {
-				"0": "Tarjeta para portón corredizo",
-				"1": "Señal de dirección",
+				"0": "Placa de Puerta",
+				"1": "Señal de Dirección",
 				"2": "Comando + Dirección"
 			}
 		}
@@ -56,24 +61,25 @@
 			"coverState": "Estado de la cubierta:",
 			"coverEnum": {
 				"notPresent": "No presente",
-				"moving": "En movimiento",
+				"moving": "En Movimiento",
 				"unknow": "Desconocido",
 				"error": "Error"
 			}
 		},
 		"setting": {
-			"configSaved": "Configuración de la cubierta y calibrador guardada"
+			"configSaved": "Configuración de Cover Calibrator Guardada"
 		}
 	},
 	"switch": {
-		"title": "Interruptores"
+		"title": "Interruptores",
+		"switch": "Interruptor"
 	},
 	"gen": {
 		"status": {
 			"open": "Abierto",
 			"close": "Cerrado",
 			"actualPos": "Posición actual:",
-			"actualValue": "Valor actual:"
+			"actualValue": "Valor Actual:"
 		},
 		"action": {
 			"open": "Abrir",
@@ -86,20 +92,20 @@
 		"output": "Salida",
 		"outputs": "Salidas",
 		"pin": "GPIO",
-		"loadFromBoard": "RESTAURAR",
+		"loadFromBoard": "RESTABLECER",
 		"downloadFile": "DESCARGAR ARCHIVO",
 		"save": "GUARDAR",
 		"enable": "Habilitar:",
 		"cmdAck": "Comando recibido",
 		"cmdRefused": "Comando rechazado",
-		"configSaved": "Configuración guardada",
+		"configSaved": "Configuración Guardada",
 		"utility": "Utilidad"
 	},
 	"board": {
 		"home": {
 			"wifi": {
-				"ssdi": "Red WiFi:",
-				"db": "Recepción:",
+				"ssid": "Red WiFi:",
+				"db": "Señal:",
 				"macAddress": "Dirección MAC"
 			},
 			"cpu": {
@@ -107,7 +113,7 @@
 				"speed": "Velocidad:"
 			},
 			"uptime": {
-				"from": "Activo desde",
+				"from": "Activa desde",
 				"days": "Días,",
 				"hours": "Horas,",
 				"minutes": "Minutos"
@@ -121,10 +127,10 @@
 				"title": "Versión",
 				"actual": "Actual:",
 				"available": "Disponible:",
-				"check": "Buscar actualizaciones"
+				"check": "Buscar Actualizaciones"
 			},
 			"timers": {
-				"channel": "Canal ",
+				"channel": "Canal",
 				"channels": {
 					"0": "No inicializado",
 					"1": "PWM",
@@ -133,10 +139,10 @@
 			},
 			"gpio": {
 				"module": {
-					"0": "No asignado",
+					"0": "No asociado",
 					"1": "Cúpula",
-					"2": "Cubierta",
-					"3": "Interruptor"
+					"2": "CoverC",
+					"3": "Interruptores"
 				}
 			}
 		},
@@ -144,27 +150,48 @@
 			"locale": "Idioma",
 			"wifi": "WiFi",
 			"ipAddress": "Dirección IP:",
-			"gateway": "Dirección de puerta de enlace:",
+			"gateway": "Puerta de Enlace:",
 			"subnet": "Subred:",
 			"staticIp": "Dirección IP estática:",
-			"waitToReconnect": "Tiempo de espera para reconexión:",
+			"waitToReconnect": "Esperar para reconectar:",
 			"warningIP": "Atención, se realiza una validación simple, en caso de error será imposible acceder a la placa.",
-			"configSaved": "Configuración de la placa guardada",
+			"configSaved": "Configuración de Placa Guardada",
 			"reboot": "REINICIAR PLACA",
-			"wifiReset": "ELIMINAR CONFIGURACIÓN WIFI"
+			"wifiReset": "BORRAR AJUSTES WIFI"
 		},
 		"reboot": {
 			"warning": "ATENCIÓN",
-			"text1": "La configuración ha sido guardada, pero se aplicará solo en el próximo reinicio.",
-			"text2": "Puedes reiniciar ahora o más tarde (el botón para restablecer está en el menú de la placa Tesla).",
+			"text1": "La configuración se ha guardado, pero se aplicará solo en el próximo reinicio.",
+			"text2": "Puedes reiniciar ahora o más tarde (el botón para ejecutar el reinicio está en la placa Tesla Board)",
 			"now": "REINICIAR AHORA",
-			"later": "REINICIAR MÁS TARDE"
+			"later": "REINICIAR DESPUÉS"
 		}
 	},
 	"errors": {
+		"gpioValidation": {
+			"IOPinNotInt": "Pin no definido",
+			"IOPinNotUsable": "Pin no utilizable",
+			"IOdOnNotInt": "dOn no es un valor válido",
+			"IOdOffNotInt": "dOff no es un valor válido",
+			"IOInvertNotInt": "Invertir no es un valor válido",
+			"IOInvertOutRange": "Invertir fuera de los límites",
+			"IOMaxDNotInt": "Ángulo Máximo no es un valor válido",
+			"IOMaxDOutRange": "Ángulo Máximo fuera de los límites",
+			"IOOpDNotInt": "Pin no es un valor válido",
+			"IOOpDBig": "Ángulo de Apertura mayor que el ángulo máximo",
+			"IOClDNotInt": "Pin no es un valor válido",
+			"IOClDBig": "Ángulo de Cierre mayor que el ángulo máximo",
+			"IOMovTimeNotInt": "Tiempo de movimiento no es un valor válido",
+			"IOTypeUndef": "Tipo no definido",
+			"IOTypeOutRange": "Tipo fuera de rango",
+			"IONameUndef": "Nombre no definido",
+			"IODescUndef": "Descripción no definida",
+			"IOGenErr": "Error general"
+		},
 		"gpio": {
-			"noUsableAsInput": "no se puede usar como entrada",
-			"noUsableAsOutput": "no se puede usar como salida"
+			"noUsableAsInput": "No utilizable como entrada",
+			"noUsableAsOutput": "No utilizable como salida",
+			"doubleUsage": "Usado varias veces"
 		},
 		"dome": {
 			"ShAlreadyMoving": "El techo ya está en movimiento",
@@ -174,9 +201,72 @@
 		"coverc": {
 			"coverIsMoving": "La cubierta ya está en movimiento",
 			"coverNotPresent": "La cubierta no está presente",
-			"calibNotPresent": "El panel de calibración no está presente",
+			"calibNotPresent": "El flat panel no está presente",
 			"calibBrightnessNotPresent": "Parámetro de brillo ausente",
-			"calibBrightnessNotInRange": "Parámetro de brillo fuera de rango"
+			"calibBrightnessNotInRange": "Parámetro de brillo fuera de los límites"
+		},
+		"switch": {
+			"SwIdOutOfRange": "ID de Interruptor fuera de rango",
+			"SwValueBehindMin": "Valor Mínimo sobrepasado",
+			"SwValueOverMax": "Valor Máximo sobrepasado",
+			"SwValueAbsent": "Valor No Proporcionado",
+			"SwNotWritable": "Interruptor no escribible",
+			"limitReached": "No se pueden añadir más Interruptores"
+		},
+		"general": {
+			"negativeValue": "El valor no puede ser negativo",
+			"greaterThan": "Valor mayor que: ",
+			"configRejected": "Datos no válidos. Configuración no guardada",
+			"validationFailed": "Validación fallida",
+			"wrongValue": "Valor erróneo",
+			"error": "Error",
+			"warning": "Advertencia"
+		}
+	},
+	"IOBase": {
+		"name": "Nombre:",
+		"description": "Descripción:",
+		"pin": "GPIO:",
+		"type": "Tipo:",
+		"typeEnum": {
+			"0": "No utilizada",
+			"1": "Entrada Digital",
+			"2": "Salida Digital",
+			"3": "Salida PWM",
+			"4": "Salida Servo"
+		},
+		"moduleEnum": {
+			"0": "No utilizada",
+			"1": "Cúpula",
+			"2": "Flat Panel y Cubierta",
+			"3": "Interruptores"
+		},
+		"DI": {
+			"onDelay": "Retardo de activación:",
+			"offDelay": "Retardo de desactivación:",
+			"func": "Funcionamiento:",
+			"invertEnum": {
+				"0": "Normal Abierto",
+				"1": "Normal Cerrado"
+			}
+		},
+		"DO": {
+			"func": "Funcionamiento:",
+			"invertEnum": {
+				"0": "Activo ALTO",
+				"1": "Activo BAJO"
+			}
+		},
+		"Servo": {
+			"openDeg": "Abrir a grados:",
+			"closeDeg": "Cerrar a grados:",
+			"maxDeg": "Rotación Máxima:",
+			"maxDegEnum": {
+				"90": "90°",
+				"180": "180°",
+				"270": "270°"
+			},
+			"movingTime": "Tiempo de movimiento:"
 		}
 	}
 }

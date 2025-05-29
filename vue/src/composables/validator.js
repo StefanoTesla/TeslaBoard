@@ -8,9 +8,9 @@ export function useValidator() {
     };
 
     const isInvalidPin = (value, type = "input") => {
-        const noUsablePin = [1,3,6, 7, 8, 9, 10, 11, 20, 24, 28, 29, 30, 31, 37, 38];
+        const noUsablePin = [0,1,3,6, 7, 8, 9, 10, 11, 20, 24, 28, 29, 30, 31, 37, 38];
         const noUsableOutputPin = [34, 35, 36, 39];
-        const noUsableInputPin = [0,12];
+        const noUsableInputPin = [12];
 
         let invalidPins = [...noUsablePin];
         if (type === "output") invalidPins.push(...noUsableOutputPin);

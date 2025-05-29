@@ -62,6 +62,9 @@ import Switch from './components/Switch/SwitchSetup.vue'
 import CoverCalibrator from './components/CoverCalibrator/CoverCalibratorSetup.vue'
 import Dome from './components/Dome/DomeSetup.vue';
 import Advise from './components/Advise/Advise.vue';
+  import { useValidator } from './composables/Validator';
+
+  const { isInvalidPin } = useValidator();
 
 const gpioObserver = ref(Array.from({ length: 40 }, () => ({ type: -1, module: -1 })));
 const domeGPIO = ref([])
@@ -149,11 +152,15 @@ const rebuildGPIOPinList = () => {
     .map(item => item.pin)
     .filter((pin, index, self) => self.indexOf(pin) !== index && self.lastIndexOf(pin) === index);
 
-  doubledGipo.forEach(gpio =>{  
+  doubledGipo.forEach(gpio =>{
+    console.log(gpio)
+    if(!isInvalidPin(gpio,"")){
     addPermanentNotifiy(
       "warning",
       translations.value.errors.general.error + " " + translations.value.IOBase.pin + gpio + " " + translations.value.errors.gpio.doubleUsage
       )
+    }
+
   });
  
 }

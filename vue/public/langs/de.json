@@ -15,34 +15,39 @@
 				"closing": "Wird geschlossen",
 				"error": "Fehler"
 			},
+			"shState": {
+				"0": "Wird geöffnet",
+				"1": "Wird geschlossen",
+				"2": "Fehler"
+			},
 			"shutterCommand": {
 				"idle": "Kein Befehl",
-				"halt": "STOPP"
+				"halt": "HALT"
 			}
 		},
 		"setting": {
-			"driverType": "Befehlstyp",
+			"driverType": "Steuerungstyp",
 			"inOpen": "Eingang Offen",
 			"inClose": "Eingang Geschlossen",
 			"onDelay": "Einschaltverzögerung:",
 			"offDelay": "Ausschaltverzögerung:",
 			"outStart": "GPIO Start:",
-			"outHalt": "GPIO STOPP:",
+			"outHalt": "GPIO HALT:",
 			"outOpen": "GPIO Öffnen:",
 			"outClose": "GPIO Schließen:",
 			"outDir": "GPIO Richtung:",
-			"timeout": "Zeitüberschreitung",
+			"timeout": "Timeout",
 			"autoClose": "Automatisches Schließen",
 			"timeOutMoviment": "Maximale Bewegungszeit:",
-			"autoclosewarning1": "Achtung, bitte sorgfältig lesen, bevor Sie diese Funktion aktivieren.",
-			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn das Dach offen ist UND das WLAN verbunden ist UND keine Kommunikation mit der Steuerplatine (die die KUPPEL betrifft) besteht.",
-			"autoclosewarning3": "Zum Beispiel, im Falle eines vorübergehenden Stromausfalls, wenn der Strom wiederkehrt und der PC möglicherweise ausgeschaltet bleibt oder die Steuerungssoftware nicht neu startet, wird nach der eingestellten Zeit das Dach geschlossen, UNABHÄNGIG vom Zustand der Ausrüstung (Teleskop).",
-			"autoclosewarning4": "Bei Wartungsarbeiten am Dach muss der Browser auf der Hauptseite geöffnet bleiben, um ein automatisches Schließen zu verhindern, oder besser noch, diese Funktion sollte deaktiviert werden.",
-			"autoclosewarning5": "Durch Aktivieren dieser Funktion bestätigen Sie, dass Sie die Risiken verstanden haben, die diese Funktion für Sie und Ihre Ausrüstung haben kann.",
+			"autoclosewarning1": "Achtung, bitte vor Aktivierung sorgfältig lesen.",
+			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn es geöffnet ist UND das WLAN verbunden ist UND keine Kommunikation mit dem Board besteht (bezogen auf die KUPPEL).",
+			"autoclosewarning3": "Zum Beispiel: Bei einem kurzzeitigen Stromausfall, sobald der Strom wieder da ist, aber der PC möglicherweise aus bleibt oder die Software nicht neu startet, wird nach Ablauf der eingestellten Minuten das Dach geschlossen, UNABHÄNGIG vom Status der Ausrüstung (Teleskop).",
+			"autoclosewarning4": "Bei Wartungsarbeiten am Dach sollte die Hauptseite im Browser offen bleiben, um ein automatisches Schließen zu verhindern, oder besser: Deaktiviere diese Funktion.",
+			"autoclosewarning5": "Durch Aktivieren dieser Funktion bestätigst du, die Risiken verstanden zu haben, die diese Funktion für dich und deine Ausrüstung haben kann.",
 			"autoCloseEn": "Automatisches Schließen aktivieren:",
 			"autoCloseMin": "Schließen nach:",
 			"driverTypeEnum": {
-				"0": "Steuerkarte für Schiebetore",
+				"0": "Torantrieb",
 				"1": "Richtungssignal",
 				"2": "Befehl + Richtung"
 			}
@@ -53,7 +58,7 @@
 		"calibrator": "Flat Panel",
 		"cover": "Abdeckung",
 		"home": {
-			"coverState": "Abdeckungsstatus:",
+			"coverState": "Status der Abdeckung: ",
 			"coverEnum": {
 				"notPresent": "Nicht vorhanden",
 				"moving": "In Bewegung",
@@ -66,11 +71,12 @@
 		}
 	},
 	"switch": {
-		"title": "Schalter"
+		"title": "Schalter",
+		"switch": "Schalter"
 	},
 	"gen": {
 		"status": {
-			"open": "Offen",
+			"open": "Geöffnet",
 			"close": "Geschlossen",
 			"actualPos": "Aktuelle Position:",
 			"actualValue": "Aktueller Wert:"
@@ -93,13 +99,13 @@
 		"cmdAck": "Befehl empfangen",
 		"cmdRefused": "Befehl abgelehnt",
 		"configSaved": "Konfiguration gespeichert",
-		"utility": "Dienstprogramm"
+		"utility": "Hilfsprogramme"
 	},
 	"board": {
 		"home": {
 			"wifi": {
-				"ssdi": "WLAN-Netzwerk:",
-				"db": "Empfang:",
+				"ssid": "WLAN-Netzwerk:",
+				"db": "Signalstärke:",
 				"macAddress": "MAC-Adresse"
 			},
 			"cpu": {
@@ -108,14 +114,14 @@
 			},
 			"uptime": {
 				"from": "Aktiv seit",
-				"days": "Tagen,",
+				"days": "Tage,",
 				"hours": "Stunden,",
 				"minutes": "Minuten"
 			},
 			"memory": {
 				"total": "Gesamtspeicher:",
 				"free": "Freier Speicher:",
-				"minFree": "Nicht fragmentierter freier Speicher:"
+				"minFree": "Unfragmentierter freier Speicher:"
 			},
 			"update": {
 				"title": "Version",
@@ -133,9 +139,9 @@
 			},
 			"gpio": {
 				"module": {
-					"0": "Nicht zugewiesen",
+					"0": "Nicht zugeordnet",
 					"1": "Kuppel",
-					"2": "Abdeckung",
+					"2": "CoverC",
 					"3": "Schalter"
 				}
 			}
@@ -148,35 +154,119 @@
 			"subnet": "Subnetz:",
 			"staticIp": "Statische IP-Adresse:",
 			"waitToReconnect": "Wartezeit für erneute Verbindung:",
-			"warningIP": "Achtung, es wird nur eine einfache Validierung durchgeführt. Bei einem Fehler kann die Steuerplatine nicht erreicht werden.",
-			"configSaved": "Steuerplatinen-Konfiguration gespeichert",
-			"reboot": "STEUERPLATINE NEUSTARTEN",
-			"wifiReset": "WLAN-EINSTELLUNGEN LÖSCHEN"
+			"warningIP": "Achtung: Es erfolgt nur eine einfache Validierung. Bei Fehler ist das Board nicht erreichbar.",
+			"configSaved": "Board-Konfiguration gespeichert",
+			"reboot": "BOARD NEUSTARTEN",
+			"wifiReset": "WLAN-EINSTELLUNGEN ZURÜCKSETZEN"
 		},
 		"reboot": {
 			"warning": "ACHTUNG",
-			"text1": "Die Konfiguration wurde gespeichert, wird aber erst nach dem nächsten Neustart angewendet.",
-			"text2": "Sie können jetzt oder später neu starten (der Reset-Button befindet sich im Tesla-Board-Menü).",
+			"text1": "Die Konfiguration wurde gespeichert, aber erst beim nächsten Neustart übernommen.",
+			"text2": "Du kannst jetzt oder später neustarten (die Taste zum Neustarten befindet sich auf der Tesla Board-Seite).",
 			"now": "JETZT NEUSTARTEN",
 			"later": "SPÄTER NEUSTARTEN"
 		}
 	},
 	"errors": {
+		"gpioValidation": {
+			"IOPinNotInt": "Pin nicht definiert",
+			"IOPinNotUsable": "Pin nicht nutzbar",
+			"IOdOnNotInt": "dOn ist kein gültiger Wert",
+			"IOdOffNotInt": "dOff ist kein gültiger Wert",
+			"IOInvertNotInt": "Invertieren ist kein gültiger Wert",
+			"IOInvertOutRange": "Invertieren außerhalb des zulässigen Bereichs",
+			"IOMaxDNotInt": "Maximalwinkel ist kein gültiger Wert",
+			"IOMaxDOutRange": "Maximalwinkel außerhalb des zulässigen Bereichs",
+			"IOOpDNotInt": "Pin ist kein gültiger Wert",
+			"IOOpDBig": "Öffnungswinkel größer als Maximalwinkel",
+			"IOClDNotInt": "Pin ist kein gültiger Wert",
+			"IOClDBig": "Schließwinkel größer als Maximalwinkel",
+			"IOMovTimeNotInt": "Bewegungszeit ist kein gültiger Wert",
+			"IOTypeUndef": "Typ nicht definiert",
+			"IOTypeOutRange": "Typ außerhalb des Bereichs",
+			"IONameUndef": "Name nicht definiert",
+			"IODescUndef": "Beschreibung nicht definiert",
+			"IOGenErr": "Allgemeiner Fehler"
+		},
 		"gpio": {
-			"noUsableAsInput": "nicht als Eingang nutzbar",
-			"noUsableAsOutput": "nicht als Ausgang nutzbar"
+			"noUsableAsInput": "Nicht als Eingang nutzbar",
+			"noUsableAsOutput": "Nicht als Ausgang nutzbar",
+			"doubleUsage": "Mehrfachnutzung"
 		},
 		"dome": {
-			"ShAlreadyMoving": "Das Dach bewegt sich bereits",
-			"ShAlreadyOpen": "Das Dach ist bereits geöffnet",
-			"ShAlreadyClosed": "Das Dach ist bereits geschlossen"
+			"ShAlreadyMoving": "Dach bewegt sich bereits",
+			"ShAlreadyOpen": "Dach ist bereits geöffnet",
+			"ShAlreadyClosed": "Dach ist bereits geschlossen"
 		},
 		"coverc": {
-			"coverIsMoving": "Die Abdeckung bewegt sich bereits",
-			"coverNotPresent": "Die Abdeckung ist nicht vorhanden",
-			"calibNotPresent": "Das Flat Panel ist nicht vorhanden",
+			"coverIsMoving": "Abdeckung bewegt sich bereits",
+			"coverNotPresent": "Abdeckung nicht vorhanden",
+			"calibNotPresent": "Flat Panel nicht vorhanden",
 			"calibBrightnessNotPresent": "Helligkeitsparameter fehlt",
-			"calibBrightnessNotInRange": "Helligkeitsparameter außerhalb des zulässigen Bereichs"
+			"calibBrightnessNotInRange": "Helligkeitsparameter außerhalb der Grenzen"
+		},
+		"switch": {
+			"SwIdOutOfRange": "Schalter-ID außerhalb des Bereichs",
+			"SwValueBehindMin": "Minimalwert unterschritten",
+			"SwValueOverMax": "Maximalwert überschritten",
+			"SwValueAbsent": "Wert nicht angegeben",
+			"SwNotWritable": "Schalter nicht beschreibbar",
+			"limitReached": "Es können keine weiteren Schalter hinzugefügt werden"
+		},
+		"general": {
+			"negativeValue": "Der Wert darf nicht negativ sein",
+			"greaterThan": "Wert größer als: ",
+			"configRejected": "Ungültige Daten. Konfiguration nicht gespeichert",
+			"validationFailed": "Validierung fehlgeschlagen",
+			"wrongValue": "Falscher Wert",
+			"error": "Fehler",
+			"warning": "Achtung"
+		}
+	},
+	"IOBase": {
+		"name": "Name:",
+		"description": "Beschreibung:",
+		"pin": "GPIO:",
+		"type": "Typ:",
+		"typeEnum": {
+			"0": "Nicht genutzt",
+			"1": "Digitaleingang",
+			"2": "Digitalausgang",
+			"3": "PWM-Ausgang",
+			"4": "Servo-Ausgang"
+		},
+		"moduleEnum": {
+			"0": "Nicht genutzt",
+			"1": "Kuppel",
+			"2": "Flat Panel und Abdeckung",
+			"3": "Schalter"
+		},
+		"DI": {
+			"onDelay": "Einschaltverzögerung:",
+			"offDelay": "Ausschaltverzögerung:",
+			"func": "Funktion:",
+			"invertEnum": {
+				"0": "Normal offen",
+				"1": "Normal geschlossen"
+			}
+		},
+		"DO": {
+			"func": "Funktion:",
+			"invertEnum": {
+				"0": "Aktiv HIGH",
+				"1": "Aktiv LOW"
+			}
+		},
+		"Servo": {
+			"openDeg": "Öffnen bei Winkel:",
+			"closeDeg": "Schließen bei Winkel:",
+			"maxDeg": "Maximaldrehung:",
+			"maxDegEnum": {
+				"90": "90°",
+				"180": "180°",
+				"270": "270°"
+			},
+			"movingTime": "Bewegungszeit:"
 		}
 	}
 }

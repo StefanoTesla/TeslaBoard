@@ -185,7 +185,7 @@
 			"IOTypeUndef": "Type not defined",
 			"IOTypeOutRange": "Type is out of range",
 			"IONameUndef": "Name not defined",
-			"IODescUndef" : "Descriptione not defined",
+			"IODescUndef" : "Description not defined",
 			"IOGenErr":"General Error"
 		},
 		"gpio": {
