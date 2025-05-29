@@ -8,32 +8,32 @@ struct IOConfigBase {
 
 struct DigitalInputConfig : public IOConfigBase {
     int pin;
-    int invert; // 0=N.O. 1=N.C.
-    int dOn;
-    int dOff;
+    unsigned  invert =0; // 0=N.O. 1=N.C.
+    unsigned long dOn =0;
+    unsigned long dOff =0;
     int getType() const override { return 1; }
 };
 
 struct DigitalOutputConfig : public IOConfigBase {
     int pin;
-    int invert; // 0=H_ACT 1=L_ACT
+    unsigned  invert =0; // 0=H_ACT 1=L_ACT
     int getType() const override { return 2; }
 };
 
 struct PWMOutputConfig : public IOConfigBase {
     int pin;
-    int channel;
+    unsigned int channel;
 
     int getType() const override { return 3; } 
 };
 
 struct ServoOutputConfig : public IOConfigBase {
-    int pin;
-    int channel;
-    int maxDeg;
-    int closeDeg;
-    int openDeg;
-    int movTime;
+    unsigned int pin;
+    unsigned int channel;
+    unsigned int maxDeg;
+    unsigned int closeDeg;
+    unsigned int openDeg;
+    unsigned long movTime;
     int getType() const override { return 4; } 
 };
 

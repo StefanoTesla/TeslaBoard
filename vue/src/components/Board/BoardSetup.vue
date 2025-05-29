@@ -78,7 +78,7 @@
         <p>Input:</p>
         <ul>
           <li v-for="el in inputGPIO">
-            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }}</p>
+            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ props.txt.IOBase.moduleEnum[module] }}</span></p>
             
           </li>
         </ul>
@@ -87,7 +87,7 @@
       <p>Output:</p>
         <ul>
           <li v-for="el in outputGPIO">
-            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }}</p>
+            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ props.txt.IOBase.moduleEnum[module] }}</span></p>
             
           </li>
         </ul>
@@ -316,6 +316,20 @@ const errorResponseNotify = (errorMessage) => {
 }
 
 
+const checkWherIsUsed = (pin,list) => {
+  const ret = [];
+
+  list.forEach(el => {
+    if(el.pin === pin){
+      ret.push(el.module)
+    }
+  });
+
+  return ret
+
+}
+
+
 watch(() => props.gpio, (newValue) => {
   
   const gpios = Array.from({ length: 39 }, (_, i) => ({
@@ -329,23 +343,22 @@ watch(() => props.gpio, (newValue) => {
 
   inputGPIO.value = []
   outputGPIO.value = []
-  gpios.forEach(element => {
-    if(!isInvalidPin(element.pin,'input')){
-      if(usedPins.includes(element.pin)){
 
-        inputGPIO.value.push({pin:element.pin,used:1})
+  gpios.forEach(element => {
+    let res = checkWherIsUsed(element.pin,newValue);
+    if(!isInvalidPin(element.pin,'input')){
+      if (res.length == 0){
+        inputGPIO.value.push({pin:element.pin,used:0,module:[]})
       } else {
-        inputGPIO.value.push({pin:element.pin,used:0})
+        inputGPIO.value.push({pin:element.pin,used:1,module:res})
       }
-      
     }
     if(!isInvalidPin(element.pin,'output')){
-      if(usedPins.includes(element.pin)){
-        outputGPIO.value.push({pin:element.pin,used:1})
+      if (res.length == 0){
+        outputGPIO.value.push({pin:element.pin,used:0,module:[]})
       } else {
-        outputGPIO.value.push({pin:element.pin,used:0})
+        outputGPIO.value.push({pin:element.pin,used:1,module:res})
       }
-      
     }
   });
 

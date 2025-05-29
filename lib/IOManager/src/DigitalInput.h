@@ -6,10 +6,10 @@
 class DigitalInput : public IOBase {
 
 private:
-    bool value;
-    bool reInput;
-    bool feInput;
-    unsigned long ackMillis;
+    int value = 0;
+    bool reInput = false;
+    bool feInput = false;
+    unsigned long ackMillis = 0;
 
 public:
     int invert = 0;

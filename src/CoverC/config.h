@@ -44,7 +44,7 @@ void initCoverCConfig(){
     
     
     if(CoverC.config.calibrator.present){ 
-        tmpCh = assignLedChannel(pwm);
+        tmpCh = assignLedChannel(ledCpwmFast);
         if(tmpCh >= 0 && tmpCh < 16){
             PWMOutputConfig CalibConfig;
             CalibConfig.pin = calibrator["pwm"]["pin"];
@@ -58,7 +58,7 @@ void initCoverCConfig(){
     if(CoverC.config.cover.present){
 
     JsonObject se = cover["servo"];
-    tmpCh = assignLedChannel(servo);
+    tmpCh = assignLedChannel(ledCservo);
         if(tmpCh >= 0 && tmpCh < 16){
             ServoOutputConfig CoverConfig;
             CoverConfig.pin = se["pin"];

@@ -347,8 +347,8 @@ void switchWebServer(){
 
                 if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDInput)){
                     DigitalInput* di = static_cast<DigitalInput*>(SwitchObjects[i]);
-                    di->dOn = IncomingSwitch[i]["dOn"].as<unsigned int>();
-                    di->dOff = IncomingSwitch[i]["dOff"].as<unsigned int>();
+                    di->dOn = IncomingSwitch[i]["dOn"].as<unsigned long>();
+                    di->dOff = IncomingSwitch[i]["dOff"].as<unsigned long>();
                     di->invert = IncomingSwitch[i]["invert"].as<unsigned int>();
                 }
                 if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeDOutput)){

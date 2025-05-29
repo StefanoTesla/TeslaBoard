@@ -60,7 +60,7 @@ void initSwitchConfig(){
             SwitchObjects[count]->setup(&DOConfig);
         //PWM Output
         } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
-            tmpCh = assignLedChannel(pwm);
+            tmpCh = assignLedChannel(ledCpwmSlow);
             if(tmpCh >= 0 && tmpCh < 16){
                 SwitchObjects[count] = new PWMOutput;
                 PWMOutputConfig PWMConfig;
@@ -70,7 +70,7 @@ void initSwitchConfig(){
             }
         //Servo Output
         } else if(Switche["type"] == static_cast<int>(SwTypeServo)){
-            tmpCh = assignLedChannel(servo);
+            tmpCh = assignLedChannel(ledCservo);
             if(tmpCh >= 0 && tmpCh < 16){
                 SwitchObjects[count] = new ServoOutput;
                 ServoOutputConfig ServoConfig;

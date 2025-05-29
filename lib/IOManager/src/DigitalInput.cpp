@@ -33,9 +33,9 @@ int DigitalInput::readPin() {
 }
 
 int DigitalInput::status(){
-    
     /* ON CASE */
     if(readPin()){
+        
         if(!value){
             if(!reInput){   /* get rising edge*/
                 feInput = false;
@@ -43,7 +43,7 @@ int DigitalInput::status(){
                 ackMillis = millis();
             } else {
                 if(millis() - ackMillis > dOn){ /*wait ton time*/
-                    value = true;
+                    value = 1;
                 }
             }
         }
@@ -55,7 +55,7 @@ int DigitalInput::status(){
                 ackMillis = millis();
             } else {
                 if(millis() - ackMillis > dOff){ /*wait toff time*/
-                    value = false;
+                    value = 0;
                 }
             }
         }

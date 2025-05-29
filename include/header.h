@@ -67,8 +67,9 @@ struct boarcConfigStruct{
 
 enum ledcType{
   notAssigned,
-  pwm,
-  servo
+  ledCpwmSlow,
+  ledCpwmFast,
+  ledCservo
 };
 
 
@@ -206,18 +207,25 @@ int setupLedcChannel(unsigned int channel, ledcType type){
 
   switch (type)
   {
-  case pwm:
+  case ledCpwmFast:
     if(ledcSetup(channel, 19531, 12) > 0){
       return channel;
     } else {
-      Serial.println("[ERR] INIT: Error during pwm cahnnel setup");
+      Serial.println("[ERR] INIT: Error during fast pwm channel setup");
     }
     break;
-  case servo:
+  case ledCpwmSlow:
+    if(ledcSetup(channel, 5000, 12) > 0){
+      return channel;
+    } else {
+      Serial.println("[ERR] INIT: Error during pwm channel setup");
+    }
+    break;
+  case ledCservo:
     if(ledcSetup(channel, 50, 12) > 0){
       return channel;
     } else {
-      Serial.println("[ERR] INIT: Error during pwm cahnnel setup");
+      Serial.println("[ERR] INIT: Error during servo channel setup");
     }
     break;
   
@@ -235,12 +243,17 @@ int checkForFreeLedChannel(ledcType type){
     return -1;
   }
 
-  if(type == pwm){
+  if(type == ledCpwmFast){
     for (int i = 0; i < 16; i++)
     {
       if(usableLedChannel(i,type)){ return i;}
     }
-  } else if (type == servo) {
+  } else if (type == ledCpwmSlow){
+    for (int i = 0; i < 16; i++)
+    {
+      if(usableLedChannel(i,type)){ return i;}
+    }
+  } else if (type == ledCservo) {
 
     //since servo are at 50hz we give the precedence to low speed timer
     for (int i = 8; i < 16; i++)
@@ -275,47 +288,32 @@ void printLEDChannelStatus(){
   Serial.println("------------------");
   for (int i = 0; i < 16; i++)
   {
-    if(i<10){
       Serial.print(i);
-      Serial.print("  |");
+      if(i<10){
+        Serial.print("   |");
+      } else {
+        Serial.print("  |");
+      }
+      
       Serial.print(" ");
       switch (Global.pwm[i].type)
       {
       case notAssigned:
         Serial.println("unassigned | ");
         break;
-      case pwm:
-        Serial.println("pwm        | ");
+      case ledCpwmFast:
+        Serial.println("pwm fast   | ");
         break;
-      case servo:
+      case ledCpwmSlow:
+        Serial.println("pwm slow   | ");
+        break;
+      case ledCservo:
         Serial.println("servo      | ");
         break;
       
       default:
         break;
       }
-
-    } else {
-
-      Serial.print(i);
-      Serial.print(" | ");
-      switch (Global.pwm[i].type)
-      {
-      case notAssigned:
-        Serial.println("unassigned |");
-        break;
-      case pwm:
-        Serial.println("pwm |");
-        break;
-      case servo:
-        Serial.println("servo |");
-        break;
-      
-      default:
-        break;
-      }
-
-    }
   }
   
 }
@@ -528,8 +526,8 @@ const char* retValTranslate(int retVal) {
 
 void copyInputJson(JsonObject input,JsonObject out){
   out["pin"] = input["pin"].as<unsigned int>();
-  out["dOn"] = input["dOn"].as<unsigned int>();
-  out["dOff"] = input["dOff"].as<unsigned int>();
+  out["dOn"] = input["dOn"].as<unsigned long>();
+  out["dOff"] = input["dOff"].as<unsigned long>();
   out["invert"] = input["invert"].as<unsigned int>();  
 }
 
@@ -546,5 +544,5 @@ void copyServoJson(JsonObject input, JsonObject out){
   out["maxDeg"] = input["maxDeg"].as<unsigned int>();
   out["openDeg"] = input["openDeg"].as<unsigned int>();
   out["closeDeg"] = input["closeDeg"].as<unsigned int>();
-  out["movTime"] = input["movTime"].as<unsigned int>();
+  out["movTime"] = input["movTime"].as<unsigned long>();
 }

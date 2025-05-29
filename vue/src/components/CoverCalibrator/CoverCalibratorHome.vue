@@ -54,10 +54,7 @@
   })
   
   const open = ref(false);
-  
-  const toggleOpen = () => {
-    open.value = !open.value
-  }
+
   
   const coverC = ref({})
   let dataLoaded = ref(false)
@@ -87,6 +84,8 @@
       statusClass.value = 'red'
     } else if (coverC.value.cover.status == 2) {
       statusClass.value = 'orange'
+    } else if (coverC.value.cover.status == 0 && coverC.value.calibrator.status == 0){
+      statusClass.value = 'black'
     } else {
       statusClass.value = 'green'
     }

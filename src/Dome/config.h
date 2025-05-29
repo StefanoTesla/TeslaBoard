@@ -43,18 +43,19 @@ void initDomeConfig(){
 
     DigitalInputConfig OpenConfig;
     OpenConfig.pin = pinOpen["pin"];
+    OpenConfig.dOn = pinOpen["dOn"];
+    OpenConfig.dOff = pinOpen["dOff"];
     OpenConfig.invert = pinOpen["invert"];
     DomeInOpen.setup(&OpenConfig);
-    DomeInOpen.dOn = pinOpen["dOn"];
-    DomeInOpen.dOff = pinOpen["dOff"];
 
     JsonObject pinClose = doc["pinClose"];
     DigitalInputConfig CloseConfig;
     CloseConfig.pin = pinClose["pin"];
     CloseConfig.invert = pinClose["invert"];
+    CloseConfig.dOn = pinClose["dOn"];
+    CloseConfig.dOff = pinClose["dOff"];
     DomeInClose.setup(&CloseConfig);
-    DomeInClose.dOn = pinClose["dOn"];
-    DomeInClose.dOff = pinClose["dOff"];
+
 
     JsonObject pinStart = doc["pinStart"];
     DigitalOutputConfig StartConfig;
