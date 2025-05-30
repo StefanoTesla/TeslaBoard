@@ -157,7 +157,11 @@
 			"warningIP": "Attention, une simple validation est effectuée ; en cas d'erreur, l'accès à la carte sera impossible.",
 			"configSaved": "Configuration de la Carte enregistrée",
 			"reboot": "REDÉMARRER LA CARTE",
-			"wifiReset": "SUPPRIMER CONFIGURATION WIFI"
+			"wifiReset": "SUPPRIMER CONFIGURATION WIFI",
+			"checkUpdate": "Chercher des mises à jour",
+			"newUpdate": "Nouvelle version disponible :",
+			"currentVersion": "Version actuelle :",
+			"noUpdate": "Vous avez déjà la dernière version"
 		},
 		"reboot": {
 			"warning": "ATTENTION",

@@ -35,6 +35,8 @@
         </div> 
       </div>
       <div class="setting_row">
+        <p>{{ props.txt.board.setting.ipAddress }} {{  board.wifi.actualip }}</p>
+        <p>{{ props.txt.board.home.wifi.macAddress }} {{  board.wifi.mac }}</p>
         <p>{{ props.txt.board.setting.staticIp }}</p>
           <label class="toggle" for="board_static_ip">
             <input class="toggle__input" name="" type="checkbox" id="board_static_ip" v-model="board.address.enStaticIP" @change="validate()">
@@ -95,6 +97,20 @@
     </div>
   </div>
 
+  <div class="card">
+      <div class="sw_header">
+        <p>Update</p>
+      </div>
+    <div class="setting_row">
+      <button class="green cursor-pointer" @click="checkUpdate()">{{ props.txt.board.setting.checkUpdate }}</button>
+      <p>{{ props.txt.board.setting.currentVersion }} {{ swVersion  }}</p>
+      <template v-if="newVersion.check == true">
+        <p v-if="newVersion.version == 0">{{ props.txt.board.setting.noUpdate }}</p>
+        <p v-else>{{ props.txt.board.setting.newUpdate }} {{ newVersion.version }}</p>
+      </template>
+
+    </div>
+  </div>
 
 
   <div class="card">
@@ -127,6 +143,8 @@ const props = defineProps({
 
 const emit = defineEmits(['update:reboot']);
 
+const swVersion = ref()
+const newVersion = ref({check:false,version:0})
 const board = ref({})
 const originalData = ref({})
 const inputGPIO = ref([])
@@ -291,8 +309,6 @@ const validate = () => {
       errorResponseNotify(errorMessage)
       return
     }
-
-    
   }
 
   validationState.value = true
@@ -301,6 +317,11 @@ const validate = () => {
 
 onMounted(() => {
   fetchData()
+  let str = String(import.meta.env.VITE_SW_VERSION)
+  console.log(str)
+  str = str.slice(0, str.length - 2) + '.' + str.slice(str.length - 2);
+  str = str.slice(0, str.length - 5) + '.' + str.slice(str.length - 5);
+  swVersion.value = str
 })
 
 const cmdExecutedNotify = () => {
@@ -315,6 +336,34 @@ const errorResponseNotify = (errorMessage) => {
   });
 }
 
+const checkUpdate = () => {
+
+fetch('https://api.stefanotesla.it/api/teslaboard')
+  .then(response => {
+    if (!response.ok){
+      newVersion.value.check = true
+      return null;
+    }
+    newVersion.value.check = true
+    return response.json(); 
+  })
+  .then(data => {
+    if (data.version > import.meta.env.VITE_SW_VERSION) {
+      let str = String(data.version)
+      str = str.slice(0, str.length - 2) + '.' + str.slice(str.length - 2);
+      str = str.slice(0, str.length - 5) + '.' + str.slice(str.length - 5);
+      newVersion.value.version = str
+      console.log(newVersion.value)
+    }
+  })
+  .catch(() => {
+    newVersion.value.check = true;
+    return null
+  }
+
+);
+
+}
 
 const checkWherIsUsed = (pin,list) => {
   const ret = [];
@@ -328,7 +377,6 @@ const checkWherIsUsed = (pin,list) => {
   return ret
 
 }
-
 
 watch(() => props.gpio, (newValue) => {
   

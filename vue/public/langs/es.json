@@ -157,7 +157,11 @@
 			"warningIP": "Atención, se realiza una validación simple, en caso de error será imposible acceder a la placa.",
 			"configSaved": "Configuración de Placa Guardada",
 			"reboot": "REINICIAR PLACA",
-			"wifiReset": "BORRAR AJUSTES WIFI"
+			"wifiReset": "BORRAR AJUSTES WIFI",
+			"checkUpdate": "Chercher des mises à jour",
+			"newUpdate": "Nouvelle version disponible :",
+			"currentVersion": "Version actuelle :",
+			"noUpdate": "Vous avez déjà la dernière version"
 		},
 		"reboot": {
 			"warning": "ATENCIÓN",

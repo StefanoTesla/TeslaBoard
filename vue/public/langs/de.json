@@ -157,7 +157,11 @@
 			"warningIP": "Achtung: Es erfolgt nur eine einfache Validierung. Bei Fehler ist das Board nicht erreichbar.",
 			"configSaved": "Board-Konfiguration gespeichert",
 			"reboot": "BOARD NEUSTARTEN",
-			"wifiReset": "WLAN-EINSTELLUNGEN ZURÜCKSETZEN"
+			"wifiReset": "WLAN-EINSTELLUNGEN ZURÜCKSETZEN",
+			"checkUpdate": "Nach Updates suchen",
+			"newUpdate": "Neue Version verfügbar:",
+			"currentVersion": "Aktuelle Version:",
+			"noUpdate": "Du hast bereits die neueste Version"
 		},
 		"reboot": {
 			"warning": "ACHTUNG",

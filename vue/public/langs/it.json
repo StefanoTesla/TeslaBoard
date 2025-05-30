@@ -157,7 +157,11 @@
 			"warningIP": "Attenzione, viene effettuata una validazione semplice, in caso di errore sarà impossibile raggiungere la scheda.",
 			"configSaved": "configurazione Scheda Salvata",
 			"reboot": "RIAVVIA SCHEDA",
-			"wifiReset": "RIMUOVI IMPOSTAZIONI WIFI"
+			"wifiReset": "RIMUOVI IMPOSTAZIONI WIFI",
+			"checkUpdate": "Cerca Aggiornamenti",
+			"newUpdate": "Nuova versione disponibile:",
+			"currentVersion": "Versione Attuale:",
+			"noUpdate": "Hai già l'ultima versione"
 		},
 		"reboot":{
 			"warning": "ATTENZIONE",

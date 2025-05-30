@@ -157,7 +157,11 @@
 			"warningIP": "Warning, simple validation is performed. If incorrect, the board will be unreachable.",
 			"configSaved": "Board Configuration Saved",
 			"reboot": "REBOOT BOARD",
-			"wifiReset": "REMOVE WIFI SETTINGS"
+			"wifiReset": "REMOVE WIFI SETTINGS",
+			"checkUpdate": "Check Updates",
+			"newUpdate": "New version available:",
+			"currentVersion": "Current Version:",
+			"noUpdate": "Teslaboard is up to date"
 		},
 		"reboot": {
 			"warning": "WARNING",

@@ -37,7 +37,8 @@ void boardWebServer(){
 
         JsonObject wifi = doc["wifi"].to<JsonObject>();
         wifi["reconTime"] = Global.config.wifi.reconnection.intervall;
-
+        wifi["actualip"] = WiFi.localIP();
+        wifi["mac"] = WiFi.macAddress();
 
         JsonObject address = doc["address"].to<JsonObject>();
         address["enStaticIP"] = Global.config.wifi.ip.enable;
