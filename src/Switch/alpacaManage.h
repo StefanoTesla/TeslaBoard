@@ -8,7 +8,7 @@ void switchAlpacaManage(){
   alpaca.on("/api/v1/switch/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = new AsyncJsonResponse();
       JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["Value"] = "StefanoTesla Switch";
+      doc["Value"] = std::string(SWITCH_IDENTIFIER) + " - TeslaBoard";
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;

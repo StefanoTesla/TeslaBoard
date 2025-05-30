@@ -8,7 +8,7 @@ void domeAlpacaManage(){
   alpaca.on("/api/v1/dome/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = new AsyncJsonResponse();
       JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["Value"] = "StefanoTesla Dome";
+      doc["Value"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;

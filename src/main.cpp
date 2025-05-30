@@ -1,8 +1,12 @@
 #define ALPACA_PORT 4567
 
 #define DOME
-#define COVER_CALIBRATOR
+#define DOME_IDENTIFIER "Dome"
+
+#define COVER_CALIBRATOR 
+#define CC_IDENTIFIER "Cover Calibrator"
 #define SWITCH
+#define SWITCH_IDENTIFIER "Switch"
 
 #include "libraries.h"
 

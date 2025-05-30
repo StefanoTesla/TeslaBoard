@@ -8,7 +8,7 @@ void coverAlpacaManage(){
   alpaca.on("/api/v1/covercalibrator/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = new AsyncJsonResponse();
       JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["Value"] = "StefanoTesla CoverCalibrator";
+      doc["Value"] = std::string(CC_IDENTIFIER) + " - TeslaBoard";
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
