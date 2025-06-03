@@ -19,6 +19,19 @@ void domeInputRead(){
 
     status = (DomeInClose.status() ? 1 : 0) + (DomeInOpen.status() ? 2 : 0);
 
+
+      if(Global.pulse.second.pulse){
+        Serial.println("Input:");
+        Serial.print(DomeInClose.status());
+        Serial.print(" open:");
+        Serial.print(DomeInOpen.status());
+        Serial.println();
+        Serial.println(status);
+
+    Serial.println(Dome.Shutter.input);
+    }
+
+
     switch (status)
     {
     case 0:
@@ -69,6 +82,8 @@ void shutterCycle(){
     if (Dome.Shutter.input == ShInputOnlyOpen) { Dome.Shutter.status = ShStatusOpen;}
     if (Dome.Shutter.input == ShInputNoOne or Dome.Shutter.input == ShInputAll){ Dome.Shutter.status = ShStatusError;}
   }
+
+
 
   if (Dome.Shutter.command == ShCommandHalt and Dome.Shutter.Cycle < 100) {
     Dome.Shutter.Cycle = 100;
