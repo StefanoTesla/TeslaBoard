@@ -132,6 +132,8 @@ void shutterCycle(){
     } else { Dome.Shutter.status = ShStatusError;}
   }
 
+
+
   if (Dome.Shutter.command == ShCommandHalt and Dome.Shutter.Cycle < 100) {
     Dome.Shutter.Cycle = 100;
   }
