@@ -19,19 +19,6 @@ void domeInputRead(){
 
     status = (DomeInClose.status() ? 1 : 0) + (DomeInOpen.status() ? 2 : 0);
 
-
-      if(Global.pulse.second.pulse){
-        Serial.println("Input:");
-        Serial.print(DomeInClose.status());
-        Serial.print(" open:");
-        Serial.print(DomeInOpen.status());
-        Serial.println();
-        Serial.println(status);
-
-    Serial.println(Dome.Shutter.input);
-    }
-
-
     switch (status)
     {
     case 0:
