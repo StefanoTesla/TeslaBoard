@@ -1,3 +1,5 @@
+///this script move the vite dist forlder to the www folder of platformio, in this way you don't have to mode the files manually
+
 import fs from 'fs';
 import path from 'path';
 

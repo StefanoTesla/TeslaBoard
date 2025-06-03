@@ -23,6 +23,15 @@ enum ShCommands {
   ShCommandHalt
 };
 
+
+enum enumCommandDir {
+  ShCmdDirHalt,
+  ShCmdDirOpen,
+  ShCmdDirClose,
+  ShCmdDirStop,
+};
+
+
 struct ShutterStruct {
   ShInputState input;
   ShStatus status;

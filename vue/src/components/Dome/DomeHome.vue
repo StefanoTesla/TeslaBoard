@@ -29,10 +29,10 @@ v-if="props.txt.dome"
     </div>
     <div class="grid grid-cols-2">
       <div class="justify-items-center uppercase">{{ txt.gen.status.open }} 
-        <div :class="['led', dome.input.open ? 'green' : 'red']"></div>
+        <div :class="['led', dome.input.open ? 'green' : 'black']"></div>
       </div>
       <div class="justify-items-center uppercase">{{ txt.gen.status.close }} 
-        <div :class="['led', dome.input.close ? 'green' : 'red']"></div>
+        <div :class="['led', dome.input.close ? 'green' : 'black']"></div>
       </div>
     </div>
   </div>
