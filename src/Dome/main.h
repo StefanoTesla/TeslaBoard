@@ -18,7 +18,7 @@ void domeInputRead(){
     int status = 0;
 
     status = (DomeInClose.status() ? 1 : 0) + (DomeInOpen.status() ? 2 : 0);
-
+    
     switch (status)
     {
     case 0:
@@ -46,7 +46,6 @@ void shutterOutput(enumCommandDir direction){
     //1 Open
     //2 Close
     //3 Stop
-
 
     switch (direction)
     {
@@ -159,7 +158,6 @@ void shutterCycle(){
     case 10:
             //Open and close cycle are identical, I just hope to reach the right direction
             //Pulse to start to the motor, ack millis for time out and
-            Dome.Shutter.timeOutAck = millis();
             if (Dome.Shutter.command == ShCommandOpen) { 
               shutterOutput(ShCmdDirOpen);
               Dome.Shutter.Cycle++;
@@ -281,6 +279,8 @@ void shutterCycle(){
             Dome.Shutter.Cycle = 100;
             break;
   }
+
+     
 }
 
 //
