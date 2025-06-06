@@ -133,8 +133,9 @@
 				"channel": "Canale ",
 				"channels":{
 					"0": "Non inizializzato",
-					"1": "PWM",
-					"2": "Servo"
+					"1": "PWM HS",
+					"2": "PWM LS",
+					"3": "Servo"
 				}
 			},
 			"gpio":{
