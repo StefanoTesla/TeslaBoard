@@ -133,8 +133,8 @@
 				"channel": "Canal ",
 				"channels": {
 					"0": "Non initialisé",
-					"1": "PWM HS",
-					"2": "PWM LS",
+					"1": "PWM LS",
+					"2": "PWM HS",
 					"3": "Servo"
 				}
 			},

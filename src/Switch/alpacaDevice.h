@@ -60,11 +60,7 @@ void IdOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
       int id = request->getAttribute("id").toInt();
-      if (Global.config.language.locale == "it"){
-            sprintf(message, "L'ID fornito: %d, è fuori range, il massimo è: %d", id, tmp);
-      } else {
-            sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, tmp);
-      }
+      sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, tmp);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;

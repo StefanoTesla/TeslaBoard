@@ -5,6 +5,7 @@
 
 #define COVER_CALIBRATOR 
 #define CC_IDENTIFIER "Cover Calibrator"
+
 #define SWITCH
 #define SWITCH_IDENTIFIER "Switch"
 
