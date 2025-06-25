@@ -63,18 +63,8 @@
           <p>{{ kBconv(board.memory.minHeap) }} kB ({{ percentage(board.memory.heapSize,board.memory.minHeap) }}%)</p>
         </div>
       </div>
-      <div class="card">
-        <div class="title">
-          <p>Timer</p>
-        </div>
-        <div v-for="(item, index) in board.pwm" :key="index">
-          <p>{{ props.txt.board.home.timers.channel }} {{ index }} - {{ props.txt.board.home.timers.channels[item] }}</p>
-
-        </div>
-      </div>
-
     </Card>
-
+    <footer class="mt-4"></footer>
   </template>
   
   

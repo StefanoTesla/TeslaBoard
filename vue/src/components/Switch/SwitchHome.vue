@@ -130,7 +130,12 @@
 
 
   const updateStatusData = () => {
-    const hasActive = switches.value.Switches.some(swi => swi.boValue && swi.type !== 1);
+    let hasActive = false;
+    switches.value.Switches.forEach(element => {
+      if(element.type != 1 && element.intValue > 0){
+        hasActive = true;
+      }
+    });
     statusClass.value = hasActive ? 'green' : 'black';
   }
   
