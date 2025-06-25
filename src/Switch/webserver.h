@@ -363,11 +363,7 @@ void switchWebServer(){
                     servo->closeDeg = IncomingSwitch[i]["closeDeg"].as<unsigned int>();
                     servo->movingTime = IncomingSwitch[i]["movTime"].as<unsigned int>();
                 }
-                
-
             }
-
-            Serial.println();
         }        
 
         doc["reboot"] = reboot;
@@ -379,7 +375,7 @@ void switchWebServer(){
 
     server.addHandler(switchConfigHandler);
 
-    server.serveStatic("/switch/switchconfig.txt", LittleFS, "/cfg/switchcfg.txt");
+    server.serveStatic("/switch/switchcfg.txt", LittleFS, "/cfg/switchcfg.txt");
 }
 
 #endif

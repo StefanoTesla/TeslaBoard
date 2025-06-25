@@ -293,7 +293,7 @@ void domeWebServer(){
     });
 
     server.addHandler(domeConfigHandler);
-    server.serveStatic("/dome/domeconfig.txt", LittleFS, "/cfg/domecfg.txt");
+    server.serveStatic("/dome/domecfg.txt", LittleFS, "/cfg/domecfg.txt");
 
 ;
 }

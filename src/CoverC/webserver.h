@@ -317,7 +317,7 @@ void coverWebServer(){
 
     server.addHandler(coverCConfigHandler);
 
-    server.serveStatic("/coverc/ccconfig.txt", LittleFS, "/cfg/cccfg.txt");
+    server.serveStatic("/coverc/cccfg.txt", LittleFS, "/cfg/cccfg.txt");
 }
 
 #endif

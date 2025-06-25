@@ -121,7 +121,7 @@
 
   <div class="config_buttons">
       <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
-      <a href="./board/switchconfig.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
+      <a href="./board/boarcfg.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
       <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
     </div>
   </Card>
