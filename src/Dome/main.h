@@ -40,70 +40,81 @@ void domeInputRead(){
 }
 
 
-//a fast way to set the shutter output instead to repeat every time
-void shutterOutput(enumCommandDir direction){
-    //0 HALT
-    //1 Open
-    //2 Close
-    //3 Stop
-
+//
+// callback function from shutter output to encrease debug speed
+//
+void GateContorollerOutputHandler(enumCommandDir direction){
     switch (direction)
     {
-    case ShCmdDirHalt:
-      switch (Dome.config.data.driverType)
-      {
-        case 0:
-          DomeOutMoveOpen.write(false);
-          DomeOutHaltClose.write(true);
-          break;
-        case 1:
-        case 2:
-          DomeOutMoveOpen.write(false);
-          DomeOutHaltClose.write(false);
-          break;
-      }
-      break;
-    case ShCmdDirOpen:
-      switch (Dome.config.data.driverType)
-      {
-        case 0:
-          DomeOutMoveOpen.write(true);
-          DomeOutHaltClose.write(false);
-          break;
-        case 1:
-        case 2:
-          DomeOutMoveOpen.write(true);
-          DomeOutHaltClose.write(false);
-          break;
-      }
-      break;
+      case ShCmdDirHalt:
+        DomeOutMoveOpen.write(false);
+        DomeOutHaltClose.write(true);
+        break;
+      case ShCmdDirStop:
+        DomeOutMoveOpen.write(false);
+        DomeOutHaltClose.write(false);
+        break;
+      case ShCmdDirOpen:
+      case ShCmdDirClose:
+        DomeOutMoveOpen.write(true);
+        DomeOutHaltClose.write(false);
+        break;
 
-    case ShCmdDirClose:
-      switch (Dome.config.data.driverType)
-      {
-        case 0:
-          DomeOutMoveOpen.write(true);
-          DomeOutHaltClose.write(false);
-          break;
-        case 1:
-          DomeOutMoveOpen.write(false);
-          DomeOutHaltClose.write(true);
-          break;
-        case 2:
-          DomeOutMoveOpen.write(true);
-          DomeOutHaltClose.write(true);
-          break;
-      }
-      break;
-    case ShCmdDirStop:
-          DomeOutMoveOpen.write(false);
-          DomeOutHaltClose.write(false);
-      break;
-    
-    default:
-      break;
+      default:
+        break;
     }
 
+}
+void DirectionOutputHandler(enumCommandDir direction){
+    switch (direction)
+    {
+      case ShCmdDirHalt:
+      case ShCmdDirStop:
+        DomeOutMoveOpen.write(false);
+        DomeOutHaltClose.write(false);
+        break;
+      case ShCmdDirOpen:
+        DomeOutMoveOpen.write(true);
+        DomeOutHaltClose.write(false);
+      case ShCmdDirClose:
+        DomeOutMoveOpen.write(false);
+        DomeOutHaltClose.write(true);
+        break;
+
+      default:
+        break;
+    }
+}
+void StartAndDirectionOutputHandler(enumCommandDir direction){
+    switch (direction)
+    {
+      case ShCmdDirHalt:
+      case ShCmdDirStop:
+        DomeOutMoveOpen.write(false);
+        DomeOutHaltClose.write(false);
+        break;
+      case ShCmdDirOpen:
+        DomeOutMoveOpen.write(true);
+        DomeOutHaltClose.write(false);
+      case ShCmdDirClose:
+        DomeOutMoveOpen.write(true);
+        DomeOutHaltClose.write(true);
+        break;
+
+      default:
+        break;
+    }
+}
+
+//a fast way to set the shutter output instead to repeat every time
+void shutterOutput(enumCommandDir direction){
+    if(Dome.config.data.driverType == dtGateController){
+      GateContorollerOutputHandler(direction);
+    } else if(Dome.config.data.driverType == dtDirection){
+      DirectionOutputHandler(direction);
+    } else if(Dome.config.data.driverType == dtStartAndDirection){
+      StartAndDirectionOutputHandler(direction);
+    }
 }
 
 //
@@ -131,15 +142,13 @@ void shutterCycle(){
     } else { Dome.Shutter.status = ShStatusError;}
   }
 
-
-
   if (Dome.Shutter.command == ShCommandHalt and Dome.Shutter.Cycle < 100) {
     Dome.Shutter.Cycle = 100;
   }
 
   switch (Dome.Shutter.Cycle){
     case 0:
-            Dome.Shutter.MoveRetry = false;
+          Dome.Shutter.MoveRetry = false;
 
           if (Dome.Shutter.command == ShCommandOpen 
               && Dome.Shutter.input != ShInputOnlyOpen) {
@@ -151,6 +160,7 @@ void shutterCycle(){
                 Dome.Shutter.Cycle = 10;
           } else {
             Dome.Shutter.command = ShCommandIdle;
+            shutterOutput(ShCmdDirStop);
           }
       break;
 
@@ -196,9 +206,8 @@ void shutterCycle(){
 
             //this can happend only with gate board
             //Open command was sended but I reach the opposite direction
-            if(Dome.config.data.driverType == 0 && Dome.Shutter.input == ShInputOnlyClose) { //wrong direction!
+            if(Dome.config.data.driverType == dtGateController && Dome.Shutter.input == ShInputOnlyClose) { //wrong direction!
               if (Dome.Shutter.MoveRetry == false) {
-                Dome.Shutter.MoveRetry = true; // just one retry
                 Dome.Shutter.Cycle = 30;
               } else {
                 Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
@@ -213,9 +222,8 @@ void shutterCycle(){
             }
             //Close command was sended but I reach the opposite direction
             //this can happend only with gate board
-            if(Dome.config.data.driverType == 0 && Dome.Shutter.input == ShInputOnlyOpen) { //wrong direction!
+            if(Dome.config.data.driverType == dtGateController && Dome.Shutter.input == ShInputOnlyOpen) { //wrong direction!
               if (Dome.Shutter.MoveRetry == false) {
-                Dome.Shutter.MoveRetry = true; // just one retry
                 Dome.Shutter.Cycle = 30;
               } else {
                 Dome.Shutter.Cycle = 100;  //no ping pong all day, HALT
@@ -235,6 +243,7 @@ void shutterCycle(){
 //PING PONG - HALT ASPETTO E RIBADISCO LO START
     case 30: 
             Dome.Shutter.timeOutAck = millis();
+            Dome.Shutter.MoveRetry = true; // just one retry
             shutterOutput(ShCmdDirHalt);
             Dome.Shutter.Cycle++;
             break;

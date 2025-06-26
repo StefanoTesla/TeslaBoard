@@ -278,7 +278,7 @@ void domeWebServer(){
         DomeOutHaltClose.invert = newHalt["invert"].as<int>();
 
         Dome.config.data.movingTimeOut = newDoc["movTimeOut"].as<unsigned int>();
-        Dome.config.data.driverType = newDoc["driverType"] .as<unsigned int>();
+        Dome.config.data.driverType = static_cast<enumDriverType>(newDoc["driverType"].as<unsigned int>());
             
         Dome.config.data.enAutoClose = autoClose["enable"].as<bool>();
         Dome.config.data.autoCloseTimeOut = autoClose["minutes"].as<unsigned int>();

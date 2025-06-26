@@ -31,6 +31,11 @@ enum enumCommandDir {
   ShCmdDirStop,
 };
 
+enum enumDriverType{
+  dtGateController,
+  dtDirection,
+  dtStartAndDirection,
+};
 
 struct ShutterStruct {
   ShInputState input;
@@ -47,7 +52,7 @@ struct domeHeader{
   unsigned int movingTimeOut = 20000;
   bool enAutoClose;
   unsigned int autoCloseTimeOut = 20;
-  int driverType = 0; //0=Gate Board; 1=Direction; 2=Move+Direction
+  enumDriverType driverType = dtGateController; //0=Gate Board; 1=Direction; 2=Move+Direction
 };
 
 struct domeSaveConfigStruct{
