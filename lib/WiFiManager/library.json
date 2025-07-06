@@ -1,0 +1,16 @@
+{
+  "name": "InternalWifIManager",
+  "keywords": "wifi",
+  "description": "Wifi Connection by my self",
+  "dependencies": [
+    {
+      "owner": "esp32async",
+      "name": "ESPAsyncWebServer",
+      "version": "3.7.7",
+      "platforms": ["espressif32"]
+    }
+  ],
+  "version": "3.1.7",
+  "frameworks": "arduino",
+  "platforms": ["espressif32"]
+}
