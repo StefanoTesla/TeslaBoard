@@ -7,6 +7,7 @@
 #include "ESPAsyncWebServer.h"
 #include <ArduinoJson.h>
 #include <DNSServer.h>
+#include <AsyncJson.h>
 
 /*
 Task to do:
@@ -20,11 +21,12 @@ Task to do:
 - made the web page
 */
 
-class WiFiManager{
+class TeslaWiFiManager{
   public:
-    WiFiManager(AsyncWebServer *server);
+    TeslaWiFiManager(AsyncWebServer *server);
     void init();
     void loop();
+    void setStaticIP(IPAddress ip,IPAddress gw,IPAddress sn);
     
 
   private:
@@ -32,15 +34,22 @@ class WiFiManager{
   void waitWiFiScanCompleted();
   void readWiFiFile();
   void startCaptivePortal();
-  AsyncWebServer _server;
+  void stopCaptivePortal();
+  void serverRouting();
+  void serverBegin();
+  void serverStop();
+  AsyncWebServer* _server;
   DNSServer _dnsServer;
   File _fileReader;
   JsonDocument _json;
   unsigned long _lastMillis;
-  bool _scanInProgress;
-  bool _missingWiFiFile; //wifi file doesn't exist
-  bool _desWiFiFileError; //unable to deserialize wifi file
+  bool _routeInit = false;
+  bool _scanInProgress = false;
+  bool _missingWiFiFile = false; //wifi file doesn't exist
+  bool _desWiFiFileError = false; //unable to deserialize wifi file
+  bool _dnsServerActive = false;
   unsigned int _cycle =0;
+  unsigned int _wifiNetworkFound = 0;
 
 };
 

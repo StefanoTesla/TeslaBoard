@@ -1,5 +1,7 @@
 #define ALPACA_PORT 4567
 
+#define BOARD_IDENTIFIER "teslaboard"
+
 #define DOME
 #define DOME_IDENTIFIER "Dome"
 
@@ -58,7 +60,7 @@ void setup() {
   }
 
   startupTask();
-  
+  /*
   AsyncWiFiManager wifiManager(&server,&dns);
   if(Global.config.wifi.ip.enable){
     Serial.println("tryng to connect with static ip...");
@@ -70,7 +72,13 @@ void setup() {
   }
 
   wifiManager.autoConnect("TeslaBoard");
+  */
 
+  TeslaWiFiManager wi(&server);
+
+  wi.init();
+
+  MDNS.begin(BOARD_IDENTIFIER);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();

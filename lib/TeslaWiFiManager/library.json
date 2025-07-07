@@ -1,16 +1,16 @@
 {
-  "name": "InternalWifIManager",
+  "name": "TeslaWifIManager",
   "keywords": "wifi",
   "description": "Wifi Connection by my self",
   "dependencies": [
     {
       "owner": "esp32async",
       "name": "ESPAsyncWebServer",
-      "version": "3.7.7",
+      "version": "3.7.9",
       "platforms": ["espressif32"]
     }
   ],
-  "version": "3.1.7",
+  "version": "0.0.0",
   "frameworks": "arduino",
   "platforms": ["espressif32"]
 }

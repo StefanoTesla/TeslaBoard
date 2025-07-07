@@ -15,7 +15,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           main: path.resolve(__dirname, 'index.html'),
-          setup: path.resolve(__dirname, 'setup.html')
+          setup: path.resolve(__dirname, 'setup.html'),
+          wifi: path.resolve(__dirname, 'wifi.html')
         }
       }
     }
