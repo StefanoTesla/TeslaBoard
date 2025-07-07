@@ -240,7 +240,7 @@ const saveData = async () => {
   }
 
   try {
-const ip = import.meta.env.VITE_API_IP;
+    const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip+"/api/dome/cfg", {
         method: "POST",
         headers: {

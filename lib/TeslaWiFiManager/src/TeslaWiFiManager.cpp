@@ -122,9 +122,12 @@ void TeslaWiFiManager::setStaticIP(IPAddress ip, IPAddress gw,IPAddress sn){
 }
 
 void TeslaWiFiManager::serverRouting(){
+    //homepage
     _server->on("/wifi-mgr/", HTTP_GET, [](AsyncWebServerRequest *request){
         request->send(200, "text/plain", "✅ Accesso consentito solo su AP");
     });
+
+    //wifi list
     _server->on("/wifi-mgr/api/wifi-list", HTTP_GET, [&](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
@@ -143,10 +146,12 @@ void TeslaWiFiManager::serverRouting(){
         request->send(response);
     });
 
-    _server->on("/solo_ap", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(200, "text/plain", "✅ Accesso consentito solo su AP");
-    }).setFilter(ON_AP_FILTER);
 
+    //new wifi to be stored
+    _server->on
+
+
+    //handle notFound for dns
     _server->onNotFound([](AsyncWebServerRequest *request){
         if(WiFi.mode(WIFI_MODE_AP)){
             request->redirect("/wifi-mgr/");

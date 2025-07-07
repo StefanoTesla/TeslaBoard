@@ -11,7 +11,6 @@
 
 
 <script setup>
-import Navigation from './components/Navigation.vue';
 import WiFiComponent from './components/WiFi/WiFi.vue';
 
 import { ref, onMounted } from 'vue'

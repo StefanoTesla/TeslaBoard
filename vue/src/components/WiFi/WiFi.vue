@@ -42,12 +42,13 @@
           </div>
           <div class="sw_header">
             <p>Imposta come predefinita:</p>
-              <label class="toggle" :for="wifiToConnect.default">
-                <input class="toggle__input" type="checkbox" v-model="wifiToConnect.default" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)">
+              <label class="toggle" for="wifiDefault">
+                <input class="toggle__input" name="wifiDefault" id="wifiDefault" type="checkbox" v-model="wifiToConnect.default">
                 <div class="toggle__fill cursor-pointer"></div>
               </label>
+
           </div>
-          <button class="green cursor-pointer">Connetti</button>
+          <button class="green cursor-pointer" @click="connectToWifi()">Connetti</button>
     </div>
   </Card>
 </template>
@@ -55,7 +56,6 @@
 
 <script setup>
 import { ref,onMounted,onUnmounted,computed } from 'vue'
-import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
 
 const props = defineProps({
@@ -64,7 +64,7 @@ const props = defineProps({
 
 
 const wifiList = ref({})
-const wifiToConnect = ref({})
+const wifiToConnect = ref({"ssid":"","psw":"", "default":false})
 let dataLoaded = ref(false)
 
 
@@ -102,9 +102,39 @@ const fetchData = async () => {
 
 const copySSID = async (wifi) => {
   wifiToConnect.value.ssid = wifi.ssid
+  wifiToConnect.value.enc = wifi.enc
+
 }
+
 const connectToWifi = async () => {
-  wifiToConnect.value.ssid = wifi.ssid
+
+  if(wifiToConnect.value.ssid == ""){
+    console.error("SSID can't be empty")
+    return
+  }
+
+  if(wifiToConnect.psw == "psw" && wifiToConnect.value.psw == ""){
+    console.error("for this wifi password is required")
+    return
+  }
+
+  try {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+"/wifi-mgr/api/new-wifi", {
+        method: "POST",
+        headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(wifiToConnect.value)
+      });
+
+    const data = await response.json()
+    if (!response.ok) throw { status: response.status, data }
+    
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 onMounted(() => {
