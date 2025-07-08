@@ -71,7 +71,7 @@ let dataLoaded = ref(false)
 const fetchData = async () => {
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+'wifi-mgr/api/wifi-list')
+    const response = await fetch(ip+'/wifi-api/wifi-list')
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -120,7 +120,7 @@ const connectToWifi = async () => {
 
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+"/wifi-mgr/api/new-wifi", {
+    const response = await fetch(ip+"/wifi-api/new-wifi", {
         method: "POST",
         headers: {
         'Accept': 'application/json, text/plain, */*',
