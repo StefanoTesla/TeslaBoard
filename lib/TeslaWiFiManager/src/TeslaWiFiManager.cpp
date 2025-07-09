@@ -23,7 +23,7 @@ void TeslaWiFiManager::init(){
                     _cycle = 500;
                 }
 
-                _cycle = 10;
+                _cycle = 500;
                 break;
 
                 //first connection
@@ -84,12 +84,16 @@ void TeslaWiFiManager::init(){
                 break;
             case 700:
                 storeWiFiSetting();
-                _cycle = 800;
+                _cycle = 701;
                 break;
 
-            case 800:
+            case 701:
                 Serial.println(WiFi.localIP());
-                break;            
+                _cycle = 702;
+                break;    
+            case 702:
+
+                break;             
             default:
 
                 break;
@@ -103,6 +107,7 @@ void TeslaWiFiManager::init(){
 }
 
 void TeslaWiFiManager::startWiFiScan(){
+    Serial.println("Scan in progress...");
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
     WiFi.scanNetworks(true);
@@ -110,8 +115,7 @@ void TeslaWiFiManager::startWiFiScan(){
 }
 
 void TeslaWiFiManager::waitWiFiScanCompleted(){
-    Serial.println();
-    Serial.print("Scan in progress.");
+    Serial.println("Completed");
     while(WiFi.scanComplete() < 0  ){
         ;
     }
@@ -152,17 +156,25 @@ void TeslaWiFiManager::serverRouting(){
     _server->on("/wifi-api/wifi-list", HTTP_GET, [&](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        JsonArray wifi = doc["wifi"].to<JsonArray>();
+        JsonArray wifiList = doc["wifi"].to<JsonArray>();
         for (size_t i = 0; i < _wifiNetworkFound; i++)
         {
-            wifi[i]["ssid"] = WiFi.SSID(i);
-            wifi[i]["rssi"] = WiFi.RSSI(i);
+            wifiList[i]["ssid"] = WiFi.SSID(i);
+            wifiList[i]["rssi"] = WiFi.RSSI(i);
+            wifiList[i]["enc"] = "psw";
             if(WiFi.encryptionType(i) == 0){
-                wifi[i]["enc"] = "open";
-            } else {
-                wifi[i]["enc"] = "psw";
+                wifiList[i]["enc"] = "open";
             }
         }
+
+        JsonArray wifiConfigured = doc["stored"].to<JsonArray>();
+
+        for (JsonObject wifi : _json["wifi"].as<JsonArray>()) {
+            JsonObject newObj = wifiConfigured.add<JsonObject>();
+            newObj["ssid"] = wifi["ssid"]; 
+            newObj["default"] = wifi["default"];
+        }
+
         response->setLength();
         request->send(response);
     });
@@ -187,6 +199,20 @@ void TeslaWiFiManager::serverRouting(){
         request->send(200, "text/plain", "ok");
     });
     _server->addHandler(incomingWiFi);
+
+    //new wifi to be stored
+    AsyncCallbackJsonWebHandler* deleteWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/delete-wifi");
+    deleteWiFi->setMethod(HTTP_POST | HTTP_PUT);
+    deleteWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
+        serializeJson(root,Serial);
+        if(root["ssid"] == ""){
+            request->send(400, "text/plain", "no ssid");
+        }
+        deleteWiFiSetting(root["ssid"].as<String>());
+        request->send(200, "text/plain", "ok");
+    });
+    _server->addHandler(deleteWiFi);
+
     //handle notFound for dns
     _server->onNotFound([](AsyncWebServerRequest *request){
         if(WiFi.mode(WIFI_MODE_AP)){
@@ -197,7 +223,6 @@ void TeslaWiFiManager::serverRouting(){
     });
 
     _server->serveStatic("/assets/", LittleFS, "/www/assets/").setCacheControl("max-age=604800");
-    _server->serveStatic("/langs/", LittleFS, "/www/langs/").setCacheControl("max-age=604800");
 }
 
 void TeslaWiFiManager::serverBegin(){
@@ -221,7 +246,6 @@ void TeslaWiFiManager::loop(){
     }
 }
 
-
 // File Manager
 void TeslaWiFiManager::readWiFiFile(){
     _json.clear();
@@ -238,11 +262,11 @@ void TeslaWiFiManager::storeWiFiSetting(){
         //we are going to recreate the file
         _json.clear();
         Serial.println("Generating a new wifi file");
-        JsonArray wifi = _json.createNestedArray("wifi");
-        JsonObject wifi_0 = wifi.createNestedObject();
-        wifi_0["ssid"] = _incomingSSID;
-        wifi_0["psw"] = _incomingPSW;
-        wifi_0["default"] = _incomingDefault;
+        JsonArray wifiArray = _json["wifi"].to<JsonArray>();
+        JsonObject wifi = wifiArray.add<JsonObject>();
+        wifi["ssid"] = _incomingSSID;
+        wifi["psw"] = _incomingPSW;
+        wifi["default"] = _incomingDefault;
         _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
         serializeJson(_json,_fileReader);
         _fileReader.close();
@@ -264,11 +288,38 @@ void TeslaWiFiManager::storeWiFiSetting(){
     if(!found){
         Serial.print("Adding a new WiFi network: ");
         Serial.println(_incomingSSID);
-        JsonObject incomingWiFi = wifi.createNestedObject();
+        JsonObject incomingWiFi = wifi.add<JsonObject>();
         incomingWiFi["ssid"] = _incomingSSID;
         incomingWiFi["psw"] = _incomingPSW;
         incomingWiFi["default"] = _incomingDefault;
     }
+    _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
+    serializeJson(_json,_fileReader);
+    _fileReader.close();
+    return;
+}
+
+void TeslaWiFiManager::deleteWiFiSetting(String ssid){
+
+    if(!checkWiFiFile()){
+        return;
+    }
+    
+    JsonArray wifi = _json["wifi"].as<JsonArray>();
+    int indexToRemove = -1;
+    for (int i = 0; i < wifi.size(); i++) {
+        JsonObject item = wifi[i];
+        if (_incomingSSID == item["ssid"].as<String>()) {
+        indexToRemove = i;
+        break; // Trovato, esci dal ciclo
+        }
+    }
+
+    if(indexToRemove != -1){
+        _json["wifi"].remove(indexToRemove);
+    }
+
+
     _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
     serializeJson(_json,_fileReader);
     _fileReader.close();

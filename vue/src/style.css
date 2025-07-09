@@ -12,25 +12,27 @@ input[type=number] {
 }
 
 :root {
-  --divbkg: #373737;
-  --divhig: #4B4B4B;
+  --bkg: #121212;
+  --divbkg: #272727;
+  --divhig: #3B3B3B;
   --green: #CBF05F;
   --orange: #ecb94a;
   --red: #ec4a4a;
-  --black: #212121;
+  --black: #121212;
 
 }
 
 *{
   color: #FDFDFD;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  @apply antialiased
 }
 
 span{
   @apply ml-1
 }
 body{
-  background: #212121;
+  background: var(--bkg);
 }
 
 header {
@@ -55,7 +57,7 @@ a.active{
 
 .container{
   background: var(--divbkg);
-  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12  rounded-xl shadow-[#2e2e33] shadow-sm
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12  rounded-xl
 }
 
 .container_header {
@@ -71,7 +73,7 @@ a.active{
 .container_header > .icon{
     @apply col-span-1 items-center justify-items-center content-center
 }
-.container > .body{
+.container > .content{
     @apply pb-4
 }
 
@@ -414,4 +416,13 @@ input[type="range"] {
 }
 .info{
   @apply bg-blue-700 text-white
+}
+
+
+.wifi_networks{
+  @apply grid grid-cols-12 cursor-pointer pt-2
+}
+
+.ssid{
+  @apply col-span-10
 }

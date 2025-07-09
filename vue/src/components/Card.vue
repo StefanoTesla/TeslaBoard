@@ -14,7 +14,7 @@
         </svg>
     </div>
   </div>
-  <div class="body" v-if="open">
+  <div class="content" v-if="open">
     <slot />
   </div>
 

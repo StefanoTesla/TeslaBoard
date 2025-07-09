@@ -1,11 +1,8 @@
 
 <template>
 
-  <div v-if="txtLoaded">
-
-    <WiFiComponent
-      :txt="translations"
-    /> 
+  <div>
+    <WiFiComponent/> 
   </div>
 </template>
 
@@ -14,19 +11,10 @@
 import WiFiComponent from './components/WiFi/WiFi.vue';
 
 import { ref, onMounted } from 'vue'
-import { useTranslations } from './composables/translation'
 
-
-const { translations, loadTranslations } = useTranslations()
-const txtLoaded = ref(false)
-
+const txtLoaded = ref({})
 const loadInitConfig = async () => {
-  try {
-    await loadTranslations("en")
     txtLoaded.value = true
-  } catch (error) {
-    console.error('Error loading translations:', error)
-  }
 }
 
 

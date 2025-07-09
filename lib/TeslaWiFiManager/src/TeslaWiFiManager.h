@@ -31,6 +31,7 @@ class TeslaWiFiManager{
     void waitWiFiScanCompleted();
     void readWiFiFile();
     void storeWiFiSetting();
+    void deleteWiFiSetting(String ssid);
     bool checkWiFiFile();
     void startCaptivePortal();
     void stopCaptivePortal();
