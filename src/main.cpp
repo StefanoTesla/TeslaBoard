@@ -61,10 +61,10 @@ void setup() {
   }
 
   startupTask();
-
+  WiFi.setHostname(BOARD_IDENTIFIER);
+  
   wi.init();
 
-  MDNS.begin(BOARD_IDENTIFIER);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();

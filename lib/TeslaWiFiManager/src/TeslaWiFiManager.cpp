@@ -5,7 +5,6 @@ TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 
 void TeslaWiFiManager::init(){
     if(!_routeInit){
-        Serial.println("Setup routes");
         serverRouting(); 
         _routeInit = true;
     }
@@ -17,12 +16,19 @@ void TeslaWiFiManager::init(){
             case 0:
                 //start the async wifi scan and read the json file
                 startWiFiScan();
-                waitWiFiScanCompleted();
-
+                
                 if(!checkWiFiFile()){
+                    Serial.println("Wifi file no good, going to AP");
                     _cycle = 500;
+                    break;
                 }
 
+                if(_json["stored"].size() == 0){
+                    Serial.println("No Wifi configured, going to AP");
+                    _cycle = 500;
+                    break;
+                }
+                waitWiFiScanCompleted();
                 _cycle = 500;
                 break;
 
@@ -37,6 +43,7 @@ void TeslaWiFiManager::init(){
 
                 //goes to AP
             case 500:
+                waitWiFiScanCompleted();
                 startCaptivePortal();
                 _cycle = 510;
                 break;
@@ -169,7 +176,7 @@ void TeslaWiFiManager::serverRouting(){
 
         JsonArray wifiConfigured = doc["stored"].to<JsonArray>();
 
-        for (JsonObject wifi : _json["wifi"].as<JsonArray>()) {
+        for (JsonObject wifi : _json["stored"].as<JsonArray>()) {
             JsonObject newObj = wifiConfigured.add<JsonObject>();
             newObj["ssid"] = wifi["ssid"]; 
             newObj["default"] = wifi["default"];
@@ -189,27 +196,34 @@ void TeslaWiFiManager::serverRouting(){
     AsyncCallbackJsonWebHandler* incomingWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/new-wifi");
     incomingWiFi->setMethod(HTTP_POST | HTTP_PUT);
     incomingWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        serializeJson(root,Serial);
+        Serial.print("New wifi incoming: ");
+        Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
             request->send(400, "text/plain", "no ssid");
         }
+        Serial.println("sassds");
+        Serial.println(root["default"].as<bool>());
+        Serial.println("sassds");
         _incomingSSID = root["ssid"].as<String>();
         _incomingPSW = root["psw"].as<String>();
+        _incomingDefault = root["default"].as<bool>();
         _newIncomingWiFi = true;
         request->send(200, "text/plain", "ok");
     });
     _server->addHandler(incomingWiFi);
 
-    //new wifi to be stored
+    //delete wifi
     AsyncCallbackJsonWebHandler* deleteWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/delete-wifi");
     deleteWiFi->setMethod(HTTP_POST | HTTP_PUT);
     deleteWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        serializeJson(root,Serial);
+        Serial.print("Deleting wifi: ");
+        Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
-            request->send(400, "text/plain", "no ssid");
-        }
+            request->send(400, "text/plain", "{no ssid}");
+        }else{
         deleteWiFiSetting(root["ssid"].as<String>());
         request->send(200, "text/plain", "ok");
+        }
     });
     _server->addHandler(deleteWiFi);
 
@@ -250,10 +264,7 @@ void TeslaWiFiManager::loop(){
 void TeslaWiFiManager::readWiFiFile(){
     _json.clear();
     _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_READ);
-    deserializeJson(_json,_fileReader);
-    JsonArray wifi = _json["wifi"].as<JsonArray>();
-
-    
+    deserializeJson(_json,_fileReader);    
 }
 
 void TeslaWiFiManager::storeWiFiSetting(){
@@ -262,7 +273,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
         //we are going to recreate the file
         _json.clear();
         Serial.println("Generating a new wifi file");
-        JsonArray wifiArray = _json["wifi"].to<JsonArray>();
+        JsonArray wifiArray = _json["stored"].to<JsonArray>();
         JsonObject wifi = wifiArray.add<JsonObject>();
         wifi["ssid"] = _incomingSSID;
         wifi["psw"] = _incomingPSW;
@@ -270,12 +281,16 @@ void TeslaWiFiManager::storeWiFiSetting(){
         _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
         serializeJson(_json,_fileReader);
         _fileReader.close();
+        _incomingSSID="";
+        _incomingPSW="";
+        _incomingDefault="";
+        _newIncomingWiFi=false;
         return;
     }
     
-    JsonArray wifi = _json["wifi"].as<JsonArray>();
+    JsonArray stored = _json["stored"].as<JsonArray>();
     bool found = false;
-    for (JsonObject item : wifi) {
+    for (JsonObject item : stored) {
         if (_incomingSSID == item["ssid"].as<String>()) {
             found = true;
             item["psw"] = _incomingPSW;
@@ -288,7 +303,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
     if(!found){
         Serial.print("Adding a new WiFi network: ");
         Serial.println(_incomingSSID);
-        JsonObject incomingWiFi = wifi.add<JsonObject>();
+        JsonObject incomingWiFi = stored.add<JsonObject>();
         incomingWiFi["ssid"] = _incomingSSID;
         incomingWiFi["psw"] = _incomingPSW;
         incomingWiFi["default"] = _incomingDefault;
@@ -304,22 +319,20 @@ void TeslaWiFiManager::deleteWiFiSetting(String ssid){
     if(!checkWiFiFile()){
         return;
     }
-    
-    JsonArray wifi = _json["wifi"].as<JsonArray>();
+
     int indexToRemove = -1;
-    for (int i = 0; i < wifi.size(); i++) {
-        JsonObject item = wifi[i];
-        if (_incomingSSID == item["ssid"].as<String>()) {
+    for (int i = 0; i < _json["stored"].size(); i++) {
+        if (ssid == _json["stored"][i]["ssid"].as<String>()) {
         indexToRemove = i;
-        break; // Trovato, esci dal ciclo
+        break;
         }
     }
 
     if(indexToRemove != -1){
-        _json["wifi"].remove(indexToRemove);
+        _json["stored"].remove(indexToRemove);
     }
 
-
+    serializeJson(_json,Serial);
     _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
     serializeJson(_json,_fileReader);
     _fileReader.close();
@@ -337,8 +350,8 @@ bool TeslaWiFiManager::checkWiFiFile(){
             Serial.println("Error during deserialization of wifi file");
             return false;
         } else {
-            if (!_json["wifi"].is<JsonArray>()) {
-                Serial.println("Wifi is not an array");
+            if (!_json["stored"].is<JsonArray>()) {
+                Serial.println("stored is not an array");
                 return false;
             }
         }

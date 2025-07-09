@@ -179,8 +179,8 @@ const connectToWifi = async () => {
 }
 const deleteWifi = async (wifi) => {
 
-  console.log("deleting wifi: ",wifi.value.ssid)
-  if(wifi.value.ssid == ""){
+  console.log("deleting wifi: ",wifi.ssid)
+  if(wifi.ssid == ""){
     console.error("SSID can't be empty")
     return
   }
@@ -193,7 +193,7 @@ const deleteWifi = async (wifi) => {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
         },
-        body: JSON.stringify(wifi.value)
+        body: JSON.stringify(wifi)
       });
 
     const data = await response.json()
