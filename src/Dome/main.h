@@ -123,7 +123,7 @@ void shutterOutput(enumCommandDir direction){
 void domeAutoClose(){
 
   if (Dome.Shutter.input == ShInputOnlyOpen){
-    if ((Global.actualMillis - (Dome.Shutter.lastCommunicationMillis)) > (Dome.config.data.autoCloseTimeOut * 1000 * 60)) {
+    if ((millis() - (Dome.Shutter.lastCommunicationMillis)) > (Dome.config.data.autoCloseTimeOut * 1000 * 60)) {
           Dome.Shutter.command = ShCommandClose;
         }
   }
@@ -312,7 +312,7 @@ void domeLoop() {
 
 
   if (Dome.Shutter.Cycle >= 11 && Dome.Shutter.Cycle <= 25) {
-    if ((Global.actualMillis - Dome.Shutter.timeOutAck) > (Dome.config.data.movingTimeOut * 1000)) { //input error I wait 10 sec. before done command
+    if ((millis() - Dome.Shutter.timeOutAck) > (Dome.config.data.movingTimeOut * 1000)) { //input error I wait 10 sec. before done command
       Serial.println("DOME: SHUTTER TIMEOUT");
       Dome.Shutter.command = ShCommandHalt;  //Timeout, HALT
     }

@@ -27,18 +27,20 @@ void startupTask(){
 
 
 void boardLoop(){
+
+    wi.loop();
     if(Global.config.save.execute){
         saveBoardConfig();
         Global.config.save.execute = false;
     }
 
-    if(Global.actualMillis - Global.pulse.second.oldMillis >= 1000){
+    if(millis() - Global.pulse.second.oldMillis >= 1000){
         Global.pulse.second.pulse = true;
-        Global.pulse.second.oldMillis = Global.actualMillis;
+        Global.pulse.second.oldMillis = millis();
     } else { Global.pulse.second.pulse = false; }
-    if(Global.actualMillis - Global.pulse.minute.oldMillis >= 60000){
+    if(millis() - Global.pulse.minute.oldMillis >= 60000){
         Global.pulse.minute.pulse = true;
-        Global.pulse.minute.oldMillis = Global.actualMillis;
+        Global.pulse.minute.oldMillis = millis();
     } else { Global.pulse.minute.pulse = false; }
 
     
@@ -78,9 +80,9 @@ void boardLoop(){
 
     if (Global.config.reboot.rebootRequest){
         if(Global.config.reboot.lastMillis == 0){
-            Global.config.reboot.lastMillis = Global.actualMillis;
+            Global.config.reboot.lastMillis = millis();
         } else {
-            if((Global.actualMillis - Global.config.reboot.lastMillis) > 1000){
+            if((millis() - Global.config.reboot.lastMillis) > 1000){
                 ESP.restart();
             }
         }  

@@ -31,6 +31,7 @@ class TeslaWiFiManager{
     void waitWiFiScanCompleted();
     void readWiFiFile();
     void storeWiFiSetting();
+    void WiFiListOrder();
     void deleteWiFiSetting(String ssid);
     bool checkWiFiFile();
     void startCaptivePortal();
@@ -39,10 +40,15 @@ class TeslaWiFiManager{
     void serverBegin();
     void serverStop();
     void connect(String SSID,String Password);
+    bool connectionWait();
+
     AsyncWebServer* _server;
     DNSServer _dnsServer;
     File _fileReader;
     JsonDocument _json;
+    JsonArray _wifiList;
+    JsonObject _forObj;
+    bool _lmsAck = false;
     unsigned long _lms;
     String _incomingSSID ="";
     String _incomingPSW ="";

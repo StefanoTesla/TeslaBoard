@@ -1,6 +1,6 @@
 #define ALPACA_PORT 4567
 
-#define BOARD_IDENTIFIER "teslaboard"
+#define BOARD_IDENTIFIER "TeslaBoard"
 
 #define DOME
 #define DOME_IDENTIFIER "Dome"
@@ -11,6 +11,8 @@
 #define SWITCH
 #define SWITCH_IDENTIFIER "Switch"
 
+
+//----
 #include "libraries.h"
 
 AsyncWebServer server(80);
@@ -100,7 +102,6 @@ void setup() {
 }
 
 void loop() {
-  Global.actualMillis = millis();
   
   boardLoop();
   #ifdef DOME

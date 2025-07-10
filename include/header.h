@@ -116,7 +116,6 @@ struct pulseStruct{
 
 
 struct globalVariable{
-  unsigned long actualMillis;
   unsigned long upTimeInterval = 60000; //one minute, don't change
   pulseStruct pulse;
   boarcConfigStruct config;

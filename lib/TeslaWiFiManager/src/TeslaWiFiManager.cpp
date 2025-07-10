@@ -18,24 +18,56 @@ void TeslaWiFiManager::init(){
                 startWiFiScan();
                 
                 if(!checkWiFiFile()){
-                    Serial.println("Wifi file no good, going to AP");
+                    Serial.println("[WiFiMgr] Wifi file no good, going to AP");
                     _cycle = 500;
                     break;
                 }
 
                 if(_json["stored"].size() == 0){
-                    Serial.println("No Wifi configured, going to AP");
+                    Serial.println("[WiFiMgr] No Wifi configured, going to AP");
                     _cycle = 500;
                     break;
                 }
                 waitWiFiScanCompleted();
-                _cycle = 500;
+                
+                if(_wifiNetworkFound == 0){
+                    Serial.println("[WiFiMgr] No Wifi founded (are you in the desert?), going to AP");
+                    _cycle = 500;
+                    break;
+                }
+                _cycle = 10;
                 break;
 
-                //first connection
+
+
+                //get the stored wifi list
             case 10:
-                readWiFiFile();
+                    _wifiList = _json["stored"].as<JsonArray>();
+                    WiFiListOrder();
+                    _cycle = 11;
+                    break;
+
+            case 11: {
+                    bool connected = false;
+                    for (JsonObject item : _wifiList) {
+                        connect(item["ssid"],item["psw"]);
+                        _lms = millis();
+                        if(connectionWait()){
+                            connected = true;
+                            break;
+                        }
+                    }
+                    if(connected){
+                        Serial.println("[WiFiMgr] Connected, enjoy!");
+                        _cycle = 1000;
+                    } else {
+                        Serial.print("[WiFiMgr] Unable to connecto to any wifi, going in AP");
+                        _cycle = 500;
+                    }
+                }
                 break;
+
+
 
                 //first connection
             case 100:
@@ -53,7 +85,7 @@ void TeslaWiFiManager::init(){
                 }
                 _cycle = 520;
                 serverBegin();
-                Serial.println("Waiting for WiFi data");
+                Serial.println("[WiFiMgr] Waiting for WiFi data");
                 break;
             case 520:
                 if(_newIncomingWiFi){
@@ -63,8 +95,6 @@ void TeslaWiFiManager::init(){
                 break;
 
             case 600:
-                Serial.print("Connecting to: ");
-                Serial.print(_incomingSSID);
                 stopCaptivePortal();
                 _cycle = 605;
                 break;
@@ -74,13 +104,10 @@ void TeslaWiFiManager::init(){
                 _lms = millis();
                 break;
             case 610:
-                if(WiFi.status() == WL_CONNECTED) {
-                    Serial.println("Connected");
+                if(connectionWait()){
                     _cycle = 700;
                 }
-
-                if(millis() - _lms > 10000){
-                    Serial.println("Unable to connect");
+                else {
                     startWiFiScan();
                     _cycle = 620;
                 }
@@ -91,42 +118,43 @@ void TeslaWiFiManager::init(){
                 break;
             case 700:
                 storeWiFiSetting();
-                _cycle = 701;
+                _cycle = 1000;
                 break;
 
-            case 701:
+            case 1000:
                 Serial.println(WiFi.localIP());
-                _cycle = 702;
+                _cycle = 1001;
                 break;    
-            case 702:
-
+            case 1001:
+                return;
                 break;             
             default:
 
                 break;
         }
 
-            if(_dnsServerActive){
-                _dnsServer.processNextRequest();
-            }
+        if(_dnsServerActive){
+            _dnsServer.processNextRequest();
+        }
     }
     
 }
 
 void TeslaWiFiManager::startWiFiScan(){
-    Serial.println("Scan in progress...");
+    Serial.println("[WiFiMgr] Scan in progress...");
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
+    WiFi.scanDelete();
     WiFi.scanNetworks(true);
     _scanInProgress = true;
 }
 
 void TeslaWiFiManager::waitWiFiScanCompleted(){
-    Serial.println("Completed");
     while(WiFi.scanComplete() < 0  ){
         ;
     }
-    _wifiNetworkFound = WiFi.scanNetworks();
+    Serial.println("[WiFiMgr] Scan Completed");
+    _wifiNetworkFound = WiFi.scanComplete();
     _scanInProgress = false;
 }
 
@@ -141,10 +169,14 @@ void TeslaWiFiManager::startCaptivePortal(){
 void TeslaWiFiManager::stopCaptivePortal(){
     _dnsServer.stop();
     _dnsServerActive = false;
+    Serial.println("[WiFiMgr] stop dns");
     serverStop();
+    Serial.println("[WiFiMgr] stop server");
     WiFi.softAPdisconnect(true);
+    Serial.println("[WiFiMgr] stop ap");
     WiFi.mode(WIFI_OFF);
-    Serial.println("AP closed");    
+    Serial.println("[WiFiMgr] stop wifi");
+    Serial.println("[WiFiMgr] AP closed");    
 }
 
 void TeslaWiFiManager::setStaticIP(IPAddress ip, IPAddress gw,IPAddress sn){
@@ -188,41 +220,54 @@ void TeslaWiFiManager::serverRouting(){
 
     //perform a new scan
     _server->on("/wifi-api/force-scan", HTTP_GET, [&](AsyncWebServerRequest *request){
-        request->send(200, "text/plain", "ok");
+        request->send(200, "text/plain", "{\"executed\":true}");
     });
-
 
     //new wifi to be stored
     AsyncCallbackJsonWebHandler* incomingWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/new-wifi");
     incomingWiFi->setMethod(HTTP_POST | HTTP_PUT);
     incomingWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        Serial.print("New wifi incoming: ");
+        Serial.print("[WiFiMgr] New wifi incoming: ");
         Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
             request->send(400, "text/plain", "no ssid");
         }
-        Serial.println("sassds");
-        Serial.println(root["default"].as<bool>());
-        Serial.println("sassds");
         _incomingSSID = root["ssid"].as<String>();
         _incomingPSW = root["psw"].as<String>();
         _incomingDefault = root["default"].as<bool>();
         _newIncomingWiFi = true;
-        request->send(200, "text/plain", "ok");
+        request->send(200, "text/plain", "{\"executed\":true}");
     });
     _server->addHandler(incomingWiFi);
+
+    //new wifi to be stored
+    AsyncCallbackJsonWebHandler* addWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/add-wifi");
+    addWiFi->setMethod(HTTP_POST | HTTP_PUT);
+    addWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
+        Serial.print("[WiFiMgr] New wifi to be added: ");
+        Serial.println(root["ssid"].as<String>());
+        if(root["ssid"] == ""){
+            request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
+        }
+        _incomingSSID = root["ssid"].as<String>();
+        _incomingPSW = root["psw"].as<String>();
+        _incomingDefault = root["default"].as<bool>();
+        storeWiFiSetting();
+        request->send(200, "text/plain", "{\"executed\":true}");
+    });
+    _server->addHandler(addWiFi);
 
     //delete wifi
     AsyncCallbackJsonWebHandler* deleteWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/delete-wifi");
     deleteWiFi->setMethod(HTTP_POST | HTTP_PUT);
     deleteWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        Serial.print("Deleting wifi: ");
+        Serial.print("[WiFiMgr] Deleting wifi: ");
         Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
-            request->send(400, "text/plain", "{no ssid}");
+            request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
         }else{
         deleteWiFiSetting(root["ssid"].as<String>());
-        request->send(200, "text/plain", "ok");
+        request->send(200, "text/plain", "{\"executed\":true}");
         }
     });
     _server->addHandler(deleteWiFi);
@@ -247,16 +292,32 @@ void TeslaWiFiManager::serverStop(){
     _server->end();
 }
 
+
+// connecting services
+
 void TeslaWiFiManager::connect(String SSID,String Password){
     WiFi.mode(WIFI_STA);
     WiFi.begin(SSID, Password);
-    Serial.print("Connecting to WiFi ..");
+    Serial.print("[WiFiMgr] Connecting to WiFi: ");
+    Serial.println(SSID);
+}
+
+//wait connection
+
+bool TeslaWiFiManager::connectionWait(){
+    while (millis() - _lms < 5000)
+    {
+        if(WiFi.status() == WL_CONNECTED) {
+        return true;
+        }
+    }
+    return false;
 }
 
 void TeslaWiFiManager::loop(){
 
     if(WiFi.status() != WL_CONNECTED){
-        //disconnesso :(
+        Serial.println("[WiFiMgr] WiFi connection lost.");
     }
 }
 
@@ -272,7 +333,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
     if(!checkWiFiFile()){
         //we are going to recreate the file
         _json.clear();
-        Serial.println("Generating a new wifi file");
+        Serial.println("[WiFiMgr] Generating a new wifi file");
         JsonArray wifiArray = _json["stored"].to<JsonArray>();
         JsonObject wifi = wifiArray.add<JsonObject>();
         wifi["ssid"] = _incomingSSID;
@@ -293,6 +354,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
     for (JsonObject item : stored) {
         if (_incomingSSID == item["ssid"].as<String>()) {
             found = true;
+            Serial.print("[WiFiMgr] Replacing existing WiFi network: ");
             item["psw"] = _incomingPSW;
             item["default"] = _incomingDefault;
         } else if (_incomingDefault) {
@@ -301,7 +363,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
     }
 
     if(!found){
-        Serial.print("Adding a new WiFi network: ");
+        Serial.print("[WiFiMgr] Adding a new WiFi network: ");
         Serial.println(_incomingSSID);
         JsonObject incomingWiFi = stored.add<JsonObject>();
         incomingWiFi["ssid"] = _incomingSSID;
@@ -332,9 +394,7 @@ void TeslaWiFiManager::deleteWiFiSetting(String ssid){
         _json["stored"].remove(indexToRemove);
     }
 
-    serializeJson(_json,Serial);
     _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
-    serializeJson(_json,_fileReader);
     _fileReader.close();
     return;
 }
@@ -347,17 +407,43 @@ bool TeslaWiFiManager::checkWiFiFile(){
         DeserializationError desErr = deserializeJson(_json, _fileReader);
         _fileReader.close();
         if(desErr){
-            Serial.println("Error during deserialization of wifi file");
+            Serial.println("[WiFiMgr] Error during deserialization of wifi file");
             return false;
         } else {
             if (!_json["stored"].is<JsonArray>()) {
-                Serial.println("stored is not an array");
+                Serial.println("[WiFiMgr] stored is not an array");
                 return false;
             }
         }
     } else {
-        Serial.println("Unable to read wifi file");
+        Serial.println("[WiFiMgr] Unable to read wifi file");
         return false;
     }
     return true;
+}
+
+void TeslaWiFiManager::WiFiListOrder(){
+    _wifiList = _json["stored"].as<JsonArray>();
+
+    int size = _wifiList.size();
+    int defPos = -1;
+    if(size==1){
+        return;
+    }
+
+    for (int i = 0; i < size; i++)
+    {
+        if(_wifiList[i]["default"]){
+            defPos = i;
+            break;
+        }
+    }
+    
+    if(defPos > 0){
+        JsonObject tmp;
+        tmp.set(_wifiList[0]);
+        _wifiList[0].set(_wifiList[defPos]);
+        _wifiList[defPos].set(tmp);
+    }
+
 }

@@ -34,7 +34,7 @@
 
     </div>
     <div class="card">
-        Connect to a WiFi:
+        Connect or Add a WiFi:
 
           <div class="sw_header">
             <p>SSID:</p>
@@ -52,7 +52,11 @@
               </label>
 
           </div>
-          <button class="green cursor-pointer" @click="connectToWifi()">Connect</button>
+          <div class="flex justify-around">
+            <button class="green cursor-pointer" @click="connectToWifi()">Connect</button>
+            <button class="orange cursor-pointer" @click="addNewWifi()">Add</button>
+          </div>
+          
     </div>
   </Card>
 
@@ -98,9 +102,11 @@
 <script setup>
 import { ref,onMounted } from 'vue'
 import Card from '../Card.vue';
+import { toast } from 'vue3-toastify';
 
 const title = "WiFi"
 const setting = "Setup"
+
 const props = defineProps({
   txt: Object
 })
@@ -131,7 +137,7 @@ const fetchData = async () => {
     }
     //sort by signal
     wifiList.value = [...ssidMap.values()].sort((a, b) => b.rssi - a.rssi);
-  configuredWiFi.value = data.stored;
+    configuredWiFi.value = data.stored;
 
     dataLoaded.value = true
 
@@ -150,8 +156,10 @@ const copySSID = async (wifi) => {
 const connectToWifi = async () => {
 
   if(wifiToConnect.value.ssid == ""){
-    console.error("SSID can't be empty")
-    return
+      toast.error("SSID can't be empty",{
+        autoClose: 3000,
+      })
+      return
   }
 
   if(wifiToConnect.psw == "psw" && wifiToConnect.value.psw == ""){
@@ -171,12 +179,60 @@ const connectToWifi = async () => {
       });
 
     const data = await response.json()
-    if (!response.ok) throw { status: response.status, data }
+    if (response.ok){
+      toast.success("The WiFi was added to the list, performing a connection!", {
+        autoClose: 5000,
+      });
+    } else {
+      toast.error("Unable to add a new WiFi",{
+        autoClose: 3000,
+      })
+    }
+
+  } catch (err) {
+    console.error(err)
+  } finally {
+    wifiToConnect.value = {"ssid":"","psw":"", "default":false}
+  }
+}
+const addNewWifi = async () => {
+
+  if(wifiToConnect.value.ssid == ""){
+      toast.error("SSID can't be empty",{
+        autoClose: 3000,
+      })
+    return
+  }
+
+  try {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+"/wifi-api/add-wifi", {
+        method: "POST",
+        headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(wifiToConnect.value)
+      });
+
+    const data = await response.json()
+    if (response.ok){
+      toast.success("The WiFi was added to the list", {
+        autoClose: 500,
+      });
+    } else {
+      toast.error("Unable to add a new WiFi",{
+        autoClose: 3000,
+      })
+    }
     
   } catch (err) {
     console.error(err)
+  } finally {
+    wifiToConnect.value = {"ssid":"","psw":"", "default":false}
   }
 }
+
 const deleteWifi = async (wifi) => {
 
   console.log("deleting wifi: ",wifi.ssid)
@@ -197,8 +253,8 @@ const deleteWifi = async (wifi) => {
       });
 
     const data = await response.json()
-    if (!response.ok) throw { status: response.status, data }
-    
+    if (response.ok) fetchData()
+
   } catch (err) {
     console.error(err)
   }
