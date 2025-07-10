@@ -117,7 +117,7 @@ void TeslaWiFiManager::init(){
                 _cycle = 500;
                 break;
             case 700:
-                storeWiFiSetting();
+                storeWiFiConnection();
                 _cycle = 1000;
                 break;
 
@@ -252,7 +252,7 @@ void TeslaWiFiManager::serverRouting(){
         _incomingSSID = root["ssid"].as<String>();
         _incomingPSW = root["psw"].as<String>();
         _incomingDefault = root["default"].as<bool>();
-        storeWiFiSetting();
+        storeWiFiConnection();
         request->send(200, "text/plain", "{\"executed\":true}");
     });
     _server->addHandler(addWiFi);
@@ -266,7 +266,7 @@ void TeslaWiFiManager::serverRouting(){
         if(root["ssid"] == ""){
             request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
         }else{
-        deleteWiFiSetting(root["ssid"].as<String>());
+        deleteWiFiConnection(root["ssid"].as<String>());
         request->send(200, "text/plain", "{\"executed\":true}");
         }
     });
@@ -328,7 +328,7 @@ void TeslaWiFiManager::readWiFiFile(){
     deserializeJson(_json,_fileReader);    
 }
 
-void TeslaWiFiManager::storeWiFiSetting(){
+void TeslaWiFiManager::storeWiFiConnection(){
 
     if(!checkWiFiFile()){
         //we are going to recreate the file
@@ -376,7 +376,7 @@ void TeslaWiFiManager::storeWiFiSetting(){
     return;
 }
 
-void TeslaWiFiManager::deleteWiFiSetting(String ssid){
+void TeslaWiFiManager::deleteWiFiConnection(String ssid){
 
     if(!checkWiFiFile()){
         return;
