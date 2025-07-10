@@ -63,6 +63,8 @@ class TeslaWiFiManager{
     unsigned int _cycle =0;
     unsigned int _loopCycle =0;
     unsigned int _retry = 0;
+    unsigned int _storedWifi = 0;
+    unsigned int _WiFiPointer = 0;
     unsigned int _wifiNetworkFound = 0;
 
 };

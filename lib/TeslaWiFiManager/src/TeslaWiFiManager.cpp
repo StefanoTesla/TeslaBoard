@@ -152,12 +152,73 @@ void TeslaWiFiManager::loop(){
         if(WiFi.status() != WL_CONNECTED){
             Serial.println("[WiFiMgr] WiFi connection lost.");
             _loopCycle = 10;
+            _retry = 0;
         }
         break;
+
     case 10:
-        
+        _loopCycle = 11;
+        _retry = 0;
+        break;
+            
+    case 11:
+        ///test a reconnection for 10 times
+        WiFi.reconnect();
+        _lms = millis();
+        _loopCycle = 12;
+        Serial.println("[WiFiMgr] Reconnection...");
+        break;
+
+    case 12:
+        if(millis()-_lms > 5000){
+            if(WiFi.status() != WL_CONNECTED){
+                if(_retry<2){
+                    _retry++;
+                    _loopCycle = 11;
+                } else {
+                    _loopCycle= 20;
+                }
+
+            }
+        }
+        break;
+
+    case 20:
+        WiFi.disconnect(true);
+        WiFi.mode(WIFI_OFF);
+        WiFi.mode(WIFI_STA);
+        Serial.println("[WiFiMgr] Testing all the stored WiFi");
+        _loopCycle= 21;
+        break;
+
+    case 21:
+        _storedWifi = _json["stored"].size();
+        _WiFiPointer = 0;
+        _loopCycle= 22;
         break;
     
+    case 22:
+        _lms = millis();
+        WiFi.disconnect(true);
+        connect(_json["stored"][_WiFiPointer]["ssid"].as<String>(), _json["stored"][_WiFiPointer]["psw"].as<String>());
+        _loopCycle= 23;
+        break;
+
+    case 23:
+        if(millis()-_lms > 5000){
+            if(WiFi.status() != WL_CONNECTED){
+                _WiFiPointer++;
+                if(_WiFiPointer >= _storedWifi){
+                    _WiFiPointer==0;
+                }
+                _loopCycle = 22;
+            } else {
+                Serial.println("[WiFiMgr] Reconnected.");
+                _loopCycle = 0;
+            }
+        }
+        break;
+
     default:
         break;
     }
@@ -353,8 +414,6 @@ bool TeslaWiFiManager::connectionWait(){
     }
     return false;
 }
-
-
 
 // File Manager
 void TeslaWiFiManager::readWiFiFile(){
