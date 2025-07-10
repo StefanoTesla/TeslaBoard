@@ -29,7 +29,10 @@ class TeslaWiFiManager{
   private:
     void startWiFiScan();
     void waitWiFiScanCompleted();
+    void startWiFiScanDuringAP();
+    bool waitWiFiScanDuringAP();
     void readWiFiFile();
+    void writeWiFiFile();
     void storeWiFiConnection();
     void WiFiListOrder();
     void deleteWiFiConnection(String ssid);
@@ -58,6 +61,8 @@ class TeslaWiFiManager{
     bool _scanInProgress = false;
     bool _dnsServerActive = false;
     unsigned int _cycle =0;
+    unsigned int _loopCycle =0;
+    unsigned int _retry = 0;
     unsigned int _wifiNetworkFound = 0;
 
 };

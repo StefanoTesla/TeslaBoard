@@ -183,6 +183,7 @@ const connectToWifi = async () => {
       toast.success("The WiFi was added to the list, performing a connection!", {
         autoClose: 5000,
       });
+      fetchData()
     } else {
       toast.error("Unable to add a new WiFi",{
         autoClose: 3000,
@@ -220,6 +221,7 @@ const addNewWifi = async () => {
       toast.success("The WiFi was added to the list", {
         autoClose: 500,
       });
+      fetchData()
     } else {
       toast.error("Unable to add a new WiFi",{
         autoClose: 3000,
@@ -253,7 +255,9 @@ const deleteWifi = async (wifi) => {
       });
 
     const data = await response.json()
-    if (response.ok) fetchData()
+    if (response.ok){
+      fetchData()
+    }
 
   } catch (err) {
     console.error(err)
