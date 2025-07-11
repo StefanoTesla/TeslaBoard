@@ -61,21 +61,6 @@ void boardLoop(){
         Global.config.wifi.reconnection.delaySeconds = 0;
     } else {
          Global.config.wifi.upTime.minutes = 0;
-        if(!Global.config.wifi.reconnection.waitToReconnect){
-            Serial.println("wifi lost, wait interval...");
-            Global.config.wifi.reconnection.waitToReconnect = true;
-        } else {
-            //WiFi.disconnect();
-            if(Global.pulse.second.pulse){ Global.config.wifi.reconnection.delaySeconds += 1;}
-            if(Global.config.wifi.reconnection.delaySeconds > Global.config.wifi.reconnection.intervall){
-                Serial.println("wifi reconnection...");
-                Global.config.wifi.reconnection.delaySeconds = 0;
-                Global.config.wifi.upTime.minutes = 0;
-                WiFi.reconnect();
-            
-            }
-        }
-
     }
 
     if (Global.config.reboot.rebootRequest){
