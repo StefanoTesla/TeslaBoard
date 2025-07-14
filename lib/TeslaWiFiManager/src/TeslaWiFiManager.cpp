@@ -23,7 +23,6 @@ void TeslaWiFiManager::init(){
                 {
                     if(savedNetworks[i].isValid){
                         _cycle = CONNECT_TO_STORED_WIFI;
-                        Serial.println("EGOLOOO");
                         break;
                     }
                 }
@@ -313,7 +312,6 @@ void TeslaWiFiManager::APstop(){
 void TeslaWiFiManager::APLoop(){
     //new connection request
     if(_newIncomingWiFi){
-        Serial.println("deogan");
         _cycle = AP_STOP;
         return;
     }
@@ -384,10 +382,6 @@ void TeslaWiFiManager::serverRouting(){
         request->send(response);
     });
 
-    //perform a new scan
-    _server->on("/wifi-api/force-scan", HTTP_GET, [&](AsyncWebServerRequest *request){
-        request->send(200, "text/plain", "{\"executed\":true}");
-    });
 
     //new wifi to be stored
     AsyncCallbackJsonWebHandler* incomingWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/new-wifi");
