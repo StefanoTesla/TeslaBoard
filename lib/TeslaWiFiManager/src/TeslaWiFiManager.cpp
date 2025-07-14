@@ -5,6 +5,8 @@ TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 //startup cycle
 void TeslaWiFiManager::init(){
     if(!_routeInit){
+        initNVS();
+        initWiFiStruct();
         serverRouting(); 
         WiFi.mode(WIFI_STA); //turn on wifi
         _routeInit = true;
@@ -15,38 +17,35 @@ void TeslaWiFiManager::init(){
         switch (_cycle)
             {
             case INIT:
-                
-
-                if(!checkWiFiFile()){
-                    Serial.println("[WiFiMgr] Wifi file no good, going to AP");
-                    _cycle = START_SCAN;
-                    break;
-                } else if(_json["stored"].size() == 0){
-                    Serial.println("[WiFiMgr] No Wifi configured, going to AP");
-                    _cycle = START_SCAN;
-                    break;
+                //check if a wifi is valid
+                for (int i = 0; i < MAX_WIFI_NETWORKS ; i++)
+                {
+                    if(savedNetworks[i].isValid){
+                        _cycle = CONNECT_TO_STORED_WIFI;
+                        break;
+                    }
                 }
-                
-                _cycle = STORED_ORDERING;
-                break;
 
-                //get the stored wifi list
-            case STORED_ORDERING:
-                    _wifiList = _json["stored"].as<JsonArray>();
-                    WiFiListOrder();
-                    _cycle = CONNECT_TO_STORED_WIFI;
-                    break;
+                Serial.println("[WiFiMgr] No stored Wifi founds, going to AP");
+                
+                _cycle = BEFORE_START_AP;
+                break;
 
             case CONNECT_TO_STORED_WIFI: {
                     bool connected = false;
-                    for (JsonObject item : _wifiList) {
-                        connect(item["ssid"],item["psw"]);
+                    for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
+                    {
+                        if(savedNetworks[i].isValid){
+                        connect(savedNetworks[i].ssid,savedNetworks[i].password);
                         _lms = millis();
                         if(connectionWait()){
                             connected = true;
                             break;
                         }
+
+                        }
                     }
+                    
                     if(connected){
                         Serial.println("[WiFiMgr] Connected, enjoy!");
                         _cycle = END;
@@ -60,7 +59,7 @@ void TeslaWiFiManager::init(){
             case BEFORE_START_AP:
                 WiFi.disconnect();
                 WiFi.scanDelete();
-                //start the async wifi scan and read the json file
+                //start the async wifi
                 startWiFiScan();
                 _cycle = AP_START;
                 break;
@@ -90,7 +89,7 @@ void TeslaWiFiManager::init(){
                 _cycle = CONNECT_TO_WIFI;
                 break;
             case CONNECT_TO_WIFI:
-                connect(_SSIDtoConnect,_PSWtoConnect);
+                connect(_incomingSSID,_incomingPSW);
                 _cycle = WAIT_FOR_CONNECTION;
                 _lms = millis();
                 break;
@@ -121,7 +120,7 @@ void TeslaWiFiManager::init(){
                 return;
                 break;             
             default:
-
+                Serial.println("BEVI MENO DIOCAN");
                 break;
         }
 
@@ -143,7 +142,6 @@ void TeslaWiFiManager::loop(){
             Serial.println("[WiFiMgr L] WiFi connection lost.");
             Serial.println("[WiFiMgr L] Shut down the WiFi");
             _loopCycle = L_DISCONNECT_WIFI;
-            //_loopCycle = L_BACK_TO_STA_MODE;
             _lms = millis();
         }
         break;
@@ -203,14 +201,13 @@ void TeslaWiFiManager::loop(){
         break;
 
     case L_START_CONNECTION_TO_CONFIGUERD_WIFI:
-        _storedWifi = _json["stored"].size();
         
         if(_skipThisNetwork){
             _skipThisNetwork = false;
             _StoredWiFiPointer++;
         }
 
-        if(_StoredWiFiPointer >= _storedWifi){
+        if(_StoredWiFiPointer >= storedWifi()){
             //tested all stored connections
             //but something get wrong...
             //try to perfomr a new rescan
@@ -219,11 +216,11 @@ void TeslaWiFiManager::loop(){
             break;
         }
 
-        if(WiFi.SSID(_SSIDWiFiPointer) != _json["stored"][_StoredWiFiPointer]["ssid"].as<String>()){
+        if(savedNetworks[_StoredWiFiPointer].isValid && (WiFi.SSID(_SSIDWiFiPointer) != savedNetworks[_StoredWiFiPointer].ssid)){
             Serial.print("[WiFiMgr L] Comparing SSID: ");
             Serial.print(WiFi.SSID(_SSIDWiFiPointer));
             Serial.print(" with the stored SSID: ");
-            Serial.println(_json["stored"][_StoredWiFiPointer]["ssid"].as<String>());
+            Serial.println(savedNetworks[_StoredWiFiPointer].ssid);
 
             _SSIDWiFiPointer++;
             if(_SSIDWiFiPointer >= _wifiNetworkFound){
@@ -235,10 +232,10 @@ void TeslaWiFiManager::loop(){
             Serial.print("[WiFiMgr L] Comparing SSID: ");
             Serial.print(WiFi.SSID(_SSIDWiFiPointer));
             Serial.print(" with the stored SSID: ");
-            Serial.println(_json["stored"][_StoredWiFiPointer]["ssid"].as<String>());
+            Serial.println(savedNetworks[_StoredWiFiPointer].ssid);
 
             //try to connect to the stored and founded SSID
-            connect(_json["stored"][_StoredWiFiPointer]["ssid"].as<String>(),_json["stored"][_StoredWiFiPointer]["psw"].as<String>());
+            connect(savedNetworks[_StoredWiFiPointer].ssid,savedNetworks[_StoredWiFiPointer].password);
             _lms = millis();
             _loopCycle = L_WAIT_CONNECTION_TO_STORED_WIFI;
         }
@@ -316,7 +313,9 @@ void TeslaWiFiManager::APstop(){
 void TeslaWiFiManager::APLoop(){
     //new connection request
     if(_newIncomingWiFi){
+        Serial.println("deogan");
         _cycle = AP_STOP;
+        return;
     }
 
     // background scanning
@@ -372,11 +371,13 @@ void TeslaWiFiManager::serverRouting(){
         }
 
         JsonArray wifiConfigured = doc["stored"].to<JsonArray>();
-
-        for (JsonObject wifi : _json["stored"].as<JsonArray>()) {
-            JsonObject newObj = wifiConfigured.add<JsonObject>();
-            newObj["ssid"] = wifi["ssid"]; 
-            newObj["default"] = wifi["default"];
+        for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
+        {
+            if(savedNetworks[i].isValid){
+                JsonObject newObj = wifiConfigured.add<JsonObject>();
+                newObj["ssid"] = savedNetworks[i].ssid; 
+                newObj["default"] = savedNetworks[i].pref;
+            }
         }
 
         response->setLength();
@@ -395,8 +396,29 @@ void TeslaWiFiManager::serverRouting(){
         Serial.print("[WiFiMgr] New wifi incoming: ");
         Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
-            request->send(400, "text/plain", "no ssid");
+            request->send(400, "application/json", "{\"error\":\"no ssid\"");
+            return;
         }
+        
+        if(root["ssid"].as<String>().length() > 32){
+            request->send(400, "application/json", "{\"error\":\"SSID too long\"}");
+            return;
+        }
+        if(root["psw"].as<String>().length() < 8){
+            request->send(400, "application/json", "{\"error\":\"Password too short\"}");
+            return;
+        }
+        if(root["psw"].as<String>().length() > 63){
+            request->send(400, "application/json", "{\"error\":\"Password too long\"}");
+            return;
+        }
+
+        if(storedWifi() >= MAX_WIFI_NETWORKS){
+            request->send(400, "text/plain", "{\"error\":\"no space, delete some wifi\"");
+            return;
+        }
+
+        
         _incomingSSID = root["ssid"].as<String>();
         _incomingPSW = root["psw"].as<String>();
         _incomingDefault = root["default"].as<bool>();
@@ -411,12 +433,33 @@ void TeslaWiFiManager::serverRouting(){
     addWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
         Serial.print("[WiFiMgr] New wifi to be added: ");
         Serial.println(root["ssid"].as<String>());
-        if(root["ssid"] == ""){
+        if(root["ssid"].as<String>() == ""){
             request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
+            return;
         }
+
+        if(root["ssid"].as<String>().length() > 32){
+            request->send(400, "text/plain", "{\"error\":\"SSID too long\"}");
+            return;
+        }
+        if(root["psw"].as<String>().length() < 8){
+            request->send(400, "text/plain", "{\"error\":\"Password too short\"}");
+            return;
+        }
+        if(root["psw"].as<String>().length() > 63){
+            request->send(400, "text/plain", "{\"error\":\"Password too long\"}");
+            return;
+        }
+
+        if(storedWifi() >= MAX_WIFI_NETWORKS){
+            request->send(400, "text/plain", "{\"error\":\"no space, delete some wifi\"");
+            return;
+        }
+
         _incomingSSID = root["ssid"].as<String>();
-        _incomingPSW = root["psw"].as<String>();
+        _incomingPSW = root["pws"].as<String>();
         _incomingDefault = root["default"].as<bool>();
+        
         storeWiFiConnection();
         request->send(200, "text/plain", "{\"executed\":true}");
     });
@@ -477,75 +520,68 @@ bool TeslaWiFiManager::connectionWait(){
     return false;
 }
 
-// File Manager
-void TeslaWiFiManager::readWiFiFile(){
-    _json.clear();
-    _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_READ);
-    deserializeJson(_json,_fileReader);    
-}
-
-void TeslaWiFiManager::writeWiFiFile(){
-    _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_WRITE);
-    serializeJson(_json,_fileReader); 
-    _fileReader.close();   
-    resetIncomingParameters();
-}
 
 void TeslaWiFiManager::storeWiFiConnection(){
 
-    if(!checkWiFiFile()){
-        //we are going to recreate the file
-        _json.clear();
-        Serial.println("[WiFiMgr] Generating a new wifi file");
-        JsonArray wifiArray = _json["stored"].to<JsonArray>();
-        JsonObject wifi = wifiArray.add<JsonObject>();
-        wifi["ssid"] = _incomingSSID;
-        wifi["psw"] = _incomingPSW;
-        wifi["default"] = _incomingDefault;
-        writeWiFiFile();
-        return;
-    }
-    
-    JsonArray stored = _json["stored"].as<JsonArray>();
-    bool found = false;
-    for (JsonObject item : stored) {
-        if (_incomingSSID == item["ssid"].as<String>()) {
-            found = true;
-            Serial.print("[WiFiMgr] Replacing existing WiFi network: ");
-            item["psw"] = _incomingPSW;
-            item["default"] = _incomingDefault;
-        } else if (_incomingDefault) {
-            item["default"] = false;
+    Serial.println("New storing request\n");
+    int freeSpace = -1;
+    for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
+    {
+        if(savedNetworks[i].isValid == false){
+            freeSpace = i;
+            break;
         }
     }
 
-    if(!found){
-        Serial.print("[WiFiMgr] Adding a new WiFi network: ");
-        Serial.println(_incomingSSID);
-        JsonObject incomingWiFi = stored.add<JsonObject>();
-        incomingWiFi["ssid"] = _incomingSSID;
-        incomingWiFi["psw"] = _incomingPSW;
-        incomingWiFi["default"] = _incomingDefault;
+    Serial.printf("Empty place found in %d\n", freeSpace);
+    
+    if(freeSpace > -1){
+
+        Serial.printf("Hidrating data for ssid %s\n", _incomingSSID);
+        savedNetworks[freeSpace].ssid = _incomingSSID;
+        savedNetworks[freeSpace].password = _incomingPSW;
+        savedNetworks[freeSpace].pref = _incomingDefault;
+        savedNetworks[freeSpace].isValid = true;
+    } else {
+        Serial.println("no space availble uhu\n");
+        return;
     }
-    writeWiFiFile();
-    return;
+
+    if(_incomingDefault){
+        Serial.println("Deleting prevous default connections\n");
+        for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
+        {
+            if(i != freeSpace){
+                savedNetworks[i].pref = false;
+            }
+        }
+    }
+
+    Serial.printf("Let's go writing NVS\n");
+    WriteNVS();
+
 }
+
 
 void TeslaWiFiManager::deleteWiFiConnection(String ssid){
 
     int indexToRemove = -1;
-    for (int i = 0; i < _json["stored"].size(); i++) {
-        if (ssid == _json["stored"][i]["ssid"].as<String>()) {
+    for (int i = 0; i < MAX_WIFI_NETWORKS; i++) {
+        if (ssid == savedNetworks[i].ssid) {
         indexToRemove = i;
         break;
         }
     }
 
     if(indexToRemove != -1){
-        _json["stored"].remove(indexToRemove);
+        Serial.println("adios amigooo");
+        savedNetworks[indexToRemove].ssid ="";
+        savedNetworks[indexToRemove].password ="";
+        savedNetworks[indexToRemove].pref =false;
+        savedNetworks[indexToRemove].isValid =false;
     }
 
-    writeWiFiFile();
+    WriteNVS();
     return;
 }
 
@@ -562,67 +598,60 @@ bool TeslaWiFiManager::checkScannedNetworks(){
         return false;
     }
 
-    JsonArray stored = _json["stored"].as<JsonArray>();
     for (int i = 0; i < _wifiNetworkFound; i++)
     {
-        for(JsonObject item : stored){
-            if(WiFi.SSID(i) == item["ssid"].as<String>()){
-                _SSIDtoConnect = item["ssid"].as<String>();
-                _PSWtoConnect = item["psw"].as<String>();
+        for (int y = 0; y < MAX_WIFI_NETWORKS; y++)
+        {
+            if(WiFi.SSID(i) == savedNetworks[y].ssid){
+                _incomingSSID = savedNetworks[y].ssid;
+                _incomingPSW = savedNetworks[y].password;
                 return true;
             }
         }
+        
     }
     return false;
 }
 
-bool TeslaWiFiManager::checkWiFiFile(){
-    _json.clear();
-    _fileReader = LittleFS.open("/cfg/wifi.txt", FILE_READ);
 
-    if (_fileReader) {
-        DeserializationError desErr = deserializeJson(_json, _fileReader);
-        _fileReader.close();
-        if(desErr){
-            Serial.print(desErr.c_str());
-            Serial.println("[WiFiMgr] Error during deserialization of wifi file");
-            return false;
-        } else {
-            if (!_json["stored"].is<JsonArray>()) {
-                Serial.println("[WiFiMgr] stored is not an array");
-                return false;
-            }
-        }
-    } else {
-        Serial.println("[WiFiMgr] Unable to read wifi file");
-        return false;
-    }
-    return true;
-}
-
-/* This function move the default connection at the top */
+/* This function move the default connection at the top and fill gaps */
 void TeslaWiFiManager::WiFiListOrder(){
-    _wifiList = _json["stored"].as<JsonArray>();
-
-    int size = _wifiList.size();
-    int defPos = -1;
-    if(size==1){
-        return;
-    }
-
-    for (int i = 0; i < size; i++)
+    int defPosition = -1;
+    for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
-        if(_wifiList[i]["default"]){
-            defPos = i;
+        if(savedNetworks[i].isValid && savedNetworks[i].pref){
+            defPosition = i;
             break;
         }
     }
     
-    if(defPos > 0){
-        JsonObject tmp;
-        tmp.set(_wifiList[0]);
-        _wifiList[0].set(_wifiList[defPos]);
-        _wifiList[defPos].set(tmp);
+    if(defPosition > 0){
+        Serial.println("default not in the right position moving to the top");
+        tmpNetwork = savedNetworks[defPosition];
+        for (size_t i = defPosition; i > 0 ; i--)
+        {
+            savedNetworks[i] = savedNetworks[i - 1];
+        }
+        savedNetworks[0] = tmpNetwork;
     }
 
+    size_t writeIndex = 0;
+
+    for (size_t readIndex = 0; readIndex < MAX_WIFI_NETWORKS; readIndex++) {
+        if (savedNetworks[readIndex].isValid) {
+            if (writeIndex != readIndex) {
+                Serial.printf("\nhole founded, moving %d in the right position %d", readIndex,writeIndex);
+                savedNetworks[writeIndex] = savedNetworks[readIndex];
+                savedNetworks[readIndex].ssid = "";
+                savedNetworks[readIndex].password = "";
+                savedNetworks[readIndex].pref = false;
+                savedNetworks[readIndex].isValid = false;
+            }
+            writeIndex++;
+        }
+    }
 }
+
+
+
+
