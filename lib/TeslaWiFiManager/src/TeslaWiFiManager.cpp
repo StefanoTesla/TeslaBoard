@@ -242,7 +242,8 @@ void TeslaWiFiManager::loop(){
 
     case L_WAIT_CONNECTION_TO_STORED_WIFI:
         if(WiFi.status() == WL_CONNECTED){
-            Serial.println("[WiFiMgr L] WiFi Connected, Enjoy!");
+            Serial.print("[WiFiMgr L] WiFi Connected, TeslaBoard IP address is: ");
+            Serial.println(WiFi.localIP());
             _loopCycle = L_LOOP;
             _SSIDWiFiPointer = 0;
             _StoredWiFiPointer = 0;
