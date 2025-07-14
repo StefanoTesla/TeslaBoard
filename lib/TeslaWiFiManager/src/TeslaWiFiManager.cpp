@@ -17,18 +17,20 @@ void TeslaWiFiManager::init(){
         switch (_cycle)
             {
             case INIT:
+                _cycle = BEFORE_START_AP;
                 //check if a wifi is valid
                 for (int i = 0; i < MAX_WIFI_NETWORKS ; i++)
                 {
                     if(savedNetworks[i].isValid){
                         _cycle = CONNECT_TO_STORED_WIFI;
+                        Serial.println("EGOLOOO");
                         break;
                     }
                 }
-
-                Serial.println("[WiFiMgr] No stored Wifi founds, going to AP");
+                if(_cycle == BEFORE_START_AP){
+                    Serial.println("[WiFiMgr] No stored Wifi founds, going to AP");
+                }
                 
-                _cycle = BEFORE_START_AP;
                 break;
 
             case CONNECT_TO_STORED_WIFI: {
@@ -50,7 +52,7 @@ void TeslaWiFiManager::init(){
                         Serial.println("[WiFiMgr] Connected, enjoy!");
                         _cycle = END;
                     } else {
-                        Serial.println("[WiFiMgr] Unable to connecto to any wifi, going in AP");
+                        Serial.println("[WiFiMgr] Unable to connect to any wifi, going in AP");
                         _cycle = BEFORE_START_AP;
                     }
                 }
@@ -120,7 +122,6 @@ void TeslaWiFiManager::init(){
                 return;
                 break;             
             default:
-                Serial.println("BEVI MENO DIOCAN");
                 break;
         }
 
@@ -174,7 +175,6 @@ void TeslaWiFiManager::loop(){
         break;
             
     case L_WAIT_SCAN:
-        Serial.print(".");
         if(asyncWaitWiFiScan()){
             _loopCycle = L_CHECK_CONFIGURED_WIFI;
         }
@@ -524,44 +524,46 @@ bool TeslaWiFiManager::connectionWait(){
 void TeslaWiFiManager::storeWiFiConnection(){
 
     Serial.println("New storing request\n");
+
+
+    if(_incomingDefault){
+        Serial.println("Deleting prevous default connections\n");
+        for (int i = 0; i < MAX_WIFI_NETWORKS; i++){
+                savedNetworks[i].pref = false;
+        }
+    }
+    
+
+    //SSID already exist, updating wifi setting
+    for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
+    {
+        if(_incomingSSID == savedNetworks[i].ssid){
+            Serial.println("Updating existing network");
+            savedNetworks[i].password = _incomingPSW;
+            savedNetworks[i].pref = _incomingDefault;
+            Serial.printf("Updating NVS\n");
+            WriteNVS();
+            return;
+        }
+    }
+    
+    //New SSID found a place where store it...
     int freeSpace = -1;
     for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
         if(savedNetworks[i].isValid == false){
-            freeSpace = i;
+            savedNetworks[i].ssid = _incomingSSID;
+            savedNetworks[i].password = _incomingPSW;
+            savedNetworks[i].pref = _incomingDefault;
+            savedNetworks[i].isValid = true;
             break;
         }
     }
 
-    Serial.printf("Empty place found in %d\n", freeSpace);
-    
-    if(freeSpace > -1){
+    //if no space availble I hope some error appears before
 
-        Serial.printf("Hidrating data for ssid %s\n", _incomingSSID);
-        savedNetworks[freeSpace].ssid = _incomingSSID;
-        savedNetworks[freeSpace].password = _incomingPSW;
-        savedNetworks[freeSpace].pref = _incomingDefault;
-        savedNetworks[freeSpace].isValid = true;
-    } else {
-        Serial.println("no space availble uhu\n");
-        return;
-    }
-
-    if(_incomingDefault){
-        Serial.println("Deleting prevous default connections\n");
-        for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
-        {
-            if(i != freeSpace){
-                savedNetworks[i].pref = false;
-            }
-        }
-    }
-
-    Serial.printf("Let's go writing NVS\n");
     WriteNVS();
-
 }
-
 
 void TeslaWiFiManager::deleteWiFiConnection(String ssid){
 
@@ -626,7 +628,6 @@ void TeslaWiFiManager::WiFiListOrder(){
     }
     
     if(defPosition > 0){
-        Serial.println("default not in the right position moving to the top");
         tmpNetwork = savedNetworks[defPosition];
         for (size_t i = defPosition; i > 0 ; i--)
         {
@@ -640,7 +641,6 @@ void TeslaWiFiManager::WiFiListOrder(){
     for (size_t readIndex = 0; readIndex < MAX_WIFI_NETWORKS; readIndex++) {
         if (savedNetworks[readIndex].isValid) {
             if (writeIndex != readIndex) {
-                Serial.printf("\nhole founded, moving %d in the right position %d", readIndex,writeIndex);
                 savedNetworks[writeIndex] = savedNetworks[readIndex];
                 savedNetworks[readIndex].ssid = "";
                 savedNetworks[readIndex].password = "";

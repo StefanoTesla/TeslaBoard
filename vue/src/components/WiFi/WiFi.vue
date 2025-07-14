@@ -100,7 +100,7 @@
 
 
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref,onMounted, onUnmounted } from 'vue'
 import Card from '../Card.vue';
 import { toast } from 'vue3-toastify';
 
@@ -264,8 +264,13 @@ const deleteWifi = async (wifi) => {
   }
 }
 
+let intervalId = null
 onMounted(() => {
   fetchData()
+  intervalId = setInterval(fetchData, 20000)
 })
 
+onUnmounted(() => {
+  clearInterval(intervalId)
+})
 </script>
