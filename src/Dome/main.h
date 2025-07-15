@@ -47,15 +47,18 @@ void GateContorollerOutputHandler(enumCommandDir direction){
     switch (direction)
     {
       case ShCmdDirHalt:
+        Serial.println("[Dome] HALT SIGNLAS");
         DomeOutMoveOpen.write(false);
         DomeOutHaltClose.write(true);
         break;
       case ShCmdDirStop:
+      Serial.println("[Dome] OFF SIGNLAS");
         DomeOutMoveOpen.write(false);
         DomeOutHaltClose.write(false);
         break;
       case ShCmdDirOpen:
       case ShCmdDirClose:
+      Serial.println("[Dome] START SIGNLAS");
         DomeOutMoveOpen.write(true);
         DomeOutHaltClose.write(false);
         break;
@@ -144,6 +147,7 @@ void shutterCycle(){
 
   if (Dome.Shutter.command == ShCommandHalt and Dome.Shutter.Cycle < 100) {
     Dome.Shutter.Cycle = 100;
+
   }
 
   switch (Dome.Shutter.Cycle){
@@ -153,11 +157,13 @@ void shutterCycle(){
           if (Dome.Shutter.command == ShCommandOpen 
               && Dome.Shutter.input != ShInputOnlyOpen) {
                 Dome.Shutter.status = ShStatusOpening;
+                Dome.Shutter.timeOutAck = millis();
                 Dome.Shutter.Cycle = 10;
           } else if(Dome.Shutter.command == ShCommandClose 
               && Dome.Shutter.input != ShInputOnlyClose){
                 Dome.Shutter.status = ShStatusClosing;
                 Dome.Shutter.Cycle = 10;
+                ;
           } else {
             Dome.Shutter.command = ShCommandIdle;
             shutterOutput(ShCmdDirStop);
@@ -168,6 +174,7 @@ void shutterCycle(){
     case 10:
             //Open and close cycle are identical, I just hope to reach the right direction
             //Pulse to start to the motor, ack millis for time out and
+            Dome.Shutter.timeOutAck = millis();
             if (Dome.Shutter.command == ShCommandOpen) { 
               shutterOutput(ShCmdDirOpen);
               Dome.Shutter.Cycle++;
@@ -183,19 +190,22 @@ void shutterCycle(){
             break;
 
     case 11:  //Waiting for the sensors to go away
-            if (Dome.Shutter.input == ShInputNoOne) {
-                //gate borad don't need the output high for all the time
-                if(Dome.config.data.driverType==0){
-                  shutterOutput(ShCmdDirStop);
-                }
 
-                //check where I want to go
-                if(Dome.Shutter.command == ShCommandOpen){
-                  Dome.Shutter.Cycle = 15;
-                } else if (Dome.Shutter.command == ShCommandClose){
-                  Dome.Shutter.Cycle = 20;
-                }
+            if(Dome.config.data.driverType == dtGateController){
+              if(millis()- Dome.Shutter.timeOutAck < 1000){
+                //send at least one second pulse for star
+                break;
               }
+              shutterOutput(ShCmdDirStop);
+            }
+
+            //check where I want to go
+            if(Dome.Shutter.command == ShCommandOpen){
+              Dome.Shutter.Cycle = 15;
+            } else if (Dome.Shutter.command == ShCommandClose){
+              Dome.Shutter.Cycle = 20;
+            }
+              
             break;
 
     case 15:  //Open cycle, check sensor status
@@ -265,6 +275,7 @@ void shutterCycle(){
 
     /* HALT CYCLE */
     case 100: //halt command for 1sec
+            Serial.println("[Dome] HALT");
             Dome.Shutter.timeOutAck = millis();
             Dome.Shutter.status = ShStatusError;
             shutterOutput(ShCmdDirHalt);
