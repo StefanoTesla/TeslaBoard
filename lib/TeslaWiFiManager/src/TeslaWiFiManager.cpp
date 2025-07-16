@@ -388,6 +388,23 @@ void TeslaWiFiManager::serverRouting(){
     AsyncCallbackJsonWebHandler* incomingWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/new-wifi");
     incomingWiFi->setMethod(HTTP_POST | HTTP_PUT);
     incomingWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
+        bool connect;
+
+
+        if(request->hasParam("mode")){
+            if(request->getParam("mode")->value() == "connect"){
+                connect = true;
+            } else if(request->getParam("mode")->value() == "add"){
+                connect = false;
+            } else {
+                request->send(400, "application/json", "{\"error\":\"Wrong Mode\"");
+                return;
+            }
+        } else {
+            request->send(400, "application/json", "{\"error\":\"Mode parameter undifined\"");
+            return;
+        }
+
         Serial.print("[WiFiMgr] New wifi incoming: ");
         Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
@@ -422,43 +439,6 @@ void TeslaWiFiManager::serverRouting(){
     });
     _server->addHandler(incomingWiFi);
 
-    //new wifi to be stored
-    AsyncCallbackJsonWebHandler* addWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/add-wifi");
-    addWiFi->setMethod(HTTP_POST | HTTP_PUT);
-    addWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        Serial.print("[WiFiMgr] New wifi to be added: ");
-        Serial.println(root["ssid"].as<String>());
-        if(root["ssid"].as<String>() == ""){
-            request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
-            return;
-        }
-
-        if(root["ssid"].as<String>().length() > 32){
-            request->send(400, "text/plain", "{\"error\":\"SSID too long\"}");
-            return;
-        }
-        if(root["psw"].as<String>().length() < 8){
-            request->send(400, "text/plain", "{\"error\":\"Password too short\"}");
-            return;
-        }
-        if(root["psw"].as<String>().length() > 63){
-            request->send(400, "text/plain", "{\"error\":\"Password too long\"}");
-            return;
-        }
-
-        if(storedWifi() >= MAX_WIFI_NETWORKS){
-            request->send(400, "text/plain", "{\"error\":\"no space, delete some wifi\"");
-            return;
-        }
-
-        _incomingSSID = root["ssid"].as<String>();
-        _incomingPSW = root["pws"].as<String>();
-        _incomingDefault = root["default"].as<bool>();
-        
-        storeWiFiConnection();
-        request->send(200, "text/plain", "{\"executed\":true}");
-    });
-    _server->addHandler(addWiFi);
 
     //delete wifi
     AsyncCallbackJsonWebHandler* deleteWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/delete-wifi");
