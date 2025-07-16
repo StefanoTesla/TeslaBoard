@@ -362,10 +362,47 @@ void TeslaWiFiManager::setStaticIP(IPAddress ip, IPAddress gw,IPAddress sn){
 }
 
 void TeslaWiFiManager::serverRouting(){
-
+    
+/*
     _server->on("/wifi-mgr/", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/www/wifi.html.gz", "text/html");
         response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
+    });
+*/
+    //wifi list
+    _server->on("/wifi-mgr/api/wifi-list", HTTP_GET, [&](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
+
+        doc["mode"] = WiFi.getMode();
+        doc["connected"] = WiFi.status() == WL_CONNECTED;
+        if(_scanInProgress){
+            doc["scanning"] = true;
+        } else {
+            JsonArray wifiList = doc["wifi"].to<JsonArray>();
+            for (size_t i = 0; i < _wifiNetworkFound; i++)
+            {
+                wifiList[i]["ssid"] = WiFi.SSID(i);
+                wifiList[i]["rssi"] = WiFi.RSSI(i);
+                wifiList[i]["enc"] = "psw";
+                if(WiFi.encryptionType(i) == 0){
+                    wifiList[i]["enc"] = "open";
+                }
+            }
+        }
+
+        JsonArray wifiConfigured = doc["stored"].to<JsonArray>();
+        for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
+        {
+            if(_savedNetworks[i].isValid){
+                JsonObject stored = wifiConfigured.add<JsonObject>();
+                stored["ssid"] = _savedNetworks[i].ssid; 
+                stored["default"] = _savedNetworks[i].pref;
+            }
+        }
+
+        response->setLength();
         request->send(response);
     });
 
@@ -480,12 +517,13 @@ void TeslaWiFiManager::serverRouting(){
     //handle notFound for dns
     _server->onNotFound([](AsyncWebServerRequest *request){
         if(WiFi.getMode()==WIFI_MODE_APSTA){
-            request->redirect("/wifi-mgr/");
+            request->redirect("/wifi-mgr");
         } else {
             request->send(404, "text/plain", "Not found");
         }
     });
 
+    _server->serveStatic("/wifi-mgr", LittleFS, "/www/").setDefaultFile("wifi.html");
     _server->serveStatic("/assets/", LittleFS, "/www/assets/").setCacheControl("max-age=604800");
 }
 
