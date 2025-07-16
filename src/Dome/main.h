@@ -47,18 +47,15 @@ void GateContorollerOutputHandler(enumCommandDir direction){
     switch (direction)
     {
       case ShCmdDirHalt:
-        Serial.println("[Dome] HALT SIGNLAS");
         DomeOutMoveOpen.write(false);
         DomeOutHaltClose.write(true);
         break;
       case ShCmdDirStop:
-      Serial.println("[Dome] OFF SIGNLAS");
         DomeOutMoveOpen.write(false);
         DomeOutHaltClose.write(false);
         break;
       case ShCmdDirOpen:
       case ShCmdDirClose:
-      Serial.println("[Dome] START SIGNLAS");
         DomeOutMoveOpen.write(true);
         DomeOutHaltClose.write(false);
         break;

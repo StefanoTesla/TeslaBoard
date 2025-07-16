@@ -4,9 +4,10 @@ TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 
 //startup cycle
 void TeslaWiFiManager::init(){
+
+    pinMode(0,INPUT);
     if(!_routeInit){
         initNVS();
-        initWiFiStruct();
         serverRouting(); 
         WiFi.mode(WIFI_STA); //turn on wifi
         _routeInit = true;
@@ -17,18 +18,14 @@ void TeslaWiFiManager::init(){
         switch (_cycle)
             {
             case INIT:
-                _cycle = BEFORE_START_AP;
                 //check if a wifi is valid
-                for (int i = 0; i < MAX_WIFI_NETWORKS ; i++)
-                {
-                    if(savedNetworks[i].isValid){
-                        _cycle = CONNECT_TO_STORED_WIFI;
-                        break;
-                    }
-                }
-                if(_cycle == BEFORE_START_AP){
+                if(storedWifi()>0){
+                    _cycle = CONNECT_TO_STORED_WIFI;
+                } else {
+                    _cycle = BEFORE_START_AP;
                     Serial.println("[WiFiMgr] No stored Wifi founds, going to AP");
                 }
+
                 
                 break;
 
@@ -36,14 +33,13 @@ void TeslaWiFiManager::init(){
                     bool connected = false;
                     for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
                     {
-                        if(savedNetworks[i].isValid){
-                        connect(savedNetworks[i].ssid,savedNetworks[i].password);
-                        _lms = millis();
-                        if(connectionWait()){
-                            connected = true;
-                            break;
-                        }
-
+                        if(_savedNetworks[i].isValid){
+                            connect( _savedNetworks[i]);
+                            _lms = millis();
+                            if(connectionWait()){
+                                connected = true;
+                                break;
+                            }
                         }
                     }
                     
@@ -58,8 +54,6 @@ void TeslaWiFiManager::init(){
                 break;
 
             case BEFORE_START_AP:
-                WiFi.disconnect();
-                WiFi.scanDelete();
                 //start the async wifi
                 startWiFiScan();
                 _cycle = AP_START;
@@ -90,7 +84,7 @@ void TeslaWiFiManager::init(){
                 _cycle = CONNECT_TO_WIFI;
                 break;
             case CONNECT_TO_WIFI:
-                connect(_incomingSSID,_incomingPSW);
+                connect(_toConnectNetwork);
                 _cycle = WAIT_FOR_CONNECTION;
                 _lms = millis();
                 break;
@@ -110,14 +104,12 @@ void TeslaWiFiManager::init(){
                     _newIncomingWiFi = false;
                     storeWiFiConnection();
                 }
-                
                 _cycle = END;
                 break;
 
             case END:
-                Serial.println("[WiFiMgr] TeslaBoard IP address is: ");
-                Serial.print(WiFi.localIP());
-                Serial.println("");
+                Serial.print("[WiFiMgr] TeslaBoard IP address is: ");
+                Serial.println(WiFi.localIP());
                 return;
                 break;             
             default:
@@ -139,15 +131,42 @@ void TeslaWiFiManager::loop(){
     case L_LOOP:
         //check if wifi is disconnected
         if(WiFi.status() != WL_CONNECTED){
-            Serial.println("[WiFiMgr L] WiFi connection lost.");
-            Serial.println("[WiFiMgr L] Shut down the WiFi");
+                _loopCycle = L_CONNECTION_RETRY;
+                _reconnectTimeOut = millis();
+                break;
+        }
+        
+
+        break;
+
+    case L_CONNECTION_RETRY:
+        if((millis() - _reconnectTimeOut) < 11000){
+            Serial.println("[WiFiMgr L] Trying to reconnect...");
+            WiFi.reconnect();
+            _loopCycle = L_CONNECTION_CHECK;
+            _lms=millis();
+        } else {
+            //to many times tring to reconnect...
             _loopCycle = L_DISCONNECT_WIFI;
-            _lms = millis();
+        }
+
+        break;
+
+    case L_CONNECTION_CHECK:
+        if(WiFi.status() == WL_CONNECTED){
+            printIP();
+            _loopCycle = L_LOOP;
+            break;
+        } else {
+            if(millis() - _lms > 5000){
+                _loopCycle = L_CONNECTION_RETRY;
+            }
         }
         break;
 
+
     case L_DISCONNECT_WIFI:
-        WiFi.disconnect(true); //workaround to make scan working
+        WiFi.disconnect(true); 
         _loopCycle = L_SHUTDOWN_WIFI;
         _lms = millis();
         break;
@@ -155,14 +174,14 @@ void TeslaWiFiManager::loop(){
     case L_SHUTDOWN_WIFI:
         if(WiFi.getMode() == WIFI_OFF){
             Serial.println("[WiFiMgr L] set the WiFi on station mode");
-            WiFi.mode(WIFI_AP_STA); //workaround to make scan working
+            WiFi.mode(WIFI_STA); //workaround to make scan working
             _loopCycle = L_BACK_TO_STA_MODE;
         }
         break;
 
     case L_BACK_TO_STA_MODE:
-        if(WiFi.getMode() == WIFI_AP_STA){
-            Serial.println("[WiFiMgr L] WiFi is on ap and station mode");
+        if(WiFi.getMode() == WIFI_STA){
+            Serial.println("[WiFiMgr L] WiFi is on station mode");
             _lms = millis();
             _loopCycle = L_START_SCAN;
         }
@@ -215,11 +234,11 @@ void TeslaWiFiManager::loop(){
             break;
         }
 
-        if(savedNetworks[_StoredWiFiPointer].isValid && (WiFi.SSID(_SSIDWiFiPointer) != savedNetworks[_StoredWiFiPointer].ssid)){
+        if(_savedNetworks[_StoredWiFiPointer].isValid && (WiFi.SSID(_SSIDWiFiPointer) != _savedNetworks[_StoredWiFiPointer].ssid)){
             Serial.print("[WiFiMgr L] Comparing SSID: ");
             Serial.print(WiFi.SSID(_SSIDWiFiPointer));
             Serial.print(" with the stored SSID: ");
-            Serial.println(savedNetworks[_StoredWiFiPointer].ssid);
+            Serial.println(_savedNetworks[_StoredWiFiPointer].ssid);
 
             _SSIDWiFiPointer++;
             if(_SSIDWiFiPointer >= _wifiNetworkFound){
@@ -231,10 +250,10 @@ void TeslaWiFiManager::loop(){
             Serial.print("[WiFiMgr L] Comparing SSID: ");
             Serial.print(WiFi.SSID(_SSIDWiFiPointer));
             Serial.print(" with the stored SSID: ");
-            Serial.println(savedNetworks[_StoredWiFiPointer].ssid);
+            Serial.println(_savedNetworks[_StoredWiFiPointer].ssid);
 
             //try to connect to the stored and founded SSID
-            connect(savedNetworks[_StoredWiFiPointer].ssid,savedNetworks[_StoredWiFiPointer].password);
+            connect(_savedNetworks[_StoredWiFiPointer]);
             _lms = millis();
             _loopCycle = L_WAIT_CONNECTION_TO_STORED_WIFI;
         }
@@ -242,11 +261,11 @@ void TeslaWiFiManager::loop(){
 
     case L_WAIT_CONNECTION_TO_STORED_WIFI:
         if(WiFi.status() == WL_CONNECTED){
-            Serial.print("[WiFiMgr L] WiFi Connected, TeslaBoard IP address is: ");
-            Serial.println(WiFi.localIP());
-            _loopCycle = L_LOOP;
             _SSIDWiFiPointer = 0;
             _StoredWiFiPointer = 0;
+            printIP();
+            _loopCycle = L_LOOP;
+            break;
         }
 
         if(millis()- _lms > 5000){
@@ -256,14 +275,17 @@ void TeslaWiFiManager::loop(){
         }
         break;
 
+
     default:
         break;
     }
 }
 
 void TeslaWiFiManager::startWiFiScan(){
+    if(_connectionTentative){
+        WiFi.disconnect();
+    }
     Serial.println("[WiFiMgr] Scan in progress...");
-    WiFi.scanDelete();
     WiFi.scanNetworks(true);
     _scanInProgress = true;
 }
@@ -298,28 +320,24 @@ void TeslaWiFiManager::APstart(){
 }
 
 void TeslaWiFiManager::APstop(){
-    Serial.println("[WiFiMgr] stop dns");
     _dnsServer.stop();
     _dnsServerActive = false;
-    Serial.println("[WiFiMgr] stop server");
     serverStop();
-    Serial.println("[WiFiMgr] stop ap");
     WiFi.softAPdisconnect(true);
-    Serial.println("[WiFiMgr] wifi off");
     WiFi.mode(WIFI_OFF);
     Serial.println("[WiFiMgr] AP closed");    
 }
 
 void TeslaWiFiManager::APLoop(){
     //new connection request
+
     if(_newIncomingWiFi){
         _cycle = AP_STOP;
         return;
     }
 
-    // background scanning
+    // background scanning every 30seconds
     // if a configured WiFi is found try to connect to..
-    //wait 30s
     if(millis() - _lms > 30000){
 
         if(!_scanInProgress){
@@ -337,9 +355,6 @@ void TeslaWiFiManager::APLoop(){
         }
                     
     }
-
-
-    
 }
 
 void TeslaWiFiManager::setStaticIP(IPAddress ip, IPAddress gw,IPAddress sn){
@@ -358,24 +373,31 @@ void TeslaWiFiManager::serverRouting(){
     _server->on("/wifi-api/wifi-list", HTTP_GET, [&](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        JsonArray wifiList = doc["wifi"].to<JsonArray>();
-        for (size_t i = 0; i < _wifiNetworkFound; i++)
-        {
-            wifiList[i]["ssid"] = WiFi.SSID(i);
-            wifiList[i]["rssi"] = WiFi.RSSI(i);
-            wifiList[i]["enc"] = "psw";
-            if(WiFi.encryptionType(i) == 0){
-                wifiList[i]["enc"] = "open";
+
+        doc["mode"] = WiFi.getMode();
+        doc["connected"] = WiFi.status() == WL_CONNECTED;
+        if(_scanInProgress){
+            doc["scanning"] = true;
+        } else {
+            JsonArray wifiList = doc["wifi"].to<JsonArray>();
+            for (size_t i = 0; i < _wifiNetworkFound; i++)
+            {
+                wifiList[i]["ssid"] = WiFi.SSID(i);
+                wifiList[i]["rssi"] = WiFi.RSSI(i);
+                wifiList[i]["enc"] = "psw";
+                if(WiFi.encryptionType(i) == 0){
+                    wifiList[i]["enc"] = "open";
+                }
             }
         }
 
         JsonArray wifiConfigured = doc["stored"].to<JsonArray>();
         for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
         {
-            if(savedNetworks[i].isValid){
-                JsonObject newObj = wifiConfigured.add<JsonObject>();
-                newObj["ssid"] = savedNetworks[i].ssid; 
-                newObj["default"] = savedNetworks[i].pref;
+            if(_savedNetworks[i].isValid){
+                JsonObject stored = wifiConfigured.add<JsonObject>();
+                stored["ssid"] = _savedNetworks[i].ssid; 
+                stored["default"] = _savedNetworks[i].pref;
             }
         }
 
@@ -416,7 +438,8 @@ void TeslaWiFiManager::serverRouting(){
             request->send(400, "application/json", "{\"error\":\"SSID too long\"}");
             return;
         }
-        if(root["psw"].as<String>().length() < 8){
+        int pswLenght = root["psw"].as<String>().length();
+        if(pswLenght != 0 &&  pswLenght < 8){
             request->send(400, "application/json", "{\"error\":\"Password too short\"}");
             return;
         }
@@ -430,10 +453,9 @@ void TeslaWiFiManager::serverRouting(){
             return;
         }
 
-        
-        _incomingSSID = root["ssid"].as<String>();
-        _incomingPSW = root["psw"].as<String>();
-        _incomingDefault = root["default"].as<bool>();
+        _toConnectNetwork.ssid = root["ssid"].as<String>();
+        _toConnectNetwork.password = root["psw"].as<String>();
+        _toConnectNetwork.pref = root["default"].as<bool>();
         _newIncomingWiFi = true;
         request->send(200, "text/plain", "{\"executed\":true}");
     });
@@ -447,7 +469,7 @@ void TeslaWiFiManager::serverRouting(){
         Serial.print("[WiFiMgr] Deleting wifi: ");
         Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
-            request->send(400, "text/plain", "{\"error\":\"No ssid found\"}");
+            request->send(400, "text/plain", "{\"error\":\"SSID can't be empty\"}");
         }else{
         deleteWiFiConnection(root["ssid"].as<String>());
         request->send(200, "text/plain", "{\"executed\":true}");
@@ -457,7 +479,7 @@ void TeslaWiFiManager::serverRouting(){
 
     //handle notFound for dns
     _server->onNotFound([](AsyncWebServerRequest *request){
-        if(WiFi.mode(WIFI_MODE_APSTA)){
+        if(WiFi.getMode()==WIFI_MODE_APSTA){
             request->redirect("/wifi-mgr/");
         } else {
             request->send(404, "text/plain", "Not found");
@@ -476,19 +498,19 @@ void TeslaWiFiManager::serverStop(){
 }
 
 // connecting services
-void TeslaWiFiManager::connect(String SSID,String Password){
+void TeslaWiFiManager::connect(WiFiCredentials network){
     WiFi.mode(WIFI_STA);
-    WiFi.begin(SSID, Password);
-    Serial.print("[WiFiMgr] Connecting to WiFi: ");
-    Serial.println(SSID);
+    WiFi.begin(network.ssid, network.password);
+    _connectionTentative = true;
+    Serial.printf("[WiFiMgr] Connecting to WiFi: %s\n", network.ssid);
 }
 
 //wait connection
-
 bool TeslaWiFiManager::connectionWait(){
     while (millis() - _lms < 5000)
     {
         if(WiFi.status() == WL_CONNECTED) {
+        _connectionTentative = false;
         return true;
         }
     }
@@ -501,10 +523,10 @@ void TeslaWiFiManager::storeWiFiConnection(){
     Serial.println("New storing request\n");
 
 
-    if(_incomingDefault){
+    if(_toConnectNetwork.pref){
         Serial.println("Deleting prevous default connections\n");
         for (int i = 0; i < MAX_WIFI_NETWORKS; i++){
-                savedNetworks[i].pref = false;
+                _savedNetworks[i].pref = false;
         }
     }
     
@@ -512,12 +534,10 @@ void TeslaWiFiManager::storeWiFiConnection(){
     //SSID already exist, updating wifi setting
     for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
-        if(_incomingSSID == savedNetworks[i].ssid){
-            Serial.println("Updating existing network");
-            savedNetworks[i].password = _incomingPSW;
-            savedNetworks[i].pref = _incomingDefault;
-            Serial.printf("Updating NVS\n");
-            WriteNVS();
+        if(_toConnectNetwork.ssid == _savedNetworks[i].ssid){
+            Serial.println("[WiFiNgr] Updating existing network");
+            _toConnectNetwork = _savedNetworks[i];
+            writeNVS();
             return;
         }
     }
@@ -526,47 +546,44 @@ void TeslaWiFiManager::storeWiFiConnection(){
     int freeSpace = -1;
     for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
-        if(savedNetworks[i].isValid == false){
-            savedNetworks[i].ssid = _incomingSSID;
-            savedNetworks[i].password = _incomingPSW;
-            savedNetworks[i].pref = _incomingDefault;
-            savedNetworks[i].isValid = true;
+        if(_savedNetworks[i].isValid == false){
+            _savedNetworks[i] = _toConnectNetwork;
+            _savedNetworks[i].isValid = true;
             break;
         }
     }
 
     //if no space availble I hope some error appears before
 
-    WriteNVS();
+    writeNVS();
 }
 
 void TeslaWiFiManager::deleteWiFiConnection(String ssid){
-
     int indexToRemove = -1;
     for (int i = 0; i < MAX_WIFI_NETWORKS; i++) {
-        if (ssid == savedNetworks[i].ssid) {
+        if (ssid == _savedNetworks[i].ssid) {
         indexToRemove = i;
         break;
         }
     }
 
     if(indexToRemove != -1){
-        Serial.println("adios amigooo");
-        savedNetworks[indexToRemove].ssid ="";
-        savedNetworks[indexToRemove].password ="";
-        savedNetworks[indexToRemove].pref =false;
-        savedNetworks[indexToRemove].isValid =false;
+        Serial.printf("[WiFiMgr] Deleting wifi: %s\n", ssid);
+        resetWiFiCredential(_savedNetworks[indexToRemove]);
+        writeNVS();
+    } else {
+        Serial.printf("[WiFiMgr] Unable to find wifi: %s\n", ssid);
     }
 
-    WriteNVS();
+    
     return;
 }
 
-void TeslaWiFiManager::resetIncomingParameters(){
-    _incomingSSID="";
-    _incomingPSW="";
-    _incomingDefault="";
-    _newIncomingWiFi=false;
+void TeslaWiFiManager::resetWiFiCredential(WiFiCredentials network){
+    network.ssid="";
+    network.password="";
+    network.pref=false;
+    network.isValid=false;
 }
 
 /* check if a configured WiFi is present on the scan list*/
@@ -579,9 +596,8 @@ bool TeslaWiFiManager::checkScannedNetworks(){
     {
         for (int y = 0; y < MAX_WIFI_NETWORKS; y++)
         {
-            if(WiFi.SSID(i) == savedNetworks[y].ssid){
-                _incomingSSID = savedNetworks[y].ssid;
-                _incomingPSW = savedNetworks[y].password;
+            if(WiFi.SSID(i) == _savedNetworks[y].ssid){
+                _toConnectNetwork = _savedNetworks[y];
                 return true;
             }
         }
@@ -596,37 +612,146 @@ void TeslaWiFiManager::WiFiListOrder(){
     int defPosition = -1;
     for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
-        if(savedNetworks[i].isValid && savedNetworks[i].pref){
+        if(_savedNetworks[i].isValid && _savedNetworks[i].pref){
             defPosition = i;
             break;
         }
     }
     
     if(defPosition > 0){
-        tmpNetwork = savedNetworks[defPosition];
+        _tmpNetwork = _savedNetworks[defPosition];
         for (size_t i = defPosition; i > 0 ; i--)
         {
-            savedNetworks[i] = savedNetworks[i - 1];
+            _savedNetworks[i] = _savedNetworks[i - 1];
         }
-        savedNetworks[0] = tmpNetwork;
+        _savedNetworks[0] = _tmpNetwork;
     }
 
     size_t writeIndex = 0;
 
     for (size_t readIndex = 0; readIndex < MAX_WIFI_NETWORKS; readIndex++) {
-        if (savedNetworks[readIndex].isValid) {
+        if (_savedNetworks[readIndex].isValid) {
             if (writeIndex != readIndex) {
-                savedNetworks[writeIndex] = savedNetworks[readIndex];
-                savedNetworks[readIndex].ssid = "";
-                savedNetworks[readIndex].password = "";
-                savedNetworks[readIndex].pref = false;
-                savedNetworks[readIndex].isValid = false;
+                _savedNetworks[writeIndex] = _savedNetworks[readIndex];
+                resetWiFiCredential(_savedNetworks[readIndex]);
             }
             writeIndex++;
         }
     }
+
+    resetWiFiCredential(_tmpNetwork);
+}
+void TeslaWiFiManager::prepareNvsPointer(int i){
+  sprintf(ssid_key, "ssid_%d", i);
+  sprintf(pass_key, "pass_%d", i);
+  sprintf(pref_key, "pref_%d", i);
 }
 
 
+bool TeslaWiFiManager::initNVS(){
+    Serial.println("[WiFi Mgr] NVS INIT");
+
+    esp_err_t ret = nvs_flash_init();
+
+    if (ret == ESP_OK) {
+        Serial.println("[WiFiMgr] NVS Initialized");
+    } else if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        Serial.printf("[WiFiMgr] NVS Error: %s\n", esp_err_to_name(ret));
+        Serial.println("[WiFiMgr] Trying to format it.");
+        esp_err_t erase_ret = nvs_flash_erase();
+        if (erase_ret == ESP_OK) {
+            Serial.println("[WiFiMgr] NVS formatted. Trying to init...");
+            ret = nvs_flash_init();
+            if (ret == ESP_OK) {
+                Serial.println("[WiFiMgr] NVS Initialized");
+                return true;
+            } else {
+                Serial.printf("[WiFiMgr] NVS Critical Error: (%s) after reinitialization\n", esp_err_to_name(ret));
+                Serial.printf("\nUnable to proceed.");
+                while(true) { delay(1000); }
+                return false;
+            }
+        } else {
+                Serial.printf("[WiFiMgr] NVS Critical Error: (%s) unable to write on it.\n", esp_err_to_name(ret));
+                Serial.printf("\nUnable to proceed.");
+            while(true) { delay(1000); } 
+            return false;
+        }
+    } else {
+        Serial.printf("[WiFiMgr] NVS Unkwon error (%s)\n", esp_err_to_name(ret));
+        Serial.printf("Unable to proceed.\n");
+        while(true) { delay(1000); } 
+        return false;
+    }
+
+    if (_nvsHandler.begin(PREF_NAMESPACE, true)) {
+      Serial.println("[WiFiMgr] Stored Wifi:");
+      for (size_t i = 0; i < MAX_WIFI_NETWORKS; i++)
+      {
+        prepareNvsPointer(i);
+
+        if(_nvsHandler.isKey(ssid_key) && (_nvsHandler.getString(ssid_key, "").length() > 0))
+          {
+          _savedNetworks[i].ssid = _nvsHandler.getString(ssid_key, "");
+          _savedNetworks[i].password = _nvsHandler.getString(pass_key, "");
+          _savedNetworks[i].pref = _nvsHandler.getBool(pref_key, "");
+          _savedNetworks[i].isValid = true;
+          Serial.printf("%d - %s\n",i, _savedNetworks[i].ssid);
+          } else {
+                resetWiFiCredential(_savedNetworks[i]);
+          }
+      }
+      _nvsHandler.end();
+      return true;
+    } else {
+      Serial.printf("[WiFiMgr] NVS Error (%s) trying to open the namespace.\n", PREF_NAMESPACE);
+        while(true) { delay(1000); }
+        return false;
+    }
+}
+
+// return the number of valid network stored
+int TeslaWiFiManager::storedWifi(){
+  int validWiFi = 0;
+  for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
+  {
+    if(_savedNetworks[i].isValid){
+      validWiFi++;
+    }
+  }
+  return validWiFi;
+  
+}
+
+void TeslaWiFiManager::writeNVS(){
+  WiFiListOrder();
+  _nvsHandler.begin(PREF_NAMESPACE, false);
+  for (int i = 0; i < MAX_WIFI_NETWORKS ; i++)
+  {
+    prepareNvsPointer(i);
+    if(_savedNetworks[i].isValid){
+      _nvsHandler.putString(ssid_key,_savedNetworks[i].ssid);
+      _nvsHandler.putString(pass_key,_savedNetworks[i].password);
+      _nvsHandler.putBool(pref_key,_savedNetworks[i].pref);
+    } else {
+      
+      if(_nvsHandler.isKey(ssid_key)){
+        _nvsHandler.remove(ssid_key);
+        if(_nvsHandler.isKey(pass_key)){
+          _nvsHandler.remove(pass_key);
+        }
+        if(_nvsHandler.isKey(pref_key)){
+          _nvsHandler.remove(pref_key);
+        }
+      }
+    }
+  }
+  _nvsHandler.end();
+  resetWiFiCredential(_toConnectNetwork);
+}
 
 
+void TeslaWiFiManager::printIP(){
+    Serial.print("[WiFiMgr L] WiFi Connected, TeslaBoard IP address is: ");
+    Serial.println(WiFi.localIP());
+}

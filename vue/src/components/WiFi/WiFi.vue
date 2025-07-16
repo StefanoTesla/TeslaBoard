@@ -53,8 +53,8 @@
 
           </div>
           <div class="flex justify-around">
-            <button class="green cursor-pointer" @click="connectToWifi()">Connect</button>
-            <button class="orange cursor-pointer" @click="addNewWifi()">Add</button>
+            <button class="green cursor-pointer" @click="connectToWifi('connect')">Connect</button>
+            <button class="orange cursor-pointer" @click="connectToWifi('add')">Add</button>
           </div>
           
     </div>
@@ -153,7 +153,7 @@ const copySSID = async (wifi) => {
   wifiToConnect.value.psw = ""
 }
 
-const connectToWifi = async () => {
+const connectToWifi = async (mode) => {
 
   if(wifiToConnect.value.ssid == ""){
       toast.error("SSID can't be empty",{
@@ -169,7 +169,8 @@ const connectToWifi = async () => {
 
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+"/wifi-api/new-wifi", {
+    const url = `${ip}/wifi-api/new-wifi?mode=${encodeURIComponent(mode)}`;
+    const response = await fetch(url, {
         method: "POST",
         headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -180,14 +181,21 @@ const connectToWifi = async () => {
 
     const data = await response.json()
     if (response.ok){
+      if(mode === "connect"){
+        const Msg = "New Wifi recived, board will try to connect and then it will be store"
+      } else {
+        const Msg = "The WiFi was stored"
+      }
+      
       toast.success("The WiFi was added to the list, performing a connection!", {
         autoClose: 5000,
       });
       fetchData()
     } else {
-      toast.error("Unable to add a new WiFi",{
-        autoClose: 3000,
-      })
+      const errorMsg = data?.error || "Unable to add a new WiFi";
+      toast.error(errorMsg, {
+        autoClose: 500,
+      });
     }
 
   } catch (err) {
