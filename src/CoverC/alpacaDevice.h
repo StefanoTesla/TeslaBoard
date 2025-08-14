@@ -86,7 +86,7 @@ void coverAlpacaDevice(){
   alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["Value"] = 4096;
+        doc["Value"] = 4095;
         doc["ErrorNumber"] = 0;
         doc["ErrorMessage"] = "";
         doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -118,6 +118,31 @@ void coverAlpacaDevice(){
     response->setLength();
     request->send(response);
 }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/calibratoron", HTTP_PUT, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = new AsyncJsonResponse();
+      JsonObject doc = response->getRoot().to<JsonObject>();
+      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
+      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+      if(!CoverC.config.calibrator.present){
+            doc["ErrorNumber"] = 1024;
+            doc["ErrorMessage"] = "Method not implemented";
+      } else if(!CoverC.alpaca.exist){
+            doc["ErrorNumber"] = 1025;
+            doc["ErrorMessage"] = "Brightness parameter not found";
+      } else if(!CoverC.alpaca.brightness < 0 or !CoverC.alpaca.brightness > 100){
+            doc["ErrorNumber"] = 1025;
+            doc["ErrorMessage"] = "Value outside MIN and MAX";
+      } else {
+            CoverC.command.calibrator.change = true;
+            CoverC.command.calibrator.brightness = CoverC.alpaca.brightness;
+            doc["ErrorNumber"] = 0;
+            doc["ErrorMessage"] = "";
+      }
+      response->setLength();
+      request->send(response);
+  }).addMiddlewares({&getAlpacaID,&getBrightness});
+
 
   alpaca.on("/api/v1/covercalibrator/0/calibratoroff", HTTP_PUT, [](AsyncWebServerRequest *request){
       AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -187,29 +212,6 @@ void coverAlpacaDevice(){
       request->send(response); 
   }).addMiddleware(&getAlpacaID);
 
-  alpaca.on("/api/v1/covercalibrator/0/calibratoron", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
-      if(!CoverC.config.calibrator.present){
-            doc["ErrorNumber"] = 1024;
-            doc["ErrorMessage"] = "Method not implemented";
-      } else if(!CoverC.alpaca.exist){
-            doc["ErrorNumber"] = 1025;
-            doc["ErrorMessage"] = "Brightness parameter not found";
-      } else if(!CoverC.alpaca.brightness < 0 or !CoverC.alpaca.brightness > 100){
-            doc["ErrorNumber"] = 1025;
-            doc["ErrorMessage"] = "Value outside MIN and MAX";
-      } else {
-            CoverC.command.calibrator.change = true;
-            CoverC.command.calibrator.brightness = CoverC.alpaca.brightness;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-      }
-      response->setLength();
-      request->send(response);
-  }).addMiddlewares({&getAlpacaID,&getBrightness});
 
     /* Property not implemented:*/
     alpaca.on("/api/v1/covercalibrator/0/haltcover",        HTTP_PUT, alpacaPropertyNotImplemented).addMiddleware(&getAlpacaID);

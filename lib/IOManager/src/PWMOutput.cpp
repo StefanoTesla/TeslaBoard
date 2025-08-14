@@ -24,7 +24,7 @@ void PWMOutput::setup(IOConfigBase* config){
 }
 
 int PWMOutput::write(int _value) {
-    
+
     if(_value >= min && _value <= max){
         ledcWrite(channel,_value);
         return 1;
