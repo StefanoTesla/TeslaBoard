@@ -5,7 +5,7 @@
 
 void coverAlpacaManage(){
 
-  alpaca.on("/api/v1/covercalibrator/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
+  alpaca.on("/api/v1/covercalibrator/0/name",                                                     HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse();
       JsonObject doc = response->getRoot();
       doc["Value"] = std::string(CC_IDENTIFIER) + " - TeslaBoard";
@@ -30,17 +30,22 @@ void coverAlpacaManage(){
   });
 
   alpaca.on("/api/v1/covercalibrator/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse();
-      JsonObject doc = response->getRoot();
-      doc["Value"] = "New version with 20kHz flat panel and cover support";
-      response->setLength();
-      request->send(response);
-  }).addMiddleware(&getAlpacaID);
-
-  alpaca.on("/api/v1/covercalibrator/0/interfaceversion",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot();
+
+    doc["Value"] = "New version with 20kHz flat panel and cover support";
+    
+    response->setLength();
+    request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/interfaceversion",                                         HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse();
+    JsonObject doc = response->getRoot();
+
     doc["Value"] = 2;
+
+    response->setLength();
     request->send(response);
   }).addMiddleware(&getAlpacaID);
 }
