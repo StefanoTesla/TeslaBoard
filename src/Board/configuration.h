@@ -12,15 +12,17 @@ void saveBoardConfig(){
     wifi["enStaticIP"] = Global.config.wifi.ip.enable;
 
     JsonArray ip = wifi["ip"].to<JsonArray>();
-    ip[0] = Global.config.wifi.ip.ip[0];
-    ip[1] = Global.config.wifi.ip.ip[1];
-    ip[2] = Global.config.wifi.ip.ip[2];
-    ip[3] = Global.config.wifi.ip.ip[3];
+    for (size_t i = 0; i < 4; i++)
+    {
+        ip[i] = Global.config.wifi.ip.ip[i];
+    }
+
     JsonArray sub = wifi["sub"].to<JsonArray>();
-    sub[0] = Global.config.wifi.ip.sub[0];
-    sub[1] = Global.config.wifi.ip.sub[1];
-    sub[2] = Global.config.wifi.ip.sub[2];
-    sub[3] = Global.config.wifi.ip.sub[3];
+    for (size_t i = 0; i < 4; i++)
+    {
+        sub[i] = Global.config.wifi.ip.sub[i];
+    }
+
 
     File file = LittleFS.open("/cfg/boarcfg.txt",FILE_WRITE);
 

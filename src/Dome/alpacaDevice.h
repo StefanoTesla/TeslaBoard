@@ -9,13 +9,11 @@ AsyncMiddlewareFunction upLastCom([](AsyncWebServerRequest* request, ArMiddlewar
 void domeAlpacaDevices(){ 
 
 alpaca.on("/api/v1/dome/0/shutterstatus",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
+
     doc["Value"] = Dome.Shutter.status;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 
@@ -23,7 +21,7 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
 
 
 alpaca.on("/api/v1/dome/0/closeshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
     if(Dome.Shutter.status != ShStatusClose and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
@@ -37,15 +35,14 @@ alpaca.on("/api/v1/dome/0/closeshutter",                                        
         doc["ErrorMessage"] = "Shutter is busy, another command in progress";
       }
     }
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/openshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
     if(Dome.Shutter.status != ShStatusOpen and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
@@ -59,8 +56,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
         doc["ErrorMessage"] = "Shutter is busy, another command in progress";
       }
     }
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 
@@ -69,43 +65,35 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
 
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     Dome.Shutter.command = ShCommandHalt;
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/cansetshutter",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
+
     doc["Value"] = true;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/slewing",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
+
     doc["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/devicestate",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
     JsonArray Value = doc["Value"].to<JsonArray>();
     JsonObject shstatus = Value.add<JsonObject>();
@@ -114,70 +102,51 @@ alpaca.on("/api/v1/dome/0/devicestate",                                         
     JsonObject shslewing = Value.add<JsonObject>();
     shslewing["Name"] = "Slewing";
     shslewing["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 /* I don't care about connection but we need to declare it*/
 alpaca.on("/api/v1/dome/0/connect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+    AsyncJsonResponse* response = prepareAlpacaResponse();
+
     response->setLength();
     request->send(response);
 
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/disconnect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+    AsyncJsonResponse* response = prepareAlpacaResponse();
+
     response->setLength();
     request->send(response);
 
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connecting",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
+
     doc["Value"] = false;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
+
     doc["Value"] = true;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+    AsyncJsonResponse* response = prepareAlpacaResponse();;
+
     response->setLength();
     request->send(response);
 }).addMiddlewares({&getAlpacaID,&upLastCom});

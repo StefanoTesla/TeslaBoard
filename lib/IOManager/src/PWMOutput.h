@@ -17,6 +17,7 @@ public:
     int readPin() override;
     int write(int valore) override;
     int status();
+    unsigned int getMax();
     unsigned int getChannel();
     int getType() override;
 };

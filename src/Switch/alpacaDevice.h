@@ -204,147 +204,124 @@ AsyncMiddlewareFunction isSettable([](AsyncWebServerRequest* request, ArMiddlewa
 void switchAlpacaDevice(){
 
       alpaca.on("/api/v1/switch/0/maxswitch", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
+
             doc["Value"] = Switch.config.configuredSwitch;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddleware(&getAlpacaID);
 
       alpaca.on("/api/v1/switch/0/canasync", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
+
             doc["Value"] = true;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
-            response->setLength();
+            
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/canwrite", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = canBeWritten(id);
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitch", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = SwitchObjects[id]->status() ? true : false;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchdescription", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = SwitchObjects[id]->getDescription();
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchname", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = SwitchObjects[id]->getName();
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] =SwitchObjects[id]->status();
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/minswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = SwitchObjects[id]->getMin();
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/maxswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+ 
             doc["Value"] = SwitchObjects[id]->getMax();
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+ 
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/switchstep", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
+
             doc["Value"] = 1;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/statechangecomplete", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int id = request->getAttribute("id").toInt();
+
             doc["Value"] = true;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             JsonArray Value = doc["Value"].to<JsonArray>();
 
@@ -375,16 +352,13 @@ void switchAlpacaDevice(){
                   StateChangeComplete["Name"] = message;
                   StateChangeComplete["Value"] = true;
             }
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
             response->setLength();
             request->send(response);
       }).addMiddleware(&getAlpacaID);
 
       alpaca.on("/api/v1/switch/0/setswitch", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
             int state = request->getAttribute("state").toInt();
             int id = request->getAttribute("id").toInt();
@@ -400,16 +374,12 @@ void switchAlpacaDevice(){
                   SwitchObjects[id]->write(value);
             }
 
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setasync", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
 
             int state = request->getAttribute("state").toInt();
@@ -425,16 +395,12 @@ void switchAlpacaDevice(){
                   SwitchObjects[id]->write(value);
             }
 
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setswitchvalue", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
 
             int value = request->getAttribute("value").toInt();
@@ -448,16 +414,13 @@ void switchAlpacaDevice(){
                   SwitchObjects[id]->write(value);
             }
 
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID,&getValue,&isValueable});
 
       alpaca.on("/api/v1/switch/0/setasyncvalue", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
+
+            AsyncJsonResponse* response = prepareAlpacaResponse();
             JsonObject doc = response->getRoot().to<JsonObject>();
 
             int value = request->getAttribute("value").toInt();
@@ -470,10 +433,6 @@ void switchAlpacaDevice(){
                   SwitchObjects[id]->write(value);
             }
 
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-            doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-            doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
             response->setLength();
             request->send(response);
       }).addMiddlewares({&getAlpacaID,&getID,&getValue,&isValueable});
@@ -487,59 +446,42 @@ void switchAlpacaDevice(){
 
    /* I don't care about connection but we need to declare it*/
     alpaca.on("/api/v1/switch/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/disconnect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+
         response->setLength();
         request->send(response);
 
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connecting", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
+
         doc["Value"] = false;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
-        response->setLength();
+
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connected", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
+
         doc["Value"] = true;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connected", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);

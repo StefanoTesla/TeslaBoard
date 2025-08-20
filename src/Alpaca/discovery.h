@@ -8,7 +8,6 @@ void alpacaDiscovery(AsyncUDP &udp) {  // Passa l'oggetto `udp` come riferimento
             if (packet.length() < 16) {
                 return;
             }
-            // Confronta il pacchetto con la stringa "alpacadiscovery1"
             if (strncmp("alpacadiscovery1", (char *)packet.data(), 16) != 0) {
                 return;
             }

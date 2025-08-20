@@ -12,7 +12,11 @@
 #define SWITCH_IDENTIFIER "Switch"
 
 
-//----
+//---- STOP EDITING FROM THIS LINE
+
+#define SW_VERSION "4.0.0"
+
+
 #include "libraries.h"
 
 AsyncWebServer server(80);

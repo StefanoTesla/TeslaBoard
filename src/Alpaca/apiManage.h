@@ -5,7 +5,7 @@ void AlpacaManager(){
 
   alpaca.on("/management/apiversions",                HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
     Value.add(1);
     doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
@@ -16,11 +16,11 @@ void AlpacaManager(){
 
   alpaca.on("/management/v1/description",                HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     JsonObject Value = doc["Value"].to<JsonObject>();
     Value["ServerName"] = "TeslaBoard Alpaca Device";
     Value["Manufacturer"] = "Stefano Tesla";
-    Value["ManufacturerVersion"] = "v4.0.0";
+    Value["ManufacturerVersion"] = SW_VERSION;
     Value["Location"] = "Empoli, IT";
     doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
     doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
@@ -30,7 +30,7 @@ void AlpacaManager(){
 
   alpaca.on("/management/v1/configureddevices",          HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
 
     #ifdef DOME

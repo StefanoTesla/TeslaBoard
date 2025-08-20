@@ -34,6 +34,12 @@ int PWMOutput::write(int _value) {
 
 }
 
+unsigned int PWMOutput::getMax() {
+
+    return max;
+
+}
+
 int PWMOutput::readPin() {
     /* esp hardware return 4096 when I wrote 4095 bah.. */
     currentDuty = ledcRead(channel);

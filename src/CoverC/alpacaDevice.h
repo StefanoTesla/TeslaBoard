@@ -24,80 +24,58 @@ AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddl
 void coverAlpacaDevice(){
 
   alpaca.on("/api/v1/covercalibrator/0/brightness", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = CoverC.status.calibrator.actualBrightness;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/calibratorchanging", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
+
         doc["Value"] = false;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/calibratorstate", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = CoverC.status.calibrator.status;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/covermoving", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = CoverC.status.cover.status == CoverStatusMoving ? true : false;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/coverstate", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = CoverC.status.cover.status;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServerRequest *request){
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["Value"] = 4095;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
+        doc["Value"] = Calibrator.getMax();
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse();
+    JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
     JsonObject calibStatus = Value.add<JsonObject>();
     calibStatus["Name"] = "CalibratorState";
@@ -111,17 +89,13 @@ void coverAlpacaDevice(){
     JsonObject coverMoving = Value.add<JsonObject>();
     coverMoving["Name"] = "CoverMoving";
     coverMoving["Value"] = false;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/calibratoron", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
+      AsyncJsonResponse* response = prepareAlpacaResponse();
+      JsonObject doc = response->getRoot();
       doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
       doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
       if(!CoverC.config.calibrator.present){
@@ -130,7 +104,7 @@ void coverAlpacaDevice(){
       } else if(!CoverC.alpaca.exist){
             doc["ErrorNumber"] = 1025;
             doc["ErrorMessage"] = "Brightness parameter not found";
-      } else if(!CoverC.alpaca.brightness < 0 or !CoverC.alpaca.brightness > 100){
+      } else if(!CoverC.alpaca.brightness < 0 or !CoverC.alpaca.brightness > Cover.getMax()){
             doc["ErrorNumber"] = 1025;
             doc["ErrorMessage"] = "Value outside MIN and MAX";
       } else {
@@ -145,10 +119,9 @@ void coverAlpacaDevice(){
 
 
   alpaca.on("/api/v1/covercalibrator/0/calibratoroff", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+      AsyncJsonResponse* response = prepareAlpacaResponse();
+      JsonObject doc = response->getRoot();
+
       if(!CoverC.config.calibrator.present){
             doc["ErrorNumber"] = 1024;
             doc["ErrorMessage"] = "Method not implemented";
@@ -158,8 +131,6 @@ void coverAlpacaDevice(){
       } else{
             CoverC.command.calibrator.change = true;
             CoverC.command.calibrator.brightness = 0;
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
       }
       
       response->setLength();
@@ -167,10 +138,9 @@ void coverAlpacaDevice(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/closecover", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+      AsyncJsonResponse* response = prepareAlpacaResponse();
+      JsonObject doc = response->getRoot();
+
       if(!CoverC.config.cover.present){
             doc["ErrorNumber"] = 1024;
             doc["ErrorMessage"] = "Method not implemented";
@@ -178,7 +148,6 @@ void coverAlpacaDevice(){
             doc["ErrorNumber"] = 1035;
             doc["ErrorMessage"] = "Cover is moving";
       } else{
-            Serial.println("ascom is goin to close");
             CoverC.command.cover.move = true;
             CoverC.command.cover.angle = Cover.closeDeg;
             doc["ErrorNumber"] = 0;
@@ -190,10 +159,9 @@ void coverAlpacaDevice(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/covercalibrator/0/opencover", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+      AsyncJsonResponse* response = prepareAlpacaResponse();
+      JsonObject doc = response->getRoot();
+
       if(!CoverC.config.cover.present){
             doc["ErrorNumber"] = 1024;
             doc["ErrorMessage"] = "Method not implemented";
@@ -201,7 +169,6 @@ void coverAlpacaDevice(){
             doc["ErrorNumber"] = 1035;
             doc["ErrorMessage"] = "Cover is moving";
       } else{
-            Serial.println("ascom is goin to close");
             CoverC.command.cover.move = true;
             CoverC.command.cover.angle = Cover.openDeg;
             doc["ErrorNumber"] = 0;
@@ -224,60 +191,38 @@ void coverAlpacaDevice(){
 
    /* I don't care about connection but we need to declare it*/
     alpaca.on("/api/v1/covercalibrator/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
         response->setLength();
         request->send(response);
 
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/covercalibrator/0/disconnect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
         response->setLength();
         request->send(response);
 
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/covercalibrator/0/connecting", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = false;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         doc["Value"] = true;
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["ErrorNumber"] = 0;
-        doc["ErrorMessage"] = "";
-        doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-        doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+        AsyncJsonResponse* response = prepareAlpacaResponse();
+        JsonObject doc = response->getRoot();
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
