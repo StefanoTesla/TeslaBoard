@@ -10,7 +10,7 @@ void domeAlpacaDevices(){
 
 alpaca.on("/api/v1/dome/0/shutterstatus",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
 
     doc["Value"] = Dome.Shutter.status;
 
@@ -22,7 +22,7 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
 
 alpaca.on("/api/v1/dome/0/closeshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     if(Dome.Shutter.status != ShStatusClose and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
@@ -43,7 +43,7 @@ alpaca.on("/api/v1/dome/0/closeshutter",                                        
 
 alpaca.on("/api/v1/dome/0/openshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     if(Dome.Shutter.status != ShStatusOpen and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
@@ -66,7 +66,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     Dome.Shutter.command = ShCommandHalt;
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     response->setLength();
     request->send(response);
 
@@ -74,7 +74,7 @@ alpaca.on("/api/v1/dome/0/abortslew",                                           
 
 alpaca.on("/api/v1/dome/0/cansetshutter",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
 
     doc["Value"] = true;
 
@@ -84,7 +84,7 @@ alpaca.on("/api/v1/dome/0/cansetshutter",                                       
 
 alpaca.on("/api/v1/dome/0/slewing",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
 
     doc["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
 
@@ -94,7 +94,7 @@ alpaca.on("/api/v1/dome/0/slewing",                                            H
 
 alpaca.on("/api/v1/dome/0/devicestate",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
     JsonObject shstatus = Value.add<JsonObject>();
     shstatus["Name"] = "ShutterStatus";
@@ -126,7 +126,7 @@ alpaca.on("/api/v1/dome/0/disconnect",                                          
 
 alpaca.on("/api/v1/dome/0/connecting",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
 
     doc["Value"] = false;
 
@@ -136,7 +136,7 @@ alpaca.on("/api/v1/dome/0/connecting",                                          
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    JsonObject doc = response->getRoot();
 
     doc["Value"] = true;
 

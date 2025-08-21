@@ -23,7 +23,7 @@ void boardWebServer(){
         #ifdef COVER_CALIBRATOR
             define["coverc"] = true;
         #endif
-        doc["version"] = _SW_VERSION_
+        doc["version"] = SW_VERSION;
         response->setLength();
         request->send(response);
     });
