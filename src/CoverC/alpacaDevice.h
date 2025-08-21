@@ -51,7 +51,7 @@ void coverAlpacaDevice(){
             return;
         }
 
-        doc["Value"] = CoverC.status.calibrator.actualBrightness;
+        doc["Value"] = Calibrator.status();;
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);

@@ -21,19 +21,22 @@ ServoOutput::ServoOutput(){
 }
 
 void ServoOutput::setup(IOConfigBase* config){
-  if (config->getType() == 4) { 
-    ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
+  if (config->getType() != 4) {
+    Serial.println("Errore: SERVO tipo di configurazione non valido!");
+    return;
+  }
+
+  ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
+  
+  if(ledcAttach(cfg->pin, 50, 12)){
     pin = cfg->pin;
     min = 0;
     max = cfg->maxDeg;
     openDeg = cfg->openDeg;
     closeDeg = cfg->closeDeg;
-    movingTime = cfg->movTime;
-    ledcAttach(pin, 50, 12);
+    movingTime = cfg->movTime * 1000;
     Serial.print("New Servo setup at pin: ");
     Serial.print(pin);
-    Serial.print(" at channel: ");
-    Serial.print(channel);
     Serial.print(" max Deg: ");
     Serial.print(max);
     Serial.print(" open Deg: ");
@@ -42,16 +45,16 @@ void ServoOutput::setup(IOConfigBase* config){
     Serial.print(closeDeg);
     Serial.print(" moviment time: ");
     Serial.println(movingTime);
-} else {
-    Serial.println("Errore: SERVO tipo di configurazione non valido!");
-}
+  } else {
+    Serial.println("Error: Unable to find a free SERVO channel!");
+  }
 }
 
 int ServoOutput::write(int _angle) {
     if (_angle >= 0 && _angle <= max){
       int dutyMicros = map(_angle, 0, max, 544, 2500);
       int dutyValue = map(dutyMicros, 0, 20000, 0, 4095); 
-      ledcWrite(channel, dutyValue);
+      ledcWrite(pin, dutyValue);
       return 1;
     }
     return 0;
@@ -59,7 +62,7 @@ int ServoOutput::write(int _angle) {
 }
 
 int ServoOutput::readPin() {
-    return ledcRead(channel);
+    return ledcRead(pin);
 }
 
 int ServoOutput::readAngle(){
@@ -79,9 +82,6 @@ int ServoOutput::status(){
 
 }
 
-unsigned int ServoOutput::getChannel(){
-    return channel;
-}
 
 int ServoOutput::getType(){
     return 4;
@@ -138,6 +138,8 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
       Serial.print(openDeg);
       Serial.print(" close Deg: ");
       Serial.print(closeDeg);
+      Serial.print(" time: ");
+      Serial.println(movingTime);
       // get in how many ms I need to do a degree
       MoveToSlowly.destination = _angle;
       MoveToSlowly.intervall = movingTime / max;

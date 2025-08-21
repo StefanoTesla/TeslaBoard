@@ -12,21 +12,20 @@ void TeslaWiFiManager::init(){
         WiFi.mode(WIFI_STA); //turn on wifi
         _routeInit = true;
     }
-    
+    unsigned int ackmillis=0;
     while (1)
     {
         switch (_cycle)
             {
             case INIT:
                 //check if a wifi is valid
+                
                 if(storedWifi()>0){
                     _cycle = CONNECT_TO_STORED_WIFI;
                 } else {
                     _cycle = BEFORE_START_AP;
                     Serial.println("[WiFiMgr] No stored Wifi founds, going to AP");
                 }
-
-                
                 break;
 
             case CONNECT_TO_STORED_WIFI: {
@@ -283,16 +282,20 @@ void TeslaWiFiManager::loop(){
 
 void TeslaWiFiManager::startWiFiScan(){
     if(_connectionTentative){
-        WiFi.disconnect();
+        WiFi.disconnect(true);
     }
+    Serial.println("[WiFiMgr] Starting Scan...");
+    int scan = WiFi.scanNetworks(true);
+
+    Serial.println(scan);
     Serial.println("[WiFiMgr] Scan in progress...");
-    WiFi.scanNetworks(true);
     _scanInProgress = true;
 }
 
 void TeslaWiFiManager::waitWiFiScanCompleted(){
+    
     while(WiFi.scanComplete() < 0  ){
-        ;
+       ;
     }
     Serial.println("[WiFiMgr] Scan Completed");
     _wifiNetworkFound = WiFi.scanComplete();

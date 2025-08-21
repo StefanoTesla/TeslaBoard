@@ -7,7 +7,6 @@
 class ServoOutput : public IOBase {
 
 private:
-    unsigned int channel;
     int value;
     int cycle = 0;
     bool moving = 0;

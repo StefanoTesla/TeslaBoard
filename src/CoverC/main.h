@@ -12,7 +12,6 @@ void calibratorhandlerloop() {
       CoverC.status.calibrator.status = CalibStatusNoPresent;
       return;
     } else {
-      CoverC.status.calibrator.actualBrightness = Calibrator.status();
       if(Calibrator.status() == 0){
         CoverC.status.calibrator.status = CalibStatusOff;
       } else {

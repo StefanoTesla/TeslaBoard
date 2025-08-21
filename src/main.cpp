@@ -60,7 +60,6 @@ AsyncUDP udp;
 
 void setup() {
   Serial.begin(115200);
-  
   if(!LittleFS.begin()){
     Serial.println("An Error has occurred while mounting LittleFS");
     return;
@@ -106,7 +105,7 @@ void setup() {
 }
 
 void loop() {
-  
+
   boardLoop();
   #ifdef DOME
   domeLoop();

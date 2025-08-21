@@ -34,7 +34,7 @@ void coverWebServer(){
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
         calibrator["status"] = CoverC.status.calibrator.status;
         if(CoverC.config.calibrator.present){
-            calibrator["brightness"] = CoverC.status.calibrator.actualBrightness;
+            calibrator["brightness"] = Calibrator.status();
         }
 
         JsonObject cover = doc["cover"].to<JsonObject>();

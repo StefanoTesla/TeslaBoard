@@ -6,7 +6,6 @@
 class PWMOutput : public IOBase {
 
 private:
-    int channel;
     int value;
 
 public:
@@ -15,7 +14,7 @@ public:
     PWMOutput();
     void setup(IOConfigBase* config);
     int readPin() override;
-    int write(int valore) override;
+    int write(int value) override;
     int status();
     unsigned int getMax();
     unsigned int getChannel();

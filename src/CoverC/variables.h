@@ -53,7 +53,6 @@ enum calirbatorStatusEnum{
 
 struct calibratorStatus{
   calirbatorStatusEnum status;
-  unsigned int actualBrightness;
 };
 
 /* COVER */
