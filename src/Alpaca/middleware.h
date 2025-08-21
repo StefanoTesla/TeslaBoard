@@ -9,16 +9,13 @@ AsyncMiddlewareFunction getAlpacaID([](AsyncWebServerRequest* request, ArMiddlew
   AlpacaData.serverTransactionID++;
   AlpacaData.clientID = 0;
   AlpacaData.clientTransactionID = 0;
-
+  request->setAttribute("serverTransactionID",  AlpacaData.serverTransactionID);
   for (int i = 0; i < paramsNr; i++) {
     const AsyncWebParameter* p = request->getParam(i);
     parameter = p->name();
     parameter.toLowerCase();
-    if (parameter == "clientid") {
-      AlpacaData.clientID = p->value().toInt();
-    }
     if (parameter == "clienttransactionid") {
-      AlpacaData.clientTransactionID = p->value().toInt();
+      request->setAttribute("clientTransictionID",  p->value());
     }    
   }
   

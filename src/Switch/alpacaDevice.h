@@ -204,7 +204,7 @@ AsyncMiddlewareFunction isSettable([](AsyncWebServerRequest* request, ArMiddlewa
 void switchAlpacaDevice(){
 
       alpaca.on("/api/v1/switch/0/maxswitch", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             doc["Value"] = Switch.config.configuredSwitch;
@@ -214,7 +214,7 @@ void switchAlpacaDevice(){
       }).addMiddleware(&getAlpacaID);
 
       alpaca.on("/api/v1/switch/0/canasync", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             doc["Value"] = true;
@@ -223,7 +223,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/canwrite", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -234,7 +234,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitch", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -245,7 +245,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchdescription", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -256,7 +256,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchname", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -267,7 +267,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/getswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -278,7 +278,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/minswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -289,7 +289,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/maxswitchvalue", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
  
@@ -300,7 +300,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/switchstep", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             doc["Value"] = 1;
@@ -310,7 +310,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/statechangecomplete", HTTP_GET, [](AsyncWebServerRequest *request){
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int id = request->getAttribute("id").toInt();
 
@@ -321,7 +321,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID});
 
       alpaca.on("/api/v1/switch/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             JsonArray Value = doc["Value"].to<JsonArray>();
 
@@ -358,7 +358,7 @@ void switchAlpacaDevice(){
       }).addMiddleware(&getAlpacaID);
 
       alpaca.on("/api/v1/switch/0/setswitch", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
             int state = request->getAttribute("state").toInt();
             int id = request->getAttribute("id").toInt();
@@ -379,7 +379,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setasync", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             int state = request->getAttribute("state").toInt();
@@ -400,7 +400,7 @@ void switchAlpacaDevice(){
       }).addMiddlewares({&getAlpacaID,&getID,&getState,&isSettable});
 
       alpaca.on("/api/v1/switch/0/setswitchvalue", HTTP_PUT, [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             int value = request->getAttribute("value").toInt();
@@ -420,7 +420,7 @@ void switchAlpacaDevice(){
 
       alpaca.on("/api/v1/switch/0/setasyncvalue", HTTP_PUT, [](AsyncWebServerRequest *request) {
 
-            AsyncJsonResponse* response = prepareAlpacaResponse();
+            AsyncJsonResponse* response = prepareAlpacaResponse(request);
             JsonObject doc = response->getRoot();
 
             int value = request->getAttribute("value").toInt();
@@ -446,14 +446,14 @@ void switchAlpacaDevice(){
 
    /* I don't care about connection but we need to declare it*/
     alpaca.on("/api/v1/switch/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = prepareAlpacaResponse();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
         response->setLength();
         request->send(response);
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/disconnect", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = prepareAlpacaResponse();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
         response->setLength();
         request->send(response);
@@ -461,7 +461,7 @@ void switchAlpacaDevice(){
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connecting", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = prepareAlpacaResponse();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
 
         doc["Value"] = false;
@@ -470,7 +470,7 @@ void switchAlpacaDevice(){
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connected", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = prepareAlpacaResponse();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
 
         doc["Value"] = true;
@@ -480,7 +480,7 @@ void switchAlpacaDevice(){
     }).addMiddleware(&getAlpacaID);
 
     alpaca.on("/api/v1/switch/0/connected", HTTP_PUT, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse* response = prepareAlpacaResponse();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
         response->setLength();
         request->send(response);

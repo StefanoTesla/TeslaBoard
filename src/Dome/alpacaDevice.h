@@ -9,7 +9,7 @@ AsyncMiddlewareFunction upLastCom([](AsyncWebServerRequest* request, ArMiddlewar
 void domeAlpacaDevices(){ 
 
 alpaca.on("/api/v1/dome/0/shutterstatus",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
     doc["Value"] = Dome.Shutter.status;
@@ -21,7 +21,7 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
 
 
 alpaca.on("/api/v1/dome/0/closeshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     if(Dome.Shutter.status != ShStatusClose and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
@@ -42,7 +42,7 @@ alpaca.on("/api/v1/dome/0/closeshutter",                                        
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/openshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     if(Dome.Shutter.status != ShStatusOpen and Dome.Shutter.command == ShCommandIdle){
       doc["ErrorNumber"] = 0;
@@ -65,7 +65,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
 
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     Dome.Shutter.command = ShCommandHalt;
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     response->setLength();
     request->send(response);
@@ -73,7 +73,7 @@ alpaca.on("/api/v1/dome/0/abortslew",                                           
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/cansetshutter",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
     doc["Value"] = true;
@@ -83,7 +83,7 @@ alpaca.on("/api/v1/dome/0/cansetshutter",                                       
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/slewing",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
     doc["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
@@ -93,7 +93,7 @@ alpaca.on("/api/v1/dome/0/slewing",                                            H
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/devicestate",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
     JsonObject shstatus = Value.add<JsonObject>();
@@ -109,7 +109,7 @@ alpaca.on("/api/v1/dome/0/devicestate",                                         
 
 /* I don't care about connection but we need to declare it*/
 alpaca.on("/api/v1/dome/0/connect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
     response->setLength();
     request->send(response);
@@ -117,7 +117,7 @@ alpaca.on("/api/v1/dome/0/connect",                                            H
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/disconnect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
     response->setLength();
     request->send(response);
@@ -125,7 +125,7 @@ alpaca.on("/api/v1/dome/0/disconnect",                                          
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connecting",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
     doc["Value"] = false;
@@ -135,7 +135,7 @@ alpaca.on("/api/v1/dome/0/connecting",                                          
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
     doc["Value"] = true;
@@ -145,7 +145,7 @@ alpaca.on("/api/v1/dome/0/connected",                                           
 }).addMiddlewares({&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();;
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
     response->setLength();
     request->send(response);

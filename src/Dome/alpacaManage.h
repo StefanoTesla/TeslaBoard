@@ -6,7 +6,7 @@
 void domeAlpacaManage(){
 
   alpaca.on("/api/v1/dome/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
 
       doc["Value"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
@@ -16,7 +16,7 @@ void domeAlpacaManage(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/dome/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
 
       doc["Value"] = "Dome handler R.O.R. by Stefano TeslaBoard";
@@ -26,7 +26,7 @@ void domeAlpacaManage(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/dome/0/driverversion",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot().to<JsonObject>();
 
     doc["Value"] = SW_VERSION;
@@ -36,7 +36,7 @@ void domeAlpacaManage(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/dome/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
 
       doc["Value"] = "Using the IOManager and three way to handle r.o.r.";
@@ -46,7 +46,7 @@ void domeAlpacaManage(){
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/api/v1/dome/0/interfaceversion",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot().to<JsonObject>();
 
     doc["Value"] = 3;

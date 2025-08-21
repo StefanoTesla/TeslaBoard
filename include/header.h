@@ -2,7 +2,7 @@
 
 struct AlpacaCommonData{
   uint32_t clientTransactionID;
-  uint32_t serverTransactionID = 0;
+  long serverTransactionID = 0;
   uint32_t clientID;
 };
 

@@ -136,12 +136,12 @@ bool commonValidateOutputPin(unsigned int pin){
 }
 
 //This function prepare the response with error 0, client and server transiction id
-AsyncJsonResponse* prepareAlpacaResponse() {
+AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
   AsyncJsonResponse* response = new AsyncJsonResponse();
   JsonObject doc = response->getRoot().to<JsonObject>();
 
-  doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-  doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+  doc["ClientTransactionID"] = request->getAttribute("clientTransictionID").toInt();
+  doc["ServerTransactionID"] = request->getAttribute("serverTransactionID").toInt();
   doc["ErrorNumber"] = 0;
   doc["ErrorMessage"] = "";
   return response;
