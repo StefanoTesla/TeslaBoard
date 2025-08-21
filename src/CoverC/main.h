@@ -19,11 +19,6 @@ void calibratorhandlerloop() {
         CoverC.status.calibrator.status = CalibStatusReady;
       }
     }
-
-    if(CoverC.command.calibrator.change){
-        CoverC.command.calibrator.change = false;
-        Calibrator.write(CoverC.command.calibrator.brightness);
-    }
 }
 
 void coverCycle(){
