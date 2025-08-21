@@ -34,14 +34,12 @@ void initSwitchConfig(){
         return;
     }    
     file.close();
-    int tmpCh = -1;
     int count = 0;
     for (JsonObject Switche : doc["Switches"].as<JsonArray>()) {
         if(count >= _MAX_SWITCH_ID_){
             Serial.println("[SWI] Too many switches configured");
             exit;
         }
-        tmpCh = -1;
         //Digital Input
         if(Switche["type"] == static_cast<int>(SwTypeDInput)){
             SwitchObjects[count] = new DigitalInput;
@@ -60,28 +58,20 @@ void initSwitchConfig(){
             SwitchObjects[count]->setup(&DOConfig);
         //PWM Output
         } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
-            tmpCh = assignLedChannel(ledCpwmSlow);
-            if(tmpCh >= 0 && tmpCh < 16){
-                SwitchObjects[count] = new PWMOutput;
-                PWMOutputConfig PWMConfig;
-                PWMConfig.pin=Switche["pin"];
-                PWMConfig.channel=tmpCh;
-                SwitchObjects[count]->setup(&PWMConfig);
-            }
+            SwitchObjects[count] = new PWMOutput;
+            PWMOutputConfig PWMConfig;
+            PWMConfig.pin=Switche["pin"];
+            SwitchObjects[count]->setup(&PWMConfig);
         //Servo Output
         } else if(Switche["type"] == static_cast<int>(SwTypeServo)){
-            tmpCh = assignLedChannel(ledCservo);
-            if(tmpCh >= 0 && tmpCh < 16){
-                SwitchObjects[count] = new ServoOutput;
-                ServoOutputConfig ServoConfig;
-                ServoConfig.pin = Switche["pin"];
-                ServoConfig.channel = tmpCh;
-                ServoConfig.maxDeg = Switche["maxDeg"];
-                ServoConfig.closeDeg= Switche["closeDeg"];
-                ServoConfig.openDeg = Switche["openDeg"];
-                ServoConfig.movTime = Switche["movTime"];
-                SwitchObjects[count]->setup(&ServoConfig);
-            }
+            SwitchObjects[count] = new ServoOutput;
+            ServoOutputConfig ServoConfig;
+            ServoConfig.pin = Switche["pin"];
+            ServoConfig.maxDeg = Switche["maxDeg"];
+            ServoConfig.closeDeg= Switche["closeDeg"];
+            ServoConfig.openDeg = Switche["openDeg"];
+            ServoConfig.movTime = Switche["movTime"];
+            SwitchObjects[count]->setup(&ServoConfig);
         }
 
         if (SwitchObjects[count] != nullptr) {

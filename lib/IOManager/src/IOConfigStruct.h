@@ -22,14 +22,13 @@ struct DigitalOutputConfig : public IOConfigBase {
 
 struct PWMOutputConfig : public IOConfigBase {
     int pin;
-    unsigned int channel;
+    bool fastPWM = false;
 
     int getType() const override { return 3; } 
 };
 
 struct ServoOutputConfig : public IOConfigBase {
     unsigned int pin;
-    unsigned int channel;
     unsigned int maxDeg;
     unsigned int closeDeg;
     unsigned int openDeg;

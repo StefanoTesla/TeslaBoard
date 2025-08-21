@@ -35,41 +35,33 @@ void initCoverCConfig(){
     }
     file.close();
 
-    int tmpCh = -1;
     JsonObject calibrator = doc["calibrator"];
     CoverC.config.calibrator.present = calibrator["present"];
 
     JsonObject cover = doc["cover"];
     CoverC.config.cover.present = cover["present"];
     
-    
     if(CoverC.config.calibrator.present){ 
-        tmpCh = assignLedChannel(ledCpwmFast);
-        if(tmpCh >= 0 && tmpCh < 16){
-            PWMOutputConfig CalibConfig;
-            CalibConfig.pin = calibrator["pwm"]["pin"];
-            CalibConfig.channel = tmpCh;
-            Calibrator.setup(&CalibConfig);
-        } 
+        PWMOutputConfig CalibConfig;
+        CalibConfig.pin = calibrator["pwm"]["pin"];
+        CalibConfig.fastPWM = true;
+        Calibrator.setup(&CalibConfig);
     }
 
-    tmpCh = -1;
+
 
     if(CoverC.config.cover.present){
 
     JsonObject se = cover["servo"];
-    tmpCh = assignLedChannel(ledCservo);
-        if(tmpCh >= 0 && tmpCh < 16){
-            ServoOutputConfig CoverConfig;
-            CoverConfig.pin = se["pin"];
-            CoverConfig.channel = tmpCh;
-            CoverConfig.maxDeg = se["maxDeg"];
-            CoverConfig.closeDeg = se["closeDeg"]; 
-            CoverConfig.openDeg = se["openDeg"];
-            CoverConfig.movTime = se["movTime"];
-            Cover.setup(&CoverConfig);
 
-        }
+    ServoOutputConfig CoverConfig;
+    CoverConfig.pin = se["pin"];
+    CoverConfig.maxDeg = se["maxDeg"];
+    CoverConfig.closeDeg = se["closeDeg"]; 
+    CoverConfig.openDeg = se["openDeg"];
+    CoverConfig.movTime = se["movTime"];
+    Cover.setup(&CoverConfig);
+
     }
 
     CoverC.config.load.isValid = true;

@@ -64,13 +64,6 @@ struct boarcConfigStruct{
   boardSaveConfigStruct save;
 };
 
-enum ledcType{
-  notAssigned,
-  ledCpwmSlow,
-  ledCpwmFast,
-  ledCservo
-};
-
 
 enum gpioType{
   notUsed,
@@ -87,9 +80,6 @@ enum ModuleType{
   switchModule
 };
 
-struct PWMChannelStruct{
-  ledcType type;
-};
 
 struct GPIOStruct{
   gpioType type;
@@ -118,7 +108,6 @@ struct globalVariable{
   unsigned long upTimeInterval = 60000; //one minute, don't change
   pulseStruct pulse;
   boarcConfigStruct config;
-  PWMChannelStruct pwm[16];
   GPIOStruct gpio[40];
 };
 
@@ -162,158 +151,6 @@ bool pinUsableAsAnalogOutput(unsigned int pin){
     return false;
   }
   return true;
-}
-
-bool usableLedChannel(unsigned int channel,ledcType type){
-
-  if(type == notAssigned){
-    Serial.println("[ERR] LEDC: Invalid type");
-    return false;
-  }
-
-  if(channel > 15){
-    Serial.println("[ERR] LEDC: Invalid channel number, maximum is 15");
-    return false;
-  }
-
-  if(Global.pwm[channel].type != notAssigned){
-    return false;
-  }
-
-  int x = 0;
-  int otherChannel=0;
-
-  float ch = channel / 2.0;
-  x = ch;
-  float modulo = ch - x;
-
-  if(modulo > 0.0){ 
-    otherChannel = channel - 1; 
-  } else {
-    otherChannel = channel + 1; 
-  }
-
-  if(Global.pwm[otherChannel].type != notAssigned && Global.pwm[otherChannel].type != type){
-    return false;
-  }
-
-  return true;
-
-}
-
-int setupLedcChannel(unsigned int channel, ledcType type){
-
-  switch (type)
-  {
-  case ledCpwmFast:
-    if(ledcSetup(channel, 19531, 12) > 0){
-      return channel;
-    } else {
-      Serial.println("[ERR] INIT: Error during fast pwm channel setup");
-    }
-    break;
-  case ledCpwmSlow:
-    if(ledcSetup(channel, 5000, 12) > 0){
-      return channel;
-    } else {
-      Serial.println("[ERR] INIT: Error during pwm channel setup");
-    }
-    break;
-  case ledCservo:
-    if(ledcSetup(channel, 50, 12) > 0){
-      return channel;
-    } else {
-      Serial.println("[ERR] INIT: Error during servo channel setup");
-    }
-    break;
-  
-  default:
-      return -1;
-    break;
-  }
-
-  return -1;
-}
-
-int checkForFreeLedChannel(ledcType type){
-
-  if (type == notAssigned){
-    return -1;
-  }
-
-  if(type == ledCpwmFast){
-    for (int i = 0; i < 16; i++)
-    {
-      if(usableLedChannel(i,type)){ return i;}
-    }
-  } else if (type == ledCpwmSlow){
-    for (int i = 0; i < 16; i++)
-    {
-      if(usableLedChannel(i,type)){ return i;}
-    }
-  } else if (type == ledCservo) {
-
-    //since servo are at 50hz we give the precedence to low speed timer
-    for (int i = 8; i < 16; i++)
-    {
-      if(usableLedChannel(i,type)){ return i;}
-    }
-
-    for (int i = 0; i < 8; i++)
-    {
-      if(usableLedChannel(i,type)){ return i;}
-    }
-
-  }
-  return -1;
-}
-
-int assignLedChannel(ledcType type){
-  int channel = checkForFreeLedChannel(type);
-  if (channel < 0 ){
-    Serial.println("[ERR] LEDC: error during the search of a free channel.");
-    return -1;
-  }
-  Global.pwm[channel].type = type;
-  setupLedcChannel(channel,type);
-  return channel;
-}
-
-void printLEDChannelStatus(){
-
-  Serial.println("");
-  Serial.println("ch | type       |");
-  Serial.println("------------------");
-  for (int i = 0; i < 16; i++)
-  {
-      Serial.print(i);
-      if(i<10){
-        Serial.print("   |");
-      } else {
-        Serial.print("  |");
-      }
-      
-      Serial.print(" ");
-      switch (Global.pwm[i].type)
-      {
-      case notAssigned:
-        Serial.println("unassigned | ");
-        break;
-      case ledCpwmFast:
-        Serial.println("pwm fast   | ");
-        break;
-      case ledCpwmSlow:
-        Serial.println("pwm slow   | ");
-        break;
-      case ledCservo:
-        Serial.println("servo      | ");
-        break;
-      
-      default:
-        break;
-      }
-  }
-  
 }
 
 

@@ -20,8 +20,6 @@ void startupTask(){
         initSwitchConfig();
     #endif
 
-    printLEDChannelStatus();
-
 }
 
 

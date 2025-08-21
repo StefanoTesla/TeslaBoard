@@ -92,13 +92,6 @@ void boardWebServer(){
         board["rev"] = ESP.getChipRevision();
         board["freq"] = ESP.getCpuFreqMHz();
         
-
-        JsonArray pwm = doc["pwm"].to<JsonArray>();
-        for (size_t i = 0; i < 16; i++)
-        {
-            pwm.add(Global.pwm[i].type);
-        }
-        
         response->setLength();
         request->send(response);
     });

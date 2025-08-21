@@ -109,9 +109,8 @@ void coverWebServer(){
                 if (parameter == "brightness") {
                     present = true;
                     value = p->value().toInt();
-                    if(value >=0 && value <=4095){
-                        CoverC.command.calibrator.change = true;
-                        CoverC.command.calibrator.brightness = value;
+                    if(value >=0 && value <=Calibrator.getMax()){
+                        Calibrator.write(value);
                         inRange = true;
                         doc["execute"] = true;
                     }
@@ -143,8 +142,7 @@ void coverWebServer(){
         doc["execute"] = false;
 
         if( CoverC.config.calibrator.present ){
-            CoverC.command.calibrator.change = true;
-            CoverC.command.calibrator.brightness = 4095;
+            Calibrator.write(Calibrator.getMax());
             doc["execute"] = true;
         } else {
             doc["error"] = "calibratorNotPresent";
@@ -160,8 +158,7 @@ void coverWebServer(){
         doc["execute"] = false;
         
         if( CoverC.config.calibrator.present ){
-            CoverC.command.calibrator.change = true;
-            CoverC.command.calibrator.brightness = 0;
+            Calibrator.write(0);
             doc["execute"] = true;
         } else {
             doc["error"] = "calibratorNotPresent";

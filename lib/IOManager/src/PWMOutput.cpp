@@ -7,20 +7,42 @@ PWMOutput::PWMOutput(){
 }
 
 void PWMOutput::setup(IOConfigBase* config){
-    if (config->getType() == 3) {
-        PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
-        pin = cfg->pin;
-        channel = cfg->channel;
-        min = 0;
-        max = 4095;
-        ledcAttachPin(pin,channel);
-        Serial.print("New PWM setup at pin: ");
-        Serial.print(pin);
-        Serial.print(" at channel: ");
-        Serial.println(channel);
-    } else {
-        Serial.println("Errore: PWM tipo di configurazione non valido!");
+    if (config->getType() != 3) {
+        Serial.println("Error: Configuration type of PWM not valid!");
+        return;
     }
+
+    PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
+    if(cfg->fastPWM){
+        if(ledcAttach(pin,19531,12)){
+            
+            pin = cfg->pin;
+            min = 0;
+            max = 4095;
+            Serial.print("New fast PWM setup at pin: ");
+            Serial.print(pin);
+            Serial.print(" at channel: ");
+            Serial.println(channel);
+        } else {
+            Serial.println("Error: Unable to assign PWM channel!");
+        }
+    } else {
+        if(ledcAttach(pin,5000,12)){
+            pin = cfg->pin;
+            min = 0;
+            max = 4095;
+            Serial.print("New PWM setup at pin: ");
+            Serial.print(pin);
+            Serial.print(" at channel: ");
+            Serial.println(channel);
+        } else {
+            Serial.println("Error: Unable to assign PWM channel!");
+        }
+
+
+
+    }
+
 }
 
 int PWMOutput::write(int _value) {

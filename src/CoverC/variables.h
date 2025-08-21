@@ -29,11 +29,6 @@ struct structCoverCalibratorConfig{
 };
 
 /* COMMANDS */
-struct calibratorCommand{
-  bool change;
-  unsigned int brightness; 
-};
-
 
 struct coverCommand{
   bool move;
@@ -41,7 +36,6 @@ struct coverCommand{
 };
 
 struct coverCalibratorsCommand{
-  calibratorCommand calibrator;
   coverCommand cover;
 };
 
