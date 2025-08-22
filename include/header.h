@@ -1,9 +1,8 @@
+
 /* ALPACA DATA */
 
 struct AlpacaCommonData{
-  uint32_t clientTransactionID;
   long serverTransactionID = 0;
-  uint32_t clientID;
 };
 
 AlpacaCommonData AlpacaData;
@@ -354,7 +353,6 @@ const char* retValTranslate(int retVal) {
       return "IOGenErr";
   }
 }
-
 
 
 //Utilities to copy GPIO faster avoiding keys injection

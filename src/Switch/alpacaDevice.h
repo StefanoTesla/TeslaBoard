@@ -21,7 +21,7 @@ bool canBeWritten(unsigned int id){
 
 /* Not writable error related */
 void unWritableIdErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
@@ -29,8 +29,6 @@ void unWritableIdErrorMessage(AsyncWebServerRequest *request) {
       sprintf(message, "Switch n: %d, cannot be written", id);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
       response->setLength();
       response->setCode(400);
       request->send(response);
@@ -38,33 +36,27 @@ void unWritableIdErrorMessage(AsyncWebServerRequest *request) {
 
 /* ID error realted */
 void missingIdErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
       
       doc["ErrorNumber"] = 1025;
-      if (Global.config.language.locale == "it"){
-            doc["ErrorMessage"] = "ID non fornito";
-      } else {
-            doc["ErrorMessage"] = "ID not provided";
-      }
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+      doc["ErrorMessage"] = "ID not provided";
+      
       response->setLength();
       response->setCode(400);
       request->send(response);
 }
 
 void IdOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
       int id = request->getAttribute("id").toInt();
       sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, tmp);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
       response->setLength();
       response->setCode(400);
       request->send(response);
@@ -96,15 +88,13 @@ AsyncMiddlewareFunction getID([](AsyncWebServerRequest* request, ArMiddlewareNex
 
 /* State error realted */
 void missingStateErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
       char message[100];
       int tmp = Switch.config.configuredSwitch - 1;
       sprintf(message,"\"State\" parameter not provided");
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
       response->setLength();
       response->setCode(400);
       request->send(response);
@@ -135,30 +125,27 @@ AsyncMiddlewareFunction getState([](AsyncWebServerRequest* request, ArMiddleware
 
 /* Value error realted */
 void missingValueErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
 
-      int tmp = Switch.config.configuredSwitch - 1;
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = "\"Value\" parameter not provided";
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
       response->setLength();
       response->setCode(400);
       request->send(response);
 }
 
 void valueOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = new AsyncJsonResponse();
-      JsonObject doc = response->getRoot().to<JsonObject>();
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
       char message[100];
       int id = request->getAttribute("id").toInt();
       int value = request->getAttribute("value").toInt();
       sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, value);
       doc["ErrorNumber"] = 1025;
       doc["ErrorMessage"] = message;
-      doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-      doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
       response->setLength();
       response->setCode(400);
       request->send(response);

@@ -5,15 +5,15 @@
 AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
   int paramsNr = request->params();
   String parameter;
-      CoverC.alpaca.exist = false;
-      CoverC.alpaca.brightness = 0;
+  CoverC.alpaca.exist = false;
+
+  request->setAttribute("brightness",  static_cast<long>(-1));
   for (int i = 0; i < paramsNr; i++) {
     const AsyncWebParameter* p = request->getParam(i);
     parameter = p->name();
     parameter.toLowerCase();
     if (parameter == "brightness") {
-      CoverC.alpaca.exist = true;
-      CoverC.alpaca.brightness = p->value().toInt();
+      request->setAttribute("brightness",  p->value());
       next();
     }
   }
@@ -21,24 +21,6 @@ AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddl
   next();
 });
 
-AsyncMiddlewareFunction coverPresent([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-  int paramsNr = request->params();
-  String parameter;
-      CoverC.alpaca.exist = false;
-      CoverC.alpaca.brightness = 0;
-  for (int i = 0; i < paramsNr; i++) {
-    const AsyncWebParameter* p = request->getParam(i);
-    parameter = p->name();
-    parameter.toLowerCase();
-    if (parameter == "brightness") {
-      CoverC.alpaca.exist = true;
-      CoverC.alpaca.brightness = p->value().toInt();
-      next();
-    }
-  }
-  
-  next();
-});
 
 void coverAlpacaDevice(){
 
@@ -51,7 +33,7 @@ void coverAlpacaDevice(){
             return;
         }
 
-        doc["Value"] = Calibrator.status();;
+        doc["Value"] = Calibrator.status();
         response->setLength();
         request->send(response);
   }).addMiddleware(&getAlpacaID);
@@ -60,10 +42,8 @@ void coverAlpacaDevice(){
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot();
       
-
-      doc["Value"] = true;
+      doc["Value"] = false;
       
-
       response->setLength();
       request->send(response);
   }).addMiddleware(&getAlpacaID);
@@ -94,14 +74,15 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
              alpacaMethodNotImplemented(request);
              return;
       }
-      if(!CoverC.alpaca.exist){
+      int br = request->getAttribute("brightness").toInt();
+      if(br == -1){
             doc["ErrorNumber"] = 1025;
             doc["ErrorMessage"] = "Brightness parameter not found";
-      } else if(!CoverC.alpaca.brightness < 0 or !CoverC.alpaca.brightness > Calibrator.getMax()){
+      } else if(br < 0 or br > Calibrator.getMax()){
             doc["ErrorNumber"] = 1025;
             doc["ErrorMessage"] = "Brightness outside range";
       } else {
-            Calibrator.write(CoverC.alpaca.brightness);
+            Calibrator.write(br);
             doc["ErrorNumber"] = 0;
             doc["ErrorMessage"] = "";
       }

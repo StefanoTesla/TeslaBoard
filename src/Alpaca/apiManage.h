@@ -4,32 +4,28 @@
 void AlpacaManager(){
 
   alpaca.on("/management/apiversions",                HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
     Value.add(1);
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/management/v1/description",                HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     JsonObject Value = doc["Value"].to<JsonObject>();
     Value["ServerName"] = "TeslaBoard Alpaca Device";
     Value["Manufacturer"] = "Stefano Tesla";
     Value["ManufacturerVersion"] = SW_VERSION;
     Value["Location"] = "Empoli, IT";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
   }).addMiddleware(&getAlpacaID);
 
   alpaca.on("/management/v1/configureddevices",          HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = new AsyncJsonResponse();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
 
@@ -56,8 +52,6 @@ void AlpacaManager(){
       cover["DeviceNumber"] = 0;
       cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";
     #endif
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
   }).addMiddleware(&getAlpacaID);

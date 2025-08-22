@@ -1,16 +1,25 @@
 #ifndef ALPACA_COMMON_RESPONSE
 #define ALPACA_COMMON_RESPONSE
 
+//This function prepare the response with error 0, client and server transiction id
+AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
+  AsyncJsonResponse* response = new AsyncJsonResponse();
+  JsonObject doc = response->getRoot();
+
+  doc["ClientTransactionID"] = request->getAttribute("clientTransictionID").toInt();
+  doc["ServerTransactionID"] = request->getAttribute("serverTransactionID").toInt();
+  doc["ErrorNumber"] = 0;
+  doc["ErrorMessage"] = "";
+  return response;
+}
 /*
 Response to a Method not implemented from the board
 */
 void alpacaMethodNotImplemented(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     doc["ErrorNumber"] = 1024;
     doc["ErrorMessage"] = "Method not implemented";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }
@@ -18,42 +27,34 @@ void alpacaMethodNotImplemented(AsyncWebServerRequest *request){
 Response to a Property not implemented from the board
 */
 void alpacaPropertyNotImplemented(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     doc["ErrorNumber"] = 1024;
     doc["ErrorMessage"] = "Property not implemented";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }
 
 /*
 Response to a can do something implemented from the board
-*/
+
 void alpacaCan(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     doc["Value"] = true;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
+
     response->setLength();
     request->send(response);
 }
+*/
 
 /*
 Response to a can do something not implemented from the board
 */
 void alpacaCant(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     doc["Value"] = false;
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }
@@ -63,24 +64,18 @@ void alpacaCant(AsyncWebServerRequest *request){
 Response to action list request but any actions are implemented
 */
 void alpacaNoActions(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
-    doc["ErrorNumber"] = 0;
-    doc["ErrorMessage"] = "";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }
 
 void alpacaActionNotImplemented(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = new AsyncJsonResponse();
-    JsonObject doc = response->getRoot().to<JsonObject>();
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
     doc["ErrorNumber"] = 1036;
     doc["ErrorMessage"] = "Action not implemented";
-    doc["ClientTransactionID"] = AlpacaData.clientTransactionID;
-    doc["ServerTransactionID"] = AlpacaData.serverTransactionID;
     response->setLength();
     request->send(response);
 }
@@ -135,15 +130,5 @@ bool commonValidateOutputPin(unsigned int pin){
 
 }
 
-//This function prepare the response with error 0, client and server transiction id
-AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
-  AsyncJsonResponse* response = new AsyncJsonResponse();
-  JsonObject doc = response->getRoot().to<JsonObject>();
 
-  doc["ClientTransactionID"] = request->getAttribute("clientTransictionID").toInt();
-  doc["ServerTransactionID"] = request->getAttribute("serverTransactionID").toInt();
-  doc["ErrorNumber"] = 0;
-  doc["ErrorMessage"] = "";
-  return response;
-}
 #endif

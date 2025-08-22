@@ -134,12 +134,6 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
         return false;
       }
 
-      Serial.print(" open Deg: ");
-      Serial.print(openDeg);
-      Serial.print(" close Deg: ");
-      Serial.print(closeDeg);
-      Serial.print(" time: ");
-      Serial.println(movingTime);
       // get in how many ms I need to do a degree
       MoveToSlowly.destination = _angle;
       MoveToSlowly.intervall = movingTime / max;
