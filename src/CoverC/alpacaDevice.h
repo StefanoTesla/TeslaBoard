@@ -13,7 +13,7 @@ AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddl
     parameter = p->name();
     parameter.toLowerCase();
     if (parameter == "brightness") {
-      request->setAttribute("brightness",  p->value());
+      request->setAttribute("brightness",  p->value().toInt());
       next();
     }
   }

@@ -56,7 +56,8 @@
         "numeric": "cpp",
         "iomanip": "cpp",
         "stdexcept": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "text_encoding": "cpp"
     },
     "C_Cpp.default.includePath": [
 

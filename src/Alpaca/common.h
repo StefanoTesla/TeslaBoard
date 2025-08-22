@@ -6,8 +6,8 @@ AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
   AsyncJsonResponse* response = new AsyncJsonResponse();
   JsonObject doc = response->getRoot();
 
-  doc["ClientTransactionID"] = request->getAttribute("clientTransictionID").toInt();
-  doc["ServerTransactionID"] = request->getAttribute("serverTransactionID").toInt();
+  doc["ClientTransactionID"] = request->getAttribute("ClientTransactionID").toInt();
+  doc["ServerTransactionID"] = request->getAttribute("ServerTransactionID").toInt();
   doc["ErrorNumber"] = 0;
   doc["ErrorMessage"] = "";
   return response;
