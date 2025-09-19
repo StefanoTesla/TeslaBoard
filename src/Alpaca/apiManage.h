@@ -29,21 +29,21 @@ void AlpacaManager(){
     JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
 
-    #ifdef DOME
+    if(Dome.config.isEnable){
       JsonObject dome = Value.add<JsonObject>();
       dome["DeviceName"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
       dome["DeviceType"] = "Dome";
       dome["DeviceNumber"] = 0;
       dome["UniqueID"] = "e989c9b6-ba0f-4834-b299-79a629f2ee59";
-    #endif
+    }
 
-    #ifdef SWITCH
+    if(Switch.config.isEnable){
       JsonObject switc = Value.add<JsonObject>();
       switc["DeviceName"] = std::string(SWITCH_IDENTIFIER) + " - TeslaBoard";
       switc["DeviceType"] = "Switch";
       switc["DeviceNumber"] = 0;
       switc["UniqueID"] = "d93f20fb-aa85-49ed-8799-9f50c0969ede";
-    #endif
+    }
 
     #ifdef COVER_CALIBRATOR
       JsonObject cover = Value.add<JsonObject>();

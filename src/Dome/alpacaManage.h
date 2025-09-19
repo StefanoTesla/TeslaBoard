@@ -13,7 +13,7 @@ void domeAlpacaManage(){
 
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isDomeEnable,&getAlpacaID});
 
   alpaca.on("/api/v1/dome/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -23,7 +23,7 @@ void domeAlpacaManage(){
 
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isDomeEnable,&getAlpacaID});
 
   alpaca.on("/api/v1/dome/0/driverversion",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -33,7 +33,7 @@ void domeAlpacaManage(){
     
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isDomeEnable,&getAlpacaID});
 
   alpaca.on("/api/v1/dome/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -43,7 +43,7 @@ void domeAlpacaManage(){
 
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isDomeEnable,&getAlpacaID});
 
   alpaca.on("/api/v1/dome/0/interfaceversion",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -53,6 +53,6 @@ void domeAlpacaManage(){
 
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isDomeEnable,&getAlpacaID});
 }
 #endif

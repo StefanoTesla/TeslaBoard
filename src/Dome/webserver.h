@@ -7,6 +7,7 @@ void domeWebServer(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
+        doc["enable"] = Dome.config.isEnable;
         JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
         pinOpen["pin"] = DomeInOpen.getPinNumber();
         pinOpen["dOn"] = DomeInOpen.dOn;
@@ -53,7 +54,7 @@ void domeWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isDomeEnable);
 
     server.on("/api/dome/open", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -81,7 +82,7 @@ void domeWebServer(){
         
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isDomeEnable);
 
     server.on("/api/dome/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -109,7 +110,7 @@ void domeWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isDomeEnable);
 
     server.on("/api/dome/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -120,7 +121,7 @@ void domeWebServer(){
         Dome.Shutter.command = ShCommandHalt;
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isDomeEnable);
 
     AsyncCallbackJsonWebHandler* domeConfigHandler = new AsyncCallbackJsonWebHandler("/api/dome/cfg");
 
@@ -293,8 +294,7 @@ void domeWebServer(){
     });
 
     server.addHandler(domeConfigHandler);
-    server.serveStatic("/dome/domecfg.txt", LittleFS, "/cfg/domecfg.txt");
 
-;
+
 }
 #endif

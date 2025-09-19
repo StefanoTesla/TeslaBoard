@@ -9,3 +9,4 @@
 #include <ArduinoJson.h>
 #include "LittleFS.h"
 #include <TeslaWiFiManager.h>
+#include <Preferences.h>

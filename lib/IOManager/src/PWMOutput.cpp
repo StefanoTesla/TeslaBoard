@@ -31,7 +31,7 @@ void PWMOutput::setup(IOConfigBase* config){
             min = 0;
             max = 4095;
             Serial.print("New 5kHz PWM setup at pin: ");
-            Serial.print(pin);
+            Serial.println(pin);
         } else {
             Serial.println("Error: Unable to assign PWM channel!");
         }
@@ -40,17 +40,12 @@ void PWMOutput::setup(IOConfigBase* config){
 }
 
 int PWMOutput::write(int _value) {
-    Serial.println(_value);
     if(_value >= min && _value <= max){
-        if(ledcWrite(pin,_value)){
-            Serial.println("ulalah");
-        } else {
-            Serial.println("uff");
-        }
+        ledcWrite(pin,_value);
         return 1;
-    } else {
-        return 0;
     }
+    
+    return 0;
 
 }
 

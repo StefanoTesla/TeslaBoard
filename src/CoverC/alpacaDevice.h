@@ -5,7 +5,6 @@
 AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
   int paramsNr = request->params();
   String parameter;
-  CoverC.alpaca.exist = false;
 
   request->setAttribute("brightness",  static_cast<long>(-1));
   for (int i = 0; i < paramsNr; i++) {

@@ -310,6 +310,10 @@ void lastShutterCommand(){
 }
 
 void domeLoop() {
+
+  if(!Dome.config.isEnable){
+    return;
+  }
   domeInputRead();
   if(Dome.config.data.enAutoClose){
     domeAutoClose();

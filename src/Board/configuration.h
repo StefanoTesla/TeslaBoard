@@ -23,17 +23,12 @@ void saveBoardConfig(){
         sub[i] = Global.config.wifi.ip.sub[i];
     }
 
-
-    File file = LittleFS.open("/cfg/boarcfg.txt",FILE_WRITE);
-
-    if (!file) {
-        Serial.println("Error during open board config file");
-        return;
-    }
-
-    serializeJson(doc,file);
-
-    file.close();
+    Preferences preferences;
+    String jsonStr;
+    serializeJson(doc,jsonStr);
+    preferences.begin("boardconfig", false);
+    preferences.putString("settings", jsonStr);
+    preferences.end();
     Global.config.save.execute = false;
     
 }
@@ -42,19 +37,17 @@ void saveBoardConfig(){
 void initBoardConfig(){
 
     Serial.println("INIT: Reading Board config...");
-    File file = LittleFS.open("/cfg/boarcfg.txt",FILE_READ);
-
-    if (!file) {
-        Serial.println("Error during open board config file");
-        return;
-    }
-
     JsonDocument doc;
-    DeserializationError error = deserializeJson(doc, file);
+    Preferences preferences;
 
+    preferences.begin("boardconfig", true);
+    String jsonStr = preferences.getString("settings");
+    preferences.end();
+    DeserializationError error = deserializeJson(doc, jsonStr);
     if(error){
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.c_str());
+        Switch.config.load.isValid = false;
         return;
     }
 

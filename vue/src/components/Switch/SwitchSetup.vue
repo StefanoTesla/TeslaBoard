@@ -6,10 +6,23 @@
       :dataLoaded="dataLoaded"
       :statusClass="statusClass"
     >
-    <div class="sw_tools">
+    <div class="card flex">
+      <div class="txt pr-4">
+        {{ props.txt.gen?.moduleIs }}
+
+      </div>
+      <div class="module_toggle">
+        <label class="toggle " for="switch_module_status">
+          <input class="toggle__input" name="" type="checkbox" id="switch_module_status" v-model="switches.enable" @click="handleValidation">
+          <div class="toggle__fill"></div>
+        </label>
+      </div>
+    </div>
+    <div class="sw_tools" v-if="switches.enable">
       <button class="ml-4 sw_add green" @click="addNewSwitch()"><svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 72 72" width="40px" height="40px"><path d="M36,12c13.255,0,24,10.745,24,24c0,13.255-10.745,24-24,24S12,49.255,12,36C12,22.745,22.745,12,36,12z M44,39	c1.657,0,3-1.343,3-3c0-1.657-1.343-3-3-3c-0.329,0-2.426,0-5,0c0-2.574,0-4.672,0-5c0-1.657-1.343-3-3-3c-1.657,0-3,1.343-3,3	c0,0.328,0,2.426,0,5c-2.574,0-4.671,0-5,0c-1.657,0-3,1.343-3,3c0,1.657,1.343,3,3,3c0.329,0,2.426,0,5,0c0,2.574,0,4.672,0,5	c0,1.657,1.343,3,3,3c1.657,0,3-1.343,3-3c0-0.328,0-2.426,0-5C41.574,39,43.671,39,44,39z"/></svg></button>
     </div>
-    <div class="sw_grid">
+
+    <div class="sw_grid" v-if="switches.enable">
 
       <div class="card" v-for="(swi,index) in switches.Switches" :key="index">
         <div class="sw_delete">
@@ -72,11 +85,12 @@
       </div>
 
     </div>
+
     <div class="config_buttons">
         <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
         <a href="./switch/switchcfg.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
         <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
-      </div>
+    </div>
 
     </Card>
 </template>
@@ -109,8 +123,8 @@
 
 
   const handleValidation = (data) => {
-  const { index, isValid } = data;
-  validation.value[index] = isValid;
+    const { index, isValid } = data;
+    validation.value[index] = isValid;  
   }
 
   const getOriginal = () => {
@@ -183,7 +197,7 @@
     cleanProperty();
 
 
-    if(!validationState.value){
+    if(!validationState.value && switches.enable){
       errorResponseNotify(props.txt.errors.general.validationFailed)
       return
     }
@@ -271,26 +285,27 @@
   })
   
   watch(() => validation.value.some(item => item === false), (containsFalse) => {
-    validationState.value = containsFalse ? false : true;    
+
+      validationState.value = containsFalse ? false : true;
+     
   });
 
 
   const updatePinsforObserver = (data) => {
-  pinUsed.value=[]
+    pinUsed.value=[]
     data.Switches.forEach((element,i) => {
       pinUsed.value[i] = {pin:element.pin, type:element.type, module: 3}
     });
-  emit('update:pinUsed', pinUsed.value);
+    emit('update:pinUsed', pinUsed.value);
 }
 
-const updatePin = (data) => {
+const updatePin = () => {
   pinUsed.value = []
   switches.value.Switches.forEach((element,i) => {
     pinUsed.value[i] = {pin:element.pin, type:element.type, module: 3}
   });
 
   emit('update:pinUsed', pinUsed.value);
-  
 }
 
 

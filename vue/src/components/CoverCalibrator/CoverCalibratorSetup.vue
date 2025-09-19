@@ -6,6 +6,20 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
+
+    <div class="card flex">
+      <div class="txt pr-4">
+        {{ props.txt.gen?.moduleIs }}
+
+      </div>
+      <div class="module_toggle">
+        <label class="toggle " for="coverc_module_status">
+          <input class="toggle__input" name="" type="checkbox" id="coverc_module_status" v-model="coverC.enable" @click="handleValidation">
+          <div class="toggle__fill"></div>
+        </label>
+      </div>
+    </div>
+
   <div class="card">
     <div class="setting_table">
     <div class="sw_header">

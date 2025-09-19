@@ -1,43 +1,78 @@
 #ifndef DOME_CONFIG
 #define DOME_CONFIG
 
+#define DOME_SCHEMA 1
+
+void DomeDebug(const char *format, ...) {
+    char buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    Serial.print("[DOME] "); 
+    Serial.println(buffer);    
+}
 
 void saveDomeConfig(){
 
-    File file = LittleFS.open("/cfg/domecfg.txt", FILE_WRITE);
-    if (!file) {
-        Serial.println("Error during open Dome config file");
-        return;
-    }
-
-    DomeConfigTmp.remove("reboot");
-
-    serializeJson(DomeConfigTmp, file);
-    file.close();
-    DomeConfigTmp.clear();
     Dome.config.Save.execute = false;
+    Preferences preferences;
+    DomeDebug("Starting saving operation...");
+    preferences.begin("domeconfig", false);
+
+    //header
+    preferences.putBool("enable", true);
+    preferences.putInt("schema", DOME_SCHEMA);
+
+
+    //all the setting (we are near 300bytes far away from the 1900bytes limit)
+    String jsonStr;
+    serializeJson(DomeConfigTmp, jsonStr);
+    preferences.putString("settings", jsonStr);
+    preferences.end();
+
+    DomeConfigTmp.clear();
+    
 }
 
-
 void initDomeConfig(){
-    Serial.println("INIT: Reading Dome config...");
+    DomeDebug("Init operation started...");
     JsonDocument doc;
-    File file = LittleFS.open("/cfg/domecfg.txt", FILE_READ);
+    Preferences preferences;
 
-    if (!file) {
-        Serial.println("[ERR] Init: Reading Dome config error");
-        saveDomeConfig();
+    if(!preferences.begin("domeconfig", true)){
+        DomeDebug("Unable to read configuration");
+        preferences.end();
+        return;
+    };
+
+    Dome.config.isEnable = preferences.getBool("enable", false);
+
+    if(!Dome.config.isEnable){
+        DomeDebug("module not enable, aborting init process...");
+        preferences.end();
         return;
     }
 
-    DeserializationError error = deserializeJson(doc, file);
+    Dome.config.schemaVersion = preferences.getInt("schema",1);
+
+    if(Dome.config.schemaVersion < DOME_SCHEMA){
+        DomeDebug("Data required an upgrade operation!");
+        //to do when is time
+    }
+
+    String jsonStr = preferences.getString("settings");
+    preferences.end();
+
+    DeserializationError error = deserializeJson(doc, jsonStr);
     if(error){
-        Serial.print(F("[ERR] Init: Reading Dome config deserializeJson() failed: "));
-        Serial.println(error.c_str());
-        file.close();
+        DomeDebug("[ERR] Init: Reading Dome config deserializeJson() failed: ");
+        DomeDebug(error.c_str());
+        preferences.end();
         return;
     }
-    file.close();
+
 
     JsonObject pinOpen = doc["pinOpen"];
 
@@ -82,8 +117,14 @@ void initDomeConfig(){
     DomeOutMoveOpen.write(0);
     DomeOutHaltClose.write(0);
 
-
 }
 
+
+AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(Dome.config.isEnable){
+        next();
+    }
+    request->send(500, "text/plain", "Module not enabled");
+});
 
 #endif

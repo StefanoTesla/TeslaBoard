@@ -17,7 +17,7 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 
 alpaca.on("/api/v1/dome/0/closeshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
@@ -39,7 +39,7 @@ alpaca.on("/api/v1/dome/0/closeshutter",                                        
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/openshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -60,7 +60,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
@@ -70,7 +70,7 @@ alpaca.on("/api/v1/dome/0/abortslew",                                           
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/cansetshutter",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -80,7 +80,7 @@ alpaca.on("/api/v1/dome/0/cansetshutter",                                       
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/slewing",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -90,7 +90,7 @@ alpaca.on("/api/v1/dome/0/slewing",                                            H
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/devicestate",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -105,7 +105,7 @@ alpaca.on("/api/v1/dome/0/devicestate",                                         
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 /* I don't care about connection but we need to declare it*/
 alpaca.on("/api/v1/dome/0/connect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
@@ -114,7 +114,7 @@ alpaca.on("/api/v1/dome/0/connect",                                            H
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/disconnect",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -122,7 +122,7 @@ alpaca.on("/api/v1/dome/0/disconnect",                                          
     response->setLength();
     request->send(response);
 
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connecting",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -132,7 +132,7 @@ alpaca.on("/api/v1/dome/0/connecting",                                          
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -142,48 +142,48 @@ alpaca.on("/api/v1/dome/0/connected",                                           
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 alpaca.on("/api/v1/dome/0/connected",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
 
     response->setLength();
     request->send(response);
-}).addMiddlewares({&getAlpacaID,&upLastCom});
+}).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 
 /* things this board can't do:*/
-alpaca.on("/api/v1/dome/0/canfindhome",     HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/canpark",         HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/cansetaltitude",  HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/cansetazimuth",   HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/cansetpark",      HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/canslave",        HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/cansyncazimuth",  HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/slaved",          HTTP_GET,alpacaCant).addMiddlewares({&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/canfindhome",     HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/canpark",         HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/cansetaltitude",  HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/cansetazimuth",   HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/cansetpark",      HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/canslave",        HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/cansyncazimuth",  HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/slaved",          HTTP_GET,alpacaCant).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 /* Property not implemented:*/
-alpaca.on("/api/v1/dome/0/altitude",        HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/athome",          HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/atpark",          HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/azimuth",         HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/altitude",        HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/athome",          HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/atpark",          HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/azimuth",         HTTP_GET, alpacaPropertyNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 
 
 /* Methods not implemented:*/
-alpaca.on("/api/v1/dome/0/slaved",          HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/findhome",        HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/park",            HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/setpark",         HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/slewtoaltitude",  HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/slewtoazimuth",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/synctoazimuth",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/commandblind",    HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/commandbool",     HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/commandstring",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/slaved",          HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/findhome",        HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/park",            HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/setpark",         HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/slewtoaltitude",  HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/slewtoazimuth",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/synctoazimuth",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/commandblind",    HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/commandbool",     HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/commandstring",   HTTP_PUT, alpacaMethodNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
-alpaca.on("/api/v1/dome/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddlewares({&getAlpacaID,&upLastCom});
-alpaca.on("/api/v1/dome/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddlewares({&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
+alpaca.on("/api/v1/dome/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
 }
 

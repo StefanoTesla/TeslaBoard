@@ -5,20 +5,10 @@
 
 void startupTask(){
 
-
     initBoardConfig();
-
-    #ifdef DOME
-        initDomeConfig();
-    #endif
-
-    #ifdef COVER_CALIBRATOR
-        initCoverCConfig();
-    #endif
-
-    #ifdef SWITCH
-        initSwitchConfig();
-    #endif
+    initDomeConfig();
+    initCoverCConfig();
+    initSwitchConfig();
 
 }
 

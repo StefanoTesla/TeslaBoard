@@ -122,6 +122,9 @@ a.active{
 .led.disactive{
   background-color: #ec4a4a;
 }
+.led.hide{
+  display: none;
+}
 
 li.switch{
   @apply grid grid-cols-3 justify-between
@@ -425,4 +428,13 @@ input[type="range"] {
 
 .ssid{
   @apply col-span-10
+}
+
+
+.module_status{
+  @apply flex
+}
+
+.module_status > .txt {
+  @apply pr-2
 }

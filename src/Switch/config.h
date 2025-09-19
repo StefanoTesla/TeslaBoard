@@ -1,89 +1,144 @@
 #ifndef SWITCH_CONFIG
 #define SWITCH_CONFIG
 
+#define SW_SCHEMA 1
 
+
+void SWdebug(const char *format, ...) {
+    char buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    Serial.print("[SW] "); 
+    Serial.println(buffer);    
+}
+
+
+//since nvs have a string limit I need to split switchs in different parameter sections
 void saveSwitchConfig(){
-    File file = LittleFS.open("/cfg/switchcfg.txt", FILE_WRITE);
-    Serial.println("Switch save in progress..");
-    serializeJson(tmpSwitchCfg, file);
+    Switch.config.save.execute=false;   
+    SWdebug("Saving data operation started...");
+    Preferences preferences;
+    preferences.begin("swconfig", false);
+    SWdebug("NVS open");
+    //clean everything
+    preferences.clear();
+
+    //header
+    preferences.putBool("enable",true);
+    preferences.putInt("schema",SW_SCHEMA);
+    SWdebug("Header Saved");
+
+    //single switches
+    int i = 0;
+    for (JsonObject Switche : tmpSwitchCfg["Switches"].as<JsonArray>()) {
+        SWdebug("Saving Switch id: %d",i);
+        String jsonStr;
+        serializeJson(Switche, jsonStr);
+        String key = "sw_"+ String(i);
+        preferences.putString(key.c_str(),jsonStr);
+        i++;
+    }
+    preferences.putInt("stored_sw",i);
+    preferences.end();
+
     tmpSwitchCfg.clear();
-    file.close();    
+    SWdebug("Saving operations completed");
 }
 
 
 void initSwitchConfig(){
-    Serial.println("INIT: switch config reading..");
-    if (!LittleFS.exists("/cfg/switchcfg.txt")) {
-        Serial.println("[ERR] Switch: unable to find switchconfig file, I'm creating a new one..");
-        File file = LittleFS.open("/cfg/switchconfig.txt", FILE_WRITE);
-        file.close();
-        Switch.config.load.isValid = false;
-        return;
-    }
+    SWdebug("Init operation started...");
 
-    File file = LittleFS.open("/cfg/switchcfg.txt", FILE_READ);
     JsonDocument doc;
-
-    DeserializationError error = deserializeJson(doc, file);
-
-    if(error){
-        file.close();
-        Serial.print(F("deserializeJson() failed: "));
-        Serial.println(error.c_str());
-        Switch.config.load.isValid = false;
+    Preferences preferences;
+    
+    if (!preferences.begin("swconfig", true)){
+        SWdebug("Unable to read configuration");
+        preferences.end();
         return;
-    }    
-    file.close();
-    int count = 0;
-    for (JsonObject Switche : doc["Switches"].as<JsonArray>()) {
-        if(count >= _MAX_SWITCH_ID_){
-            Serial.println("[SWI] Too many switches configured");
-            exit;
-        }
-        //Digital Input
-        if(Switche["type"] == static_cast<int>(SwTypeDInput)){
-            SwitchObjects[count] = new DigitalInput;
-            DigitalInputConfig DiConfig;
-            DiConfig.pin=Switche["pin"];
-            DiConfig.invert=Switche["invert"];
-            DiConfig.dOn=Switche["dOn"];
-            DiConfig.dOff=Switche["dOff"];
-            SwitchObjects[count]->setup(&DiConfig);
-            
-        } else if(Switche["type"] == static_cast<int>(SwTypeDOutput)){
-            SwitchObjects[count] = new DigitalOutput;
-            DigitalOutputConfig DOConfig;
-            DOConfig.pin=Switche["pin"];
-            DOConfig.invert=Switche["invert"];
-            SwitchObjects[count]->setup(&DOConfig);
-        //PWM Output
-        } else if(Switche["type"] == static_cast<int>(SwTypePWM)){
-            SwitchObjects[count] = new PWMOutput;
-            PWMOutputConfig PWMConfig;
-            PWMConfig.pin=Switche["pin"];
-            SwitchObjects[count]->setup(&PWMConfig);
-        //Servo Output
-        } else if(Switche["type"] == static_cast<int>(SwTypeServo)){
-            SwitchObjects[count] = new ServoOutput;
-            ServoOutputConfig ServoConfig;
-            ServoConfig.pin = Switche["pin"];
-            ServoConfig.maxDeg = Switche["maxDeg"];
-            ServoConfig.closeDeg= Switche["closeDeg"];
-            ServoConfig.openDeg = Switche["openDeg"];
-            ServoConfig.movTime = Switche["movTime"];
-            SwitchObjects[count]->setup(&ServoConfig);
-        }
-
-        if (SwitchObjects[count] != nullptr) {
-            SwitchObjects[count]->setName(Switche["name"].as<const char*>());
-            SwitchObjects[count]->setDescription(Switche["desc"].as<const char*>());
-        }
-        count +=1;
-
     }
 
-    Switch.config.configuredSwitch = count;
 
+    Switch.config.isEnable= preferences.getBool("enable",false);
+    Switch.config.schemaVersion = preferences.getInt("schema",0);
+    Switch.config.configuredSwitch = preferences.getInt("stored_sw",0);
+    if(!Switch.config.isEnable){
+        SWdebug("Module is not enable, aborting init process...");
+        preferences.end();
+        return;
+    }
+
+    if(Switch.config.schemaVersion < SW_SCHEMA){
+        SWdebug("Data required an upgrade operation!");
+        //to do when is time
+    }
+
+    Switch.config.configuredSwitch = preferences.getInt("stored_sw",0);
+
+    if(Switch.config.configuredSwitch == 0){
+        SWdebug("No switch configured");
+        preferences.end();
+        return;
+    } 
+    SWdebug("Found %d switches", Switch.config.configuredSwitch);
+
+    for (int i = 0; i < Switch.config.configuredSwitch; i++)
+    {
+        String jsonStr = "";
+        String key = "sw_" + String(i);
+        jsonStr = preferences.getString(key.c_str(),"{}");
+
+        DeserializationError error = deserializeJson(doc, jsonStr);
+        if(error){
+            SWdebug("deserializeJson() failed: ");
+            SWdebug(error.c_str());
+            continue;
+        }
+        if(doc["type"] == static_cast<int>(SwTypeDInput)){
+            SwitchObjects[i] = new DigitalInput;
+            DigitalInputConfig DiConfig;
+            DiConfig.pin=doc["pin"];
+            DiConfig.invert=doc["invert"];
+            DiConfig.dOn=doc["dOn"];
+            DiConfig.dOff=doc["dOff"];
+            SwitchObjects[i]->setup(&DiConfig);
+            
+        } else if(doc["type"] == static_cast<int>(SwTypeDOutput)){
+            SwitchObjects[i] = new DigitalOutput;
+            DigitalOutputConfig DOConfig;
+            DOConfig.pin=doc["pin"];
+            DOConfig.invert=doc["invert"];
+            SwitchObjects[i]->setup(&DOConfig);
+        //PWM Output
+        } else if(doc["type"] == static_cast<int>(SwTypePWM)){
+            SwitchObjects[i] = new PWMOutput;
+            PWMOutputConfig PWMConfig;
+            PWMConfig.pin=doc["pin"];
+            SwitchObjects[i]->setup(&PWMConfig);
+        //Servo Output
+        } else if(doc["type"] == static_cast<int>(SwTypeServo)){
+            SwitchObjects[i] = new ServoOutput;
+            ServoOutputConfig ServoConfig;
+            ServoConfig.pin = doc["pin"];
+            ServoConfig.maxDeg = doc["maxDeg"];
+            ServoConfig.closeDeg= doc["closeDeg"];
+            ServoConfig.openDeg = doc["openDeg"];
+            ServoConfig.movTime = doc["movTime"];
+            SwitchObjects[i]->setup(&ServoConfig);
+        }
+
+        if (SwitchObjects[i] != nullptr) {
+            SwitchObjects[i]->setName(doc["name"].as<const char*>());
+            SwitchObjects[i]->setDescription(doc["desc"].as<const char*>());
+        }
+
+        doc.clear();
+    }
+    
+    Switch.config.load.isValid = true;
 }
 
 #endif

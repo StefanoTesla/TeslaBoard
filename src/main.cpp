@@ -1,14 +1,8 @@
 #define ALPACA_PORT 4567
 
 #define BOARD_IDENTIFIER "TeslaBoard"
-
-#define DOME
 #define DOME_IDENTIFIER "Dome"
-
-#define COVER_CALIBRATOR 
 #define CC_IDENTIFIER "Cover Calibrator"
-
-#define SWITCH
 #define SWITCH_IDENTIFIER "Switch"
 
 
@@ -25,30 +19,15 @@ TeslaWiFiManager wi(&server);
 
 #include "header.h"
 
-#ifdef DOME
 #include "Dome/variables.h"
-#endif
-#ifdef COVER_CALIBRATOR
 #include "CoverC/variables.h"
-#endif
-#ifdef SWITCH
 #include "Switch/variables.h"
-#endif
-
 #include "Alpaca/middleware.h"
 #include "Alpaca/common.h"
 #include "Alpaca/apiManage.h"
-
-#ifdef DOME
 #include "Dome/main.h"
-#endif
-#ifdef COVER_CALIBRATOR
 #include "CoverC/main.h"
-#endif
-#ifdef SWITCH
 #include "Switch/main.h"
-#endif
-
 #include "Board/webserver.h"
 #include "Board/main.h"
 
@@ -73,16 +52,9 @@ void setup() {
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();
-  #ifdef DOME
-    domeRequestHandler();
-  #endif
-  #ifdef COVER_CALIBRATOR
-    coverCalibratorRequestHandler();
-  #endif
-  #ifdef SWITCH
-    switchRequestHandler();
-  #endif
-  
+  domeRequestHandler();
+  coverCalibratorRequestHandler();
+  switchRequestHandler();
   boardWebServer();
 
   server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");
@@ -107,13 +79,7 @@ void setup() {
 void loop() {
 
   boardLoop();
-  #ifdef DOME
   domeLoop();
-  #endif
-  #ifdef COVER_CALIBRATOR
   coverCalibratorLoop();
-  #endif
-  #ifdef SWITCH
   SwitchLoop();
-  #endif
 }

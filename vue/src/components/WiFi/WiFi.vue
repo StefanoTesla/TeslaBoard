@@ -53,8 +53,7 @@
 
           </div>
           <div class="flex justify-around">
-            <button class="green cursor-pointer" @click="connectToWifi('connect')">Connect</button>
-            <button class="orange cursor-pointer" @click="connectToWifi('add')">Add</button>
+            <button class="green cursor-pointer" @click="connectToWifi()">Connect</button>
           </div>
           
     </div>
@@ -153,7 +152,7 @@ const copySSID = async (wifi) => {
   wifiToConnect.value.psw = ""
 }
 
-const connectToWifi = async (mode) => {
+const connectToWifi = async () => {
 
   if(wifiToConnect.value.ssid == ""){
       toast.error("SSID can't be empty",{
@@ -163,13 +162,13 @@ const connectToWifi = async (mode) => {
   }
 
   if(wifiToConnect.psw == "psw" && wifiToConnect.value.psw == ""){
-    console.error("for this wifi password is required")
+    console.error("for this wifi, password is required")
     return
   }
 
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const url = `${ip}/wifi-api/new-wifi?mode=${encodeURIComponent(mode)}`;
+    const url = `${ip}/wifi-api/new-wifi`;
     const response = await fetch(url, {
         method: "POST",
         headers: {

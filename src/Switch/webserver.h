@@ -222,7 +222,6 @@ void switchWebServer(){
             }
 
             type = Switche["type"].as<unsigned int>();
-            Serial.println(type);
             if(type>4){
                 validError = true;
                 JsonObject e = err.add<JsonObject>();
@@ -297,7 +296,6 @@ void switchWebServer(){
             return;
         }
 
-        Serial.println();
         /* check if I need to reboot 
         If the GPIO under analysis don't need reboot we store new data directly
         */

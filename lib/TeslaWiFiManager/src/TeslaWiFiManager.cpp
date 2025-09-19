@@ -234,10 +234,6 @@ void TeslaWiFiManager::loop(){
         }
 
         if(_savedNetworks[_StoredWiFiPointer].isValid && (WiFi.SSID(_SSIDWiFiPointer) != _savedNetworks[_StoredWiFiPointer].ssid)){
-            Serial.print("[WiFiMgr L] Comparing SSID: ");
-            Serial.print(WiFi.SSID(_SSIDWiFiPointer));
-            Serial.print(" with the stored SSID: ");
-            Serial.println(_savedNetworks[_StoredWiFiPointer].ssid);
 
             _SSIDWiFiPointer++;
             if(_SSIDWiFiPointer >= _wifiNetworkFound){
@@ -245,11 +241,6 @@ void TeslaWiFiManager::loop(){
                 _StoredWiFiPointer++;
             }
         } else {
-
-            Serial.print("[WiFiMgr L] Comparing SSID: ");
-            Serial.print(WiFi.SSID(_SSIDWiFiPointer));
-            Serial.print(" with the stored SSID: ");
-            Serial.println(_savedNetworks[_StoredWiFiPointer].ssid);
 
             //try to connect to the stored and founded SSID
             connect(_savedNetworks[_StoredWiFiPointer]);
@@ -366,13 +357,7 @@ void TeslaWiFiManager::setStaticIP(IPAddress ip, IPAddress gw,IPAddress sn){
 
 void TeslaWiFiManager::serverRouting(){
     
-/*
-    _server->on("/wifi-mgr/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        AsyncWebServerResponse *response = request->beginResponse(LittleFS, "/www/wifi.html.gz", "text/html");
-        response->addHeader("Content-Encoding", "gzip");
-        request->send(response);
-    });
-*/
+
     //wifi list
     _server->on("/wifi-mgr/api/wifi-list", HTTP_GET, [&](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -450,22 +435,6 @@ void TeslaWiFiManager::serverRouting(){
     AsyncCallbackJsonWebHandler* incomingWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/new-wifi");
     incomingWiFi->setMethod(HTTP_POST | HTTP_PUT);
     incomingWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-        bool connect;
-
-
-        if(request->hasParam("mode")){
-            if(request->getParam("mode")->value() == "connect"){
-                connect = true;
-            } else if(request->getParam("mode")->value() == "add"){
-                connect = false;
-            } else {
-                request->send(400, "application/json", "{\"error\":\"Wrong Mode\"");
-                return;
-            }
-        } else {
-            request->send(400, "application/json", "{\"error\":\"Mode parameter undifined\"");
-            return;
-        }
 
         Serial.print("[WiFiMgr] New wifi incoming: ");
         Serial.println(root["ssid"].as<String>());
@@ -744,11 +713,9 @@ bool TeslaWiFiManager::initNVS(){
       }
       _nvsHandler.end();
       return true;
-    } else {
-      Serial.printf("[WiFiMgr] NVS Error (%s) trying to open the namespace.\n", PREF_NAMESPACE);
-        while(true) { delay(1000); }
-        return false;
     }
+
+    return false;
 }
 
 // return the number of valid network stored

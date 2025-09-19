@@ -47,6 +47,7 @@ import { ref } from 'vue';
 defineProps({
   moduleName : String,
   dataLoaded : Boolean,
+  enable : String,
   statusClass: String
 });
 

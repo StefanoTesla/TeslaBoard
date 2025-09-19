@@ -99,7 +99,8 @@
 		"cmdAck": "Comando ricevuto",
 		"cmdRefused": "Comando Rifiutato",
 		"configSaved": "Configurazione Salvata",
-		"utility":"Utility"
+		"utility":"Utility",
+		"moduleIs":"Attiva\\Disattiva Modulo"
 	},
 	"board":{
 		"home": {

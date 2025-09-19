@@ -11,21 +11,18 @@
     />
 
     <Switch 
-      v-if="components.switch" 
       :txt="translations"
       v-model:reboot="modal"
       @update:pinUsed="handleSwitchPinUpdate"
       />
 
     <CoverCalibrator 
-      v-if="components.coverc"
       :txt="translations"
       v-model:reboot="modal" 
       @update:pinUsed="handleCoverCPinUpdate"
       />
 
     <Dome
-      v-if="components.dome"
       :txt="translations"
       v-model:reboot="modal"
       @update:pinUsed="handleDomePinUpdate"

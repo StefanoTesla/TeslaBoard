@@ -66,6 +66,8 @@ struct domeLoadConfigStruct{
 };
 
 struct DomeConfig {
+  bool isEnable;
+  int schemaVersion;
   domeHeader data;
   domeSaveConfigStruct Save;
   domeLoadConfigStruct Load;

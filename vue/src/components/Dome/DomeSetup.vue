@@ -6,116 +6,132 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.driverType }}</p>
-      </div>
-      <div class="setting_row">
-        <select :id="`dome_cmd_type`" :class="[boardTypeUnvalid ? 'validation_error' : '']" v-model="dome.driverType" @change="validate()">
-        <option v-for="[key, value] in Object.entries(props.txt.dome.setting.driverTypeEnum)" :key="key" :value="key">
-          {{ value }}
-        </option>
-      </select> 
-      </div>
+  <div class="card flex">
+    <div class="txt pr-4">
+      {{ props.txt.gen?.moduleIs }}
 
     </div>
-  </div>
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.inOpen }}</p>
-      </div>
-      <div></div>
-      <Input
-            :txt="props.txt"
-            :index = 0
-            :swi = "dome.pinOpen"
-             @update:validated="handleValidation"
-             @update:pinUsed="updatePin"
-          />
+    <div class="module_toggle">
+      <label class="toggle " for="dome_module_status">
+        <input class="toggle__input" name="" type="checkbox" id="dome_module_status" v-model="dome.enable">
+        <div class="toggle__fill"></div>
+      </label>
     </div>
   </div>
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.inClose }}</p>
-      </div>
-      <div></div>
-      <Input
-            :txt="props.txt"
-            :index = 1
-            :swi = "dome.pinClose"
-             @update:validated="handleValidation" 
-             @update:pinUsed="updatePin"
-          />
-    </div>
-  </div>
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.outStart }}</p>
-      </div>
-      <div></div>
-      <Output
-            :txt="props.txt"
-            :index = 2
-            :swi = "dome.pinStart"
-             @update:validated="handleValidation"
-             @update:pinUsed="updatePin"
-          />
-    </div>
-  </div>
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.outHalt }}</p>
-      </div>
-      <div></div>
-      <Output
-            :txt="props.txt"
-            :index = 3
-            :swi = "dome.pinHalt"
-             @update:validated="handleValidation"
-             @update:pinUsed="updatePin"
-          />
-    </div>
-  </div>
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.timeOutMoviment }}</p>
-      </div>
-      <div class="setting_row">
-        <div class="input_with_unit">
-          <span class="unit">sec</span><input :id="`dome_timeout`" :class="['with_unit', movTimeOutUnvalid ? 'validation_error' : '']" type="number" v-model="dome.movTimeOut" @change="validate()"/>
-        </div>
-      </div>
+  <div v-if="dome.enable">
 
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.driverType }}</p>
+        </div>
+        <div class="setting_row">
+          <select :id="`dome_cmd_type`" :class="[boardTypeUnvalid ? 'validation_error' : '']" v-model="dome.driverType" @change="validate()">
+          <option v-for="[key, value] in Object.entries(props.txt.dome.setting.driverTypeEnum)" :key="key" :value="key">
+            {{ value }}
+          </option>
+        </select> 
+        </div>
+
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <div>
-      <div class="sw_header">
-        <p>{{ props.txt.dome.setting.autoClose }}</p>
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.inOpen }}</p>
+        </div>
+        <div></div>
+        <Input
+              :txt="props.txt"
+              :index = 0
+              :swi = "dome.pinOpen"
+              @update:validated="handleValidation"
+              @update:pinUsed="updatePin"
+            />
       </div>
-      <p>{{ props.txt.dome.setting.autoclosewarning1 }}</p>
-      <p>{{ props.txt.dome.setting.autoclosewarning2 }}</p>
-      <p>{{ props.txt.dome.setting.autoclosewarning3 }}</p>
-      <p>{{ props.txt.dome.setting.autoclosewarning4 }}</p>
-      <p>{{ props.txt.dome.setting.autoclosewarning5 }}</p>
-      <div class="setting_row">
-        <label class="toggle " for="dome_autoclose_enable">
-          <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.autoclose.enable">
-          <div class="toggle__fill"></div>
-        </label>
+    </div>
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.inClose }}</p>
+        </div>
+        <div></div>
+        <Input
+              :txt="props.txt"
+              :index = 1
+              :swi = "dome.pinClose"
+              @update:validated="handleValidation" 
+              @update:pinUsed="updatePin"
+            />
       </div>
-      <div class="setting_row">
-        <div class="input_with_unit">
-          <span class="unit">min</span><input :id="`dome_autoclose_minutes`" :class="['with_unit', autoCloseTimeUnvalid ? 'validation_error' : '']" type="number" v-model="dome.autoclose.minutes" @change="validate()"/>
+    </div>
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.outStart }}</p>
+        </div>
+        <div></div>
+        <Output
+              :txt="props.txt"
+              :index = 2
+              :swi = "dome.pinStart"
+              @update:validated="handleValidation"
+              @update:pinUsed="updatePin"
+            />
+      </div>
+    </div>
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.outHalt }}</p>
+        </div>
+        <div></div>
+        <Output
+              :txt="props.txt"
+              :index = 3
+              :swi = "dome.pinHalt"
+              @update:validated="handleValidation"
+              @update:pinUsed="updatePin"
+            />
+      </div>
+    </div>
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.timeOutMoviment }}</p>
+        </div>
+        <div class="setting_row">
+          <div class="input_with_unit">
+            <span class="unit">sec</span><input :id="`dome_timeout`" :class="['with_unit', movTimeOutUnvalid ? 'validation_error' : '']" type="number" v-model="dome.movTimeOut" @change="validate()"/>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="card">
+      <div>
+        <div class="sw_header">
+          <p>{{ props.txt.dome.setting.autoClose }}</p>
+        </div>
+        <p>{{ props.txt.dome.setting.autoclosewarning1 }}</p>
+        <p>{{ props.txt.dome.setting.autoclosewarning2 }}</p>
+        <p>{{ props.txt.dome.setting.autoclosewarning3 }}</p>
+        <p>{{ props.txt.dome.setting.autoclosewarning4 }}</p>
+        <p>{{ props.txt.dome.setting.autoclosewarning5 }}</p>
+        <div class="setting_row">
+          <label class="toggle " for="dome_autoclose_enable">
+            <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.autoclose.enable">
+            <div class="toggle__fill"></div>
+          </label>
+        </div>
+        <div class="setting_row">
+          <div class="input_with_unit">
+            <span class="unit">min</span><input :id="`dome_autoclose_minutes`" :class="['with_unit', autoCloseTimeUnvalid ? 'validation_error' : '']" type="number" v-model="dome.autoclose.minutes" @change="validate()"/>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 
 
@@ -234,7 +250,7 @@ const validate = () => {
 
 const saveData = async () => {
 
-  if(!validationState.value){
+  if(!validationState.value && dome.value.enable){
     errorResponseNotify(props.txt.errors.general.validationFailed)
     return
   }

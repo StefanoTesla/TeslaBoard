@@ -6,6 +6,7 @@
       :dataLoaded="dataLoaded"
       :statusClass=statusClass
   >
+  
       <div class="card" v-if="coverC.calibrator.status > 0">
         <div class="title">
           <p>{{ txt.coverC.calibrator}}</p>

@@ -11,18 +11,9 @@ void boardWebServer(){
         doc["locale"] = Global.config.language.locale;
 
         JsonObject define = doc["define"].to<JsonObject>();
-        define["dome"] = false;
-        define["switch"] = false;
+        define["dome"] = Dome.config.isEnable;
+        define["switch"] = Switch.config.isEnable;
         define["coverc"] = false;
-        #ifdef DOME
-            define["dome"] = true;
-        #endif
-        #ifdef SWITCH
-            define["switch"] = true;
-        #endif
-        #ifdef COVER_CALIBRATOR
-            define["coverc"] = true;
-        #endif
         doc["version"] = SW_VERSION;
         response->setLength();
         request->send(response);
@@ -61,7 +52,6 @@ void boardWebServer(){
         sub["1"]= Global.config.wifi.ip.sub[1];
         sub["2"]= Global.config.wifi.ip.sub[2];
         sub["3"]= Global.config.wifi.ip.sub[3];
-
 
         response->setLength();
         request->send(response);
