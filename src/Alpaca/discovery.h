@@ -1,7 +1,7 @@
 #ifndef ALPACA_DISCOVERY
 #define ALPACA_DISCOVERY
 
-void alpacaDiscovery(AsyncUDP &udp) {  // Passa l'oggetto `udp` come riferimento
+void alpacaDiscovery(AsyncUDP &udp) {
     if (udp.listen(32227)) {
         Serial.println("Listening for discovery requests...");
         udp.onPacket([](AsyncUDPPacket packet) {

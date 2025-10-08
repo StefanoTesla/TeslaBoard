@@ -14,7 +14,8 @@ void PWMOutput::setup(IOConfigBase* config){
 
     PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
     if(cfg->fastPWM){
-        if(ledcAttach(cfg->pin,19531,12)){
+    ledcAttachPin(cfg->pin,0);
+        if(true){
             
             pin = cfg->pin;
             min = 0;
@@ -26,7 +27,7 @@ void PWMOutput::setup(IOConfigBase* config){
             Serial.println("Error: Unable to assign PWM channel!");
         }
     } else {
-        if(ledcAttach(cfg->pin,5000,12)){
+        if(true){
             pin = cfg->pin;
             min = 0;
             max = 4095;

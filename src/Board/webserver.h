@@ -10,10 +10,10 @@ void boardWebServer(){
 
         doc["locale"] = Global.config.language.locale;
 
-        JsonObject define = doc["define"].to<JsonObject>();
+        JsonObject define = doc["modules"].to<JsonObject>();
         define["dome"] = Dome.config.isEnable;
         define["switch"] = Switch.config.isEnable;
-        define["coverc"] = false;
+        define["coverc"] = CoverC.config.isEnable;
         doc["version"] = SW_VERSION;
         response->setLength();
         request->send(response);
@@ -206,8 +206,6 @@ void boardWebServer(){
         });
 
     server.addHandler(boardConfigHandler);
-
-    server.serveStatic("/board/boarcfg.txt", LittleFS, "/cfg/boarcfg.txt");
 
 
     server.on("/api/board/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {

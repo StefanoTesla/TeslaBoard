@@ -6,7 +6,6 @@ void coverWebServer(){
     server.on("/api/coverc/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
         calibrator["present"] = CoverC.config.calibrator.present;
         calibrator["pwm"]["pin"] = Calibrator.getPinNumber();

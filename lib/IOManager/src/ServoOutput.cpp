@@ -27,8 +27,8 @@ void ServoOutput::setup(IOConfigBase* config){
   }
 
   ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
-  
-  if(ledcAttach(cfg->pin, 50, 12)){
+  ledcAttachPin(cfg->pin, 0);
+  if(true){
     pin = cfg->pin;
     min = 0;
     max = cfg->maxDeg;

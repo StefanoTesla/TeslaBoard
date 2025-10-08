@@ -26,15 +26,12 @@ void coverCycle(){
   
   if (Cover.isMoving()){
     CoverC.status.cover.status = CoverStatusMoving;
+  } else if(Cover.isClose()){
+    CoverC.status.cover.status = CoverStatusClose;
+  } else if (Cover.isOpen()){
+    CoverC.status.cover.status = CoverStatusOpen;
   } else {
-    if(Cover.isClose()){
-      CoverC.status.cover.status = CoverStatusClose;
-    } else if (Cover.isOpen()){
-      CoverC.status.cover.status = CoverStatusOpen;
-    } else {
-      CoverC.status.cover.status = CoverStatusUnknow;
-    }
-    
+    CoverC.status.cover.status = CoverStatusUnknow;
   }
 
 

@@ -35,18 +35,6 @@ void alpacaPropertyNotImplemented(AsyncWebServerRequest *request){
     request->send(response);
 }
 
-/*
-Response to a can do something implemented from the board
-
-void alpacaCan(AsyncWebServerRequest *request){
-    AsyncJsonResponse* response = prepareAlpacaResponse(request);
-    JsonObject doc = response->getRoot();
-    doc["Value"] = true;
-
-    response->setLength();
-    request->send(response);
-}
-*/
 
 /*
 Response to a can do something not implemented from the board
