@@ -188,6 +188,61 @@ AsyncMiddlewareFunction isSettable([](AsyncWebServerRequest* request, ArMiddlewa
       
 });
 
+
+void switchAlpacaManage(){
+
+  alpaca.on("/api/v1/switch/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+      
+      doc["Value"] = std::string(SWITCH_IDENTIFIER) + " - TeslaBoard";
+      
+      response->setLength();
+      request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/switch/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      doc["Value"] = "Switch handled by Stefano TeslaBoard";
+      
+      response->setLength();
+      request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/switch/0/driverversion",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+
+    doc["Value"] = SW_VERSION;
+
+    response->setLength();
+    request->send(response);
+  });
+
+  alpaca.on("/api/v1/switch/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      doc["Value"] = "New IOManager";
+
+      response->setLength();
+      request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/switch/0/interfaceversion",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+
+    doc["Value"] = 3;
+    
+    response->setLength();
+    request->send(response);
+  }).addMiddleware(&getAlpacaID);
+}
+
+
 void switchAlpacaDevice(){
 
       alpaca.on("/api/v1/switch/0/maxswitch", HTTP_GET, [](AsyncWebServerRequest *request){

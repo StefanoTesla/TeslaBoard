@@ -22,6 +22,8 @@ struct coverConfig{
 
 
 struct structCoverCalibratorConfig{
+  bool isEnable;
+  int schemaVersion;
   calibratorConfig calibrator;
   coverConfig cover;
   coverCSaveConfigStruct save;
@@ -81,18 +83,12 @@ struct coverCalibratorStatus{
   unsigned int actualBrightness;
 };
 
-/* ALPACA*/
 
-struct alpacaCalibratorParameters{
-  bool exist;
-  unsigned int brightness;
-};
 
 struct coverCalibrator{
   coverCalibratorStatus status;
   coverCalibratorsCommand command;
   structCoverCalibratorConfig config;
-  alpacaCalibratorParameters alpaca;
   
 };
 

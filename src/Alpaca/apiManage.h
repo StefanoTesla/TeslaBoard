@@ -45,13 +45,14 @@ void AlpacaManager(){
       switc["UniqueID"] = "d93f20fb-aa85-49ed-8799-9f50c0969ede";
     }
 
-    #ifdef COVER_CALIBRATOR
-      JsonObject cover = Value.add<JsonObject>();
-      cover["DeviceName"] = std::string(CC_IDENTIFIER) +" - TeslaBoard";
-      cover["DeviceType"] = "CoverCalibrator";
-      cover["DeviceNumber"] = 0;
-      cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";
-    #endif
+    if(CoverC.config.isEnable){
+    JsonObject cover = Value.add<JsonObject>();
+    cover["DeviceName"] = std::string(CC_IDENTIFIER) +" - TeslaBoard";
+    cover["DeviceType"] = "CoverCalibrator";
+    cover["DeviceNumber"] = 0;
+    cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";
+    }
+    
     response->setLength();
     request->send(response);
   }).addMiddleware(&getAlpacaID);

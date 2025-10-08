@@ -12,8 +12,6 @@ void saveCoverCConfig(){
     preferences.putString("settings", jsonStr);
     preferences.end();
     CoverCConfigTmp.clear();
-    
-    
 
 }
 
@@ -68,5 +66,10 @@ void initCoverCConfig(){
 
 }
 
-
+AsyncMiddlewareFunction isCCEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverC.config.isEnable){
+        next();
+    }
+    request->send(500, "text/plain", "Module not enabled");
+});
 #endif

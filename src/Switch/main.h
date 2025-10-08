@@ -28,8 +28,7 @@ void SwitchLoop(){
 
 
 #include "webserver.h"
-#include "alpacaManage.h"
-#include "alpacaDevice.h"
+#include "alpaca.h"
 
 void switchRequestHandler(){
   switchWebServer();

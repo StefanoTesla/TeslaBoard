@@ -243,7 +243,6 @@ const validate = () => {
     errorResponseNotify(props.txt.errors.general.negativeValue)
     return
   }
-  console.log("ok")
   statusClass.value = 'green'
   validationState.value = true
 }

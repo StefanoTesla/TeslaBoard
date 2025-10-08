@@ -73,8 +73,8 @@ void coverCalibratorLoop(){
 }
 
 #include "webserver.h"
-#include "alpacaDevice.h"
-#include "alpacaManage.h"
+#include "alpaca.h"
+
 
 void coverCalibratorRequestHandler(){
 
