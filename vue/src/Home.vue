@@ -4,17 +4,10 @@
     :home = true  
   />
   <div v-if="txtLoaded">
-    <Switch 
-      v-if="components.switch" 
-      :txt="translations"/>
 
-    <CoverCalibrator 
-      v-if="components.coverc"
-      :txt="translations"/>
-
-    <Dome
-      v-if="components.dome"
-      :txt="translations"/> 
+  <div v-for="mod in components" :key="mod.name">
+    <component :is="resolveComponent(mod.name)" :txt="translations" />
+  </div>
 
     <BoardHome 
       :txt="translations" 
@@ -37,13 +30,28 @@ const components = ref([]) // Variabile reattiva
 const { translations, loadTranslations } = useTranslations()
 const txtLoaded = ref(false)
 
+
+function resolveComponent(name) {
+  switch (name) {
+    case 'switch': return Switch
+    case 'coverc': return CoverCalibrator
+    case 'dome': return Dome
+    default: return null
+  }
+}
+
+
 const loadInitConfig = async () => {
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip+'/api/cfg')
     const data = await response.json()
+    components.value = data.modules
+      .filter(a => a.enable)
+      .sort((a, b) => a.order - b.order);
 
-    components.value = data.define
+
+    console.log(components)
     await loadTranslations(data.locale)
     txtLoaded.value = true
   } catch (error) {

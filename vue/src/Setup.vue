@@ -59,7 +59,7 @@ import Switch from './components/Switch/SwitchSetup.vue'
 import CoverCalibrator from './components/CoverCalibrator/CoverCalibratorSetup.vue'
 import Dome from './components/Dome/DomeSetup.vue';
 import Advise from './components/Advise/Advise.vue';
-  import { useValidator } from './composables/Validator';
+import { useValidator } from './composables/Validator';
 
   const { isInvalidPin } = useValidator();
 
@@ -161,8 +161,6 @@ const rebuildGPIOPinList = () => {
   });
  
 }
-
-
 
 const addPermanentNotifiy = (type,message) => {
   if (!permNotify.value.some(n => n.type === type && n.message === message)) {

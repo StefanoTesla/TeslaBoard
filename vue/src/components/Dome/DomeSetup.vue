@@ -6,17 +6,35 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-  <div class="card flex">
-    <div class="txt pr-4">
-      {{ props.txt.gen?.moduleIs }}
+  <div class="card">
+    <div class="setting_table">
+      <div class="flex">
+      <div class="txt pr-4">
+        {{ props.txt.gen?.moduleIs }}
+
+      </div>
+      <div class="module_toggle">
+        <label class="toggle " for="dome_module_status">
+          <input class="toggle__input" name="" type="checkbox" id="dome_module_status" v-model="dome.enable">
+          <div class="toggle__fill"></div>
+        </label>
+      </div>
+
+
+      </div>
+
+      <div class="txt pr-4">
+        Posizione nella homepage:
+        <select id="board_locale" v-model="dome.position" @change="validate()">
+          <option value=1>Primo</option>
+          <option value=2>Secondo</option>
+          <option value=3>Terzo</option>
+
+        </select>
+      </div>
 
     </div>
-    <div class="module_toggle">
-      <label class="toggle " for="dome_module_status">
-        <input class="toggle__input" name="" type="checkbox" id="dome_module_status" v-model="dome.enable">
-        <div class="toggle__fill"></div>
-      </label>
-    </div>
+
   </div>
   <div v-if="dome.enable">
 
@@ -212,6 +230,9 @@ const validate = () => {
 
   validationState.value = false
   statusClass.value = 'red'
+
+
+  
   dome.value.driverType = parseInt(dome.value.driverType)
   boardTypeUnvalid.value = false
   if(isNegative(dome.value.driverType)){
@@ -243,6 +264,9 @@ const validate = () => {
     errorResponseNotify(props.txt.errors.general.negativeValue)
     return
   }
+
+  dome.value.position = parseInt(dome.value.position);
+  
   statusClass.value = 'green'
   validationState.value = true
 }

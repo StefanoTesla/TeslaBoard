@@ -10,10 +10,21 @@ void boardWebServer(){
 
         doc["locale"] = Global.config.language.locale;
 
-        JsonObject define = doc["modules"].to<JsonObject>();
-        define["dome"] = Dome.config.isEnable;
-        define["switch"] = Switch.config.isEnable;
-        define["coverc"] = CoverC.config.isEnable;
+        JsonArray modules = doc["modules"].to<JsonArray>();
+        JsonObject dome = modules.add<JsonObject>();
+        dome["name"] = "dome";
+        dome["enable"] = false;
+        dome["order"] = 3;
+        JsonObject sw = modules.add<JsonObject>();
+        sw["name"] = "switch";
+        sw["enable"] = false;
+        sw["order"] = 2;
+        JsonObject coverc = modules.add<JsonObject>();
+        coverc["name"] = "coverc";
+        coverc["enable"] = false;
+        coverc["order"] = 1;
+        
+
         doc["version"] = SW_VERSION;
         response->setLength();
         request->send(response);
