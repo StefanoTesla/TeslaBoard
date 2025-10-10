@@ -33,6 +33,7 @@ struct SwitchConfiStruct{
   unsigned int configuredSwitch;
   bool isEnable;
   int schemaVersion;
+  unsigned int fpPosition = 0;
   switchSaveConfigStruct save;
   switchLoadConfigStruct load;
 };

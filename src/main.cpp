@@ -39,10 +39,6 @@ AsyncUDP udp;
 
 void setup() {
   Serial.begin(115200);
-  if(!LittleFS.begin()){
-    Serial.println("An Error has occurred while mounting LittleFS");
-    return;
-  }
 
   startupTask();
   WiFi.setHostname(BOARD_IDENTIFIER);

@@ -2,7 +2,7 @@
 /* ALPACA DATA */
 
 struct AlpacaCommonData{
-  long serverTransactionID = 0;
+  unsigned long serverTransactionID = 0;
 };
 
 AlpacaCommonData AlpacaData;
@@ -63,7 +63,6 @@ struct boarcConfigStruct{
   boardSaveConfigStruct save;
 };
 
-
 enum gpioType{
   notUsed,
   input,
@@ -79,13 +78,15 @@ enum ModuleType{
   switchModule
 };
 
-
 struct GPIOStruct{
   gpioType type;
   ModuleType module;
 };
 
-
+struct LedCChannels{
+  int fastTimer[8];
+  int slowTimer[8];
+};
 
 struct oneMinutePulse{
   unsigned long oldMillis;
@@ -102,9 +103,9 @@ struct pulseStruct{
   oneMinutePulse minute;
 };
 
-
 struct globalVariable{
   unsigned long upTimeInterval = 60000; //one minute, don't change
+  LedCChannels ledcChannel;
   pulseStruct pulse;
   boarcConfigStruct config;
   GPIOStruct gpio[40];
@@ -152,7 +153,6 @@ bool pinUsableAsAnalogOutput(unsigned int pin){
   return true;
 }
 
-
 int validateJsonInput(JsonObject json){
 /*
 return code table:
@@ -191,7 +191,6 @@ return code table:
   return 1;
   
 }
-
 
 int validateJsonOutput(JsonObject json){
 /*
@@ -372,6 +371,7 @@ void copyOutputJson(JsonObject input,JsonObject out){
 void copyPWMJson(JsonObject input, JsonObject out){
   out["pin"] = input["pin"].as<unsigned int>();
 }
+
 void copyServoJson(JsonObject input, JsonObject out){
   out["pin"] = input["pin"].as<unsigned int>();
   out["maxDeg"] = input["maxDeg"].as<unsigned int>();
@@ -379,3 +379,47 @@ void copyServoJson(JsonObject input, JsonObject out){
   out["closeDeg"] = input["closeDeg"].as<unsigned int>();
   out["movTime"] = input["movTime"].as<unsigned long>();
 }
+
+
+//Utilities to find a free ledc channel
+
+int findLedCChannel(bool preferSlow = false){
+  int retVal = -1;
+
+  if(preferSlow){
+    for (int i = 0; i < 8; i++)
+      {
+        if(Global.ledcChannel.slowTimer[i]==0){
+          Global.ledcChannel.slowTimer[i]= 1;
+          retVal = i;
+          return retVal + 8;
+        }
+      }    
+  }
+
+  //search for a fast channel
+  for (int i = 0; i < 8; i++)
+  {
+    if(Global.ledcChannel.fastTimer[i]==0){
+      Global.ledcChannel.fastTimer[i]= 1;
+      retVal = i;
+      return retVal;
+    }
+  }
+  
+  //search into slow time if a fast one was no found
+  if(!preferSlow){
+  for (int i = 0; i < 8; i++)
+    {
+      if(Global.ledcChannel.slowTimer[i]==0){
+        Global.ledcChannel.slowTimer[i]= 1;
+        retVal = i;
+        return retVal + 8;
+      }
+    } 
+
+  }
+
+  return retVal; //should be -1 at this point
+}
+

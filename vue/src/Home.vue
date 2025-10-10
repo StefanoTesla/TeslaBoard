@@ -26,7 +26,7 @@ import { ref, onMounted } from 'vue'
 import { useTranslations } from './composables/translation'
 import BoardHome from './components/Board/BoardHome.vue';
 
-const components = ref([]) // Variabile reattiva
+const components = ref([]) 
 const { translations, loadTranslations } = useTranslations()
 const txtLoaded = ref(false)
 
@@ -50,8 +50,6 @@ const loadInitConfig = async () => {
       .filter(a => a.enable)
       .sort((a, b) => a.order - b.order);
 
-
-    console.log(components)
     await loadTranslations(data.locale)
     txtLoaded.value = true
   } catch (error) {

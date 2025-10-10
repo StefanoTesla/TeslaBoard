@@ -21,17 +21,16 @@ void saveDomeConfig(){
     DomeDebug("Starting saving operation...");
     preferences.begin("domeconfig", false);
 
-    //header
-    preferences.putBool("enable", true);
+    preferences.putBool("enable", Dome.config.isEnable);
     preferences.putInt("schema", DOME_SCHEMA);
+    preferences.putInt("order",Dome.config.order);
 
-
-    //all the setting (we are near 300bytes far away from the 1900bytes limit)
-    String jsonStr;
-    serializeJson(DomeConfigTmp, jsonStr);
-    preferences.putString("settings", jsonStr);
-    preferences.end();
-
+    if(Dome.config.isEnable){
+        String jsonStr;
+        serializeJson(DomeConfigTmp, jsonStr);
+        preferences.putString("settings", jsonStr);
+        preferences.end();
+    }
     DomeConfigTmp.clear();
     
 }
@@ -56,11 +55,14 @@ void initDomeConfig(){
     }
 
     Dome.config.schemaVersion = preferences.getInt("schema",1);
+    
 
     if(Dome.config.schemaVersion < DOME_SCHEMA){
         DomeDebug("Data required an upgrade operation!");
         //to do when is time
     }
+
+    Dome.config.order = preferences.getInt("order",1);
 
     String jsonStr = preferences.getString("settings");
     preferences.end();
@@ -118,7 +120,6 @@ void initDomeConfig(){
     DomeOutHaltClose.write(0);
 
 }
-
 
 AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
     if(Dome.config.isEnable){

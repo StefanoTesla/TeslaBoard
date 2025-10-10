@@ -1,6 +1,9 @@
 #ifndef CC_CONFIG
 #define CC_CONFIG
 
+#define COVERC_SCHEMA 1
+
+
 void saveCoverCConfig(){
     CoverC.config.save.execute=false;
 
@@ -33,32 +36,70 @@ void initCoverCConfig(){
     }
     preferences.end();
 
+    CoverC.config.isEnable = preferences.getBool("enable", false);
+
+    if(!CoverC.config.isEnable){
+        //DomeDebug("module not enable, aborting init process...");
+        preferences.end();
+        return;
+    }
+
+    CoverC.config.schemaVersion = preferences.getInt("schema",1);
+
+
+    if(Dome.config.schemaVersion < COVERC_SCHEMA){
+        DomeDebug("Data required an upgrade operation!");
+        //to do when is time
+    }
+
+    CoverC.config.order = preferences.getInt("order",1);
+
+
     JsonObject calibrator = doc["calibrator"];
     CoverC.config.calibrator.present = calibrator["present"];
 
     JsonObject cover = doc["cover"];
     CoverC.config.cover.present = cover["present"];
     
+    int channel = -1;
+
     if(CoverC.config.calibrator.present){ 
-        PWMOutputConfig CalibConfig;
-        CalibConfig.pin = calibrator["pwm"]["pin"];
-        CalibConfig.fastPWM = true;
-        Calibrator.setup(&CalibConfig);
+
+        channel = findLedCChannel();
+
+        if(channel >= 0){
+            PWMOutputConfig CalibConfig;
+            CalibConfig.pin = calibrator["pwm"]["pin"];
+            CalibConfig.ledChannel = channel;
+            CalibConfig.fastPWM = true;
+            Calibrator.setup(&CalibConfig);
+        } else {
+            Serial.println("Unable to find a ledC channel for calibrator");
+        }
+
     }
 
 
 
     if(CoverC.config.cover.present){
 
-    JsonObject se = cover["servo"];
+        channel = findLedCChannel(true);
 
-    ServoOutputConfig CoverConfig;
-    CoverConfig.pin = se["pin"];
-    CoverConfig.maxDeg = se["maxDeg"];
-    CoverConfig.closeDeg = se["closeDeg"]; 
-    CoverConfig.openDeg = se["openDeg"];
-    CoverConfig.movTime = se["movTime"];
-    Cover.setup(&CoverConfig);
+        if(channel >=0){
+            JsonObject se = cover["servo"];
+
+            ServoOutputConfig CoverConfig;
+            CoverConfig.ledChannel = channel;
+            CoverConfig.pin = se["pin"];
+            CoverConfig.maxDeg = se["maxDeg"];
+            CoverConfig.closeDeg = se["closeDeg"]; 
+            CoverConfig.openDeg = se["openDeg"];
+            CoverConfig.movTime = se["movTime"];
+            Cover.setup(&CoverConfig);
+        } else {
+            Serial.println("Unable to find a ledC channel for cover");
+        }
+
 
     }
 

@@ -2,14 +2,11 @@
 #define BOARN_MAIN
 #include "configuration.h"
 
-
 void startupTask(){
-
     initBoardConfig();
     initDomeConfig();
     initCoverCConfig();
     initSwitchConfig();
-
 }
 
 
@@ -31,8 +28,7 @@ void boardLoop(){
         Global.pulse.minute.oldMillis = millis();
     } else { Global.pulse.minute.pulse = false; }
 
-    
-    
+
     if(Global.pulse.minute.pulse){
         //esp32 uptime
         Global.config.esp32.upTime.minutes +=1;

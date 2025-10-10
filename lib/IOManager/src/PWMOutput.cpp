@@ -14,28 +14,21 @@ void PWMOutput::setup(IOConfigBase* config){
 
     PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
     if(cfg->fastPWM){
-    ledcAttachPin(cfg->pin,0);
-        if(true){
-            
-            pin = cfg->pin;
-            min = 0;
-            max = 4095;
-            Serial.print("New 20kHz PWM setup at pin: ");
-            Serial.print(pin);
-
-        } else {
-            Serial.println("Error: Unable to assign PWM channel!");
-        }
+        ledcSetup(cfg->ledChannel, 19531, 12);
+        ledcAttachPin(cfg->pin,cfg->ledChannel);           
+        pin = cfg->pin;
+        min = 0;
+        max = 4095;
+        Serial.print("New 20kHz PWM setup at pin: ");
+        Serial.print(pin);
     } else {
-        if(true){
+        ledcSetup(cfg->ledChannel, 5000, 12);
+        ledcAttachPin(cfg->pin,cfg->ledChannel); 
             pin = cfg->pin;
             min = 0;
             max = 4095;
             Serial.print("New 5kHz PWM setup at pin: ");
             Serial.println(pin);
-        } else {
-            Serial.println("Error: Unable to assign PWM channel!");
-        }
     }
 
 }
