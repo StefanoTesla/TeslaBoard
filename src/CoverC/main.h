@@ -1,10 +1,15 @@
 #ifndef CC_MAIN
 #define CC_MAIN
 
+
 PWMOutput Calibrator;
 ServoOutput Cover;
 
+#include "CoverC/variables.h"
 #include "config.h"
+
+
+
 
 void calibratorhandlerloop() {
 
@@ -23,15 +28,13 @@ void calibratorhandlerloop() {
 void coverCycle(){
 
   CoverC.status.cover.angle = Cover.status();
-  
+  CoverC.status.cover.status = CoverStatusUnknow;
   if (Cover.isMoving()){
     CoverC.status.cover.status = CoverStatusMoving;
   } else if(Cover.isClose()){
     CoverC.status.cover.status = CoverStatusClose;
   } else if (Cover.isOpen()){
     CoverC.status.cover.status = CoverStatusOpen;
-  } else {
-    CoverC.status.cover.status = CoverStatusUnknow;
   }
 
 

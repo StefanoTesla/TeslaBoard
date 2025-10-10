@@ -13,16 +13,16 @@ void boardWebServer(){
         JsonArray modules = doc["modules"].to<JsonArray>();
         JsonObject dome = modules.add<JsonObject>();
         dome["name"] = "dome";
-        dome["enable"] = false;
-        dome["order"] = 3;
+        dome["enable"] = Dome.config.isEnable;
+        dome["order"] = Dome.config.order;
         JsonObject sw = modules.add<JsonObject>();
         sw["name"] = "switch";
-        sw["enable"] = false;
-        sw["order"] = 2;
+        sw["enable"] = Switch.config.isEnable;
+        sw["order"] = Switch.config.order;
         JsonObject coverc = modules.add<JsonObject>();
         coverc["name"] = "coverc";
-        coverc["enable"] = false;
-        coverc["order"] = 1;
+        coverc["enable"] = CoverC.config.isEnable;
+        coverc["order"] = CoverC.config.order;
         
 
         doc["version"] = SW_VERSION;
@@ -119,93 +119,8 @@ void boardWebServer(){
                 error = true;
                 doc["errors"].add("Wrong reconnection time");
             }
-            JsonObject address = json["address"];
-            if(!address["enStaticIP"].is<bool>()){
-                doc["errors"].add("Wrong Static IP enable");
-                error = true;
-            } else {
-                enable = address["enStaticIP"];
-            }
-
-            JsonObject address_staticIp = address["staticIp"];
-            JsonObject address_staticGateway = address["staticGateway"];
-            JsonObject address_staticSubnet = address["staticSubnet"];
-            if(enable){
-                
-                if(!address_staticIp["0"].is<unsigned int>() || address_staticIp["0"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong IP [0]");
-                }
-                if(!address_staticIp["1"].is<unsigned int>() || address_staticIp["1"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong IP [1]");
-                }
-                if(!address_staticIp["2"].is<unsigned int>() || address_staticIp["2"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong IP [2]");
-                }
-                if(!address_staticIp["3"].is<unsigned int>() || address_staticIp["3"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong IP [3]");
-                }
-
-                if(!address_staticGateway["0"].is<unsigned int>() || address_staticGateway["0"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong Gateway [0]");
-                }
-                if(!address_staticGateway["1"].is<unsigned int>() || address_staticGateway["1"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong Gateway [1]");
-                }
-                if(!address_staticGateway["2"].is<unsigned int>() || address_staticGateway["2"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong Gateway [2]");
-                }
-                if(!address_staticGateway["3"].is<unsigned int>() || address_staticGateway["3"].as<int>() > 255){
-                    error = true;
-                    doc["errors"].add("Wrong Gateway [3]");
-                }
-                
-                
-                if(!address_staticSubnet["0"].is<unsigned int>() || address_staticSubnet["0"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong subnet [0]");
-                }
-                if(!address_staticSubnet["1"].is<unsigned int>() || address_staticSubnet["1"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong subnet [1]");
-                }
-                if(!address_staticSubnet["2"].is<unsigned int>() || address_staticSubnet["2"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong subnet [2]");
-                }
-                if(!address_staticSubnet["3"].is<unsigned int>() || address_staticSubnet["3"].as<int>() > 255 ){
-                    error = true;
-                    doc["errors"].add("Wrong subnet [3]");
-                }
-            }
-
 
             if(!error){
-            Global.config.language.locale = json["locale"].as<String>();
-            Global.config.wifi.reconnection.intervall = json["wifi"]["reconTime"];
-            Global.config.wifi.ip.enable = address["enStaticIP"];
-                if(Global.config.wifi.ip.enable){
-                    Global.config.wifi.ip.ip[0] = address_staticIp["0"].as<unsigned int>();
-                    Global.config.wifi.ip.ip[1] = address_staticIp["1"].as<unsigned int>();
-                    Global.config.wifi.ip.ip[2] = address_staticIp["2"].as<unsigned int>();
-                    Global.config.wifi.ip.ip[3] = address_staticIp["3"].as<unsigned int>();
-
-                    Global.config.wifi.ip.gw[0] = address_staticGateway["0"].as<unsigned int>();
-                    Global.config.wifi.ip.gw[1] = address_staticGateway["1"].as<unsigned int>();
-                    Global.config.wifi.ip.gw[2] = address_staticGateway["2"].as<unsigned int>();
-                    Global.config.wifi.ip.gw[3] = address_staticGateway["3"].as<unsigned int>();
-                    
-                    Global.config.wifi.ip.sub[0] = address_staticSubnet["0"].as<unsigned int>();
-                    Global.config.wifi.ip.sub[1] = address_staticSubnet["1"].as<unsigned int>();
-                    Global.config.wifi.ip.sub[2] = address_staticSubnet["2"].as<unsigned int>();
-                    Global.config.wifi.ip.sub[3] = address_staticSubnet["3"].as<unsigned int>();
-                }
             Global.config.save.execute = true;
             }
 
@@ -229,25 +144,6 @@ void boardWebServer(){
         request->send(response);
         Global.config.reboot.rebootRequest =true;
     });
-
-    server.on("/api/board/wifi-reset", HTTP_GET, [](AsyncWebServerRequest * request) {
-        AsyncJsonResponse* response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-
-        doc["execute"] = "See you next time...";
-        
-        response->setLength();
-        request->send(response);
-
-        WiFi.mode(WIFI_AP_STA); // cannot erase if not in STA mode !
-        WiFi.persistent(true);
-        WiFi.disconnect(true, true);
-        WiFi.persistent(false);
-        Global.config.reboot.rebootRequest =true;
-    });
-
-
-
 
 }
 

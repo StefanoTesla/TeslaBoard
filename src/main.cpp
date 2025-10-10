@@ -19,17 +19,15 @@ TeslaWiFiManager wi(&server);
 
 #include "header.h"
 
-#include "Dome/variables.h"
-#include "CoverC/variables.h"
-#include "Switch/variables.h"
-#include "Alpaca/middleware.h"
+
 #include "Alpaca/common.h"
-#include "Alpaca/apiManage.h"
+#include "Alpaca/middleware.h"
 #include "Dome/main.h"
 #include "CoverC/main.h"
 #include "Switch/main.h"
 #include "Board/webserver.h"
 #include "Board/main.h"
+#include "Alpaca/apiManage.h"
 
 DNSServer dns;
 AsyncUDP udp;

@@ -67,7 +67,6 @@
 
   <div class="config_buttons">
       <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
-      <a href="./coverc/cccfg.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
       <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
     </div>
 

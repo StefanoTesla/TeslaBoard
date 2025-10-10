@@ -1,6 +1,8 @@
 #ifndef DOME_MAIN
 #define DOME_MAIN
 
+#include "Dome/variables.h"
+
 
 DigitalInput DomeInOpen;
 DigitalInput DomeInClose;

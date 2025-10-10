@@ -27,27 +27,26 @@ void ServoOutput::setup(IOConfigBase* config){
   }
 
   ServoOutputConfig* cfg = static_cast<ServoOutputConfig*>(config);
-  ledcAttachPin(cfg->pin, 0);
-  if(true){
-    pin = cfg->pin;
-    min = 0;
-    max = cfg->maxDeg;
-    openDeg = cfg->openDeg;
-    closeDeg = cfg->closeDeg;
-    movingTime = cfg->movTime * 1000;
-    Serial.print("New Servo setup at pin: ");
-    Serial.print(pin);
-    Serial.print(" max Deg: ");
-    Serial.print(max);
-    Serial.print(" open Deg: ");
-    Serial.print(openDeg);
-    Serial.print(" close Deg: ");
-    Serial.print(closeDeg);
-    Serial.print(" moviment time: ");
-    Serial.println(movingTime);
-  } else {
-    Serial.println("Error: Unable to find a free SERVO channel!");
-  }
+  ledcSetup(cfg->ledChannel, 50, 12);
+  ledcAttachPin(cfg->pin,cfg->ledChannel); 
+
+  pin = cfg->pin;
+  min = 0;
+  max = cfg->maxDeg;
+  openDeg = cfg->openDeg;
+  closeDeg = cfg->closeDeg;
+  movingTime = cfg->movTime * 1000;
+  Serial.print("New Servo setup at pin: ");
+  Serial.print(pin);
+  Serial.print(" max Deg: ");
+  Serial.print(max);
+  Serial.print(" open Deg: ");
+  Serial.print(openDeg);
+  Serial.print(" close Deg: ");
+  Serial.print(closeDeg);
+  Serial.print(" moviment time: ");
+  Serial.println(movingTime);
+
 }
 
 int ServoOutput::write(int _angle) {

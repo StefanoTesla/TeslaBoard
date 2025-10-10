@@ -15,7 +15,7 @@
       </div>
       <div class="module_toggle">
         <label class="toggle " for="dome_module_status">
-          <input class="toggle__input" name="" type="checkbox" id="dome_module_status" v-model="dome.enable">
+          <input class="toggle__input" name="" type="checkbox" id="dome_module_status" v-model="dome.enable" @change="validate()">
           <div class="toggle__fill"></div>
         </label>
       </div>
@@ -25,10 +25,10 @@
 
       <div class="txt pr-4">
         Posizione nella homepage:
-        <select id="board_locale" v-model="dome.position" @change="validate()">
-          <option value=1>Primo</option>
-          <option value=2>Secondo</option>
-          <option value=3>Terzo</option>
+        <select id="board_locale" v-model="dome.order">
+          <option :value=1>Primo</option>
+          <option :value=2>Secondo</option>
+          <option :value=3>Terzo</option>
 
         </select>
       </div>
@@ -154,10 +154,9 @@
 
 
   <div class="config_buttons">
-      <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
-      <a href="./dome/domecfg.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
-      <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
-    </div>
+    <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
+    <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
+  </div>
 
   </Card>
 </template>
@@ -228,11 +227,20 @@ const fetchData = async () => {
 
 const validate = () => {
 
+  console.log("Validation...")
   validationState.value = false
   statusClass.value = 'red'
-
-
   
+
+  dome.value.position = parseInt(dome.value.position);
+
+  if(!dome.value.enable){
+    statusClass.value = 'green'
+    validationState.value = true
+    return
+  }
+
+
   dome.value.driverType = parseInt(dome.value.driverType)
   boardTypeUnvalid.value = false
   if(isNegative(dome.value.driverType)){
@@ -265,7 +273,13 @@ const validate = () => {
     return
   }
 
-  dome.value.position = parseInt(dome.value.position);
+
+
+  const containsFalse = validation.value.some(item => item === false);
+  if(containsFalse){
+    return
+  }
+
   
   statusClass.value = 'green'
   validationState.value = true
@@ -355,6 +369,7 @@ onMounted(() => {
 })
 
 watch(() => validation.value.some(item => item === false), (containsFalse) => {
+    console.log("I'm watching you!")
     statusClass.value = 'red'
     validationState.value = containsFalse ? false : true;
     if(validationState.value){

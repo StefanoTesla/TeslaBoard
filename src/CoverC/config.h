@@ -3,6 +3,17 @@
 
 #define COVERC_SCHEMA 1
 
+void CoverCdebug(const char *format, ...) {
+    char buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    Serial.print("[CC] "); 
+    Serial.println(buffer);    
+}
+
 
 void saveCoverCConfig(){
     CoverC.config.save.execute=false;
@@ -47,8 +58,8 @@ void initCoverCConfig(){
     CoverC.config.schemaVersion = preferences.getInt("schema",1);
 
 
-    if(Dome.config.schemaVersion < COVERC_SCHEMA){
-        DomeDebug("Data required an upgrade operation!");
+    if(CoverC.config.schemaVersion < COVERC_SCHEMA){
+        //DomeDebug("Data required an upgrade operation!");
         //to do when is time
     }
 
@@ -75,6 +86,7 @@ void initCoverCConfig(){
             Calibrator.setup(&CalibConfig);
         } else {
             Serial.println("Unable to find a ledC channel for calibrator");
+            CoverC.config.calibrator.present = false;
         }
 
     }
@@ -98,6 +110,7 @@ void initCoverCConfig(){
             Cover.setup(&CoverConfig);
         } else {
             Serial.println("Unable to find a ledC channel for cover");
+            CoverC.config.cover.present = false;
         }
 
 

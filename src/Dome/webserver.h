@@ -6,8 +6,9 @@ void domeWebServer(){
     server.on("/api/dome/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-
         doc["enable"] = Dome.config.isEnable;
+        doc["order"] = Dome.config.order;
+
         JsonObject pinOpen = doc["pinOpen"].to<JsonObject>();
         pinOpen["pin"] = DomeInOpen.getPinNumber();
         pinOpen["dOn"] = DomeInOpen.dOn;

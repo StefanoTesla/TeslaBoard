@@ -1,6 +1,7 @@
 #ifndef SWITCH_MAIN
 #define SWITCH_MAIN
 
+#include "Switch/variables.h"
 #include "config.h"
 
 void updateSwitchState(){

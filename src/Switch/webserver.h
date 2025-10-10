@@ -7,7 +7,10 @@ void switchWebServer(){
     server.on("/api/switch/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
+        doc["enable"] = Switch.config.isEnable;
+        doc["order"] = Switch.config.order;
 
+        
         JsonArray array = doc["Switches"].to<JsonArray>();
 
         for(int i=0; i < Switch.config.configuredSwitch; i++){

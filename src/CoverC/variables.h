@@ -22,9 +22,9 @@ struct coverConfig{
 
 
 struct structCoverCalibratorConfig{
-  bool isEnable;
+  bool isEnable = false;
   int schemaVersion;
-  unsigned int order = 0;
+  unsigned int order = 1;
   calibratorConfig calibrator;
   coverConfig cover;
   coverCSaveConfigStruct save;

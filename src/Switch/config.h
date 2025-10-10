@@ -85,8 +85,10 @@ void initSwitchConfig(){
     } 
     SWdebug("Found %d switches", Switch.config.configuredSwitch);
 
+    int channel;
     for (int i = 0; i < Switch.config.configuredSwitch; i++)
     {
+        channel = -1;
         String jsonStr = "";
         String key = "sw_" + String(i);
         jsonStr = preferences.getString(key.c_str(),"{}");
@@ -114,20 +116,33 @@ void initSwitchConfig(){
             SwitchObjects[i]->setup(&DOConfig);
         //PWM Output
         } else if(doc["type"] == static_cast<int>(SwTypePWM)){
-            SwitchObjects[i] = new PWMOutput;
-            PWMOutputConfig PWMConfig;
-            PWMConfig.pin=doc["pin"];
-            SwitchObjects[i]->setup(&PWMConfig);
+            channel=findLedCChannel();
+            if(channel>=0){
+                SwitchObjects[i] = new PWMOutput;
+                PWMOutputConfig PWMConfig;
+                PWMConfig.pin=doc["pin"];
+                PWMConfig.ledChannel=channel;
+                SwitchObjects[i]->setup(&PWMConfig);
+            } else {
+                SwitchObjects[i] = nullptr;
+            }
+
         //Servo Output
         } else if(doc["type"] == static_cast<int>(SwTypeServo)){
-            SwitchObjects[i] = new ServoOutput;
-            ServoOutputConfig ServoConfig;
-            ServoConfig.pin = doc["pin"];
-            ServoConfig.maxDeg = doc["maxDeg"];
-            ServoConfig.closeDeg= doc["closeDeg"];
-            ServoConfig.openDeg = doc["openDeg"];
-            ServoConfig.movTime = doc["movTime"];
-            SwitchObjects[i]->setup(&ServoConfig);
+            channel=findLedCChannel(true);
+            if(channel>=0){
+                SwitchObjects[i] = new ServoOutput;
+                ServoOutputConfig ServoConfig;
+                ServoConfig.pin = doc["pin"];
+                ServoConfig.ledChannel=channel;
+                ServoConfig.maxDeg = doc["maxDeg"];
+                ServoConfig.closeDeg= doc["closeDeg"];
+                ServoConfig.openDeg = doc["openDeg"];
+                ServoConfig.movTime = doc["movTime"];
+                SwitchObjects[i]->setup(&ServoConfig);
+            } else {
+                SwitchObjects[i] = nullptr;
+            }
         }
 
         if (SwitchObjects[i] != nullptr) {

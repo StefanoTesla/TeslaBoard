@@ -30,10 +30,10 @@ enum SwitchType{
 
 
 struct SwitchConfiStruct{
-  unsigned int configuredSwitch;
-  bool isEnable;
+  bool isEnable = false;
   int schemaVersion;
-  unsigned int fpPosition = 0;
+  unsigned int order = 1;
+  unsigned int configuredSwitch;
   switchSaveConfigStruct save;
   switchLoadConfigStruct load;
 };
@@ -41,7 +41,6 @@ struct SwitchConfiStruct{
 
 /* SWITCH STRUCT */
 struct SwitchStruct{
-
   SwitchConfiStruct config;
 } Switch;
 
