@@ -28,7 +28,7 @@ void coverAlpacaManage(){
       doc["Value"] = std::string(CC_IDENTIFIER) + " - TeslaBoard";
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddlewares({&isCoverCEnable,&getAlpacaID});
 
   alpaca.on("/api/v1/covercalibrator/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);

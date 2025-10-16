@@ -1,7 +1,7 @@
-#ifndef DOME_CONFIG
-#define DOME_CONFIG
+#ifdef CIAONE
+//#define DOME_CONFIG
 
-#define DOME_SCHEMA 1
+//#define DOME_SCHEMA 1
 
 void DomeDebug(const char *format, ...) {
     char buffer[256];
@@ -121,11 +121,6 @@ void initDomeConfig(){
 
 }
 
-AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-    if(Dome.config.isEnable){
-        next();
-    }
-    request->send(500, "text/plain", "Module not enabled");
-});
+
 
 #endif

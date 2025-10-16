@@ -72,7 +72,7 @@ void coverCalibratorLoop(){
   }
 }
 
-#include "webserver.h"
+#include "api.h"
 #include "alpaca.h"
 
 
@@ -80,6 +80,6 @@ void coverCalibratorRequestHandler(){
 
   coverAlpacaManage();
   coverAlpacaDevice();
-  coverWebServer();
+  coverWebApi();
 }
 #endif

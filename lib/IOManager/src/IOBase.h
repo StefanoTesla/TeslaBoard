@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "IOConfigStruct.h"
+#include <ArduinoJson.h>
 
 class IOBase {
 protected:
@@ -16,6 +17,7 @@ protected:
 public:
     IOBase() {}
     virtual void setup(IOConfigBase* config){}
+    virtual void jsonSetup(JsonObject obj){}
     virtual int write(int _value) = 0;
     virtual int readPin() = 0;
     virtual int status();

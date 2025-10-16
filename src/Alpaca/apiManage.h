@@ -29,7 +29,7 @@ void AlpacaManager(){
     JsonObject doc = response->getRoot();
     JsonArray Value = doc["Value"].to<JsonArray>();
 
-    if(Dome.config.isEnable){
+    if(Dome.isEnable()){
       JsonObject dome = Value.add<JsonObject>();
       dome["DeviceName"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
       dome["DeviceType"] = "Dome";

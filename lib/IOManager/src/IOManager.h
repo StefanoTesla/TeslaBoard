@@ -4,9 +4,9 @@
 #include "IOConfigStruct.h"
 #include <Arduino.h>
 #include "IOBase.h"
-#include "DigitalInput.h"
-#include "DigitalOutput.h"
-#include "PWMOutput.h"
-#include "ServoOutput.h"
+#include "DigitalInput/DigitalInput.h"
+#include "DigitalOutput/DigitalOutput.h"
+#include "PWM/PWMOutput.h"
+#include "Servo/ServoOutput.h"
 
 #endif

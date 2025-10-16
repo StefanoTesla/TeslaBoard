@@ -2,7 +2,7 @@
 #define DOME_ALPACA_DEVICE
 
 AsyncMiddlewareFunction upLastCom([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-  Dome.Shutter.lastCommunicationMillis  = millis();
+  Dome.shutter.updateLastCommunication();
   next();
 });
 
@@ -65,7 +65,7 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
-    doc["Value"] = Dome.Shutter.status;
+    doc["Value"] = Dome.shutter.getStatus();
 
     response->setLength();
     request->send(response);
@@ -76,13 +76,13 @@ alpaca.on("/api/v1/dome/0/shutterstatus",                                       
 alpaca.on("/api/v1/dome/0/closeshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
-    if(Dome.Shutter.status != ShStatusClose and Dome.Shutter.command == ShCommandIdle){
+    if(Dome.shutter.canClose()){
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
-      Dome.Shutter.command = ShCommandClose;
+      Dome.shutter.close();
     } else {
       doc["ErrorNumber"] = 1035;
-      if(Dome.Shutter.status == ShStatusClose){
+      if(Dome.shutter.isClosed()){
         doc["ErrorMessage"] = "Shutter was already closed";
       } else {
         doc["ErrorMessage"] = "Shutter is busy, another command in progress";
@@ -97,13 +97,13 @@ alpaca.on("/api/v1/dome/0/closeshutter",                                        
 alpaca.on("/api/v1/dome/0/openshutter",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
-    if(Dome.Shutter.status != ShStatusOpen and Dome.Shutter.command == ShCommandIdle){
+    if(Dome.shutter.canOpen()){
       doc["ErrorNumber"] = 0;
       doc["ErrorMessage"] = "";
-      Dome.Shutter.command = ShCommandOpen;
+      Dome.shutter.open();
     } else {
       doc["ErrorNumber"] = 1035;
-      if(Dome.Shutter.status == ShStatusOpen){
+      if(Dome.shutter.isOpen()){
         doc["ErrorMessage"] = "Shutter was already apened";
       } else {
         doc["ErrorMessage"] = "Shutter is busy, another command in progress";
@@ -117,7 +117,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
 
 
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    Dome.Shutter.command = ShCommandHalt;
+    //Dome.Shutter.command = ShCommandHalt;
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     response->setLength();
@@ -139,7 +139,7 @@ alpaca.on("/api/v1/dome/0/slewing",                                            H
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
-    doc["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
+    doc["Value"] = Dome.shutter.isMoving() ? true : false;
 
     response->setLength();
     request->send(response);
@@ -151,10 +151,10 @@ alpaca.on("/api/v1/dome/0/devicestate",                                         
     JsonArray Value = doc["Value"].to<JsonArray>();
     JsonObject shstatus = Value.add<JsonObject>();
     shstatus["Name"] = "ShutterStatus";
-    shstatus["Value"] = Dome.Shutter.status;
+    shstatus["Value"] = Dome.shutter.getStatus();
     JsonObject shslewing = Value.add<JsonObject>();
     shslewing["Name"] = "Slewing";
-    shslewing["Value"] = Dome.Shutter.command == ShCommandIdle ? false : true;
+    shslewing["Value"] = false; //Dome.Shutter.command == ShCommandIdle ? false : true; /* TODO */
 
     response->setLength();
     request->send(response);

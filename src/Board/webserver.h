@@ -1,6 +1,7 @@
 #ifndef BOARD_WEBSERVER
 #define BOARD_WEBSERVER
 
+extern DomeModule Dome;
 
 void boardWebServer(){
 
@@ -13,8 +14,8 @@ void boardWebServer(){
         JsonArray modules = doc["modules"].to<JsonArray>();
         JsonObject dome = modules.add<JsonObject>();
         dome["name"] = "dome";
-        dome["enable"] = Dome.config.isEnable;
-        dome["order"] = Dome.config.order;
+        dome["enable"] = Dome.isEnable();
+        dome["order"] = Dome.uiOrder;
         JsonObject sw = modules.add<JsonObject>();
         sw["name"] = "switch";
         sw["enable"] = Switch.config.isEnable;

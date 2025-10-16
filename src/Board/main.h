@@ -2,9 +2,13 @@
 #define BOARN_MAIN
 #include "configuration.h"
 
+
+extern DomeModule Dome;
+
 void startupTask(){
+
     initBoardConfig();
-    initDomeConfig();
+    Dome.begin();
     initCoverCConfig();
     initSwitchConfig();
 }

@@ -1,7 +1,7 @@
 #ifndef CC_WEBSERVER
 #define CC_WEBSERVER
 
-void coverWebServer(){
+void coverWebApi(){
 
     server.on("/api/coverc/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -48,7 +48,8 @@ void coverWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
+
     server.on("/api/coverc/open", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
@@ -69,7 +70,8 @@ void coverWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
+
     server.on("/api/coverc/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
@@ -90,7 +92,7 @@ void coverWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
 
     server.on("/api/coverc/brightness", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -136,7 +138,7 @@ void coverWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
 
     server.on("/api/coverc/on", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -152,7 +154,7 @@ void coverWebServer(){
 
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
 
     server.on("/api/coverc/off", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -167,7 +169,7 @@ void coverWebServer(){
         }
         response->setLength();
         request->send(response);
-    });
+    }).addMiddleware(&isCoverCEnable);
 
 
     AsyncCallbackJsonWebHandler* coverCConfigHandler = new AsyncCallbackJsonWebHandler("/api/coverc/cfg");

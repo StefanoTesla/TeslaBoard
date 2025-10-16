@@ -8,7 +8,7 @@ struct IOConfigBase {
 
 struct DigitalInputConfig : public IOConfigBase {
     int pin;
-    unsigned  invert =0; // 0=N.O. 1=N.C.
+    bool invert =0; // 0=N.O. 1=N.C.
     unsigned long dOn =0;
     unsigned long dOff =0;
     int getType() const override { return 1; }
@@ -16,7 +16,7 @@ struct DigitalInputConfig : public IOConfigBase {
 
 struct DigitalOutputConfig : public IOConfigBase {
     int pin;
-    unsigned  invert =0; // 0=H_ACT 1=L_ACT
+    bool invert =0; // 0=H_ACT 1=L_ACT
     int getType() const override { return 2; }
 };
 

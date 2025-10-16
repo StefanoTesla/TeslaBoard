@@ -126,4 +126,13 @@ AsyncMiddlewareFunction isCCEnable([](AsyncWebServerRequest* request, ArMiddlewa
     }
     request->send(500, "text/plain", "Module not enabled");
 });
+
+
+
+AsyncMiddlewareFunction isCoverCEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverC.config.isEnable){
+        next();
+    }
+    request->send(500, "text/plain", "Module not enabled");
+});
 #endif

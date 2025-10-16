@@ -10,7 +10,6 @@
 
 #define SW_VERSION "4.0.0"
 
-
 #include "libraries.h"
 
 AsyncWebServer server(80);
@@ -29,6 +28,7 @@ TeslaWiFiManager wi(&server);
 #include "Board/main.h"
 #include "Alpaca/apiManage.h"
 
+DomeModule Dome;
 DNSServer dns;
 AsyncUDP udp;
 
@@ -37,6 +37,12 @@ AsyncUDP udp;
 
 void setup() {
   Serial.begin(115200);
+  if(!LittleFS.begin()){
+    Serial.println("An Error has occurred while mounting LittleFS");
+    return;
+  }
+  Dome.begin();
+
 
   startupTask();
   WiFi.setHostname(BOARD_IDENTIFIER);
@@ -68,12 +74,14 @@ void setup() {
   server.begin();
   alpaca.begin();
   ElegantOTA.begin(&server);
+
 }
 
 void loop() {
 
   boardLoop();
-  domeLoop();
+  Dome.loop();
   coverCalibratorLoop();
   SwitchLoop();
+
 }

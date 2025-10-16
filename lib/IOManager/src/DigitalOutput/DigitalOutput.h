@@ -9,10 +9,15 @@ private:
     bool value;
 
 public:
-    int invert = 0;
+    bool invert = false;
     
     DigitalOutput();
     void setup(IOConfigBase* config);
+    void jsonSetup(JsonObject obj);
+    bool pinUnusable(int pin);
+    int validateJsonCfg(JsonObject obj);
+    void copyJsonCfg(JsonObject obj,JsonObject dest);
+    void getConfiguration(JsonObject obj);
     int readPin() override;
     int write(int valore) override;
     int status();

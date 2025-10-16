@@ -7,5 +7,7 @@
 #include "AsyncUDP.h"
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
+#include "LittleFS.h"
 #include <TeslaWiFiManager.h>
 #include <Preferences.h>
+#include <Dome.h>

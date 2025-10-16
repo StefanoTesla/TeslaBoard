@@ -2,7 +2,7 @@
 /* ALPACA DATA */
 
 struct AlpacaCommonData{
-  unsigned long serverTransactionID = 0;
+  uint32_t serverTransactionID = 0;
 };
 
 AlpacaCommonData AlpacaData;

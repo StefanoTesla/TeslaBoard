@@ -6,8 +6,9 @@ AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
   AsyncJsonResponse* response = new AsyncJsonResponse();
   JsonObject doc = response->getRoot();
 
-  doc["ClientTransactionID"] = request->getAttribute("ClientTransactionID").toInt();
-  doc["ServerTransactionID"] = request->getAttribute("ServerTransactionID").toInt();
+  //the library store parameters as string, i need to reconvert back to uint32
+  doc["ClientTransactionID"] = strtoul(request->getAttribute("ClientTransactionID").c_str(), nullptr, 10);
+  doc["ServerTransactionID"] = strtoul(request->getAttribute("ServerTransactionID").c_str(), nullptr, 10);
   doc["ErrorNumber"] = 0;
   doc["ErrorMessage"] = "";
   return response;
@@ -96,6 +97,7 @@ bool commonValidateInputPin(unsigned int pin){
     return true;
 
 }
+
 bool commonValidateOutputPin(unsigned int pin){
     int unusable[15] = {3,6,7,8,9,10,11,20,24,28,29,30,31,37,38};
     int i =0;

@@ -20,7 +20,6 @@ void updateSwitchState(){
 void SwitchLoop(){
     updateSwitchState();
 
-
     if(Switch.config.save.execute){
         Switch.config.save.execute = false;
         saveSwitchConfig();
