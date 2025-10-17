@@ -4,11 +4,13 @@
 
 
 extern DomeModule Dome;
+extern CoverCalibratorModule CoverCalibrator;
 
 void startupTask(){
 
     initBoardConfig();
     Dome.begin();
+    CoverCalibrator.begin();
     initCoverCConfig();
     initSwitchConfig();
 }

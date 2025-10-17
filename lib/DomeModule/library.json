@@ -1,7 +1,7 @@
 {
-  "name": "Dome Library",
+  "name": "Dome Module",
   "keywords": "astrophotograpy",
-  "description": "Dome handler, shutter support only",
+  "description": "Dome handler, shutter support only..(for now)",
   "version": "0.0.0",
   "frameworks": "arduino",
   "platforms": ["espressif32"]

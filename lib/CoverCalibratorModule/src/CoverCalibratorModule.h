@@ -1,19 +1,27 @@
-#ifndef DOME_H
-#define DOME_H
+#ifndef COVERCMODULE_H
+#define COVERCMODULE_H
 
 #include <Arduino.h>
-#include "Shutter/Shutter.h"
+#include "Cover/Cover.h"
+#include "Calibrator/Calibrator.h"
 #include <ArduinoJson.h>
 #include <Preferences.h>
+#include <PWMManager.h>
 
-#define DOME_SCHEMA_VERSION 1
-#define DOME_SCHEMA_NAME "domecfg"
+#define COVERC_SCHEMA_VERSION 1
+#define COVERC_SCHEMA_NAME "cccfg"
 
-class DomeModule {
+class CoverCalibratorModule {
 public:
-    Shutter shutter;
+    CoverCalibratorModule(PWMManager* channelManager) :
+        chMgr(channelManager),       
+        cover(channelManager),       
+        calibrator(channelManager)      
+    {}
+    Cover cover;
+    Calibrator calibrator;
 
-    DomeModule() = default;
+
     void begin(); 
     bool isEnable();
     void loop();
@@ -32,15 +40,14 @@ private:
     void initNVS(Preferences pref);
     void updateNVS1(Preferences pref);
 
-
-
     JsonDocument tmpCfg;
     bool moduleEnable;
     bool validConfig;
 
 
 private:
-    String identifier = "Dome";
+    PWMManager* chMgr;
+    String identifier = "CoverCalibrator";
 };
 
 #endif

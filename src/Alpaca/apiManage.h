@@ -31,7 +31,7 @@ void AlpacaManager(){
 
     if(Dome.isEnable()){
       JsonObject dome = Value.add<JsonObject>();
-      dome["DeviceName"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
+      dome["DeviceName"] = Dome.getIdentifier() + " - TeslaBoard";
       dome["DeviceType"] = "Dome";
       dome["DeviceNumber"] = 0;
       dome["UniqueID"] = "e989c9b6-ba0f-4834-b299-79a629f2ee59";

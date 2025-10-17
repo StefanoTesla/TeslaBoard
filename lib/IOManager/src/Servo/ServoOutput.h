@@ -2,7 +2,7 @@
 #define SERVO_OUTPUT_H
 
 #include "IOBase.h"
-#include "IOConfigStruct.h"
+#include <PWMManager.h>
 
 class ServoOutput : public IOBase {
 
@@ -11,6 +11,9 @@ private:
     int cycle = 0;
     bool moving = 0;
     bool overridePosition = true;
+    int channel = -1;
+
+    PWMManager* chMgr;
 
     struct MoveToSlowlyStruct{
         unsigned long startTime = 0;
@@ -32,8 +35,13 @@ public:
     unsigned long movingTime = 0;
     int currentAngle;
 
-    ServoOutput();
+    ServoOutput(PWMManager* channelManager) : chMgr(channelManager) {}
     void setup(IOConfigBase* config);
+    void jsonSetup(JsonObject setup);
+    void getConfiguration(JsonObject cfg);
+    int validateJsonCfg(JsonObject obj);
+    void copyJsonCfg(JsonObject obj,JsonObject dest);
+    bool pinUnusable(int pin);
     int readPin() override;
     int write(int _angle) override;
     bool goToSlowly(int _angle=0, bool overridePosition = true);

@@ -10,4 +10,6 @@
 #include "LittleFS.h"
 #include <TeslaWiFiManager.h>
 #include <Preferences.h>
-#include <Dome.h>
+#include <pwmManager.h>
+#include <DomeModule.h>
+#include <CoverCalibratorModule.h>

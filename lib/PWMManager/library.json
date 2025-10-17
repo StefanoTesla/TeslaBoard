@@ -1,0 +1,8 @@
+{
+  "name": "PWM Manager",
+  "keywords": "pwm",
+  "description": "This library keep in memory wich channel are already used or not",
+  "version": "0.0.0",
+  "frameworks": "arduino",
+  "platforms": ["espressif32"]
+}

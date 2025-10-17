@@ -2,7 +2,7 @@
 #define SWITCH_CONFIG
 
 #define SW_SCHEMA 1
-
+extern PWMManager pwmMgr;
 
 void SWdebug(const char *format, ...) {
     char buffer[256];
@@ -116,22 +116,14 @@ void initSwitchConfig(){
             SwitchObjects[i]->setup(&DOConfig);
         //PWM Output
         } else if(doc["type"] == static_cast<int>(SwTypePWM)){
-            channel=findLedCChannel();
-            if(channel>=0){
-                SwitchObjects[i] = new PWMOutput;
+                SwitchObjects[i] = new PWMOutput(&pwmMgr);
                 PWMOutputConfig PWMConfig;
                 PWMConfig.pin=doc["pin"];
                 PWMConfig.ledChannel=channel;
                 SwitchObjects[i]->setup(&PWMConfig);
-            } else {
-                SwitchObjects[i] = nullptr;
-            }
-
         //Servo Output
         } else if(doc["type"] == static_cast<int>(SwTypeServo)){
-            channel=findLedCChannel(true);
-            if(channel>=0){
-                SwitchObjects[i] = new ServoOutput;
+                SwitchObjects[i] = new ServoOutput(&pwmMgr);
                 ServoOutputConfig ServoConfig;
                 ServoConfig.pin = doc["pin"];
                 ServoConfig.ledChannel=channel;
@@ -140,9 +132,6 @@ void initSwitchConfig(){
                 ServoConfig.openDeg = doc["openDeg"];
                 ServoConfig.movTime = doc["movTime"];
                 SwitchObjects[i]->setup(&ServoConfig);
-            } else {
-                SwitchObjects[i] = nullptr;
-            }
         }
 
         if (SwitchObjects[i] != nullptr) {

@@ -16,8 +16,12 @@ protected:
 
 public:
     IOBase() {}
-    virtual void setup(IOConfigBase* config){}
-    virtual void jsonSetup(JsonObject obj){}
+    virtual void setup(IOConfigBase* config){};
+    virtual void jsonSetup(JsonObject obj){};
+    void jsonSetup(JsonObject setup,bool HS = false);
+    void getConfiguration(JsonObject cfg);
+    int validateJsonCfg(JsonObject obj);
+    void copyJsonCfg(JsonObject obj,JsonObject dest);
     virtual int write(int _value) = 0;
     virtual int readPin() = 0;
     virtual int status();

@@ -1,0 +1,8 @@
+{
+  "name": "Cover Calibrator Module",
+  "keywords": "astrophotograpy",
+  "description": "Cover Calibrator ASOM bridge for alpaca",
+  "version": "0.0.0",
+  "frameworks": "arduino",
+  "platforms": ["espressif32"]
+}

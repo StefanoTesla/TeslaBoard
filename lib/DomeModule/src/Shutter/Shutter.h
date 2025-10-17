@@ -25,7 +25,7 @@ public:
 
 
 private:
-    Status shutterStatus = Error;
+    Status status = Error;
     DigitalInput OpenSensor;
     DigitalInput CloseSensor;
     DigitalOutput StartOpen;

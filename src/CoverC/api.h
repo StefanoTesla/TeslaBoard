@@ -1,29 +1,23 @@
 #ifndef CC_WEBSERVER
 #define CC_WEBSERVER
 
+
+extern CoverCalibratorModule CoverCalibrator;
 void coverWebApi(){
 
     server.on("/api/coverc/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["enable"] = CoverC.config.isEnable;
-        doc["order"] = CoverC.config.order;
+        doc["enable"] = CoverCalibrator.isEnable();
+        doc["order"] = CoverCalibrator.uiOrder;
 
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
-        calibrator["present"] = CoverC.config.calibrator.present;
-        calibrator["pwm"]["pin"] = Calibrator.getPinNumber();
+        CoverCalibrator.calibrator.getConfiguration(calibrator);
 
         JsonObject cover = doc["cover"].to<JsonObject>();
-        cover["present"] = CoverC.config.cover.present;
+        CoverCalibrator.cover.getConfiguration(cover);
         
-        JsonObject servo = cover["servo"].to<JsonObject>();
-        servo["pin"] = Cover.getPinNumber();
-        servo["closeDeg"] = Cover.closeDeg;
-        servo["openDeg"] = Cover.openDeg;
-        servo["maxDeg"] = Cover.getMax();
-        servo["movTime"] = Cover.movingTime;
-        
-        doc["reboot"] = CoverC.config.save.restartNeeded;
+//        doc["reboot"] = CoverC.config.save.restartNeeded;
 
         response->setLength();
         request->send(response);
@@ -34,15 +28,15 @@ void coverWebApi(){
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         JsonObject calibrator = doc["calibrator"].to<JsonObject>();
-        calibrator["status"] = CoverC.status.calibrator.status;
-        if(CoverC.config.calibrator.present){
-            calibrator["brightness"] = Calibrator.status();
+        calibrator["status"] = CoverCalibrator.calibrator.getStatus();
+        if(CoverCalibrator.calibrator.isEnable()){
+            calibrator["brightness"] = CoverCalibrator.calibrator.getBrightness();
         }
 
         JsonObject cover = doc["cover"].to<JsonObject>();
-        cover["status"] = CoverC.status.cover.status;
-        if(CoverC.config.cover.present){
-            cover["angle"] = CoverC.status.cover.angle;
+        cover["status"] = CoverCalibrator.cover.getStatus();
+        if(CoverCalibrator.cover.isEnable());){
+            cover["angle"] = CoverCalibrator.cover.getStatus(); /* TODO */
         }
         
 
@@ -54,6 +48,7 @@ void coverWebApi(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
+        
         if(Cover.isMoving() == false && CoverC.config.cover.present){
             doc["execute"] = true;
             CoverC.command.cover.move = true;

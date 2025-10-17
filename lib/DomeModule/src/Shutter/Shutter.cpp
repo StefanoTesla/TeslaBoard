@@ -37,7 +37,7 @@ void Shutter::loop(){
 
 /* return true if you can open, otherwise false */
 bool Shutter::canOpen(){
-    if(shutterStatus == Closed || shutterStatus == Error){
+    if(status == Closed || status == Error){
         return true;
     }
     return false;
@@ -45,7 +45,7 @@ bool Shutter::canOpen(){
 
 /* return true if shutter is open, otherwise false */
 bool Shutter::isOpen(){
-    if(shutterStatus == Opened){
+    if(status == Opened){
         return true;
     }
 
@@ -62,7 +62,7 @@ void Shutter::open() {
 
 /* return true if you can close, otherwise false */
 bool Shutter::canClose(){
-    if(shutterStatus == Opened || shutterStatus == Error){
+    if(status == Opened || status == Error){
         return true;
     }
     return false;
@@ -71,7 +71,7 @@ bool Shutter::canClose(){
 
 /* return true if shutter is close, otherwise false */
 bool Shutter::isClosed(){
-    if(shutterStatus == Closed){
+    if(status == Closed){
         return true;
     }
 
@@ -104,21 +104,21 @@ bool Shutter::isMoving() {
 
 void Shutter::updateStatus() {
 
-    shutterStatus = Error;
+    status = Error;
 
     if (actualCmd == Idle){
         
         if(OpenSensor.status() && !CloseSensor.status()){
-            shutterStatus = Opened;
+            status = Opened;
         } else if(CloseSensor.status() && !OpenSensor.status()){
-            shutterStatus = Closed;
+            status = Closed;
         }
     } else {
 
         if(actualCmd == Open){
-            shutterStatus = Opening;
+            status = Opening;
         } else if (actualCmd == Close){
-            shutterStatus = Closing;
+            status = Closing;
         }
     }
 }
@@ -128,7 +128,7 @@ void Shutter::updateLastCommunication() {
 }
 
 Shutter::Status Shutter::getStatus() const {
-    return shutterStatus;
+    return status;
 }
 
 Shutter::ActualCommand Shutter::getActualCommand() const {

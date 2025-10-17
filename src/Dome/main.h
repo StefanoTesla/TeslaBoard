@@ -1,8 +1,6 @@
 #ifndef DOME_MAIN
 #define DOME_MAIN
-
 extern DomeModule Dome;
-
 
 AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
     if(Dome.isEnable()){

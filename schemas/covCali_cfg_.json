@@ -1,0 +1,22 @@
+{
+    "enable": true,
+    "uiOrder": 1,
+    "schema": 1,
+    "identifier": "CoverCalibrator",
+    "calibrator":{
+        "enable": true,
+        "outPWM":{
+            "pin": 1
+        }
+    },
+    "cover":{
+        "enable": true,
+        "outServo":{
+            "pin": 1,
+            "maxDeg": 1,
+            "openDeg": 1,
+            "closeDeg": 1,
+            "moveTime": 1
+        }
+    }
+}

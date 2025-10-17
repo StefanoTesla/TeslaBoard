@@ -1,7 +1,6 @@
 #define ALPACA_PORT 4567
 
 #define BOARD_IDENTIFIER "TeslaBoard"
-#define DOME_IDENTIFIER "Dome"
 #define CC_IDENTIFIER "Cover Calibrator"
 #define SWITCH_IDENTIFIER "Switch"
 
@@ -12,10 +11,11 @@
 
 #include "libraries.h"
 
+
 AsyncWebServer server(80);
 AsyncWebServer alpaca(ALPACA_PORT);
 TeslaWiFiManager wi(&server);
-
+PWMManager pwmMgr;
 #include "header.h"
 
 
@@ -29,6 +29,7 @@ TeslaWiFiManager wi(&server);
 #include "Alpaca/apiManage.h"
 
 DomeModule Dome;
+CoverCalibratorModule CoverCalibrator(&pwmMgr);
 DNSServer dns;
 AsyncUDP udp;
 
@@ -41,7 +42,6 @@ void setup() {
     Serial.println("An Error has occurred while mounting LittleFS");
     return;
   }
-  Dome.begin();
 
 
   startupTask();
@@ -53,8 +53,8 @@ void setup() {
   alpacaDiscovery(udp);
   AlpacaManager();
   domeRequestHandler();
-  coverCalibratorRequestHandler();
-  switchRequestHandler();
+  //coverCalibratorRequestHandler();
+  //switchRequestHandler();
   boardWebServer();
 
   server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");

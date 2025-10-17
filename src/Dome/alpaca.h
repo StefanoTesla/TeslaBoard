@@ -12,7 +12,7 @@ void domeAlpacaManage(){
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot().to<JsonObject>();
 
-      doc["Value"] = std::string(DOME_IDENTIFIER) + " - TeslaBoard";
+      doc["Value"] = Dome.getIdentifier() + " - TeslaBoard";
 
       response->setLength();
       request->send(response);

@@ -1,12 +1,12 @@
-#include "Dome.h"
+#include "CoverCalibratorModule.h"
 
 
 /* initialize the dome */
-void DomeModule::begin(){
+void CoverCalibratorModule::begin(){
     JsonDocument doc;
     Preferences pref;
     
-    if(!pref.begin(DOME_SCHEMA_NAME)){
+    if(!pref.begin(COVERC_SCHEMA_NAME)){
         initNVS(pref);
     };
 
@@ -23,7 +23,7 @@ void DomeModule::begin(){
     int schemaVersion = pref.getInt("schema");
     Serial.print(schemaVersion);
 
-    if(schemaVersion < DOME_SCHEMA_VERSION){
+    if(schemaVersion < COVERC_SCHEMA_VERSION){
 
         switch (schemaVersion)
         {
@@ -36,40 +36,44 @@ void DomeModule::begin(){
         }
     }
 
-    /* basic data for dome is taken, module bening*/
-
-
-    String cfg = pref.getString("shutter","{}");
+    /* basic data for CoverCalibratorModule is taken, module bening*/
+    String cfg = pref.getString("calibrator","{}");
     
     DeserializationError error = deserializeJson(doc, cfg);
     pref.end();
 
     if(!error){
-        shutter.begin(doc);
+        calibrator.begin(doc);
     }
 
-    if(shutter.isEnable()){
-        moduleEnable = true;
-    } else {
-        moduleEnable = false;
+    cfg.clear();
+    cfg = pref.getString("cover","{}");
+    
+
+    error = deserializeJson(doc, cfg);
+    pref.end();
+
+    if(!error){
+        cover.begin(doc);
     }
 
 }
 
-void DomeModule::updateNVS1(Preferences pref){
+void CoverCalibratorModule::updateNVS1(Preferences pref){
     pref.end();
-    pref.begin(DOME_SCHEMA_NAME);
+    pref.begin(COVERC_SCHEMA_NAME);
     pref.putBool("enable",false);
     pref.putInt("schema",1);
-    pref.putInt("order",DOME_SCHEMA_VERSION);
-    pref.putString("shutter","{}");
+    pref.putInt("order",COVERC_SCHEMA_VERSION);
+    pref.putString("calibrator","{}");
+    pref.putString("cover","{}");
     pref.end();
-    pref.begin(DOME_SCHEMA_NAME,true);
+    pref.begin(COVERC_SCHEMA_NAME,true);
 }
 
-void DomeModule::initNVS(Preferences pref){
+void CoverCalibratorModule::initNVS(Preferences pref){
 
-    if(!pref.begin(DOME_SCHEMA_NAME, false)){
+    if(!pref.begin(COVERC_SCHEMA_NAME, false)){
         Serial.println("unable to write NVS page");
         pref.end();
         return;
@@ -79,41 +83,42 @@ void DomeModule::initNVS(Preferences pref){
     pref.putBool("enable",false);
     pref.putInt("order",1);
     pref.putInt("schema",1);
-    pref.putString("shutter","{}");
+    pref.putString("calibrator","{}");
+    pref.putString("cover","{}");
 
     pref.end();
-    pref.begin(DOME_SCHEMA_NAME,true);
+    pref.begin(COVERC_SCHEMA_NAME,true);
     Serial.println("NVS initialized");
 }
 
-bool DomeModule::isEnable(){
-    Serial.println("");
-    Serial.print("Dome module is: ");
-    Serial.println(moduleEnable);
+bool CoverCalibratorModule::isEnable(){
     return moduleEnable;
 }
 
 
-void DomeModule::loop(){
+void CoverCalibratorModule::loop(){
     
-    if(shutter.isEnable()){
-        shutter.loop();
+    if(isEnable()){
+        calibrator.loop();
+        cover.loop();
     }
 }
 
 
-void DomeModule::getConfiguration(JsonObject dest){
+void CoverCalibratorModule::getConfiguration(JsonObject dest){
 
     dest["enable"] = moduleEnable;
     dest["uiOrder"] = uiOrder;
     dest["identifier"] = identifier;
-    JsonObject shutterObj = dest["shutter"].to<JsonObject>();
-    shutter.getConfiguration(shutterObj);
+    JsonObject calibObj = dest["calibrator"].to<JsonObject>();
+    calibrator.getConfiguration(calibObj);
+    JsonObject coverObj = dest["cover"].to<JsonObject>();
+    cover.getConfiguration(coverObj);
 
 }
 
 
-void DomeModule::validateConfiguration(const JsonObject &toBeValidated, JsonObject response){
+void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidated, JsonObject response){
 
     response["reboot"] = false;
 
@@ -137,29 +142,34 @@ void DomeModule::validateConfiguration(const JsonObject &toBeValidated, JsonObje
         return;
     }
 
-    if(!toBeValidated["shutter"].is<JsonObject>()){
-        err.add("Shutter Configuration is missing");
+    if(!toBeValidated["calibrator"].is<JsonObject>()){
+        err.add("Calibrator Configuration is missing");
         return;
     }
     
-    Serial.println("shutter exist");
+    calibrator.validateConfiguration(toBeValidated["calibrator"],response);
 
-    shutter.validateConfiguration(toBeValidated["shutter"],response);
+    if(!toBeValidated["cover"].is<JsonObject>()){
+        err.add("Calibrator Configuration is missing");
+        return;
+    }
+
+    cover.validateConfiguration(toBeValidated["cover"],response);
 
 }
 
 
-void DomeModule::storeConfiguration(JsonObject toBeStored){
+void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
 
     Preferences pref;
 
-    pref.begin(DOME_SCHEMA_NAME);
+    pref.begin(COVERC_SCHEMA_NAME);
 
     bool inEnable = toBeStored["enable"].as<bool>();
 
     pref.putBool("enable",inEnable);
     pref.putInt("uiOrder",toBeStored["uiOrder"].as<int>());
-    pref.putInt("schema",DOME_SCHEMA_VERSION);
+    pref.putInt("schema",COVERC_SCHEMA_VERSION);
     pref.putString("identifier",toBeStored["identifier"].as<String>());
  
     pref.end();
@@ -173,6 +183,7 @@ void DomeModule::storeConfiguration(JsonObject toBeStored){
         return;
     }
 
-    shutter.storeConfiguration(toBeStored["shutter"],DOME_SCHEMA_NAME);
+    calibrator.storeConfiguration(toBeStored["calibrator"],COVERC_SCHEMA_NAME);
+    cover.storeConfiguration(toBeStored["cover"],COVERC_SCHEMA_NAME);
 
 }

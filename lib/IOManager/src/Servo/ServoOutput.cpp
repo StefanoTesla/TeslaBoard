@@ -16,10 +16,6 @@
 //the Slow Moviment got an auxiliar parameter _overridePosition, if set to true, status will return the destination position instead the real angle
 //this to bypass a problem with N.I.N.A
 
-ServoOutput::ServoOutput(){
-    
-}
-
 void ServoOutput::setup(IOConfigBase* config){
   if (config->getType() != 4) {
     Serial.println("Errore: SERVO tipo di configurazione non valido!");
@@ -48,6 +44,38 @@ void ServoOutput::setup(IOConfigBase* config){
   Serial.println(movingTime);
 
 }
+
+
+void ServoOutput::jsonSetup(JsonObject setup){
+
+  channel = -1;
+  channel = chMgr->getSlowChannel();
+
+  if(channel > 0){
+    pin = setup["pin"].as<unsigned int>();
+    min = 0;
+    max = setup["maxDeg"].as<unsigned int>();
+    openDeg = setup["openDeg"].as<unsigned int>();
+    closeDeg = setup["closeDeg"].as<unsigned int>();
+    movingTime = setup["moveDeg"].as<unsigned int>() * 1000;
+    ledcSetup(pin, 50, 12);
+    ledcAttachPin(pin,channel); 
+  }
+
+
+}
+
+bool ServoOutput::pinUnusable(int pin){
+    if(pin == 1 or pin == 3 or (pin >=6 and pin <=11) or pin == 20 or pin == 24 or (pin >=28 and pin <= 31)){
+        return true;
+    }
+    
+    if(pin > 33){
+        return true;
+    }
+  return false;
+}
+
 
 int ServoOutput::write(int _angle) {
     if (_angle >= 0 && _angle <= max){

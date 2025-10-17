@@ -1,79 +1,33 @@
 #ifndef CC_MAIN
 #define CC_MAIN
 
-
-PWMOutput Calibrator;
-ServoOutput Cover;
-
-#include "CoverC/variables.h"
-#include "config.h"
-
-
-
-
-void calibratorhandlerloop() {
-
-    if(!CoverC.config.calibrator.present){
-      CoverC.status.calibrator.status = CalibStatusNoPresent;
-      return;
-    } else {
-      if(Calibrator.status() == 0){
-        CoverC.status.calibrator.status = CalibStatusOff;
-      } else {
-        CoverC.status.calibrator.status = CalibStatusReady;
-      }
-    }
-}
-
-void coverCycle(){
-
-  CoverC.status.cover.angle = Cover.status();
-  CoverC.status.cover.status = CoverStatusUnknow;
-  if (Cover.isMoving()){
-    CoverC.status.cover.status = CoverStatusMoving;
-  } else if(Cover.isClose()){
-    CoverC.status.cover.status = CoverStatusClose;
-  } else if (Cover.isOpen()){
-    CoverC.status.cover.status = CoverStatusOpen;
-  }
-
-
-  if(CoverC.command.cover.move){
-    if(CoverC.status.cover.status == CoverStatusUnknow){
-      Cover.write(CoverC.command.cover.angle);
-    } else {
-      Cover.goToSlowly(CoverC.command.cover.angle,false);
-    }
-    CoverC.command.cover.move = false;
-  }
-  
-}
-
-void coverHandlerloop() {
-
-    if(!CoverC.config.cover.present){
-      CoverC.status.cover.status = CoverStatusNoPresent;
-      return;
-    }
-    
-    coverCycle();
-    
-}
-
-
-
-void coverCalibratorLoop(){
-  calibratorhandlerloop();
-  coverHandlerloop();
-
-  if (CoverC.config.save.execute){
-    CoverC.config.save.execute = false;
-    saveCoverCConfig();
-  }
-}
-
 #include "api.h"
 #include "alpaca.h"
+
+AsyncMiddlewareFunction isCoverCEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
+AsyncMiddlewareFunction isCoverEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.cover.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
+AsyncMiddlewareFunction isCalibratorEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.calibrator.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
 
 
 void coverCalibratorRequestHandler(){

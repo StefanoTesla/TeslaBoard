@@ -50,7 +50,6 @@ void initCoverCConfig(){
     CoverC.config.isEnable = preferences.getBool("enable", false);
 
     if(!CoverC.config.isEnable){
-        //DomeDebug("module not enable, aborting init process...");
         preferences.end();
         return;
     }
