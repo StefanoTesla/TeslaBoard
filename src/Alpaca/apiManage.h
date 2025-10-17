@@ -45,7 +45,7 @@ void AlpacaManager(){
       switc["UniqueID"] = "d93f20fb-aa85-49ed-8799-9f50c0969ede";
     }
 
-    if(CoverC.config.isEnable){
+    if(CoverCalibrator.isEnable()){
     JsonObject cover = Value.add<JsonObject>();
     cover["DeviceName"] = std::string(CC_IDENTIFIER) +" - TeslaBoard";
     cover["DeviceType"] = "CoverCalibrator";

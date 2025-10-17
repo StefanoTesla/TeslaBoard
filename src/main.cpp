@@ -21,8 +21,8 @@ PWMManager pwmMgr;
 
 #include "Alpaca/common.h"
 #include "Alpaca/middleware.h"
-#include "Dome/main.h"
-#include "CoverC/main.h"
+#include "Dome/api.h"
+#include "CoverC/api.h"
 #include "Switch/main.h"
 #include "Board/webserver.h"
 #include "Board/main.h"
@@ -53,7 +53,7 @@ void setup() {
   alpacaDiscovery(udp);
   AlpacaManager();
   domeRequestHandler();
-  //coverCalibratorRequestHandler();
+  CoverCalibratorApi();
   //switchRequestHandler();
   boardWebServer();
 
@@ -81,7 +81,7 @@ void loop() {
 
   boardLoop();
   Dome.loop();
-  coverCalibratorLoop();
+  CoverCalibrator.loop();
   SwitchLoop();
 
 }

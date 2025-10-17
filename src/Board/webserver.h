@@ -22,8 +22,8 @@ void boardWebServer(){
         sw["order"] = Switch.config.order;
         JsonObject coverc = modules.add<JsonObject>();
         coverc["name"] = "coverc";
-        coverc["enable"] = CoverC.config.isEnable;
-        coverc["order"] = CoverC.config.order;
+        coverc["enable"] = CoverCalibrator.isEnable();
+        coverc["order"] = CoverCalibrator.uiOrder;
         
 
         doc["version"] = SW_VERSION;

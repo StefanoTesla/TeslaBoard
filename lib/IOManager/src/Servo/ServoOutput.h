@@ -3,6 +3,7 @@
 
 #include "IOBase.h"
 #include <PWMManager.h>
+#include <ArduinoJson.h>
 
 class ServoOutput : public IOBase {
 

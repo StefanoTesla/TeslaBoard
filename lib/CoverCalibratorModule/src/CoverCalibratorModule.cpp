@@ -6,13 +6,13 @@ void CoverCalibratorModule::begin(){
     JsonDocument doc;
     Preferences pref;
     
-    if(!pref.begin(COVERC_SCHEMA_NAME)){
+    if(!pref.begin(COVERC_SCHEMA_NAME,true)){
         initNVS(pref);
     };
 
     moduleEnable = pref.getBool("enable");
     uiOrder = pref.getInt("order",1);
-    identifier = pref.getString("identifier","Dome");
+    identifier = pref.getString("identifier",identifier);
 
     if(!moduleEnable){
 
@@ -21,7 +21,7 @@ void CoverCalibratorModule::begin(){
     }
     
     int schemaVersion = pref.getInt("schema");
-    Serial.print(schemaVersion);
+
 
     if(schemaVersion < COVERC_SCHEMA_VERSION){
 
@@ -40,7 +40,6 @@ void CoverCalibratorModule::begin(){
     String cfg = pref.getString("calibrator","{}");
     
     DeserializationError error = deserializeJson(doc, cfg);
-    pref.end();
 
     if(!error){
         calibrator.begin(doc);

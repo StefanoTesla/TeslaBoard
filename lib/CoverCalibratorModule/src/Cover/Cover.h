@@ -29,8 +29,9 @@ public:
 private:
 
     bool moduleEnable = false;
+    bool rebootPending = false;
     
-    Status coverStatus = NotPresent;
+    Status status = NotPresent;
     ServoOutput cover;
     ActualCommand actualCmd = Idle;
     JsonDocument tmpCfg;
@@ -55,6 +56,8 @@ public:
     void close();
 
     void halt();
+
+    int getAngle(){ return cover.status();}
     
     void loop();
     

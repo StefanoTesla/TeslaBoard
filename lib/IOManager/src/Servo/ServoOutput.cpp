@@ -225,3 +225,86 @@ bool ServoOutput::isReferenced(){
   }
   return false;
 }
+
+
+int ServoOutput::validateJsonCfg(JsonObject json){
+
+  int maxDeg = 0;
+  int openDeg = 0;
+  int closeDeg = 0;
+
+  if(!json["pin"].is<unsigned int>()){
+      return -1;
+    } else {
+      if(pinUnusable(json["pin"].as<unsigned int>())){
+        return -10;
+      }
+  }
+
+  if(!json["maxDeg"].is<unsigned int>()){
+      return -5;
+    } else {
+      maxDeg = json["maxDeg"].as<unsigned int>();
+      if(maxDeg>360){
+        return -500;
+      }
+  }
+  if(!json["openDeg"].is<unsigned int>()){
+      return -6;
+    } else {
+      openDeg = json["openDeg"].as<unsigned int>();
+      if(openDeg>360){
+        return -600;
+      }
+      if(openDeg>maxDeg){
+        return -601;
+      }
+  }
+  
+  if(!json["closeDeg"].is<unsigned int>()){
+      return -7;
+    } else {
+      closeDeg = json["closeDeg"].as<unsigned int>();
+      if(closeDeg>360){
+        return -700;
+      }
+      if(closeDeg>maxDeg){
+        return -701;
+      }
+  }
+
+  if(!json["movTime"].is<unsigned int>()){
+      return -8;
+  }
+
+  return 1;
+
+}
+
+/*
+return code table:
+1 validation is ok
+-1: pin is not unsigned integer
+-10: pin is not asable as output
+-5:maxServo not unsigned integer
+-500: maxServo is out of range
+-6:openDeg not unsigned integer
+-600: openDeg is out of range
+-601: openDeg is bigger than maxDeg
+-7:closeDeg not unsigned integer
+-700: closeDeg is out of range
+-701: closeDeg is bigger than maxDeg
+-8:movingTime not unsigned integer
+-10: type is not unsigned integer
+-1010: wrong type passed
+*/
+
+
+void ServoOutput::getConfiguration(JsonObject cfg){
+    cfg["pin"] = pin;
+    cfg["maxDeg"] = max;
+    cfg["openDeg"] = openDeg;
+    cfg["closeDeg"] = closeDeg;
+    cfg["movTime"] = movingTime;
+
+}

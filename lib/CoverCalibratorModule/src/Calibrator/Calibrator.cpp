@@ -1,16 +1,19 @@
 #include "Calibrator.h"
 
-/* Setup the shutter */
+/* Setup the calibrator */
 void Calibrator::begin(JsonDocument doc){
 
-    Serial.println("Shutter begin");
+    Serial.println("Calibrator begin");
     
     moduleEnable = doc["enable"];
 
-    JsonObject calib = doc["inOpen"];
-    calibrator.jsonSetup(calib);
+    if(moduleEnable){
 
-    moduleEnable = true;
+        JsonObject calib = doc["outPWM"];
+        calibrator.jsonSetup(calib);
+
+    }
+
 }
 
 

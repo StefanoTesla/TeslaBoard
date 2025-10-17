@@ -1,8 +1,324 @@
-#ifndef CC_WEBSERVER
-#define CC_WEBSERVER
-
+#ifndef COVERC_API
+#define COVERC_API
 
 extern CoverCalibratorModule CoverCalibrator;
+
+AsyncMiddlewareFunction isCoverCEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
+AsyncMiddlewareFunction isCoverEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.cover.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
+AsyncMiddlewareFunction isCalibratorEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.calibrator.isEnable()){
+      next();
+    } else {
+      request->send(500, "text/plain", "Module not enabled");
+    }
+    
+});
+
+AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+  int paramsNr = request->params();
+  String parameter;
+
+  request->setAttribute("brightness",  static_cast<long>(-1));
+  for (int i = 0; i < paramsNr; i++) {
+    const AsyncWebParameter* p = request->getParam(i);
+    parameter = p->name();
+    parameter.toLowerCase();
+    if (parameter == "brightness") {
+      request->setAttribute("brightness",  p->value().toInt());
+      next();
+    }
+  }
+  
+  next();
+});
+
+
+
+
+
+void coverAlpacaManage(){
+
+  alpaca.on("/api/v1/covercalibrator/0/name",                                                     HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+      doc["Value"] = CoverCalibrator.getIdentifier() + " - TeslaBoard";
+      response->setLength();
+      request->send(response);
+  }).addMiddlewares({&isCalibratorEnable,&getAlpacaID});
+
+  alpaca.on("/api/v1/covercalibrator/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+      doc["Value"] = "CoverCalibrator by Stefano TeslaBoard";
+      response->setLength();
+      request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/driverversion",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+    doc["Value"] = SW_VERSION;
+    response->setLength();
+    request->send(response);
+  });
+
+  alpaca.on("/api/v1/covercalibrator/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+
+    doc["Value"] = "New version with 20kHz flat panel and cover support";
+    
+    response->setLength();
+    request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/interfaceversion",                                         HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+
+    doc["Value"] = 2;
+
+    response->setLength();
+    request->send(response);
+  }).addMiddleware(&getAlpacaID);
+}
+
+void coverAlpacaDevice(){
+
+  alpaca.on("/api/v1/covercalibrator/0/brightness", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+
+        if(!CoverCalibrator.calibrator.isEnable()){
+            alpacaPropertyNotImplemented(request);
+            return;
+        }
+
+        doc["Value"] = CoverCalibrator.calibrator.getBrightness();
+        response->setLength();
+        request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/calibratorchanging", HTTP_GET, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+      
+      doc["Value"] = false;
+      
+      response->setLength();
+      request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/calibratorstate", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = CoverCalibrator.calibrator.getStatus();
+        response->setLength();
+        request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+
+alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = CoverCalibrator.calibrator.getMaxBrightness();
+        response->setLength();
+        request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+
+    alpaca.on("/api/v1/covercalibrator/0/calibratoron", HTTP_PUT, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      if(!CoverCalibrator.calibrator.isEnable()){
+             alpacaMethodNotImplemented(request);
+             return;
+      }
+      int br = request->getAttribute("brightness").toInt();
+      if(br == -1){
+            doc["ErrorNumber"] = 1025;
+            doc["ErrorMessage"] = "Brightness parameter not found";
+      } else if(br < 0 or br > CoverCalibrator.calibrator.getMaxBrightness()){
+            doc["ErrorNumber"] = 1025;
+            doc["ErrorMessage"] = "Brightness outside range";
+      } else {
+            CoverCalibrator.calibrator.setBrightness(br);
+            doc["ErrorNumber"] = 0;
+            doc["ErrorMessage"] = "";
+      }
+      response->setLength();
+      request->send(response);
+  }).addMiddlewares({&getAlpacaID,&getBrightness});
+
+
+  alpaca.on("/api/v1/covercalibrator/0/calibratoroff", HTTP_PUT, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      if(!CoverCalibrator.calibrator.isEnable()){
+             alpacaMethodNotImplemented(request);
+             return;
+      }
+      
+      CoverCalibrator.calibrator.setBrightness(0);
+      
+      response->setLength();
+      request->send(response); 
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/covermoving", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = CoverCalibrator.cover.isMoving();
+        response->setLength();
+        request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/coverstate", HTTP_GET, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = CoverCalibrator.cover.getStatus();
+        response->setLength();
+        request->send(response);
+  }).addMiddleware(&getAlpacaID);
+
+
+
+  alpaca.on("/api/v1/covercalibrator/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
+    AsyncJsonResponse* response = prepareAlpacaResponse(request);
+    JsonObject doc = response->getRoot();
+    JsonArray Value = doc["Value"].to<JsonArray>();
+    JsonObject calibStatus = Value.add<JsonObject>();
+    calibStatus["Name"] = "CalibratorState";
+    calibStatus["Value"] = CoverCalibrator.calibrator.getStatus();
+    JsonObject calibChanging = Value.add<JsonObject>();
+    calibChanging["Name"] = "CalibratorChanging";
+    calibChanging["Value"] = false;
+    JsonObject coverState = Value.add<JsonObject>();
+    coverState["Name"] = "CoverState";
+    coverState["Value"] = CoverCalibrator.cover.getStatus();
+    JsonObject coverMoving = Value.add<JsonObject>();
+    coverMoving["Name"] = "CoverMoving";
+    coverMoving["Value"] = CoverCalibrator.cover.isMoving();
+    response->setLength();
+    request->send(response);
+}).addMiddleware(&getAlpacaID);
+
+
+
+  alpaca.on("/api/v1/covercalibrator/0/closecover", HTTP_PUT, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      if(!CoverCalibrator.cover.isEnable()){
+            alpacaMethodNotImplemented(request);
+            return;
+      }
+      
+      if(CoverCalibrator.cover.isMoving()){
+            doc["ErrorNumber"] = 1035;
+            doc["ErrorMessage"] = "Cover is moving";
+            response->setLength();
+            request->send(response);
+            return;
+      }
+      
+      CoverCalibrator.cover.close();
+      
+      response->setLength();
+      request->send(response); 
+  }).addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/covercalibrator/0/opencover", HTTP_PUT, [](AsyncWebServerRequest *request){
+      AsyncJsonResponse* response = prepareAlpacaResponse(request);
+      JsonObject doc = response->getRoot();
+
+      if(!CoverCalibrator.cover.isEnable()){
+            alpacaMethodNotImplemented(request);
+            return;
+      }
+      
+      if(CoverCalibrator.cover.isMoving()){
+            doc["ErrorNumber"] = 1035;
+            doc["ErrorMessage"] = "Cover is moving";
+            response->setLength();
+            request->send(response);
+            return;
+      }
+
+      CoverCalibrator.cover.open();
+      
+      response->setLength();
+      request->send(response); 
+  }).addMiddleware(&getAlpacaID);
+
+
+    /* Property not implemented:*/
+    alpaca.on("/api/v1/covercalibrator/0/haltcover",        HTTP_PUT, alpacaPropertyNotImplemented).addMiddleware(&getAlpacaID);
+
+
+    /* Methods not implemented:*/
+    alpaca.on("/api/v1/covercalibrator/0/commandblind",     HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/commandbool",      HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/commandstring",    HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
+
+   /* I don't care about connection but we need to declare it*/
+    alpaca.on("/api/v1/covercalibrator/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        response->setLength();
+        request->send(response);
+
+    }).addMiddleware(&getAlpacaID);
+
+    alpaca.on("/api/v1/covercalibrator/0/disconnect", HTTP_PUT, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        response->setLength();
+        request->send(response);
+
+    }).addMiddleware(&getAlpacaID);
+
+    alpaca.on("/api/v1/covercalibrator/0/connecting", HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = false;
+        response->setLength();
+        request->send(response);
+    }).addMiddleware(&getAlpacaID);
+
+    alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        doc["Value"] = true;
+        response->setLength();
+        request->send(response);
+    }).addMiddleware(&getAlpacaID);
+
+    alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_PUT, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        response->setLength();
+        request->send(response);
+    }).addMiddleware(&getAlpacaID);
+
+    alpaca.on("/api/v1/covercalibrator/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddleware(&getAlpacaID);
+}
+
 void coverWebApi(){
 
     server.on("/api/coverc/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -35,59 +351,52 @@ void coverWebApi(){
 
         JsonObject cover = doc["cover"].to<JsonObject>();
         cover["status"] = CoverCalibrator.cover.getStatus();
-        if(CoverCalibrator.cover.isEnable());){
-            cover["angle"] = CoverCalibrator.cover.getStatus(); /* TODO */
+        if(CoverCalibrator.cover.isEnable()){
+            cover["angle"] = CoverCalibrator.cover.getAngle(); /* TODO */
         }
         
-
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCoverEnable}); 
 
     server.on("/api/coverc/open", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         
-        if(Cover.isMoving() == false && CoverC.config.cover.present){
+        if(CoverCalibrator.cover.canOpen() == false){
             doc["execute"] = true;
-            CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = Cover.openDeg;
+            CoverCalibrator.cover.open();
         } else {
-            doc["execute"] = false;
-            if(!CoverC.config.cover.present){
-                doc["error"] = "coverNotPresent";
-            }
-            if(Cover.isMoving()){
+            if(CoverCalibrator.cover.isMoving()){
                 doc["error"] = "coverIsMoving";
+            } else if(CoverCalibrator.cover.isOpen()){
+                doc["error"] = "coverIsOpen";
             }
         }
 
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
 
     server.on("/api/coverc/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        if(Cover.isMoving() == false && CoverC.config.cover.present){
+        if(CoverCalibrator.cover.canClose() == false){
             doc["execute"] = true;
-            CoverC.command.cover.move = true;
-            CoverC.command.cover.angle = Cover.closeDeg;
+            CoverCalibrator.cover.close();
         } else {
-            doc["execute"] = false;
-            if(!CoverC.config.cover.present){
-                doc["error"] = "coverNotPresent";
-            }
-            if(Cover.isMoving()){
+            if(CoverCalibrator.cover.isMoving()){
                 doc["error"] = "coverIsMoving";
+            } else if(CoverCalibrator.cover.isClosed()){
+                doc["error"] = "coverIsOpen";
             }
         }
 
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
 
     server.on("/api/coverc/brightness", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -100,73 +409,61 @@ void coverWebApi(){
         doc["execute"] = false;
 
         int paramsNr = request->params();
-        if( CoverC.config.calibrator.present ){
 
-            for (int i = 0; i < paramsNr; i++) {
-                const AsyncWebParameter* p = request->getParam(i);
-                parameter = p->name();
-                if (parameter == "brightness") {
-                    present = true;
-                    value = p->value().toInt();
-                    if(value >=0 && value <=Calibrator.getMax()){
-                        Calibrator.write(value);
-                        inRange = true;
-                        doc["execute"] = true;
-                    }
-                    else{
-                        inRange = false;
-                    }
-                }  
-            }
-            if(!present){
-                doc["error"] = "calibBrightnessNotPresent";
-            } else {
-                if(!inRange){
-                    doc["error"] = "calibBrightnessNotInRange";
+        for (int i = 0; i < paramsNr; i++) {
+            const AsyncWebParameter* p = request->getParam(i);
+            parameter = p->name();
+            if (parameter == "brightness") {
+                present = true;
+                value = p->value().toInt();
+                if(value >=0 && value <= CoverCalibrator.calibrator.getMaxBrightness()){
+                    CoverCalibrator.calibrator.setBrightness(value);
+                    inRange = true;
+                    doc["execute"] = true;
                 }
-            }
+                else{
+                    inRange = false;
+                }
+            }  
+        }
+        if(!present){
+            doc["error"] = "calibBrightnessNotPresent";
         } else {
-            if(!present){
-                doc["error"] = "calibratorNotPresent";
+            if(!inRange){
+                doc["error"] = "calibBrightnessNotInRange";
             }
         }
 
+
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
 
     server.on("/api/coverc/on", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
         doc["execute"] = false;
 
-        if( CoverC.config.calibrator.present ){
-            Calibrator.write(Calibrator.getMax());
-            doc["execute"] = true;
-        } else {
-            doc["error"] = "calibratorNotPresent";
-        }
+        CoverCalibrator.calibrator.setBrightness(4095);
+        doc["execute"] = true;
 
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
 
     server.on("/api/coverc/off", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["execute"] = false;
-        
-        if( CoverC.config.calibrator.present ){
-            Calibrator.write(0);
-            doc["execute"] = true;
-        } else {
-            doc["error"] = "calibratorNotPresent";
-        }
+
+        CoverCalibrator.calibrator.setBrightness(0);
+
+        doc["execute"] = true;
+
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable);
+    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
 
-
+#ifdef TODO
     AsyncCallbackJsonWebHandler* coverCConfigHandler = new AsyncCallbackJsonWebHandler("/api/coverc/cfg");
 
     coverCConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
@@ -312,7 +609,16 @@ void coverWebApi(){
         });
 
     server.addHandler(coverCConfigHandler);
-
+#endif
 }
+
+
+void CoverCalibratorApi(){
+
+  coverAlpacaManage();
+  coverAlpacaDevice();
+  coverWebApi();
+}
+
 
 #endif

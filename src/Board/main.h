@@ -11,7 +11,6 @@ void startupTask(){
     initBoardConfig();
     Dome.begin();
     CoverCalibrator.begin();
-    initCoverCConfig();
     initSwitchConfig();
 }
 
