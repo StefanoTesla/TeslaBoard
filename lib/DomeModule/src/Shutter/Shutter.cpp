@@ -1,9 +1,16 @@
 #include "Shutter.h"
+#undef LOG_TAG
+#define LOG_TAG "Shutter"
+#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 /* Setup the shutter */
 void Shutter::begin(JsonDocument doc){
 
-    Serial.println("Shutter begin");
+    LOGI("stert loading configuration");
     
     driverType = doc["driverType"];
     travelTOUT = doc["movtimeOut"];

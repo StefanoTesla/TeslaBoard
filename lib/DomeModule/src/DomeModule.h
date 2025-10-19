@@ -5,6 +5,7 @@
 #include "Shutter/Shutter.h"
 #include <ArduinoJson.h>
 #include <Preferences.h>
+#include "esp_log.h"
 
 #define DOME_SCHEMA_VERSION 1
 #define DOME_SCHEMA_NAME "domecfg"
@@ -28,9 +29,8 @@ public:
 private:
 
 /* functions to handle the configuration */
-    void openNFS(bool readOnly);
-    void initNVS(Preferences pref);
-    void updateNVS1(Preferences pref);
+    void initNVS();
+    void updateNVS1();
 
     JsonDocument tmpCfg;
     bool moduleEnable;

@@ -47,13 +47,14 @@ public:
     int write(int _angle) override;
     bool goToSlowly(int _angle=0, bool overridePosition = true);
     int status();
-    unsigned int getChannel();
+    unsigned int getChannel(){return channel;}
     int getType() override;
     int setServoAngle(int _angle);
     int readAngle();
     bool isClose();
     bool isOpen();
     bool isMoving();
+    void halt();
     void loop();
     void setMax(int _value);
     void goTo(int _angle,bool slowPermitted); //used only for switch, software decide to perform a direct or slow moviment

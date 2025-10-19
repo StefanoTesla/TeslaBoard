@@ -135,6 +135,11 @@ bool ServoOutput::isMoving(){
     return false;
 }
 
+
+void ServoOutput::halt(){
+  moving = false;
+}
+
 void ServoOutput::goTo(int _angle,bool slowPermitted){
 
   if(isReferenced() && slowPermitted && movingTime != 0){
@@ -190,7 +195,7 @@ switch (cycle){
     case 10:
       if(millis() - MoveToSlowly.actualMillis >= MoveToSlowly.intervall){
         MoveToSlowly.nextDeg += MoveToSlowly.increment ? +1 : -1;
-        Serial.println(MoveToSlowly.nextDeg);
+
         if((MoveToSlowly.increment && MoveToSlowly.nextDeg < MoveToSlowly.destination) ||
             (!MoveToSlowly.increment && MoveToSlowly.nextDeg > MoveToSlowly.destination)) {
               write(MoveToSlowly.nextDeg);

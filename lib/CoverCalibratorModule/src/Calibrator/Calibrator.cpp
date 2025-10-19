@@ -80,8 +80,6 @@ void Calibrator::validateConfiguration(const JsonObject &obj, JsonObject respons
         return;
     }
 
-
-
     /* check if board need a reboot */
 
     if(calibPin["pin"].as<unsigned int>() != calibrator.getPinNumber()){

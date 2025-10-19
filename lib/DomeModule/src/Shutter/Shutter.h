@@ -5,6 +5,7 @@
 #include "IOManager.h"
 #include <ArduinoJson.h>
 #include <Preferences.h>
+#include "esp_log.h"
 
 class Shutter {
 public:

@@ -146,7 +146,7 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response){
 
     if(retVal != 1){
         JsonObject e = err.add<JsonObject>();
-        e["id"] = 1;
+        e["id"] = 2;
         e["error"] = retVal;
         return;
     }
@@ -154,7 +154,6 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response){
     /* check if board need a reboot */
 
     if(coverCfg["pin"].as<unsigned int>() != cover.getPinNumber()){
-        Serial.print("reboot");
         response["reboot"] = true;
     }    
 
@@ -164,7 +163,6 @@ void Cover::storeConfiguration(JsonObject coverObject, const char* schema){
 
     tmpCfg.clear();
     
-
     bool incomingEnable = coverObject["enable"].as<bool>();
     /* copy the data*/
     tmpCfg["enable"] = incomingEnable;

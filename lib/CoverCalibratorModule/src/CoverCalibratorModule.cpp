@@ -148,12 +148,18 @@ void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidate
     
     calibrator.validateConfiguration(toBeValidated["calibrator"],response);
 
+
+    if(err.size()>0){
+        return;
+    }
+
     if(!toBeValidated["cover"].is<JsonObject>()){
         err.add("Calibrator Configuration is missing");
         return;
     }
 
     cover.validateConfiguration(toBeValidated["cover"],response);
+
 
 }
 
