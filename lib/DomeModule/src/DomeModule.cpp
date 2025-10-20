@@ -13,7 +13,7 @@ void DomeModule::begin(){
     JsonDocument doc;
     Preferences pref;
     
-    if(!pref.begin(DOME_SCHEMA_NAME)){
+    if(!pref.begin(DOME_SCHEMA_NAME,true)){
         LOGE("Error loading dome nvs partition, trying to format it");
         initNVS();
         if(!pref.begin(DOME_SCHEMA_NAME)){
@@ -97,7 +97,7 @@ void DomeModule::initNVS(){
     Preferences pref;
     LOGI("NVS initialization begin");
     if(!pref.begin(DOME_SCHEMA_NAME, false)){
-        LOGE("Unable to access to NVS, initialization failed");
+        LOGE("Unable to read the NVS page, initialization failed");
         pref.end();
         return;
     };

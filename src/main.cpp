@@ -35,12 +35,33 @@ AsyncUDP udp;
 
 #include "Alpaca/discovery.h"
 
+void initNVS(){
+      esp_err_t ret = nvs_flash_init();
+
+    if (ret == ESP_OK) {
+        Serial.println("NVS Initialized");
+    } else if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        Serial.printf("[WiFiMgr] NVS Error: %s\n", esp_err_to_name(ret));
+        Serial.println("[WiFiMgr] Trying to format it.");
+        esp_err_t erase_ret = nvs_flash_erase();
+        if (erase_ret == ESP_OK) {
+            ret = nvs_flash_init();
+            if (ret == ESP_OK) {
+                Serial.println("NVS Initialized");
+                return;
+            }
+        }
+    }
+  }
+
 
 void setup() {
+  esp_log_level_set("Dome", ESP_LOG_VERBOSE);
+  initNVS();
   Serial.begin(115200);
   if(!LittleFS.begin()){
     Serial.println("An Error has occurred while mounting LittleFS");
-    return;
+  //  return;
   }
 
 
@@ -85,3 +106,4 @@ void loop() {
   SwitchLoop();
 
 }
+

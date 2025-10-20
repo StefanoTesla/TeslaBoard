@@ -50,7 +50,7 @@ public:
     unsigned int getChannel(){return channel;}
     int getType() override;
     int readAngle();
-    bool isMoving(){ return isMoving; };
+    bool isMoving(){ return positioning; };
     void halt();
     void loop();
     void setMax(int _value);

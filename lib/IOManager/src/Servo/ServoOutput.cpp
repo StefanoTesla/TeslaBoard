@@ -104,30 +104,10 @@ int ServoOutput::getType(){
     return 4;
 }
 
-bool ServoOutput::isClose(){
-    if(status()==closeDeg && !moving){
-        return true;
-    }
-    return false;
-}
-
-bool ServoOutput::isOpen(){
-    if(status()==openDeg && !moving){
-        return true;
-    }
-    return false;
-}
-
-bool ServoOutput::isMoving(){
-    if(moving){
-        return true;
-    }
-    return false;
-}
 
 
 void ServoOutput::halt(){
-  moving = false;
+  positioning = false;
 }
 
 void ServoOutput::goTo(int _angle,bool slowPermitted){
@@ -142,7 +122,7 @@ void ServoOutput::goTo(int _angle,bool slowPermitted){
 
 bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
-      if(moving){
+      if(positioning){
          return false;
       }
 
@@ -163,20 +143,20 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
         MoveToSlowly.intervall = 1;
       }
       MoveToSlowly.increment = readAngle() > _angle ? false : true; 
-      moving = true;
+      positioning = true;
       overridePosition = _overridePosition ? true : false;
       return true;
 }
 
 void ServoOutput::servoHandler(){
 
-  if(!moving){
+  if(!positioning){
     return;
   }
 
   switch (cycle){
       case 0:
-        if(!moving){
+        if(!positioning){
           overridePosition = false;
           return;
         }
@@ -197,14 +177,15 @@ void ServoOutput::servoHandler(){
           } else {
             write(MoveToSlowly.destination);
             cycle = 0;
-            moving = false;
+
+            positioning = false;
           }
         }
         break;
       
       default:
         cycle = 0;
-        moving = false;
+        positioning = false;
         break;
     }
   }
@@ -212,14 +193,9 @@ void ServoOutput::servoHandler(){
 void ServoOutput::loop(){
 }
 
-void ServoOutput::setMax(int _value){
-  if(_value > 0 && _value <= 360){
-    max = _value;
-  }
-}
 
 bool ServoOutput::isReferenced(){
-  if(readAngle() >= 0 && readAngle()<=getMax()){
+  if(readAngle() >= 0 && readAngle()<=100){
     return true;
   }
   return false;
