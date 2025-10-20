@@ -20,7 +20,7 @@ void Cover::loop(){
 
 /* return true if you can open, otherwise false */
 bool Cover::canOpen(){
-    if(status == Closed || status == Error){
+    if(status != Closed || status == Error){ /*TODO*/
         return true;
     }
     return false;
@@ -170,6 +170,7 @@ void Cover::storeConfiguration(JsonObject coverObject, const char* schema){
     if(incomingEnable){
         JsonObject servo = tmpCfg["outServo"].to<JsonObject>();
         cover.copyJsonCfg(coverObject["outServo"],servo);
+        /*set the variables don't need a reboot */
         cover.setMax(servo["maxDeg"]);
         cover.openDeg = servo["openDeg"].as<unsigned int>();
         cover.closeDeg = servo["closeDeg"].as<unsigned int>();

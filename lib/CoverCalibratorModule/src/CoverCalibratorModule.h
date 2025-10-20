@@ -8,14 +8,6 @@
 #include <Preferences.h>
 #include <PWMManager.h>
 
-#include "esp_log.h"
-#define LOG_TAG "CovCal"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
-
 #define COVERC_SCHEMA_VERSION 1
 #define COVERC_SCHEMA_NAME "cccfg"
 
@@ -44,9 +36,8 @@ public:
 private:
 
 /* functions to handle the configuration */
-    void openNFS(bool readOnly);
-    void initNVS(Preferences pref);
-    void updateNVS1(Preferences pref);
+    void initNVS();
+    void updateNVS1();
 
     JsonDocument tmpCfg;
     bool moduleEnable;

@@ -86,8 +86,6 @@ void Calibrator::validateConfiguration(const JsonObject &obj, JsonObject respons
         response["reboot"] = true;
     }
 
-    
-
 }
 
 void Calibrator::storeConfiguration(JsonObject calibratorObject, const char* schema){
@@ -96,9 +94,10 @@ void Calibrator::storeConfiguration(JsonObject calibratorObject, const char* sch
 
     tmpCfg["enable"] = calibratorObject["enable"];
 
-    JsonObject outPWM = tmpCfg["outPWM"].to<JsonObject>();
-    calibrator.copyJsonCfg(calibratorObject["outPWM"],outPWM);
-
+    if(tmpCfg["enable"].as<bool>()){
+        JsonObject outPWM = tmpCfg["outPWM"].to<JsonObject>();
+        calibrator.copyJsonCfg(calibratorObject["outPWM"],outPWM);
+    }
 
     String json;
     serializeJson(tmpCfg,json);
@@ -106,7 +105,7 @@ void Calibrator::storeConfiguration(JsonObject calibratorObject, const char* sch
     Preferences pref;
     pref.begin(schema);
 
-    pref.putString("shutter",json);
+    pref.putString("calibrator",json);
     pref.end();
     tmpCfg.clear();
 }

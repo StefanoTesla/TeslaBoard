@@ -70,7 +70,7 @@ private:
     };
 
     CycleStep actualStep = WaitForACommand;
-
+    CycleStep previousStep;
     struct autoClose{
         bool enable = false;
         unsigned long waitingTime = 30; //[min] during the setup is multiplied by 60000 to conver minutes to ms
@@ -92,6 +92,8 @@ private:
     
     JsonDocument tmpCfg;
 
+    bool oSP = false;
+    unsigned long oneSecondPulse;
 
 public:
     Shutter() = default;

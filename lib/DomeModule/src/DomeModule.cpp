@@ -16,6 +16,10 @@ void DomeModule::begin(){
     if(!pref.begin(DOME_SCHEMA_NAME)){
         LOGE("Error loading dome nvs partition, trying to format it");
         initNVS();
+        if(!pref.begin(DOME_SCHEMA_NAME)){
+            LOGE("Critical, unable to loading dome nvs after initialization");
+            return;
+        };
     };
 
     moduleEnable = pref.getBool("enable");
@@ -31,9 +35,10 @@ void DomeModule::begin(){
     int schemaVersion = pref.getInt("schema");
     LOGD("schema version is: %d", schemaVersion);
 
-    pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
+
 
     if(schemaVersion < DOME_SCHEMA_VERSION){
+        pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
         LOGW("schema need an upgrade");
         switch (schemaVersion)
         {
@@ -100,6 +105,7 @@ void DomeModule::initNVS(){
     pref.putBool("enable",false);
     pref.putInt("order",1);
     pref.putInt("schema",1);
+    pref.putString("identifier","Dome");
     pref.putString("shutter","{}");
     pref.end();
 
@@ -165,6 +171,11 @@ void DomeModule::validateConfiguration(const JsonObject &toBeValidated, JsonObje
         return;
     }
     
+    if(!toBeValidated["enable"]){
+        LOGI("Main module is not enable, stop validation");
+        return;
+    }
+
     LOGI("Main data validation ok, starting with shutter data");
 
     shutter.validateConfiguration(toBeValidated["shutter"],response);
@@ -187,13 +198,13 @@ void DomeModule::storeConfiguration(JsonObject toBeStored){
     pref.end();
 
     /* apply only the changes that don't require a reboot */
-    LOGI("Applying the daata dont require a reboot");
+    LOGI("Applying data dont require a reboot");
     uiOrder = toBeStored["uiOrder"].as<int>();
     identifier = toBeStored["identifier"].as<String>();
 
     /* if module is not enable don't write anymore*/
     if(!inEnable ){
-        LOGI("Module is not enable, writing new configuration done.");
+        LOGI("Main Module is not enable, writing new configuration done.");
         return;
     }
     LOGI("Main config done, start with shutter");

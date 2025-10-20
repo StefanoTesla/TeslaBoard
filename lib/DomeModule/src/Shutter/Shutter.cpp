@@ -10,7 +10,7 @@
 /* Setup the shutter */
 void Shutter::begin(JsonDocument doc){
 
-    LOGI("stert loading configuration");
+    LOGI("start loading configuration");
     
     driverType = doc["driverType"];
     travelTOUT = doc["movtimeOut"];
@@ -38,13 +38,31 @@ void Shutter::begin(JsonDocument doc){
 
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
+
+    if(actualStep != previousStep){
+        LOGV("Actual step changed to: %d", actualStep);
+        previousStep = actualStep;
+    }
+    oSP=false;
+    if(millis()-oneSecondPulse>1000){
+        oneSecondPulse = millis();
+        oSP=true;
+        LOGV("actual step: %d",actualStep);
+        LOGV("actual command: %d",actualStep);
+        LOGV("actual open sensor: %d",OpenSensor.status());
+        LOGV("actual close sensor: %d",CloseSensor.status());
+        LOGV("actual start/open output: %d",StartOpen.status());
+        LOGV("actual halt/close sensor: %d",HaltClose.status());
+    }
+
+
     cycle();
     updateStatus();
 }
 
 /* return true if you can open, otherwise false */
 bool Shutter::canOpen(){
-    if(status == Closed || status == Error){
+    if(status != Opened && actualCmd == Idle){
         return true;
     }
     return false;
@@ -63,13 +81,14 @@ bool Shutter::isOpen(){
 void Shutter::open() {
     if(canOpen()){
         actualCmd = Open;
+        LOGI("Open command recived");
     }
     
 }
 
 /* return true if you can close, otherwise false */
 bool Shutter::canClose(){
-    if(status == Opened || status == Error){
+    if(status != Closed && actualCmd == Idle){
         return true;
     }
     return false;
@@ -88,6 +107,7 @@ bool Shutter::isClosed(){
 /* send a close command */
 void Shutter::close() {
     if(canClose()){
+        LOGI("Closing command recived");
         actualCmd = Close;
     }
     
@@ -96,7 +116,9 @@ void Shutter::close() {
 
 /* send an halt command */
 void Shutter::halt(){
-    actualCmd == Halt;
+    LOGE("HALT command requested");
+    actualCmd = Halt;
+    actualStep = HaltBegin;
 }
 
 /* return true if shutter is moving, otherwise false */
@@ -114,18 +136,22 @@ void Shutter::updateStatus() {
     status = Error;
 
     if (actualCmd == Idle){
-        
+        if(oSP){LOGV("actual command is idle");}
         if(OpenSensor.status() && !CloseSensor.status()){
             status = Opened;
+            if(oSP){LOGV("roof is only open");}
         } else if(CloseSensor.status() && !OpenSensor.status()){
             status = Closed;
+            if(oSP){LOGV("roof is only close");}
         }
+        if(oSP){LOGV("roof is in error");}
     } else {
-
         if(actualCmd == Open){
             status = Opening;
+            if(oSP){LOGV("[STS] roof is opening");}
         } else if (actualCmd == Close){
             status = Closing;
+            if(oSP){LOGV("[STS] roof is closing");}
         }
     }
 }
@@ -142,15 +168,13 @@ Shutter::ActualCommand Shutter::getActualCommand() const {
     return actualCmd;
 }
 
-
 void Shutter::checkTravelTimeOut(){
 
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
-        actualCmd = Halt;
+        LOGE("Trivel time out triggered, sending Halt Command");
+        halt();
     }
-
 }
-
 
 void Shutter::checkAutoCloseTimeOut(){
 
@@ -160,6 +184,7 @@ void Shutter::checkAutoCloseTimeOut(){
 
             if(millis() - autoClose.lastCommunication > autoClose.waitingTime){
                 close();
+                LOGE("AutoClose timeout, going to close");
             }
         } else {
             autoClose.remaningTime = autoClose.waitingTime / 60; //convert minutes in seconds
@@ -193,8 +218,10 @@ void Shutter::cycle(){
                 ackTimeout = millis();
                 setOutput(goToClose);
                 actualStep = WaitSensorLoosing;
+                LOGI("Going to close...");
             } else {
                 actualCmd = Idle;
+                LOGE("Close command rejected by main cicle");
             }
             break;
         }
@@ -204,8 +231,10 @@ void Shutter::cycle(){
                 ackTimeout = millis();
                 setOutput(goToOpen);
                 actualStep = WaitSensorLoosing;
+                LOGI("Going to open...");
             } else {
                 actualCmd = Idle;
+                LOGE("Open command rejected by main cicle");
             }
             break;
         }
@@ -221,13 +250,16 @@ void Shutter::cycle(){
               if(millis() - ackTimeout < 1000){
                 break;
               }
+              LOGI("Resetting the start signal for gate board controllers");
               setOutput(Stop);
         }
 
         if(actualCmd == Open){
+            LOGI("Waiting for the open signal");
             actualStep = ArrivedToOpenDestination;
             break;
         } else if( actualCmd == Close){
+            LOGI("Waiting for the close signal");
             actualStep = ArrivedToCloseDestination;
             break;
         }
@@ -237,6 +269,7 @@ void Shutter::cycle(){
     case ArrivedToOpenDestination:
 
         if(OpenSensor.status()){
+            LOGI("Open sensor reached, goint to Final Reset");
             setOutput(Stop);
             actualStep = FinalReset;
             break;
@@ -244,10 +277,13 @@ void Shutter::cycle(){
 
         if(driverType == GateController){
             if(CloseSensor.status() && !OpenSensor.status()){
+                LOGE("Close sensor reached, I wanted to open");
                 if(!retry){
+                    LOGI("Trying again to open");
                     actualStep = PPSendHaltSignal;
                     break;
                 } else {
+                    LOGE("Already tried to send a second command. Stop any operation");
                     actualStep = HaltBegin;
                     break;
                 }
@@ -260,6 +296,7 @@ void Shutter::cycle(){
     case ArrivedToCloseDestination:
 
         if(CloseSensor.status()){
+            LOGI("Close sensor reached, goint to Final Reset");
             setOutput(Stop);
             actualStep = FinalReset;
             break;
@@ -267,10 +304,13 @@ void Shutter::cycle(){
 
         if(driverType == GateController){
             if(OpenSensor.status() && !CloseSensor.status()){
+                LOGE("Close sensor reached, I wanted to open");
                 if(!retry){
+                    LOGI("Trying again to open");
                     actualStep = PPSendHaltSignal;
                     break;
                 } else {
+                    LOGE("Already tried to send a second command. Stop any operation");
                     actualStep = HaltBegin;
                     break;
                 }
@@ -280,14 +320,18 @@ void Shutter::cycle(){
         break;
 
     case FinalReset:
-        travelTime = millis() - startTravelMillis;
+        LOGI("Requested position reached.");
+        travelTime = (millis() - startTravelMillis)/1000;
+        LOGI("Travel time: %d sec.", travelTime);
         setOutput(Stop);
         actualCmd = Idle;
         actualStep = WaitForACommand;
+
         break; 
 
 
     case PPSendHaltSignal:
+        LOGI("PPCycle, sending an Halt command");
         ackTimeout = millis();
         retry = true;
         actualStep = PPResetHaltSignal;
@@ -296,6 +340,7 @@ void Shutter::cycle(){
     
     case PPResetHaltSignal:
         if(millis() - ackTimeout > 1000){
+            LOGI("PPCycle, resetting the Halt command, and wait 5sec. for a new command");
             setOutput(Stop);
             actualStep = PPWaitBeforeSendANewCommand;
             ackTimeout = millis();
@@ -305,6 +350,7 @@ void Shutter::cycle(){
 
     case PPWaitBeforeSendANewCommand:
         if(millis() - ackTimeout > 5000){
+            LOGI("PPCycle, send a new command");
             actualStep = WaitSensorLoosing;
             ackTimeout = millis();
             break;
@@ -312,6 +358,7 @@ void Shutter::cycle(){
         break;
 
     case HaltBegin:
+        LOGE("HALT COMMAND");
         actualCmd = Halt;
         ackTimeout = millis();
         setOutput(safeStop);
@@ -321,19 +368,22 @@ void Shutter::cycle(){
     case HaltWait:
         if(millis() - ackTimeout > 1000){
             setOutput(Stop);
+            LOGI("Resetting all the outputs.");
             actualStep = HaltFinalStep;
         }
         break;
 
     case HaltFinalStep:
+        LOGI("Going back to wait a new command");
         actualCmd = Idle;
         actualStep = WaitForACommand;
         break;
 
     default:
+        LOGE("Undefined step called, sending an halt command");
+        actualStep = HaltBegin;
         break;
     }
-
 
 }
 
