@@ -18,29 +18,22 @@ public:
         Error
     };
 
-    enum ActualCommand {
-        Idle,
-        Open,
-        Close,
-        Halt
-    };
-
-
 private:
-
+    PWMManager* chMgr;
+    ServoOutput servo;
     bool moduleEnable = false;
     bool rebootPending = false;
-    
+    unsigned int openPosition;
+    unsigned int closePosition;
     Status status = NotPresent;
-    ServoOutput cover;
-    ActualCommand actualCmd = Idle;
+    
     JsonDocument tmpCfg;
 
 
 public:
     Cover(PWMManager* channelManager) : 
         chMgr(channelManager), 
-        cover(channelManager)
+        servo(channelManager)
         {}
 
 
@@ -57,8 +50,12 @@ public:
 
     void halt();
 
-    int getAngle(){ return cover.status();}
-    
+    int getPosition(){ return servo.status();}
+    unsigned int getOpenPosition(){return openPosition;}
+    unsigned int getclosePosition(){return closePosition;}
+    void setOpenPosition(unsigned int _value);
+    void setClosePosition(unsigned int _value);
+
     void loop();
     
     bool isMoving();
@@ -67,16 +64,12 @@ public:
     void updateLastCommunication();
 
     Status getStatus() const;
-    ActualCommand getActualCommand() const;
 
     void validateConfiguration(const JsonObject &obj, JsonObject response);
     void storeConfiguration(JsonObject toBeStored,const char* schema);
     void getConfiguration(JsonObject obj);
 
 
-
-private:
-    PWMManager* chMgr;
 };
 
 #endif

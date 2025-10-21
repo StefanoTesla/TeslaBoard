@@ -352,7 +352,7 @@ void coverWebApi(){
         JsonObject cover = doc["cover"].to<JsonObject>();
         cover["status"] = CoverCalibrator.cover.getStatus();
         if(CoverCalibrator.cover.isEnable()){
-            cover["angle"] = CoverCalibrator.cover.getAngle(); /* TODO */
+            cover["angle"] = CoverCalibrator.cover.getPosition(); /* TODO */
         }
         
         response->setLength();
@@ -433,7 +433,6 @@ void coverWebApi(){
                 doc["error"] = "calibBrightnessNotInRange";
             }
         }
-
 
         response->setLength();
         request->send(response);

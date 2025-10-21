@@ -39,23 +39,7 @@ void Shutter::begin(JsonDocument doc){
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
 
-    if(actualStep != previousStep){
-        LOGV("Actual step changed to: %d", actualStep);
-        previousStep = actualStep;
-    }
-    oSP=false;
-    if(millis()-oneSecondPulse>1000){
-        oneSecondPulse = millis();
-        oSP=true;
-        LOGV("actual step: %d",actualStep);
-        LOGV("actual command: %d",actualStep);
-        LOGV("actual open sensor: %d",OpenSensor.status());
-        LOGV("actual close sensor: %d",CloseSensor.status());
-        LOGV("actual start/open output: %d",StartOpen.status());
-        LOGV("actual halt/close sensor: %d",HaltClose.status());
-    }
-
-
+    debug();
     cycle();
     updateStatus();
 }
@@ -136,22 +120,16 @@ void Shutter::updateStatus() {
     status = Error;
 
     if (actualCmd == Idle){
-        if(oSP){LOGV("actual command is idle");}
         if(OpenSensor.status() && !CloseSensor.status()){
             status = Opened;
-            if(oSP){LOGV("roof is only open");}
         } else if(CloseSensor.status() && !OpenSensor.status()){
             status = Closed;
-            if(oSP){LOGV("roof is only close");}
         }
-        if(oSP){LOGV("roof is in error");}
     } else {
         if(actualCmd == Open){
             status = Opening;
-            if(oSP){LOGV("[STS] roof is opening");}
         } else if (actualCmd == Close){
             status = Closing;
-            if(oSP){LOGV("[STS] roof is closing");}
         }
     }
 }
@@ -678,4 +656,66 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
     pref.putString("shutter",json);
     pref.end();
     tmpCfg.clear();
+}
+
+
+void Shutter::debug(){
+    log.actual.openState = OpenSensor.status();
+    if(log.actual.openState != log.previous.openState){
+        if(log.actual.openState){
+            LOGV("Open sensor reached");
+        } else {
+            LOGV("Open sensor lost");
+        }
+        log.previous.openState = log.actual.openState;
+    }
+
+    log.actual.closeState = CloseSensor.status();
+    if(log.actual.closeState != log.previous.closeState){
+        if(log.actual.closeState){
+            LOGV("Close sensor reached");
+        } else {
+            LOGV("Close sensor lost");
+        }
+        log.previous.closeState = log.actual.closeState;
+    }
+
+    log.actual.startOutput = StartOpen.status();
+    if(log.actual.startOutput != log.previous.startOutput){
+        if(log.actual.startOutput){
+            LOGV("Start Output On");
+        } else {
+            LOGV("Start Output Off");
+        }
+        log.previous.startOutput = log.actual.startOutput;
+    }
+
+    log.actual.haltOutput = HaltClose.status();
+    if(log.actual.haltOutput != log.previous.haltOutput){
+        if(log.actual.haltOutput){
+            LOGV("Halt Output On");
+        } else {
+            LOGV("Halt Output Off");
+        }
+        log.previous.haltOutput = log.actual.haltOutput;
+    }
+
+    log.actual.cycle = actualStep;
+    if(log.actual.cycle != log.previous.cycle){
+        LOGV("Actual step: %d",log.actual.cycle);
+        log.previous.cycle = log.actual.cycle;
+    }
+
+    log.actual.cmd = actualCmd;
+    if(log.actual.cmd != log.previous.cmd){
+        LOGV("Actual cmd: %d",log.actual.cmd);
+        log.previous.cmd = log.actual.cmd;
+    }
+
+    log.actual.status = status;
+    if(log.actual.status != log.previous.status){
+        LOGV("Actual status: %d",log.actual.status);
+        log.previous.status = log.actual.status;
+    }
+
 }

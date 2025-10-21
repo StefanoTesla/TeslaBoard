@@ -80,6 +80,25 @@ private:
 
     unsigned long ackTimeout = 0;
 
+
+    struct logging{
+        bool openState;
+        bool closeState;
+        bool startOutput;
+        bool haltOutput;
+        ActualCommand cmd;
+        CycleStep cycle;
+        Status status;
+    };
+
+
+    struct logger{
+        logging actual;
+        logging previous;
+    };
+
+    logger log;
+
     unsigned long startTravelMillis;
     unsigned long travelTime;
     unsigned long travelTOUT = 20;
@@ -92,8 +111,6 @@ private:
     
     JsonDocument tmpCfg;
 
-    bool oSP = false;
-    unsigned long oneSecondPulse;
 
 public:
     Shutter() = default;
@@ -141,6 +158,7 @@ private:
     void setOutputforGateBoard(outputDirection direction);
     void setOutputforDirectionalOutput(outputDirection direction);
     void setOutputforStartAndDirectionalOutput(outputDirection direction);
+    void debug();
 };
 
 #endif

@@ -7,7 +7,7 @@ void Cover::begin(JsonDocument doc){
 
     if(moduleEnable){
         JsonObject pinServo = doc["servo"];
-        cover.jsonSetup(pinServo);
+        servo.jsonSetup(pinServo);
     }
 
 }
@@ -16,11 +16,12 @@ void Cover::begin(JsonDocument doc){
 /* loop cycle, status and cycle update */
 void Cover::loop(){
     updateStatus();
+    
 }
 
 /* return true if you can open, otherwise false */
 bool Cover::canOpen(){
-    if(status != Closed || status == Error){ /*TODO*/
+    if(!servo.isMoving() && status != Opened ){
         return true;
     }
     return false;
@@ -28,24 +29,24 @@ bool Cover::canOpen(){
 
 /* return true if shutter is open, otherwise false */
 bool Cover::isOpen(){
-    if(status == Opened){
+    if(servo.status() == openPosition){
         return true;
     }
 
     return false;
 }
 
-/* senda an open command*/
+/* send an open command*/
 void Cover::open() {
     if(canOpen()){
-        actualCmd = Open;
+        servo.goTo(openPosition,false);
     }
     
 }
 
 /* return true if you can close, otherwise false */
 bool Cover::canClose(){
-    if(status == Opened || status == Error){ /*TODO*/
+    if(!servo.isMoving() && status != Closed ){
         return true;
     }
     return false;
@@ -54,7 +55,7 @@ bool Cover::canClose(){
 
 /* return true if shutter is close, otherwise false */
 bool Cover::isClosed(){
-    if(status == Closed){
+    if(servo.status() == closePosition){
         return true;
     }
 
@@ -63,46 +64,46 @@ bool Cover::isClosed(){
 
 /* send a close command */
 void Cover::close() {
-    if(canClose()){
-        actualCmd = Close;
-    }
-    
+
+    servo.goTo(closePosition,false);
 }
 
 
 /* send an halt command */
 void Cover::halt(){
-    actualCmd == Halt;
+    servo.halt();
 }
 
 /* return true if shutter is moving, otherwise false */
 bool Cover::isMoving() {
-    if(actualCmd == Open || actualCmd == Close){
-        return true;
-    }
-
-    return false;
-    
+    return servo.isMoving() ? true : false;    
 }
 
 void Cover::updateStatus() {
 
-    status = Unknown;
+    status = NotPresent;
 
+    if(moduleEnable){
+        status = Error;
+
+        if(servo.isMoving()){
+            status = Moving;
+        } else {
+            if(isClosed()){
+                status = Closed;
+            } else if (isOpen()){
+                status = Opened;
+            }
+        }
+    }
 }
-/* FOR THE FUTURE? */
-/*
-void Cover::updateLastCommunication() {
-    autoClose.lastCommunication = millis();
-}*/
+
 
 Cover::Status Cover::getStatus() const {
     return status;
 }
 
-Cover::ActualCommand Cover::getActualCommand() const {
-    return actualCmd;
-}
+
 
 
 /*
@@ -112,9 +113,11 @@ Configuration Area
 
 void Cover::getConfiguration(JsonObject obj){
     obj["enable"] = moduleEnable;
+    obj["openPos"] = openPosition;
+    obj["closePos"] = closePosition;
 
     JsonObject servoData = obj["servo"].to<JsonObject>();
-    cover.getConfiguration(servoData);
+    servo.getConfiguration(servoData);
 
 }
 
@@ -135,6 +138,28 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response){
         return;
     }
 
+    if(!obj["openPos"].is<unsigned int>()){
+        err.add("openPosMissing");
+        return;
+    }
+    if(!obj["closePos"].is<unsigned int>()){
+        err.add("closePosMissing");
+        return;
+    }
+
+    unsigned int oD = obj["openPos"].is<unsigned int>();
+
+    if(oD<0 || oD > 100){
+        err.add("openPosOutOfRange");
+        return;
+    }
+    unsigned int oC = obj["closePos"].is<unsigned int>();
+
+    if(oD<0 || oD > 100){
+        err.add("closePosOutOfRange");
+        return;
+    }
+
     if(!obj["outServo"].is<JsonObject>()){
         err.add("ServoMissing");
         return;
@@ -142,7 +167,7 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response){
 
 
     JsonObject coverCfg = obj["outServo"];
-    retVal = cover.validateJsonCfg(coverCfg);
+    retVal = servo.validateJsonCfg(coverCfg);
 
     if(retVal != 1){
         JsonObject e = err.add<JsonObject>();
@@ -153,7 +178,7 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response){
 
     /* check if board need a reboot */
 
-    if(coverCfg["pin"].as<unsigned int>() != cover.getPinNumber()){
+    if(coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()){
         response["reboot"] = true;
     }    
 
@@ -168,13 +193,12 @@ void Cover::storeConfiguration(JsonObject coverObject, const char* schema){
     tmpCfg["enable"] = incomingEnable;
 
     if(incomingEnable){
-        JsonObject servo = tmpCfg["outServo"].to<JsonObject>();
-        cover.copyJsonCfg(coverObject["outServo"],servo);
+        JsonObject servoObj = tmpCfg["outServo"].to<JsonObject>();
+        servo.copyJsonCfg(coverObject["outServo"],servoObj);
         /*set the variables don't need a reboot */
-        cover.setMax(servo["maxDeg"]);
-        cover.openDeg = servo["openDeg"].as<unsigned int>();
-        cover.closeDeg = servo["closeDeg"].as<unsigned int>();
-        cover.movingTime = servo["movTime"].as<unsigned int>();
+        openPosition = coverObject["openPos"].as<unsigned int>();
+        closePosition = coverObject["closePos"].as<unsigned int>();
+        servo.setMovingTime(servoObj["movTime"].as<unsigned int>());
     }
 
 

@@ -14,7 +14,7 @@ public:
     void getConfiguration(JsonObject cfg);
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);
-    int readPin() override;
+    
     int write(int value) override;
     int status();
     unsigned int getMax();
@@ -26,7 +26,7 @@ private:
     int value;
     int channel=-1;
     PWMManager* chMgr;
-
+    int readPin() override;
 };
 
 #endif

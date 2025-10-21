@@ -22,13 +22,13 @@ public:
     bool pinUnusable(int pin);
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);
-    int readPin() override;
     int write(int _value) override;
     int status();
     int getType() override;
     void getConfiguration(JsonObject obj);
 
-
+private:
+    int readPin() override;
 };
 
 #endif

@@ -38,10 +38,7 @@ void switchWebServer(){
             } else if (SwitchObjects[i]->getType() == SwTypeServo){
                 //servo
                 ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
-                jsonSwitch["openDeg"] = servo->openDeg;
-                jsonSwitch["closeDeg"] = servo->closeDeg;
-                jsonSwitch["maxDeg"] = servo->getMax();
-                jsonSwitch["movTime"] = servo->movingTime;
+                jsonSwitch["moveTime"] = servo->movingTime;
             }
 
         }
@@ -359,10 +356,7 @@ void switchWebServer(){
                 //pwm switch got only pin
                 if(SwitchObjects[i]->getType() == static_cast<int>(SwTypeServo)){
                     ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[i]);
-                    servo->setMax(IncomingSwitch[i]["maxDeg"].as<unsigned int>());
-                    servo->openDeg = IncomingSwitch[i]["openDeg"].as<unsigned int>();
-                    servo->closeDeg = IncomingSwitch[i]["closeDeg"].as<unsigned int>();
-                    servo->movingTime = IncomingSwitch[i]["movTime"].as<unsigned int>();
+                    servo->movingTime = IncomingSwitch[i]["moveTime"].as<unsigned int>();
                 }
             }
         }        

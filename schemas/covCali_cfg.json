@@ -11,11 +11,10 @@
     },
     "cover":{
         "enable": true,
+        "openDeg": 0,
+        "closeDeg": 100,
         "outServo":{
             "pin": 1,
-            "maxDeg": 1,
-            "openDeg": 1,
-            "closeDeg": 1,
             "moveTime": 1
         }
     }

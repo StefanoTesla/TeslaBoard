@@ -18,10 +18,11 @@ public:
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);
     void getConfiguration(JsonObject obj);
-    int readPin() override;
     int write(int valore) override;
     int status();
     int getType() override;
+private:
+    int readPin() override;
 };
 
 #endif

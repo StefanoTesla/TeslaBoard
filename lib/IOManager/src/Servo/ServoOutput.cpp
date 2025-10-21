@@ -28,13 +28,10 @@ void ServoOutput::setup(IOConfigBase* config){
 
   pin = cfg->pin;
   min = 0;
-  max = cfg->maxDeg;
-  openDeg = cfg->openDeg;
-  closeDeg = cfg->closeDeg;
+  max = 100;
   movingTime = cfg->movTime * 1000;
 
 }
-
 
 void ServoOutput::jsonSetup(JsonObject setup){
 
@@ -44,14 +41,11 @@ void ServoOutput::jsonSetup(JsonObject setup){
   if(channel > 0){
     pin = setup["pin"].as<unsigned int>();
     min = 0;
-    max = setup["maxDeg"].as<unsigned int>();
-    openDeg = setup["openDeg"].as<unsigned int>();
-    closeDeg = setup["closeDeg"].as<unsigned int>();
-    movingTime = setup["moveDeg"].as<unsigned int>() * 1000;
+    max = 100;
+    movingTime = setup["moveTime"].as<unsigned int>() * 1000;
     ledcSetup(pin, 50, 12);
     ledcAttachPin(pin,channel); 
   }
-
 
 }
 
@@ -66,6 +60,10 @@ bool ServoOutput::pinUnusable(int pin){
   return false;
 }
 
+void ServoOutput::copyJsonCfg(JsonObject incoming,JsonObject retConfig){
+    retConfig["pin"] = incoming["pin"].as<unsigned int>();
+    retConfig["moveTime"] = incoming["moveTime"].as<unsigned int>() * 1000;
+}
 
 int ServoOutput::write(int _angle) {
     if (_angle >= 0 && _angle <= max){
@@ -82,8 +80,10 @@ int ServoOutput::readPin() {
     return ledcRead(pin);
 }
 
-int ServoOutput::readAngle(){
-  float angle = ((float)(readPin() - 111) / (511 - 111)) * max;
+//Return a value from 0 to 100
+//can return a negative value if servo was nevere moved
+int ServoOutput::readPosition(){
+  float angle = ((float)(readPin() - 111) / (511 - 111)) * 100;
   return round(angle);
 }
 
@@ -91,34 +91,28 @@ int ServoOutput::status(){
     if(overridePosition){
       currentAngle = MoveToSlowly.destination;
     } else {
-      currentAngle = readAngle();
+      currentAngle = readPosition();
     }
-
-    servoHandler();
     return currentAngle;
 
 }
-
 
 int ServoOutput::getType(){
     return 4;
 }
 
-
-
 void ServoOutput::halt(){
   positioning = false;
 }
 
-void ServoOutput::goTo(int _angle,bool slowPermitted){
+void ServoOutput::goTo(int _angle,bool overridPosition){
 
-  if(isReferenced() && slowPermitted && movingTime != 0){
-    goToSlowly(_angle,true);
+  if(isReferenced() && movingTime != 0){
+    goToSlowly(_angle,overridePosition);
   } else {
     write(_angle);
   }
 }
-
 
 bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
 
@@ -126,7 +120,8 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
          return false;
       }
 
-      if(readAngle() < 0 || readAngle()> max){
+      int pos = readPosition();
+      if(pos < 0 || pos> max){
         Serial.println("Servo is in an undefined position, use write function");
         return false;
       }
@@ -142,7 +137,7 @@ bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
       if(MoveToSlowly.intervall == 0){
         MoveToSlowly.intervall = 1;
       }
-      MoveToSlowly.increment = readAngle() > _angle ? false : true; 
+      MoveToSlowly.increment = pos > _angle ? false : true; 
       positioning = true;
       overridePosition = _overridePosition ? true : false;
       return true;
@@ -162,7 +157,7 @@ void ServoOutput::servoHandler(){
         }
         MoveToSlowly.actualMillis = millis();
         MoveToSlowly.startTime = millis();
-        MoveToSlowly.nextDeg = readAngle();
+        MoveToSlowly.nextDeg = readPosition();
         cycle = 10;
         break;
 
@@ -193,14 +188,13 @@ void ServoOutput::servoHandler(){
 void ServoOutput::loop(){
 }
 
-
 bool ServoOutput::isReferenced(){
-  if(readAngle() >= 0 && readAngle()<=100){
+  int pos = readPosition();
+  if(pos >= 0 && pos<=100){
     return true;
   }
   return false;
 }
-
 
 int ServoOutput::validateJsonCfg(JsonObject json){
 /*
@@ -208,21 +202,10 @@ return code table:
 1 validation is ok
 -1: pin is not unsigned integer
 -10: pin is not asable as output
--5:maxServo not unsigned integer
--500: maxServo is out of range
--6:openDeg not unsigned integer
--600: openDeg is out of range
--601: openDeg is bigger than maxDeg
--7:closeDeg not unsigned integer
--700: closeDeg is out of range
--701: closeDeg is bigger than maxDeg
 -8:movingTime not unsigned integer
 -10: type is not unsigned integer
 -1010: wrong type passed
 */
-  int maxDeg = 0;
-  int openDeg = 0;
-  int closeDeg = 0;
 
   if(!json["pin"].is<unsigned int>()){
       return -1;
@@ -231,39 +214,7 @@ return code table:
         return -10;
       }
   }
-
-  if(!json["maxDeg"].is<unsigned int>()){
-      return -5;
-    } else {
-      maxDeg = json["maxDeg"].as<unsigned int>();
-      if(maxDeg>360){
-        return -500;
-      }
-  }
-  if(!json["openDeg"].is<unsigned int>()){
-      return -6;
-    } else {
-      openDeg = json["openDeg"].as<unsigned int>();
-      if(openDeg>360){
-        return -600;
-      }
-      if(openDeg>maxDeg){
-        return -601;
-      }
-  }
-  
-  if(!json["closeDeg"].is<unsigned int>()){
-      return -7;
-    } else {
-      closeDeg = json["closeDeg"].as<unsigned int>();
-      if(closeDeg>360){
-        return -700;
-      }
-      if(closeDeg>maxDeg){
-        return -701;
-      }
-  }
-
+ 
   if(!json["movTime"].is<unsigned int>()){
       return -8;
   }
@@ -274,13 +225,8 @@ return code table:
 
 void ServoOutput::getConfiguration(JsonObject cfg){
     cfg["pin"] = pin;
-    cfg["maxDeg"] = max;
-    cfg["openDeg"] = openDeg;
-    cfg["closeDeg"] = closeDeg;
-    cfg["movTime"] = movingTime;
-
+    cfg["moveTime"] = movingTime / 1000;
 }
-
 
 void ServoOutput::handleMovement(){
 

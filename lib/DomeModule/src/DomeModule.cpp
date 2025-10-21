@@ -13,14 +13,18 @@ void DomeModule::begin(){
     JsonDocument doc;
     Preferences pref;
     
-    if(!pref.begin(DOME_SCHEMA_NAME,true)){
+    bool nvsStop = false;
+
+
+    if(!pref.begin(DOME_SCHEMA_NAME)){
         LOGE("Error loading dome nvs partition, trying to format it");
+        pref.end();
         initNVS();
         if(!pref.begin(DOME_SCHEMA_NAME)){
             LOGE("Critical, unable to loading dome nvs after initialization");
             return;
         };
-    };
+    }else{LOGV("Namespace open without problem");}
 
     moduleEnable = pref.getBool("enable");
     uiOrder = pref.getInt("order",1);
@@ -29,6 +33,7 @@ void DomeModule::begin(){
     if(!moduleEnable){
         LOGW("Module not enable, setup completed");
         pref.end();
+        LOGV("pref.end");
         return;
     }
 
@@ -38,7 +43,10 @@ void DomeModule::begin(){
 
 
     if(schemaVersion < DOME_SCHEMA_VERSION){
+        LOGV("pref.end");
+        nvsStop = true;
         pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
+        nvsStop = true;
         LOGW("schema need an upgrade");
         switch (schemaVersion)
         {
@@ -52,11 +60,15 @@ void DomeModule::begin(){
         }
     }
 
-    if(!pref.begin(DOME_SCHEMA_NAME)){
-        moduleEnable=false;
-        LOGE("Error loading dome nvs partition, stop");
-        return;
-    };
+    if(nvsStop){
+        LOGV("nvs was stopped previusly, reopening it");
+        if(!pref.begin(DOME_SCHEMA_NAME)){
+            moduleEnable=false;
+            LOGE("Error loading dome nvs partition, stop");
+            return;
+        };
+    }
+
     /* basic data for dome is taken, module bening*/
 
     LOGI("deserialization of shutter json configuration");
@@ -83,25 +95,29 @@ void DomeModule::begin(){
 void DomeModule::updateNVS1(){
     Preferences pref;
     LOGI("upgrading NVS from 0 to 1");
-    pref.end();
-    pref.begin(DOME_SCHEMA_NAME);
-    pref.putBool("enable",false);
-    pref.putInt("schema",1);
-    pref.putInt("order",DOME_SCHEMA_VERSION);
-    pref.putString("shutter","{}");
-    pref.end();
+    if(pref.begin(DOME_SCHEMA_NAME)){
+        pref.putBool("enable",false);
+        pref.putInt("schema",DOME_SCHEMA_VERSION);
+        pref.putInt("order",1);
+        pref.putString("shutter","{}");
+        pref.end();
+    } else {
+        LOGE("Unable to open the name space for the upgrade");
+    }
+
 
 }
 
 void DomeModule::initNVS(){
     Preferences pref;
-    LOGI("NVS initialization begin");
+    LOGI("initNVS() initialization begin");
     if(!pref.begin(DOME_SCHEMA_NAME, false)){
-        LOGE("Unable to read the NVS page, initialization failed");
+        LOGE("initNVS() failed to open the namespace with write rights, initialization failed");
         pref.end();
         return;
     };
 
+    LOGV("Storing default keys");
     pref.putBool("enable",false);
     pref.putInt("order",1);
     pref.putInt("schema",1);
@@ -109,7 +125,7 @@ void DomeModule::initNVS(){
     pref.putString("shutter","{}");
     pref.end();
 
-    LOGI("NVS initializated");
+    LOGI("initNVS() end");
 }
 
 bool DomeModule::isEnable(){

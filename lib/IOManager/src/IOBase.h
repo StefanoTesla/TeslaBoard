@@ -23,7 +23,6 @@ public:
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);
     virtual int write(int _value) = 0;
-    virtual int readPin() = 0;
     virtual int status();
     virtual int getType(){
         return 0;
@@ -53,6 +52,9 @@ public:
         return Description;
     }
     virtual ~IOBase() {}
+
+private:
+        virtual int readPin() = 0;
 };
 
 #endif

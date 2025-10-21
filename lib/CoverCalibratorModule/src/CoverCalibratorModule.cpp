@@ -20,7 +20,7 @@ void CoverCalibratorModule::begin(){
             LOGE("Critical, unable to load nvs after initialization");
             return;
         };
-    };
+    }else{LOGV("Namespace open without problem");}
 
     moduleEnable = pref.getBool("enable");
     uiOrder = pref.getInt("order",1);
@@ -33,7 +33,6 @@ void CoverCalibratorModule::begin(){
     }
     
     int schemaVersion = pref.getInt("schema");
-    
     LOGD("schema version is: %d", schemaVersion);
 
     if(schemaVersion < COVERC_SCHEMA_VERSION){
@@ -61,9 +60,7 @@ void CoverCalibratorModule::begin(){
     LOGI("deserialization of calibrator json configuration");
     String cfg = pref.getString("calibrator","{}");
     LOGD("raw calibrator json is: %s",cfg);
-    
     DeserializationError error = deserializeJson(doc, cfg);
-
     LOGD("calibrator deserialization ret val: %d 0=no error",error);
 
     if(!error){
@@ -71,7 +68,6 @@ void CoverCalibratorModule::begin(){
     }
 
     cfg.clear();
-
     cfg = pref.getString("cover","{}");
     LOGD("raw cover json is: %s",cfg);
     error = deserializeJson(doc, cfg);

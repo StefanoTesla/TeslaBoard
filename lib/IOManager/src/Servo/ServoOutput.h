@@ -13,6 +13,7 @@ private:
     bool positioning = false;
     bool overridePosition = true;
     int channel = -1;
+    unsigned long movingTime = 0;
 
     PWMManager* chMgr;
 
@@ -31,9 +32,6 @@ private:
     void servoHandler();
 
 public:
-    unsigned int closeDeg = 0;
-    unsigned int openDeg = 0;
-    unsigned long movingTime = 0;
     int currentAngle;
 
     ServoOutput(PWMManager* channelManager) : chMgr(channelManager) {}
@@ -41,24 +39,27 @@ public:
     void jsonSetup(JsonObject setup);
     void getConfiguration(JsonObject cfg);
     int validateJsonCfg(JsonObject obj);
-    void copyJsonCfg(JsonObject obj,JsonObject dest);
     bool pinUnusable(int pin);
-    int readPin() override;
+    void copyJsonCfg(JsonObject obj,JsonObject dest);
+
+
     int write(int _angle) override;
     bool goToSlowly(int _percentage=0, bool overridePosition = true);
     int status();
     unsigned int getChannel(){return channel;}
     int getType() override;
-    int readAngle();
+    int readPosition();
     bool isMoving(){ return positioning; };
     void halt();
     void loop();
     void setMax(int _value);
     void goTo(int _percentage,bool slowPermitted); //used only for switch, software decide to perform a direct or slow moviment
     bool isReferenced();
+    void setMovingTime(unsigned int _time){ movingTime = _time *1000;}
 
 private:
     void handleMovement();
+    int readPin() override;
 };
 
 #endif
