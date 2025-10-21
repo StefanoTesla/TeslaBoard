@@ -6,15 +6,15 @@
     "calibrator":{
         "enable": true,
         "outPWM":{
-            "pin": 1
+            "pin": 2
         }
     },
     "cover":{
         "enable": true,
-        "openDeg": 0,
-        "closeDeg": 100,
+        "openPos": 0,
+        "closePos": 100,
         "outServo":{
-            "pin": 1,
+            "pin": 23,
             "moveTime": 1
         }
     }

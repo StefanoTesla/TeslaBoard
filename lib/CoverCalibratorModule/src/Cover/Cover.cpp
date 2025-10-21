@@ -15,6 +15,8 @@ void Cover::begin(JsonDocument doc){
 
 /* loop cycle, status and cycle update */
 void Cover::loop(){
+
+    servo.write(50);
     updateStatus();
     
 }

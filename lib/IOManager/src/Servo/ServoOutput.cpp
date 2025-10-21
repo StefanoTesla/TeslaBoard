@@ -35,10 +35,12 @@ void ServoOutput::setup(IOConfigBase* config){
 
 void ServoOutput::jsonSetup(JsonObject setup){
 
-  channel = -1;
+  int channel = -1;
   channel = chMgr->getSlowChannel();
 
-  if(channel > 0){
+  Serial.println("++++++++++++++++++++++++++++++++++++++++");
+  Serial.println(channel);
+  if(channel >= 0){
     pin = setup["pin"].as<unsigned int>();
     min = 0;
     max = 100;
@@ -62,7 +64,7 @@ bool ServoOutput::pinUnusable(int pin){
 
 void ServoOutput::copyJsonCfg(JsonObject incoming,JsonObject retConfig){
     retConfig["pin"] = incoming["pin"].as<unsigned int>();
-    retConfig["moveTime"] = incoming["moveTime"].as<unsigned int>() * 1000;
+    retConfig["moveTime"] = incoming["moveTime"].as<unsigned int>();
 }
 
 int ServoOutput::write(int _angle) {
@@ -215,7 +217,7 @@ return code table:
       }
   }
  
-  if(!json["movTime"].is<unsigned int>()){
+  if(!json["moveTime"].is<unsigned int>()){
       return -8;
   }
 

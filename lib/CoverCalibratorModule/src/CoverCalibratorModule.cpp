@@ -13,8 +13,11 @@ void CoverCalibratorModule::begin(){
     JsonDocument doc;
     Preferences pref;
     
+    bool nvsEnded = false;
+
     if(!pref.begin(COVERC_SCHEMA_NAME,true)){
         LOGE("Error loading nvs partition, trying to format it");
+        nvsEnded = true;
         initNVS();
         if(!pref.begin(COVERC_SCHEMA_NAME,true)){
             LOGE("Critical, unable to load nvs after initialization");
@@ -36,6 +39,7 @@ void CoverCalibratorModule::begin(){
     LOGD("schema version is: %d", schemaVersion);
 
     if(schemaVersion < COVERC_SCHEMA_VERSION){
+        nvsEnded = true;
         pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
         LOGW("schema need an upgrade");
         switch (schemaVersion)
@@ -50,16 +54,18 @@ void CoverCalibratorModule::begin(){
         }
     }
 
-    if(!pref.begin(COVERC_SCHEMA_NAME)){
-        moduleEnable=false;
-        LOGE("Error loading dome nvs partition, stop");
-        return;
-    };
+    if(nvsEnded){
+        if(!pref.begin(COVERC_SCHEMA_NAME)){
+            moduleEnable=false;
+            LOGE("Error loading dome nvs partition, stop");
+            return;
+        }
+    } 
 
     /* basic data for CoverCalibratorModule is taken, module bening*/
     LOGI("deserialization of calibrator json configuration");
     String cfg = pref.getString("calibrator","{}");
-    LOGD("raw calibrator json is: %s",cfg);
+    LOGD("raw calibrator json is: %s",cfg.c_str());
     DeserializationError error = deserializeJson(doc, cfg);
     LOGD("calibrator deserialization ret val: %d 0=no error",error);
 
@@ -69,7 +75,7 @@ void CoverCalibratorModule::begin(){
 
     cfg.clear();
     cfg = pref.getString("cover","{}");
-    LOGD("raw cover json is: %s",cfg);
+    LOGD("raw cover json is: %s",cfg.c_str());
     error = deserializeJson(doc, cfg);
     LOGD("cover cover ret val: %d 0=no error",error);
     pref.end();

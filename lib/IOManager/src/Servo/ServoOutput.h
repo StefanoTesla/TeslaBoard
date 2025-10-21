@@ -56,6 +56,7 @@ public:
     void goTo(int _percentage,bool slowPermitted); //used only for switch, software decide to perform a direct or slow moviment
     bool isReferenced();
     void setMovingTime(unsigned int _time){ movingTime = _time *1000;}
+    unsigned int getMovingTime(){ return movingTime / 1000;}
 
 private:
     void handleMovement();

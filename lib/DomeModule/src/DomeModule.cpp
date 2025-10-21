@@ -73,7 +73,7 @@ void DomeModule::begin(){
 
     LOGI("deserialization of shutter json configuration");
     String cfg = pref.getString("shutter","{}");
-    LOGD("raw shutter json is: %s",cfg);
+    LOGD("raw shutter json is: %s",cfg.c_str());
     DeserializationError error = deserializeJson(doc, cfg);
     pref.end();
     LOGD("shutter deserialization ret val: %d 0=no error",error);
