@@ -10,7 +10,8 @@ void Calibrator::begin(JsonDocument doc){
     if(moduleEnable){
 
         JsonObject calib = doc["outPWM"];
-        calibrator.jsonSetup(calib);
+        calib["name"] = "Calibrator";
+        calibrator.jsonSetup(calib,true);
 
     }
 

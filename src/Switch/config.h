@@ -130,7 +130,7 @@ void initSwitchConfig(){
                 ServoConfig.maxDeg = doc["maxDeg"];
                 ServoConfig.closeDeg= doc["closeDeg"];
                 ServoConfig.openDeg = doc["openDeg"];
-                ServoConfig.movTime = doc["movTime"];
+                ServoConfig.moveTime = doc["movTime"];
                 SwitchObjects[i]->setup(&ServoConfig);
         }
 

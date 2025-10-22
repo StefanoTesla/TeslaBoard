@@ -308,7 +308,7 @@ return code table:
       }
   }
 
-  if(!json["movTime"].is<unsigned int>()){
+  if(!json["moveTime"].is<unsigned int>()){
       return -8;
   }
 
@@ -346,7 +346,7 @@ const char* retValTranslate(int retVal) {
     case -700:
       return "IOClDBig";
     case -8:
-      return "IOMovTimeNotInt";
+      return "IOMoveTimeNotInt";
     // Aggiungi altri casi se necessario
     default:
       return "IOGenErr";
@@ -377,7 +377,7 @@ void copyServoJson(JsonObject input, JsonObject out){
   out["maxDeg"] = input["maxDeg"].as<unsigned int>();
   out["openDeg"] = input["openDeg"].as<unsigned int>();
   out["closeDeg"] = input["closeDeg"].as<unsigned int>();
-  out["movTime"] = input["movTime"].as<unsigned long>();
+  out["moveTime"] = input["moveTime"].as<unsigned long>();
 }
 
 

@@ -1,7 +1,12 @@
 #include <Arduino.h>
 #include "PWMOutput.h"
 #include "IOConfigStruct.h"
-
+#define LOG_TAG "IOPWM"
+#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 void PWMOutput::setup(IOConfigBase* config){
     if (config->getType() != 3) {
@@ -31,16 +36,19 @@ void PWMOutput::setup(IOConfigBase* config){
 }
 
 void PWMOutput::jsonSetup(JsonObject setup, bool HS){
-
+    LOGV("Servo channel json setup");
     channel = -1;
 
     if(HS){
         channel = chMgr->getFastChannel(true);
+        LOGD("20kHz PWM channel assigned at position %d",channel);
     } else {
         channel = chMgr->getFastChannel();
+        LOGD("5kHz PWM channel assigned at position %d",channel);
     }
 
     if(channel<0){
+        LOGE("Unable to retrive a PWM channel");
         Serial.println("Unable to retrive a free ledChannel");
         return;
     }
@@ -50,12 +58,13 @@ void PWMOutput::jsonSetup(JsonObject setup, bool HS){
     } else {
         freq = 5000;
     }
-
+    setName(setup["name"]);
     pin = setup["pin"].as<unsigned int>();
     min = 0;
     max = 4095;
-    ledcSetup(pin, freq, 12);
-    ledcAttachPin(pin,channel); 
+    ledcSetup(channel, freq, 12);
+    ledcAttachPin(pin,channel);
+    LOGD("%s PWM channel configured at pin %d, channel: %d, frequency: %d, ",Name,pin,channel,freq);
 
 }
 
@@ -95,8 +104,9 @@ void PWMOutput::copyJsonCfg(JsonObject src,JsonObject dest){
 }
 
 int PWMOutput::write(int _value) {
+    LOGV("PWM command at: %d",_value);
     if(_value >= min && _value <= max){
-        ledcWrite(pin,_value);
+        ledcWrite(channel,_value);
         return 1;
     }
     

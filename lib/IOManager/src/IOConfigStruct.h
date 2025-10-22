@@ -33,7 +33,7 @@ struct ServoOutputConfig : public IOConfigBase {
     unsigned int maxDeg;
     unsigned int closeDeg;
     unsigned int openDeg;
-    unsigned long movTime;
+    unsigned long moveTime;
     int getType() const override { return 4; } 
 };
 

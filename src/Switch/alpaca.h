@@ -411,7 +411,7 @@ void switchAlpacaDevice(){
             
             if (SwitchObjects[id]->getType() == SwTypeServo){
                   ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
-                  servo->goTo(value,true);
+                  servo->goTo(value,false,true);
             } else {
                   SwitchObjects[id]->write(value);
             }
@@ -432,7 +432,7 @@ void switchAlpacaDevice(){
             }
             if(SwitchObjects[id]->getType() == SwTypeServo){
                   ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
-                  servo->goTo(value,true);
+                  servo->goTo(value,false,true);
             } else {
                   SwitchObjects[id]->write(value);
             }
@@ -470,7 +470,7 @@ void switchAlpacaDevice(){
 
             if(SwitchObjects[id]->getType() == SwTypeServo){
                   ServoOutput* servo = static_cast<ServoOutput*>(SwitchObjects[id]);
-                  servo->goTo(value,true);
+                  servo->goTo(value,false,true);
             } else {
                   SwitchObjects[id]->write(value);
             }

@@ -1,116 +1,29 @@
 #include "Cover.h"
+#include "esp_log.h"
+#define LOG_TAG "Cover"
+#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+
+#pragma region Configuration
+
 
 /* Setup the shutter */
 void Cover::begin(JsonDocument doc){
 
-    moduleEnable = doc["enable"];
+    moduleEnable = doc["enable"].as<bool>();
+    openPosition = doc["openPos"].as<unsigned int>();
+    closePosition = doc["closePos"].as<unsigned int>();
 
     if(moduleEnable){
-        JsonObject pinServo = doc["servo"];
+        JsonObject pinServo = doc["outServo"];
         servo.jsonSetup(pinServo);
     }
 
 }
 
-
-/* loop cycle, status and cycle update */
-void Cover::loop(){
-
-    servo.write(50);
-    updateStatus();
-    
-}
-
-/* return true if you can open, otherwise false */
-bool Cover::canOpen(){
-    if(!servo.isMoving() && status != Opened ){
-        return true;
-    }
-    return false;
-}
-
-/* return true if shutter is open, otherwise false */
-bool Cover::isOpen(){
-    if(servo.status() == openPosition){
-        return true;
-    }
-
-    return false;
-}
-
-/* send an open command*/
-void Cover::open() {
-    if(canOpen()){
-        servo.goTo(openPosition,false);
-    }
-    
-}
-
-/* return true if you can close, otherwise false */
-bool Cover::canClose(){
-    if(!servo.isMoving() && status != Closed ){
-        return true;
-    }
-    return false;
-}
-
-
-/* return true if shutter is close, otherwise false */
-bool Cover::isClosed(){
-    if(servo.status() == closePosition){
-        return true;
-    }
-
-    return false;
-}
-
-/* send a close command */
-void Cover::close() {
-
-    servo.goTo(closePosition,false);
-}
-
-
-/* send an halt command */
-void Cover::halt(){
-    servo.halt();
-}
-
-/* return true if shutter is moving, otherwise false */
-bool Cover::isMoving() {
-    return servo.isMoving() ? true : false;    
-}
-
-void Cover::updateStatus() {
-
-    status = NotPresent;
-
-    if(moduleEnable){
-        status = Error;
-
-        if(servo.isMoving()){
-            status = Moving;
-        } else {
-            if(isClosed()){
-                status = Closed;
-            } else if (isOpen()){
-                status = Opened;
-            }
-        }
-    }
-}
-
-
-Cover::Status Cover::getStatus() const {
-    return status;
-}
-
-
-
-
-/*
-Configuration Area
-*/
 
 
 void Cover::getConfiguration(JsonObject obj){
@@ -118,7 +31,7 @@ void Cover::getConfiguration(JsonObject obj){
     obj["openPos"] = openPosition;
     obj["closePos"] = closePosition;
 
-    JsonObject servoData = obj["servo"].to<JsonObject>();
+    JsonObject servoData = obj["outServo"].to<JsonObject>();
     servo.getConfiguration(servoData);
 
 }
@@ -195,12 +108,16 @@ void Cover::storeConfiguration(JsonObject coverObject, const char* schema){
     tmpCfg["enable"] = incomingEnable;
 
     if(incomingEnable){
+        tmpCfg["openPos"] = coverObject["openPos"].as<unsigned int>();
+        tmpCfg["closePos"] = coverObject["closePos"].as<unsigned int>();
+
+
         JsonObject servoObj = tmpCfg["outServo"].to<JsonObject>();
         servo.copyJsonCfg(coverObject["outServo"],servoObj);
         /*set the variables don't need a reboot */
-        openPosition = coverObject["openPos"].as<unsigned int>();
-        closePosition = coverObject["closePos"].as<unsigned int>();
-        servo.setMovingTime(servoObj["movTime"].as<unsigned int>());
+        openPosition =  tmpCfg["openPos"];
+        closePosition = tmpCfg["closePos"];
+        servo.setMovingTime(servoObj["moveTime"].as<unsigned int>());
     }
 
 
@@ -216,3 +133,106 @@ void Cover::storeConfiguration(JsonObject coverObject, const char* schema){
     tmpCfg.clear();
 
 }
+
+#pragma endregion
+
+
+/* loop cycle, status and cycle update */
+void Cover::loop(){
+    servo.loop();
+    updateStatus();
+    
+}
+
+/* return true if you can open, otherwise false */
+bool Cover::canOpen(){
+    if(!servo.isMoving() && status != Opened ){
+        return true;
+    }
+    return false;
+}
+
+/* return true if shutter is open, otherwise false */
+bool Cover::isOpen(){
+
+    if(servo.status() == openPosition){
+        return true;
+    }
+
+    return false;
+}
+
+/* send an open command*/
+void Cover::open() {
+    LOGV("Cover open request");
+    if(canOpen()){
+        LOGV("You can open");
+        servo.goTo(openPosition,false);
+    }
+    
+}
+
+/* return true if you can close, otherwise false */
+bool Cover::canClose(){
+    if(!servo.isMoving() && status != Closed ){
+        return true;
+    }
+    return false;
+}
+
+/* return true if shutter is close, otherwise false */
+bool Cover::isClosed(){
+    if(servo.status() == closePosition){
+        return true;
+    }
+
+    return false;
+}
+
+/* send a close command */
+void Cover::close() {
+
+    servo.goTo(closePosition,false);
+}
+
+
+/* send an halt command */
+void Cover::halt(){
+    servo.halt();
+}
+
+/* return true if shutter is moving, otherwise false */
+bool Cover::isMoving() {
+    return servo.isMoving() ? true : false;    
+}
+
+void Cover::updateStatus() {
+
+    status = NotPresent;
+
+    if(moduleEnable){
+        status = Error;
+
+        if(servo.isMoving()){
+            status = Moving;
+        } else {
+            if(isClosed()){
+                status = Closed;
+            } else if (isOpen()){
+                status = Opened;
+            }
+        }
+    }
+}
+
+
+Cover::Status Cover::getStatus() const {
+    return status;
+}
+
+
+
+
+/*
+Configuration Area
+*/

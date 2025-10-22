@@ -324,14 +324,8 @@ void coverWebApi(){
     server.on("/api/coverc/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
-        doc["enable"] = CoverCalibrator.isEnable();
-        doc["order"] = CoverCalibrator.uiOrder;
 
-        JsonObject calibrator = doc["calibrator"].to<JsonObject>();
-        CoverCalibrator.calibrator.getConfiguration(calibrator);
-
-        JsonObject cover = doc["cover"].to<JsonObject>();
-        CoverCalibrator.cover.getConfiguration(cover);
+        CoverCalibrator.getConfiguration(doc);
         
 //        doc["reboot"] = CoverC.config.save.restartNeeded;
 
@@ -364,7 +358,7 @@ void coverWebApi(){
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         
-        if(CoverCalibrator.cover.canOpen() == false){
+        if(CoverCalibrator.cover.canOpen()){
             doc["execute"] = true;
             CoverCalibrator.cover.open();
         } else {
@@ -383,7 +377,7 @@ void coverWebApi(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        if(CoverCalibrator.cover.canClose() == false){
+        if(CoverCalibrator.cover.canClose()){
             doc["execute"] = true;
             CoverCalibrator.cover.close();
         } else {
