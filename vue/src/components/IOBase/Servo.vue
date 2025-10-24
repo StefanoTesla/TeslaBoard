@@ -6,26 +6,6 @@
     </div>
   </div>
   <div class="setting_row">
-    <p>{{ props.txt.IOBase.Servo.maxDeg }}</p>
-    <select :id="`sw_${index}_invert`" :class="[maxDegUnvalid ? 'validation_error' : '']" v-model="swi.maxDeg" @change="validate()">
-       <option v-for="[key, value] in Object.entries(props.txt.IOBase.Servo.maxDegEnum)" :key="key" :value="key">
-         {{ value }}
-       </option>
-     </select>
-  </div>
-  <div class="setting_row">
-    <p>{{ props.txt.IOBase.Servo.openDeg }}</p>
-    <div class="input_with_unit">
-      <span class="unit">°</span><input :id="`sw_${index}_open`" :class="['with_unit', openDegUnvalid ? 'validation_error' : '']" type="number" v-model="swi.openDeg" @change="validate()"/>
-    </div>
-  </div>
-  <div class="setting_row">
-    <p>{{ props.txt.IOBase.Servo.closeDeg }}</p>
-    <div class="input_with_unit">
-      <span class="unit">°</span><input :id="`sw_${index}_close`" :class="['with_unit', closeDegUnvalid ? 'validation_error' : '']" type="number" v-model="swi.closeDeg" @change="validate()"/>
-    </div>
-  </div>
-  <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.movingTime }}</p>
     <div class="input_with_unit">
       <span class="unit">sec</span><input :id="`sw_${index}_movTime`" :class="['with_unit', movTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.movTime" @change="validate()"/>
@@ -48,19 +28,13 @@
    swi: {
     type: Object,
     default: () => ({
-        maxDeg: 90,
-        openDeg: 0,
-        closeDeg: 0,
-        movTime: 0
+        moveTime: 0
       })
     }
  })
  const emit = defineEmits(['update:validated','update:pinUsed']);
 
  let pinUnvalid = ref(false)
- let openDegUnvalid = ref(false)
- let closeDegUnvalid = ref(false)
- let maxDegUnvalid = ref(false)
  let movTimeUnvalid = ref(false)
 
 
@@ -75,51 +49,8 @@
        return
    }
 
-   props.swi.maxDeg = parseInt(props.swi.maxDeg)
-   maxDegUnvalid.value = false
-   if (isNegative(props.swi.maxDeg)){
-    maxDegUnvalid.value = true
-       errorResponseNotify(props.txt.errors.general.negativeValue)
-       return
-   }
-   if (isGreaterThan(props.swi.maxDeg, 270)){
-    maxDegUnvalid.value = true
-       const errorMessage = props.txt.errors.general.greaterThan + " " + props.swi.maxDeg
-       errorResponseNotify(errorMessage)
-       return
-   }
 
-   openDegUnvalid.value = false
-   props.swi.openDeg = parseInt(props.swi.openDeg)
-   if (isNegative(props.swi.openDeg)){
-    openDegUnvalid.value = true
-       errorResponseNotify(props.txt.errors.general.negativeValue)
-       return
-   }
-   
-   if (isGreaterThan(props.swi.openDeg, props.swi.maxDeg)){
-    openDegUnvalid.value = true
-    const errorMessage = props.txt.errors.general.greaterThan + " " + props.swi.maxDeg
-    errorResponseNotify(errorMessage)
-    return
-   }
-
-   props.swi.closeDeg = parseInt(props.swi.closeDeg)
-   closeDegUnvalid.value = false
-   if (isNegative(props.swi.closeDeg)){
-    closeDegUnvalid.value = true 
-    errorResponseNotify(props.txt.errors.general.negativeValue)
-    return
-   }
-   
-   if (isGreaterThan(props.swi.closeDeg, props.swi.maxDeg)){
-    closeDegUnvalid.value = true
-    const errorMessage = props.txt.errors.general.greaterThan + " " + props.swi.maxDeg
-    errorResponseNotify(errorMessage)
-    return
-   }
-
-   props.swi.movTime = parseInt(props.swi.movTime)
+   props.swi.moveTime = parseInt(props.swi.moveTime)
    movTimeUnvalid.value = false
    if (isNegative(props.swi.movTime)){
     movTimeUnvalid.value = true 
@@ -139,10 +70,7 @@
 
  onMounted(()=>{
   props.swi.pin = props.swi.pin ?? null
-  props.swi.maxDeg = props.swi.maxDeg ?? 90;
-  props.swi.openDeg = props.swi.openDeg ?? 0;
-  props.swi.closeDeg = props.swi.closeDeg ?? 0;
-  props.swi.movTime = props.swi.movTime ?? 0;
+  props.swi.moveTime = props.swi.movTime ?? 0;
   validate()
  })
 

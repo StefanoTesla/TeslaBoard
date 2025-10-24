@@ -3,15 +3,23 @@
   <Navigation 
     :home = true  
   />
+
+  <div v-if="!txtLoaded" class="items-center min-h-[90dvh] content-center">
+    <div class="card text">
+      <p>Loading<span class="typing-effect">...</span></p>
+    <p class="font-extrabold txt-red">{{  loadError }}</p></div>
+  </div>
+  
   <div v-if="txtLoaded">
 
-  <div v-for="mod in components" :key="mod.name">
-    <component :is="resolveComponent(mod.name)" :txt="translations" />
-  </div>
+    <div v-for="mod in components" :key="mod.name">
+      <component :is="resolveComponent(mod.name)" :txt="translations" />
+    </div>
 
-    <BoardHome 
-      :txt="translations" 
-    /> 
+      <BoardHome 
+        :txt="translations" 
+      /> 
+      
   </div>
 </template>
 
@@ -29,7 +37,7 @@ import BoardHome from './components/Board/BoardHome.vue';
 const components = ref([]) 
 const { translations, loadTranslations } = useTranslations()
 const txtLoaded = ref(false)
-
+const loadError = ref()
 
 function resolveComponent(name) {
   switch (name) {
@@ -53,6 +61,8 @@ const loadInitConfig = async () => {
     await loadTranslations(data.locale)
     txtLoaded.value = true
   } catch (error) {
+    loadError.value = error
+
     console.error('Error loading config:', error)
   }
 }

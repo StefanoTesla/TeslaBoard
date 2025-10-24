@@ -37,14 +37,13 @@
 
   </div>
   <div v-if="dome.enable">
-
     <div class="card">
       <div class="setting_table">
         <div class="sw_header">
           <p>{{ props.txt.dome.setting.driverType }}</p>
         </div>
         <div class="setting_row">
-          <select :id="`dome_cmd_type`" :class="[boardTypeUnvalid ? 'validation_error' : '']" v-model="dome.driverType" @change="validate()">
+          <select :id="`dome_cmd_type`" :class="[boardTypeUnvalid ? 'validation_error' : '']" v-model="dome.shutter.driverType" @change="validate()">
           <option v-for="[key, value] in Object.entries(props.txt.dome.setting.driverTypeEnum)" :key="key" :value="key">
             {{ value }}
           </option>
@@ -53,7 +52,7 @@
 
       </div>
     </div>
-    <div class="card">
+   <div class="card">
       <div class="setting_table">
         <div class="sw_header">
           <p>{{ props.txt.dome.setting.inOpen }}</p>
@@ -62,13 +61,13 @@
         <Input
               :txt="props.txt"
               :index = 0
-              :swi = "dome.pinOpen"
+              :swi = "dome.shutter.pinOpen"
               @update:validated="handleValidation"
               @update:pinUsed="updatePin"
             />
       </div>
     </div>
-    <div class="card">
+     <div class="card">
       <div class="setting_table">
         <div class="sw_header">
           <p>{{ props.txt.dome.setting.inClose }}</p>
@@ -77,7 +76,7 @@
         <Input
               :txt="props.txt"
               :index = 1
-              :swi = "dome.pinClose"
+              :swi = "dome.shutter.pinClose"
               @update:validated="handleValidation" 
               @update:pinUsed="updatePin"
             />
@@ -92,7 +91,7 @@
         <Output
               :txt="props.txt"
               :index = 2
-              :swi = "dome.pinStart"
+              :swi = "dome.shutter.outStart"
               @update:validated="handleValidation"
               @update:pinUsed="updatePin"
             />
@@ -107,7 +106,7 @@
         <Output
               :txt="props.txt"
               :index = 3
-              :swi = "dome.pinHalt"
+              :swi = "dome.shutter.outHalt"
               @update:validated="handleValidation"
               @update:pinUsed="updatePin"
             />
@@ -138,18 +137,17 @@
         <p>{{ props.txt.dome.setting.autoclosewarning5 }}</p>
         <div class="setting_row">
           <label class="toggle " for="dome_autoclose_enable">
-            <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.autoclose.enable">
+            <input class="toggle__input" name="" type="checkbox" id="dome_autoclose_enable" v-model="dome.shutter.autoclose.enable">
             <div class="toggle__fill"></div>
           </label>
         </div>
         <div class="setting_row">
           <div class="input_with_unit">
-            <span class="unit">min</span><input :id="`dome_autoclose_minutes`" :class="['with_unit', autoCloseTimeUnvalid ? 'validation_error' : '']" type="number" v-model="dome.autoclose.minutes" @change="validate()"/>
+            <span class="unit">min</span><input :id="`dome_autoclose_minutes`" :class="['with_unit', autoCloseTimeUnvalid ? 'validation_error' : '']" type="number" v-model="dome.shutter.autoclose.minutes" @change="validate()"/>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 
 
@@ -194,6 +192,7 @@ let autoCloseTimeUnvalid = ref(false)
 
 const handleValidation = (data) => {
 const { index, isValid } = data;
+return
 validation.value[index] = isValid;
 }
 
@@ -382,11 +381,13 @@ watch(() => validation.value.some(item => item === false), (containsFalse) => {
 
 const updatePinsforObserver = (data) => {
   pinUsed.value=[]
-  pinUsed.value[0]={"pin":data.pinOpen.pin,"type":1,"module": 2}
-  pinUsed.value[1]={"pin":data.pinClose.pin,"type":1,"module": 2}
-  pinUsed.value[2]={"pin":data.pinStart.pin,"type":2,"module": 2}
-  pinUsed.value[3]={"pin":data.pinHalt.pin,"type":2,"module": 2}
+  /*
+  pinUsed.value[0]={"pin":data.shutter.pinOpen.pin,"type":1,"module": 2}
+  pinUsed.value[1]={"pin":data.shutter.pinClose.pin,"type":1,"module": 2}
+  pinUsed.value[2]={"pin":data.shutter.pinStart.pin,"type":2,"module": 2}
+  pinUsed.value[3]={"pin":data.shutter.pinHalt.pin,"type":2,"module": 2}
   emit('update:pinUsed', pinUsed.value);
+  */
 }
 
 const updatePin = (data) => {

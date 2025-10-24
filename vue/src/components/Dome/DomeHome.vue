@@ -8,40 +8,46 @@ v-if="props.txt.dome"
     :statusClass=statusClass
     >
 
-  <div class="card">
-    <div class="flex">
-      <p>{{ txt.dome.home.roofState }}</p>
-      <p class="pl-2">{{ shutterStateEnum(dome.status.roofState) }}</p>
+    <div class="grid sm:grid-cols1 md:grid-cols-2 gap-4">
+      <div class="card">
+        <p class="title">{{ txt.dome.home.roofState }}</p>
+        <p class="text-center pl-2">{{ shutterStateEnum(dome.shutter.roofState) }}</p>
+      </div>
+
+      <div class="card">
+        <p class="title">{{ txt.dome.home.input }}</p>
+        <div class="justify-items-center uppercase flex">
+          <p>{{ txt.gen.status.open }}</p>
+          <span class="block" :class="['led', dome.shutter.input.open ? 'green' : 'black']"></span>
+        </div>
+        <div class="justify-items-center uppercase flex">
+          <p>{{ txt.gen.status.close }}</p>
+          <div class="block" :class="['led', dome.shutter.input.close ? 'green' : 'black']"></div>
+        </div>
+      </div>
+
+      <div class="card flex flex-col justify-evenly">
+        <button :class="shutterOpenCmdClass" @click="cmdShutterOpen">{{ txt.gen.action.open }}</button>
+        <button :class="shutterCloseCmdClass" @click="cmdShutterClose">{{ txt.gen.action.close }}</button>
+        <button class="red cursor-pointer" @click="cmdShutterHalt">{{ txt.gen.action.halt }}</button>
+      </div>
+      <div class="card flex flex-col justify-evenly">
+        <div>
+          <p class="title">{{ txt.dome.home.actualCommand }}</p>
+          <p>{{ commandEnum(dome.shutter.actualCommand) }}</p>
+        </div>
+        <div>
+          <p class="title">Ultimo tempo di viaggio</p>
+          <p>{{ commandEnum(dome.shutter.actualCommand) }} sec.</p>
+        </div>
+        <div>
+          <p class="title">Chiusura automatica</p>
+          <p v-if="dome.shutter.autoclose.enable">ABILITATA</p>
+          <p v-if="!dome.shutter.autoclose.enable">DISABILITATA</p>
+        </div>
+      </div>
     </div>
 
-  </div>
-  <div class="card">
-    <div class="flex justify-evenly">
-      <button :class="shutterOpenCmdClass" @click="cmdShutterOpen">{{ txt.gen.action.open }}</button>
-      <button :class="shutterCloseCmdClass" @click="cmdShutterClose">{{ txt.gen.action.close }}</button>
-      <button class="red cursor-pointer" @click="cmdShutterHalt">{{ txt.gen.action.halt }}</button>
-    </div>
-
-  </div>
-  <div class="card">
-    <div class="title">
-      <p>{{ txt.dome.home.input }}</p>
-    </div>
-    <div class="grid grid-cols-2">
-      <div class="justify-items-center uppercase">{{ txt.gen.status.open }} 
-        <div :class="['led', dome.input.open ? 'green' : 'black']"></div>
-      </div>
-      <div class="justify-items-center uppercase">{{ txt.gen.status.close }} 
-        <div :class="['led', dome.input.close ? 'green' : 'black']"></div>
-      </div>
-    </div>
-  </div>
-  <div class="card text-center">
-    <p>{{ txt.dome.home.actualCommand }}</p>
-    <p>{{ commandEnum(dome.status.actualCommand) }}</p>
-    <p>{{ txt.dome.home.lastCommand }}</p>
-    <p>{{ commandEnum(dome.status.lastCommand) }}</p>
-  </div>
 
 </Card>
 </template>
@@ -58,6 +64,7 @@ const props = defineProps({
 
 
 const dome = ref({})
+
 let dataLoaded = ref(false)
 let statusClass = ref('red')
 
@@ -74,7 +81,7 @@ const fetchData = async () => {
     dataLoaded.value = true
 
     const classes = ['green', 'green', 'orange', 'orange', 'red']
-    statusClass.value = classes[dome.value.status.roofState] 
+    statusClass.value = classes[dome.value.shutter.roofState] 
 
     
   } catch (error) {
@@ -95,12 +102,12 @@ const commandEnum = (status) => {
 
 const canOpenShutter = () =>{
   if(!dataLoaded)return false
-  return (dome.value.status.actualCommand == 0 && dome.value.status.roofState != 0) ? true : false;
+  return (dome.value.shutter.canOpen) ? true : false;
 }
 
 const canCloseShutter = () =>{
   if(!dataLoaded)return false
-  return (dome.value.status.actualCommand == 0 && dome.value.status.roofState != 1) ? true : false;
+  return (dome.value.shutter.canClose) ? true : false;
 }
 
 const shutterOpenCmdClass = computed(() => {

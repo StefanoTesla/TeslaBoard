@@ -40,7 +40,7 @@ header {
 }
 
 header{
-  @apply flex  font-bold py-4 justify-between
+  @apply flex  font-bold sm:py-1 md:py-2 lg:py-4  justify-between
 }
 
 .menu{
@@ -74,14 +74,14 @@ a.active{
     @apply col-span-1 items-center justify-items-center content-center
 }
 .container > .content{
-    @apply pb-4
+    @apply px-4 pb-4
 }
 
 
 
 .card{
   background: var(--divhig);
-  @apply rounded-lg p-4 mx-4 mb-4
+  @apply rounded-lg p-4
 }
 
 .card > .content{
@@ -202,6 +202,9 @@ button{
 }
 .red{
   background-color: var(--red);
+}
+.txt-red{
+  color: var(--red);
 }
 
 .black{
@@ -437,4 +440,24 @@ input[type="range"] {
 
 .module_status > .txt {
   @apply pr-2
+}
+
+
+.typing-effect {
+  font-family: monospace;
+  overflow: hidden;
+  border-right: .15em solid #e8bd24;
+  white-space: nowrap;
+  margin: 0 auto;
+  letter-spacing: .15em;
+  animation: 
+    typing 3.5s steps(30, end),
+    caret .5s step-end infinite;
+}
+
+
+/* The typewriter cursor effect */
+@keyframes caret {
+  from, to { border-color: transparent }
+  50% { border-color: #e8bd24 }
 }

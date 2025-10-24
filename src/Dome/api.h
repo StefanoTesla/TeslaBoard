@@ -6,7 +6,7 @@ AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddle
     if(Dome.isEnable()){
       next();
     } else {
-      request->send(500, "text/plain", "Module not enabled");
+      request->send(500, "application/json", "{\"enable\":false}");
     }
     
 });
@@ -39,6 +39,9 @@ void domeWebApi(){
         JsonObject shutter = doc["shutter"].to<JsonObject>();
             shutter["roofState"] = Dome.shutter.getStatus();
             shutter["actualCommand"] = Dome.shutter.getActualCommand();
+            shutter["canOpen"] = Dome.shutter.canOpen();
+            shutter["canClose"] = Dome.shutter.canClose();
+            shutter["latTravelTime"] = Dome.shutter.lastTravelTime();
 
         JsonObject input = shutter["input"].to<JsonObject>();
             input["open"] = Dome.shutter.getOpenSensorRaw();
