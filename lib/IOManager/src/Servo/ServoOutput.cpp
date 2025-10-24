@@ -66,7 +66,6 @@ void ServoOutput::halt(){
 // smoother transitions and avoid jerky movements.
 void ServoOutput::setMovingTime(unsigned int _time){
   movingTime = _time *1000;
-  moveTo.intervall = movingTime / 401;
 }
 
 void ServoOutput::goTo(int _percentage,bool direct,bool _oPos){
@@ -79,44 +78,19 @@ void ServoOutput::goTo(int _percentage,bool direct,bool _oPos){
     moveTo.nextStep = readPin();
     moveTo.increment = readPin() < moveTo.destInDuty ? true : false;
     moveTo.actualMillis = millis();
+    moveTo.intervall = movingTime / 401;
     positioning = true;
     overridePosition = _oPos;
-
+    LOGV("New slow moviment with destination: %d",moveTo.destination);
+    LOGV("Actual duty: %d",moveTo.nextStep);
+    LOGV("Destination duty: %d",moveTo.destInDuty);
+    LOGV("Moving Time: %d",movingTime);
+    LOGV("Intervall: %d",moveTo.intervall);
   } else {
     LOGV("Direct Write");
     write(_percentage);
   }
 }
-/*
-bool ServoOutput::goToSlowly(int _angle, bool _overridePosition){
-
-      if(positioning){
-         return false;
-      }
-
-      int pos = readPosition();
-      if(pos < 0 || pos> max){
-        Serial.println("Servo is in an undefined position, use write function");
-        return false;
-      }
-
-      if(_angle < 0 || _angle > max){
-        Serial.println("invalid commanded angle.");
-        return false;
-      }
-
-      // get in how many ms I need to do a degree
-      MoveToSlowly.destination = _angle;
-      MoveToSlowly.intervall = movingTime / max;
-      if(MoveToSlowly.intervall == 0){
-        MoveToSlowly.intervall = 1;
-      }
-      MoveToSlowly.increment = pos > _angle ? false : true; 
-      positioning = true;
-      overridePosition = _overridePosition ? true : false;
-      return true;
-}
-*/
 
 void ServoOutput::servoHandler(){
 
@@ -128,11 +102,12 @@ void ServoOutput::servoHandler(){
     if(millis() - moveTo.actualMillis >= moveTo.intervall){
       moveTo.actualMillis=millis();
       moveTo.nextStep += moveTo.increment ? + 1: -1;
-      if((moveTo.increment && moveTo.nextStep >= moveTo.destination) ||
-        (!moveTo.increment && moveTo.nextStep <= moveTo.destination)){
-          ledcWrite(channel, moveTo.destination);
+      if((moveTo.increment && moveTo.nextStep >= moveTo.destInDuty) ||
+        (!moveTo.increment && moveTo.nextStep <= moveTo.destInDuty)){
+          write(moveTo.destination);
           positioning = false;
         } else {
+          LOGV("Next step to: %d", moveTo.nextStep);
           ledcWrite(channel, moveTo.nextStep);
         }
     }
@@ -217,7 +192,6 @@ void ServoOutput::copyJsonCfg(JsonObject incoming,JsonObject retConfig){
     retConfig["pin"] = incoming["pin"].as<unsigned int>();
     retConfig["moveTime"] = incoming["moveTime"].as<unsigned int>();
 }
-
 
 
 int ServoOutput::validateJsonCfg(JsonObject json){
