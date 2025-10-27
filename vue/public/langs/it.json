@@ -31,11 +31,12 @@
 			"inClose": "Ingresso Chiuso",
 			"onDelay": "Ritardo Attivazione:",
 			"offDelay": "Ritardo Disattivazione:",
-			"outStart": "GPIO Start:",
-			"outHalt": "GPIO HALT:",
-			"outOpen": "GPIO Apertura:",
-			"outClose": "GPIO Chiusura:",
-			"outDir": "GPIO Direzione:",
+			"outStart": "Segnale Start",
+			"outHalt": "Segnale HALT",
+			"outOpen": "Segnale Apertura",
+			"outMove": "Segnale Movimento",
+			"outClose": "Segnale Chiusura",
+			"outDir": "Segnale Direzione",
 			"timeout": "Timeout",
 			"autoClose": "Chiusura Automatica",
 			"timeOutMoviment" : "Tempo massimo di movimento:",
@@ -67,7 +68,11 @@
 			}
 		},
 		"setting":{
-			"configSaved": "configurazione Cover Calibrator Salvata"
+			"configSaved": "configurazione Cover Calibrator Salvata",
+			"cover":{
+				"openPos": "% di apertura",
+				"closePos": "% di chiusura"
+			}
 		}
 	},
 	"switch":{
@@ -181,12 +186,6 @@
 			"IOdOffNotInt": "dOff non è un valore valido",
 			"IOInvertNotInt": "Inverti non è un valore valido",
 			"IOInvertOutRange": "Inverti è fuori dai limiti",
-			"IOMaxDNotInt": "Angolo Massimo non è un valore valido",
-			"IOMaxDOutRange":"Angolo Massimo è fuori dai limiti",
-			"IOOpDNotInt": "Pin non è un valore valido",
-			"IOOpDBig":"Angolo di Apertura più grande dell'angolo massimo",
-			"IOClDNotInt": "Pin non è un valore valido",
-			"IOClDBig":"Angolo di Chiusura più grande dell'angolo massimo",
 			"IOMovTimeNotInt":"Tempo di movimento non è un valore valido",
 			"IOTypeUndef": "Tipo non definito",
 			"IOTypeOutRange": "Tipo fuori range",
@@ -248,30 +247,22 @@
 			"3": "Interruttori"
 		},
 		"DI":{
-			"onDelay": "Ritardo Attivazione:",
-			"offDelay": "Ritardo Disattivazione:",
-			"func": "Funzionamento:",
+			"onDelay": "Rit. Attivazione:",
+			"offDelay": "Rit. Disattivazione:",
+			"func": "Funzionamento",
 			"invertEnum":{
-				"0": "Norm. Aperto",
-				"1": "Norm. Chiuso"
+				"0": "N.A.",
+				"1": "N.C."
 			}
 		},
 		"DO":{
-			"func": "Funzionamento:",
+			"func": "Funzionamento",
 			"invertEnum":{
-				"0": "Attivo HIGH",
-				"1": "Attivo LOW"
+				"0": "Normale",
+				"1": "Invertito"
 			}
 		},
 		"Servo":{
-			"openDeg": "Aperto a gradi:",
-			"closeDeg": "Chiuso a gradi:",
-			"maxDeg": "Massima Rotazione:",
-			"maxDegEnum":{
-				"90": "90°",
-				"180": "180°",
-				"270": "270°"
-			},
 			"movingTime": "Tempo di movimento:"
 		}
 	}

@@ -47,9 +47,6 @@ AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddl
 });
 
 
-
-
-
 void coverAlpacaManage(){
 
   alpaca.on("/api/v1/covercalibrator/0/name",                                                     HTTP_GET, [](AsyncWebServerRequest *request) {

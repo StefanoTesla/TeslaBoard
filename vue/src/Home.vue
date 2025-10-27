@@ -1,75 +1,70 @@
-
 <template>
-  <Navigation 
-    :home = true  
-  />
+  <Navigation :home="true" />
 
   <div v-if="!txtLoaded" class="items-center min-h-[90dvh] content-center">
     <div class="card text">
       <p>Loading<span class="typing-effect">...</span></p>
-    <p class="font-extrabold txt-red">{{  loadError }}</p></div>
+      <p class="font-extrabold txt-red">{{ loadError }}</p>
+    </div>
   </div>
-  
-  <div v-if="txtLoaded">
 
+  <div v-if="txtLoaded">
     <div v-for="mod in components" :key="mod.name">
       <component :is="resolveComponent(mod.name)" :txt="translations" />
     </div>
 
-      <BoardHome 
-        :txt="translations" 
-      /> 
-      
+    <BoardHome :txt="translations" />
   </div>
 </template>
 
-
 <script setup>
-import Navigation from './components/Navigation.vue';
+import Navigation from "./components/Navigation.vue";
 
-import Switch from './components/Switch/SwitchHome.vue'
-import CoverCalibrator from './components/CoverCalibrator/CoverCalibratorHome.vue'
-import Dome from './components/Dome/DomeHome.vue';
-import { ref, onMounted } from 'vue'
-import { useTranslations } from './composables/translation'
-import BoardHome from './components/Board/BoardHome.vue';
+import Switch from "./components/Switch/SwitchHome.vue";
+import CoverCalibrator from "./components/CoverCalibrator/CoverCalibratorHome.vue";
+import Dome from "./components/Dome/DomeHome.vue";
+import { ref, onMounted } from "vue";
+import { useTranslations } from "./composables/translation";
+import BoardHome from "./components/Board/BoardHome.vue";
 
-const components = ref([]) 
-const { translations, loadTranslations } = useTranslations()
-const txtLoaded = ref(false)
-const loadError = ref()
+const components = ref([]);
+const { translations, loadTranslations } = useTranslations();
+const txtLoaded = ref(false);
+const loadError = ref();
 
 function resolveComponent(name) {
   switch (name) {
-    case 'switch': return Switch
-    case 'coverc': return CoverCalibrator
-    case 'dome': return Dome
-    default: return null
+    case "switch":
+      return Switch;
+    case "coverc":
+      return CoverCalibrator;
+    case "dome":
+      return Dome;
+    default:
+      return null;
   }
 }
-
 
 const loadInitConfig = async () => {
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+'/api/cfg')
-    const data = await response.json()
+    const response = await fetch(ip + "/api/cfg");
+    const data = await response.json();
     components.value = data.modules
-      .filter(a => a.enable)
+      .filter((a) => a.enable)
       .sort((a, b) => a.order - b.order);
 
-    await loadTranslations(data.locale)
-    txtLoaded.value = true
+    await loadTranslations(data.locale);
+    txtLoaded.value = true;
   } catch (error) {
-    loadError.value = error
+    loadError.value = error;
 
-    console.error('Error loading config:', error)
+    console.error("Error loading config:", error);
   }
-}
-
+};
 
 // Fetch dei dati
 onMounted(async () => {
-  loadInitConfig()
-})
+  loadInitConfig();
+});
 </script>

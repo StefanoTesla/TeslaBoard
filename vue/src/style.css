@@ -7,31 +7,30 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 
 :root {
   --bkg: #121212;
-  --divbkg: #272727;
-  --divhig: #3B3B3B;
-  --green: #CBF05F;
+  --divbkg: #1d1d1d;
+  --divhig: #2d2d2d;
+  --green: #cbf05f;
   --orange: #ecb94a;
   --red: #ec4a4a;
   --black: #121212;
-
 }
 
-*{
-  color: #FDFDFD;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  @apply antialiased
+* {
+  color: #fdfdfd;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  @apply antialiased;
 }
 
-span{
-  @apply ml-1
+span {
+  @apply ml-1;
 }
-body{
+body {
   background: var(--bkg);
 }
 
@@ -39,97 +38,92 @@ header {
   background: var(--divbkg);
 }
 
-header{
-  @apply flex  font-bold sm:py-1 md:py-2 lg:py-4  justify-between
+header {
+  @apply flex  font-bold sm:py-1 md:py-2 lg:py-4  justify-between;
 }
 
-.menu{
-  @apply flex
+.menu {
+  @apply flex;
 }
 
 .menu > * {
-  @apply pr-4
+  @apply pr-4;
 }
 
-a.active{
-  color: #CBF05F;
+a.active {
+  color: #cbf05f;
 }
 
-.container{
+.container {
   background: var(--divbkg);
-  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12  rounded-xl
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 rounded-xl;
 }
 
 .container_header {
-    @apply grid grid-flow-col grid-cols-12 justify-around items-center p-4 text-lg cursor-pointer
+  @apply grid grid-flow-col grid-cols-12 justify-around items-center p-4 text-lg cursor-pointer;
 }
 
-.container_header > .title{
-    @apply font-bold col-span-8 text-left
+.container_header > .title {
+  @apply font-bold col-span-8 text-left;
 }
-.container_header > .status{
-    @apply col-span-3 justify-items-center content-center
+.container_header > .status {
+  @apply col-span-3 justify-items-center content-center;
 }
-.container_header > .icon{
-    @apply col-span-1 items-center justify-items-center content-center
+.container_header > .icon {
+  @apply col-span-1 items-center justify-items-center content-center;
 }
-.container > .content{
-    @apply px-4 pb-4
+.container > .content {
+  @apply px-4 pb-4;
 }
 
-
-
-.card{
+.card {
   background: var(--divhig);
-  @apply rounded-lg p-4
+  @apply rounded-lg p-4;
 }
 
-.card > .content{
-  @apply w-full px-4
+.card > .content {
+  @apply w-full px-4;
 }
 
-
-.title{
-  @apply text-center font-bold w-full
+.title {
+  @apply text-center font-bold w-full;
 }
 
-.single_grid{
+.single_grid {
   background: var(--divbkg);
-  @apply rounded-xl shadow-[#2e2e33] shadow-sm
+  @apply rounded-xl shadow-[#2e2e33] shadow-sm;
 }
 
 .led {
-  @apply w-5 h-5 rounded-full mx-4
+  @apply w-5 h-5 rounded-full mx-4;
 }
 
-.open{
-  @apply rotate-180
+.open {
+  @apply rotate-180;
 }
 
-.single_header > .coll_icon{
-  @apply col-span-1 items-center justify-items-center content-center
+.single_header > .coll_icon {
+  @apply col-span-1 items-center justify-items-center content-center;
 }
 
-
-.led.active{
-  background-color: #CBF05F;
+.led.active {
+  background-color: #cbf05f;
 }
 
-.led.warning{
+.led.warning {
   background-color: #ecb94a;
 }
 
-.led.disactive{
+.led.disactive {
   background-color: #ec4a4a;
 }
-.led.hide{
+.led.hide {
   display: none;
 }
 
-li.switch{
-  @apply grid grid-cols-3 justify-between
+li.switch {
+  @apply grid grid-cols-3 justify-between;
 }
-
 
 .toggle {
   --width: 40px;
@@ -167,297 +161,283 @@ li.switch{
 }
 
 .toggle__input:checked ~ .toggle__fill {
-  background: #CBF05F;
+  background: #cbf05f;
 }
 
 .toggle__input:checked ~ .toggle__fill::after {
   transform: translateX(var(--height));
 }
 
-
 .dome_input {
-  
-  @apply grid grid-cols-2 ;
+  @apply grid grid-cols-2;
 }
 
 .dome_input > div {
   @apply self-center;
 }
 
-
-button{
-  @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase
+button {
+  @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase;
 }
 
-.f_button{
-  @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase h-10 w-fit mx-auto md:mx-0 mb-4
+.f_button {
+  @apply px-4 py-2 rounded-md min-w-20 font-bold uppercase h-10 w-fit mx-auto md:mx-0 mb-4;
 }
 
-.green{
+.green {
   background-color: var(--green);
   color: #212121;
 }
-.orange{
+.orange {
   background-color: var(--orange);
 }
-.red{
+.red {
   background-color: var(--red);
 }
-.txt-red{
+.txt-red {
   color: var(--red);
 }
 
-.black{
+.black {
   background-color: var(--black);
 }
-.disactivated{
+.disactivated {
   background-color: var(--black);
-  color: #FDFDFD;
-  @apply cursor-not-allowed
+  color: #fdfdfd;
+  @apply cursor-not-allowed;
 }
 
-
-input, select{
+input {
   background: #212121;
-  color: #FDFDFD;
-  @apply px-4 py-2 m-0 w-40
+  color: #fdfdfd;
+  @apply px-2 py-2 m-0 w-16 rounded-r-md;
+}
+select {
+  background: #212121;
+  color: #fdfdfd;
+  @apply px-4 py-2 m-0 w-20;
 }
 
-select{
-  @apply w-fit
+select {
+  @apply w-fit;
 }
 
-
-.in_text{
+.in_text {
   @apply w-auto;
 }
 
-.with_unit{
-  @apply rounded-r-xl
-}
-
-.unit{
+.unit {
   background: #373737;
-  @apply h-full block px-4 ml-0 rounded-l-xl content-center min-w-16 text-center
+  @apply h-full block px-2 ml-0 rounded-l-xl content-center min-w-10 text-center;
 }
 
-
-.setting_input{
-  @apply grid grid-flow-col grid-cols-3 lg:grid-cols-2 mb-2 w-4/5 
+.setting_input {
+  @apply grid grid-flow-col grid-cols-3 lg:grid-cols-2 mb-2 w-4/5;
 }
 
-.config_buttons{
-  @apply mr-4 mb-4 flex flex-col md:flex-row justify-end
+.config_buttons {
+  @apply mr-4 mb-4 flex flex-col md:flex-row justify-end;
 }
 
-.config_buttons > button{
-  @apply mx-auto md:mx-2 mb-4
+.config_buttons > button {
+  @apply mx-auto md:mx-2 mb-4;
 }
 
-
-.setting_table{
-  @apply grid grid-flow-row grid-cols-1 lg:grid-cols-2 items-center w-full gap-2
+.setting_table {
+  @apply grid grid-flow-row grid-cols-1 lg:grid-cols-2 items-center w-full gap-2;
 }
 
-.setting_row{
-  @apply justify-items-center text-center pt-2 pb-2
+.setting_row {
+  @apply justify-items-center text-center pt-2 pb-2;
 }
 
-.st_title{
-  @apply col-span-1 lg:col-span-2 text-center font-bold
+.st_title {
+  @apply col-span-1 lg:col-span-2 text-center font-bold;
 }
 
-.row{
-  @apply flex flex-wrap lg:flex-row items-center
+.row {
+  @apply flex flex-wrap lg:flex-row items-center;
 }
 
-.row > p{
-  @apply mr-2 
+.row > p {
+  @apply mr-2;
 }
 
-
-.validation_error{
-  @apply border-red-600 border-2
+.validation_error {
+  @apply border-red-600 border-2;
 }
 
 input[type="range"] {
-  @apply px-0
+  @apply px-0;
 }
 
-
-.range{
-  @apply w-full px-4
+.range {
+  @apply w-full px-4;
 }
-.range input{
-	-webkit-appearance:none;
-	width:100%;
-	height:4px;
-	border-radius:5px;
-	background-color:#212121;
-	outline:none;
+.range input {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 5px;
+  background-color: #212121;
+  outline: none;
 }
-.range input::-webkit-slider-thumb{
-	-webkit-appearance:none;
-	width:40px;
-	height:20px;
-	border-radius:10%;
-	background-color:#CBF05F;
-  track-color: #CBF05F;
+.range input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 40px;
+  height: 20px;
+  border-radius: 10%;
+  background-color: #cbf05f;
+  track-color: #cbf05f;
 }
-.range span{
-	position:absolute;
-	margin-left:14px;
-	width:50px;
-	height:30px;
-	background-color:#222;
-	color:#fff;
-	border-radius:3px;
-	text-align:center;
-	line-height:30px;
+.range span {
+  position: absolute;
+  margin-left: 14px;
+  width: 50px;
+  height: 30px;
+  background-color: #222;
+  color: #fff;
+  border-radius: 3px;
+  text-align: center;
+  line-height: 30px;
 }
-.range span:before{
-	content:'';
-	position:absolute;
-	border-right:9px solid transparent;
-	border-left:9px solid transparent;
-	border-bottom:12px solid #222;
-	left:-10px;
-	top:50%;
-	transform:translateY(-50%) rotate(-90deg);
-}
-
-
-
-.input_with_unit{
-  @apply flex h-10
+.range span:before {
+  content: "";
+  position: absolute;
+  border-right: 9px solid transparent;
+  border-left: 9px solid transparent;
+  border-bottom: 12px solid #222;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
 }
 
-.text_with_input{
-  @apply flex items-center
+.input_with_unit {
+  @apply flex h-10;
 }
 
-.text_with_input > p{
-  @apply mr-2
+.text_with_input {
+  @apply flex items-center;
 }
 
-.sw_tools{
-  @apply flex justify-end mr-10 py-4
+.text_with_input > p {
+  @apply mr-2;
 }
 
-.sw_add{
-  @apply min-w-4 text-center py-0 px-0
+.sw_tools {
+  @apply flex justify-end mr-10 py-4;
 }
 
-.sw_delete{
-@apply flex w-full justify-end pt-2 cursor-pointer
+.sw_add {
+  @apply min-w-4 text-center py-0 px-0;
+}
+
+.sw_delete {
+  @apply flex w-full justify-end pt-2 cursor-pointer;
 }
 
 .sw_delete > button {
-  @apply min-w-0 py-0 px-1 ml-4 h-8
+  @apply min-w-0 py-0 px-1 ml-4 h-8;
 }
 
-.input_address{
-  @apply min-w-0 w-10 px-1 py-1
+.input_address {
+  @apply min-w-0 w-10 px-1 py-1;
 }
 
-.full_row{
-  @apply flex lg:col-span-2 items-center
+.full_row {
+  @apply flex lg:col-span-2 items-center;
 }
 
-
-.sw_grid{
-  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mx-4 mb-4
+.sw_grid {
+  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mx-4 mb-4;
 }
 
-.sw_grid > .card{
+.sw_grid > .card {
   @apply mx-0 my-0;
 }
 
-.sw_header{
-  @apply text-center font-bold
+.sw_header {
+  @apply text-center font-bold;
 }
 
 .sw_containter {
-  @apply w-full py-2 text-center
+  @apply w-full py-2 text-center;
 }
 .sw_value {
-  @apply flex py-2 justify-center
+  @apply flex py-2 justify-center;
 }
 
-.modal{
+.modal {
   @apply fixed top-0 left-0 h-screen w-screen z-40 flex justify-center items-center;
 }
 
-.modal_box{
-  @apply bg-white opacity-100 w-11/12 z-50 justify-center items-center content-center
+.modal_box {
+  @apply bg-white opacity-100 w-11/12 z-50 justify-center items-center content-center;
 }
 
-.modal_box > p{
-  @apply text-black text-center
+.modal_box > p {
+  @apply text-black text-center;
 }
 
-.modal_box > .error{
-  @apply text-red-600 font-bold
+.modal_box > .error {
+  @apply text-red-600 font-bold;
 }
 
-.modal_selection{
-  @apply flex flex-col lg:flex-row justify-around py-4
+.modal_selection {
+  @apply flex flex-col lg:flex-row justify-around py-4;
 }
 
-.blur{
+.blur {
   filter: blur(5px);
 }
 
-
-
-.notify{
-  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12 px-2 py-2 shadow-[#2e2e33] shadow-sm
+.notify {
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 lg:w-6/12 px-2 py-2 shadow-[#2e2e33] shadow-sm;
 }
 
-.error{
-  @apply bg-red-700 text-white
+.error {
+  @apply bg-red-700 text-white;
 }
-.warning{
-  @apply bg-yellow-700
+.warning {
+  @apply bg-yellow-700;
 }
-.info{
-  @apply bg-blue-700 text-white
-}
-
-
-.wifi_networks{
-  @apply grid grid-cols-12 cursor-pointer pt-2
+.info {
+  @apply bg-blue-700 text-white;
 }
 
-.ssid{
-  @apply col-span-10
+.wifi_networks {
+  @apply grid grid-cols-12 cursor-pointer pt-2;
 }
 
+.ssid {
+  @apply col-span-10;
+}
 
-.module_status{
-  @apply flex
+.module_status {
+  @apply flex;
 }
 
 .module_status > .txt {
-  @apply pr-2
+  @apply pr-2;
 }
-
 
 .typing-effect {
   font-family: monospace;
   overflow: hidden;
-  border-right: .15em solid #e8bd24;
+  border-right: 0.15em solid #e8bd24;
   white-space: nowrap;
   margin: 0 auto;
-  letter-spacing: .15em;
-  animation: 
-    typing 3.5s steps(30, end),
-    caret .5s step-end infinite;
+  letter-spacing: 0.15em;
+  animation: typing 3.5s steps(30, end), caret 0.5s step-end infinite;
 }
-
 
 /* The typewriter cursor effect */
 @keyframes caret {
-  from, to { border-color: transparent }
-  50% { border-color: #e8bd24 }
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #e8bd24;
+  }
 }

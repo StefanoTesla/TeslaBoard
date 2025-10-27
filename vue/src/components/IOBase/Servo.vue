@@ -8,7 +8,7 @@
   <div class="setting_row">
     <p>{{ props.txt.IOBase.Servo.movingTime }}</p>
     <div class="input_with_unit">
-      <span class="unit">sec</span><input :id="`sw_${index}_movTime`" :class="['with_unit', movTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.movTime" @change="validate()"/>
+      <span class="unit">sec</span><input :id="`sw_${index}_movTime`" :class="['with_unit', movTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.moveTime" @change="validate()"/>
     </div>
   </div>
 </template>
@@ -52,7 +52,7 @@
 
    props.swi.moveTime = parseInt(props.swi.moveTime)
    movTimeUnvalid.value = false
-   if (isNegative(props.swi.movTime)){
+   if (isNegative(props.swi.moveTime)){
     movTimeUnvalid.value = true 
     errorResponseNotify(props.txt.errors.general.negativeValue)
     return
@@ -70,7 +70,7 @@
 
  onMounted(()=>{
   props.swi.pin = props.swi.pin ?? null
-  props.swi.moveTime = props.swi.movTime ?? 0;
+  props.swi.moveTime = props.swi.moveTime ?? 0;
   validate()
  })
 
