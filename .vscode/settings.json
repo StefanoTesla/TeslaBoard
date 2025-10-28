@@ -73,10 +73,10 @@
 
 
     "[cpp]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools"
+        "editor.defaultFormatter": "ms-vscode.cpptools",
     },
     "[c]": {
-        "editor.defaultFormatter": "ms-vscode.cpptools"
+        "editor.defaultFormatter": "ms-vscode.cpptools",
     },
     "[vue]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -92,5 +92,6 @@
     },
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, BreakBeforeBraces: Attach }"
 }

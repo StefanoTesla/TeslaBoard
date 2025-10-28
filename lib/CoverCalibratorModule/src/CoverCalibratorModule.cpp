@@ -7,6 +7,8 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
+
+#pragma region CONFIGURATION
 /* initialize the dome */
 void CoverCalibratorModule::begin(){
     LOGI("Loading configuration");
@@ -123,16 +125,6 @@ bool CoverCalibratorModule::isEnable(){
     return moduleEnable;
 }
 
-
-void CoverCalibratorModule::loop(){
-    
-    if(isEnable()){
-        calibrator.loop();
-        cover.loop();
-    }
-}
-
-
 void CoverCalibratorModule::getConfiguration(JsonObject dest){
 
     dest["enable"] = moduleEnable;
@@ -236,3 +228,15 @@ void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
     cover.storeConfiguration(toBeStored["cover"],COVERC_SCHEMA_NAME);
 
 }
+
+#pragma endregion CONFIGURATION
+
+void CoverCalibratorModule::loop(){
+    
+    if(isEnable()){
+        calibrator.loop();
+        cover.loop();
+    }
+}
+
+

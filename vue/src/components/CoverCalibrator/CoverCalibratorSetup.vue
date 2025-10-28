@@ -13,12 +13,12 @@
             {{ props.txt.gen?.moduleIs }}
           </div>
           <div class="module_toggle">
-            <label class="toggle" for="dome_module_status">
+            <label class="toggle" for="coverc_modlue_state">
               <input
                 class="toggle__input"
                 name=""
                 type="checkbox"
-                id="dome_module_status"
+                id="coverc_modlue_state"
                 v-model="coverC.enable"
                 @change="validate()"
               />
@@ -55,6 +55,7 @@
             type="checkbox"
             id="coverc_calib_present"
             v-model="coverC.calibrator.enable"
+            @change="validate()"
           />
           <div class="toggle__fill"></div>
         </label>
@@ -79,6 +80,7 @@
             type="checkbox"
             id="coverc_cover_present"
             v-model="coverC.cover.enable"
+            @change="validate()"
           />
           <div class="toggle__fill"></div>
         </label>
@@ -92,11 +94,8 @@
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input
-                  :id="`dome_autoclose_minutes`"
-                  :class="[
-                    'with_unit',
-                    autoCloseTimeUnvalid ? 'validation_error' : '',
-                  ]"
+                  :id="`cover_open_pos`"
+                  :class="['with_unit', openPosValid ? 'validation_error' : '']"
                   type="number"
                   v-model="coverC.cover.openPos"
                   @change="validate()"
@@ -108,10 +107,10 @@
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input
-                  :id="`dome_autoclose_minutes`"
+                  :id="`cover_close_pos`"
                   :class="[
                     'with_unit',
-                    autoCloseTimeUnvalid ? 'validation_error' : '',
+                    closePosValid ? 'validation_error' : '',
                   ]"
                   type="number"
                   v-model="coverC.cover.closePos"
@@ -156,6 +155,9 @@ import { toast } from "vue3-toastify";
 import Card from "../Card.vue";
 import PWM from "../IOBase/PWM.vue";
 import Servo from "../IOBase/Servo.vue";
+import { useValidator } from "../../composables/Validator";
+
+const { isGreaterThan, isNegative } = useValidator();
 
 const props = defineProps({
   txt: Object,
@@ -170,12 +172,52 @@ const pinUsed = ref([]);
 const originalData = ref({});
 let dataLoaded = ref(false);
 let statusClass = ref("green");
+let openPosValid = ref(true);
+let closePosValid = ref(true);
 let validation = ref([]);
 let validationState = ref(true);
 
 const handleValidation = (data) => {
   const { index, isValid } = data;
   validation.value[index] = isValid;
+};
+
+const validate = () => {
+  validationState.value = false;
+  statusClass.value = "red";
+
+  if (coverC.value.cover.enable) {
+    coverC.value.cover.openPos = parseInt(coverC.value.cover.openPos);
+    openPosValid.value = false;
+    if (isNegative(coverC.value.cover.openPos)) {
+      openPosValid.value = true;
+      errorResponseNotify(props.txt.errors.general.negativeValue);
+      return;
+    }
+    if (isGreaterThan(coverC.value.cover.openPos, 100)) {
+      openPosValid.value = true;
+      const errorMessage = props.txt.errors.general.greaterThan + " 100";
+      errorResponseNotify(errorMessage);
+      return;
+    }
+
+    coverC.value.cover.closePos = parseInt(coverC.value.cover.closePos);
+    closePosValid.value = false;
+    if (isNegative(coverC.value.cover.closePos)) {
+      closePosValid.value = true;
+      errorResponseNotify(props.txt.errors.general.negativeValue);
+      return;
+    }
+    if (isGreaterThan(coverC.value.cover.closePos, 100)) {
+      closePosValid.value = true;
+      const errorMessage = props.txt.errors.general.greaterThan + " 100";
+      errorResponseNotify(errorMessage);
+      return;
+    }
+  }
+
+  validationState.value = true;
+  statusClass.value = "green";
 };
 
 const getOriginal = () => {
@@ -197,8 +239,8 @@ const fetchData = async () => {
       coverC.value.cover.outServo = {};
     }
 
-    if (!coverC.value.calibrator.outPwm) {
-      coverC.value.calibrator.outPwm = {};
+    if (!coverC.value.calibrator.outPWM) {
+      coverC.value.calibrator.outPWM = {};
     }
     updatePinsforObserver(data);
     setupWatch();
@@ -295,9 +337,9 @@ function setupWatch() {
       coverC.value.cover.present,
     ],
     () => {
-      if (coverC.value.calibrator.present && validation.value[0] === false) {
+      if (coverC.value.calibrator.enable && validation.value[0] === false) {
         validationState.value = false;
-      } else if (coverC.value.cover.present && validation.value[1] === false) {
+      } else if (coverC.value.cover.enable && validation.value[1] === false) {
         validationState.value = false;
       } else {
         validationState.value = true;
@@ -309,8 +351,8 @@ function setupWatch() {
 
 const updatePinsforObserver = (data) => {
   pinUsed.value = [];
-  pinUsed.value[0] = { pin: data.calibrator.pwm.pin, type: 3, module: 2 };
-  pinUsed.value[1] = { pin: data.cover.servo.pin, type: 4, module: 2 };
+  pinUsed.value[0] = { pin: data.calibrator.outPWM.pin, type: 3, module: 2 };
+  pinUsed.value[1] = { pin: data.cover.outServo.pin, type: 4, module: 2 };
   emit("update:pinUsed", pinUsed.value);
 };
 

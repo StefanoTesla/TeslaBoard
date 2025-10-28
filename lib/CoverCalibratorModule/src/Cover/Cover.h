@@ -26,6 +26,7 @@ private:
     unsigned int openPosition;
     unsigned int closePosition;
     Status status = NotPresent;
+    Status oldStatus = NotPresent;
     
     JsonDocument tmpCfg;
 

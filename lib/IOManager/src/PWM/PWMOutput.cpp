@@ -122,7 +122,7 @@ unsigned int PWMOutput::getMax() {
 
 int PWMOutput::readPin() {
     /* esp hardware return 4096 when I wrote 4095 bah.. */
-    currentDuty = ledcRead(pin);
+    currentDuty = ledcRead(channel);
     if(currentDuty > max){
         return max;
     }

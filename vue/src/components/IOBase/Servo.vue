@@ -42,7 +42,7 @@
   emit('update:validated', { index: props.index, isValid: false});
   props.swi.pin = parseInt(props.swi.pin)
   pinUnvalid.value = false
-   if (isInvalidPin(props.swi.pin,'input')){
+   if (isInvalidPin(props.swi.pin,'output')){
        pinUnvalid.value = true
        const errorMessage = props.txt.gen.pin + " " + props.swi.pin + " - " +  props.txt.errors.gpio.noUsableAsOtput
        errorResponseNotify(errorMessage)

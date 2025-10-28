@@ -40,7 +40,8 @@
         <div class="txt pr-4">
           Nome modulo:
             <input
-                  :id="`dome_module_name`"
+                  id="dome_module_name"
+                  class="identifier"
                   type="text"
                   v-model="dome.identifier"
                 />
