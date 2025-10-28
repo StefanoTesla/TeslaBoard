@@ -1,21 +1,20 @@
 {
-    "enable": true,
-    "uiOrder": 1,
-    "schema": 1,
-    "identifier": "CoverCalibrator",
-    "calibrator":{
-        "enable": true,
-        "outPWM":{
-            "pin": 2
-        }
-    },
-    "cover":{
-        "enable": true,
-        "openPos": 0,
-        "closePos": 100,
-        "outServo":{
-            "pin": 23,
-            "moveTime": 1
-        }
-    }
+   "enable":true,
+   "uiOrder":1,
+   "identifier":"CoverCalibrator",
+   "calibrator":{
+      "enable":true,
+      "outPWM":{
+         "pin":2
+      }
+   },
+   "cover":{
+      "enable":true,
+      "openPos":100,
+      "closePos":0,
+      "outServo":{
+         "pin":32,
+         "moveTime":5
+      }
+   }
 }

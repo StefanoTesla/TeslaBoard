@@ -1,0 +1,10 @@
+{
+   "calibrator":{
+      "status":1,
+      "brightness":0
+   },
+   "cover":{
+      "status":5,
+      "angle":-28
+   }
+}

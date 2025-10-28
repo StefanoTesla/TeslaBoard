@@ -1,34 +1,18 @@
 {
-    "enable": true,
-    "uiOrder": 1,
-    "schema": 1,
-    "identifier": "Dome",
-    "shutter":{
-        "driverType":1,
-        "travelTOUT": 1000,
-        "inOpen":{
-            "pin": 1,
-            "invert": false,
-            "dOn": 100,
-            "dOff": 100
-        },
-        "inClose":{
-            "pin": 1,
-            "invert": false,
-            "dOn": 100,
-            "dOff": 100
-        },
-        "outStart":{
-            "pin": 1,
-            "invert": false
-        },
-        "outHalt":{
-            "pin": 1,
-            "invert": false
-        },
-        "autoClose":{
-            "enable": 1,
-            "autoCloseTime": 10
-        }
-    }
+   "enable":true,
+   "shutter":{
+      "roofState":4,
+      "actualCommand":0,
+      "canOpen":true,
+      "canClose":true,
+      "lastTravelTime":0,
+      "input":{
+         "open":0,
+         "close":0
+      },
+      "autoClose":{
+         "enable":false,
+         "remaing":0
+      }
+   }
 }
