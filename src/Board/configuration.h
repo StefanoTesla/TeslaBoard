@@ -52,6 +52,7 @@ void initBoardConfig(){
     }
 
     Global.config.language.locale = doc["locale"].as<String>(); 
+    Global.config.language.locale = "it";
     Serial.print("INIT: Board Locale: ");
     Serial.println(Global.config.language.locale);
     JsonObject wifi = doc["wifi"];
@@ -69,34 +70,6 @@ void initBoardConfig(){
         Serial.println("false");
     }
     
-    if(Global.config.wifi.ip.enable){
-        JsonArray ip = wifi["ip"];
-        Global.config.wifi.ip.ip[0] = ip[0].as<unsigned int>();
-        Global.config.wifi.ip.ip[1] = ip[1].as<unsigned int>();
-        Global.config.wifi.ip.ip[2] = ip[2].as<unsigned int>();
-        Global.config.wifi.ip.ip[3] = ip[3].as<unsigned int>();
-        Serial.print("INIT: Board required ip: ");
-        Serial.print(Global.config.wifi.ip.ip[0]);
-        Serial.print(".");
-        Serial.print(Global.config.wifi.ip.ip[1]);
-        Serial.print(".");
-        Serial.print(Global.config.wifi.ip.ip[2]);
-        Serial.print(".");
-        Serial.println(Global.config.wifi.ip.ip[3]);
-        JsonArray sub = wifi["sub"];
-        Global.config.wifi.ip.sub[0] = sub[0].as<unsigned int>();
-        Global.config.wifi.ip.sub[1] = sub[1].as<unsigned int>();
-        Global.config.wifi.ip.sub[2] = sub[2].as<unsigned int>();
-        Global.config.wifi.ip.sub[3] = sub[3].as<unsigned int>();
-        Serial.print("INIT: Board subnet ip: ");
-        Serial.print(Global.config.wifi.ip.sub[0]);
-        Serial.print(".");
-        Serial.print(Global.config.wifi.ip.sub[1]);
-        Serial.print(".");
-        Serial.print(Global.config.wifi.ip.sub[2]);
-        Serial.print(".");
-        Serial.println(Global.config.wifi.ip.sub[3]);
-    }
 
     for (int i = 0; i < 40; i++)
     {

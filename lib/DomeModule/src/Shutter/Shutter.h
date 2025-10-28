@@ -101,7 +101,7 @@ private:
 
     unsigned long startTravelMillis;
     unsigned long travelTime;
-    unsigned long travelTOUT = 20;
+    unsigned long travelTOUT = 20000;
 
     bool retry = false; //used only for gate controller board
 
@@ -142,9 +142,10 @@ public:
     void storeConfiguration(JsonObject toBeStored,const char* schema);
     void getConfiguration(JsonObject obj);
 
-    int getOpenSensorRaw(){ return OpenSensor.status(); };
-    int getCloseSensorRaw(){ return CloseSensor.status(); };
-
+    int getOpenSensorRaw(){ return OpenSensor.status(); }
+    int getCloseSensorRaw(){ return CloseSensor.status(); }
+    unsigned int getTravelTimeOut(){return travelTOUT / 1000;}
+    void setTravelTimeOut(unsigned int time);
     unsigned long lastTravelTime(){ return travelTime / 1000; }
     bool isAutoCloseEnable(){ return autoClose.enable; };
     unsigned long autoCloseRemaningTime() { return autoClose.remaningTime; };

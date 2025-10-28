@@ -7,35 +7,6 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
-/* Setup the shutter */
-void Shutter::begin(JsonDocument doc){
-
-    LOGI("start loading configuration");
-    
-    driverType = doc["driverType"];
-    travelTOUT = doc["movtimeOut"];
-
-    JsonObject pinOpen = doc["inOpen"];
-    OpenSensor.jsonSetup(pinOpen);
-
-    JsonObject pinClose = doc["inClose"];
-    CloseSensor.jsonSetup(pinClose);
-
-    JsonObject pinStart = doc["outStart"];
-    StartOpen.jsonSetup(pinStart);
-
-    JsonObject pinHalt = doc["outHalt"];
-    HaltClose.jsonSetup(pinHalt);
-
-    if(doc["autoClose"].is<JsonObject>()){
-        autoClose.enable = doc["autoClose"]["enable"].as<bool>();
-        autoClose.waitingTime = doc["autoClose"]["minutes"].as<unsigned int>() * 60000;
-    }
-
-    moduleEnable = true;
-}
-
-
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
 
@@ -46,7 +17,7 @@ void Shutter::loop(){
 
 /* return true if you can open, otherwise false */
 bool Shutter::canOpen(){
-    if(status != Opened && actualCmd == Idle){
+    if(status != Opened && actualCmd == Idle ){
         return true;
     }
     return false;
@@ -78,7 +49,10 @@ bool Shutter::canClose(){
     return false;
 }
 
-
+void Shutter::setTravelTimeOut(unsigned int time){
+    travelTOUT = time * 1000;
+    LOGV("New travel Time Out: %d", travelTOUT);
+}
 /* return true if shutter is close, otherwise false */
 bool Shutter::isClosed(){
     if(status == Closed){
@@ -151,6 +125,8 @@ void Shutter::checkTravelTimeOut(){
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
         LOGE("Trivel time out triggered, sending Halt Command");
         halt();
+    } else {
+        startTravelMillis = millis();
     }
 }
 
@@ -192,37 +168,24 @@ void Shutter::cycle(){
 
 
         if(actualCmd == Close){
-            if(canClose()){
                 ackTimeout = millis();
                 setOutput(goToClose);
                 actualStep = WaitSensorLoosing;
                 LOGI("Going to close...");
-            } else {
-                actualCmd = Idle;
-                LOGE("Close command rejected by main cicle");
-            }
-            break;
         }
 
         if(actualCmd == Open){
-            if(canOpen()){
                 ackTimeout = millis();
                 setOutput(goToOpen);
                 actualStep = WaitSensorLoosing;
                 LOGI("Going to open...");
-            } else {
-                actualCmd = Idle;
-                LOGE("Open command rejected by main cicle");
-            }
-            break;
+                break;
         }
 
         
         break;
 
     case WaitSensorLoosing:
-
-        startTravelMillis = millis();
     
         if(driverType == GateController){
               if(millis() - ackTimeout < 1000){
@@ -448,15 +411,109 @@ void Shutter::setOutputforStartAndDirectionalOutput(outputDirection direction){
 }
 
 
+
+
+void Shutter::debug(){
+    log.actual.openState = OpenSensor.status();
+    if(log.actual.openState != log.previous.openState){
+        if(log.actual.openState){
+            LOGV("Open sensor reached");
+        } else {
+            LOGV("Open sensor lost");
+        }
+        log.previous.openState = log.actual.openState;
+    }
+
+    log.actual.closeState = CloseSensor.status();
+    if(log.actual.closeState != log.previous.closeState){
+        if(log.actual.closeState){
+            LOGV("Close sensor reached");
+        } else {
+            LOGV("Close sensor lost");
+        }
+        log.previous.closeState = log.actual.closeState;
+    }
+
+    log.actual.startOutput = StartOpen.status();
+    if(log.actual.startOutput != log.previous.startOutput){
+        if(log.actual.startOutput){
+            LOGV("Start Output On");
+        } else {
+            LOGV("Start Output Off");
+        }
+        log.previous.startOutput = log.actual.startOutput;
+    }
+
+    log.actual.haltOutput = HaltClose.status();
+    if(log.actual.haltOutput != log.previous.haltOutput){
+        if(log.actual.haltOutput){
+            LOGV("Halt Output On");
+        } else {
+            LOGV("Halt Output Off");
+        }
+        log.previous.haltOutput = log.actual.haltOutput;
+    }
+
+    log.actual.cycle = actualStep;
+    if(log.actual.cycle != log.previous.cycle){
+        LOGV("Actual step: %d",log.actual.cycle);
+        log.previous.cycle = log.actual.cycle;
+    }
+
+    log.actual.cmd = actualCmd;
+    if(log.actual.cmd != log.previous.cmd){
+        LOGV("Actual cmd: %d",log.actual.cmd);
+        log.previous.cmd = log.actual.cmd;
+    }
+
+    log.actual.status = status;
+    if(log.actual.status != log.previous.status){
+        LOGV("Actual status: %d",log.actual.status);
+        log.previous.status = log.actual.status;
+    }
+
+}
+
 /*
 Configuration Area
 */
 
 
+#pragma region Configuration
+
+void Shutter::begin(JsonDocument doc){
+
+    LOGI("start loading configuration");
+    
+    driverType = doc["driverType"];
+    setTravelTimeOut(doc["travelTOut"].as<unsigned int>());
+
+    JsonObject pinOpen = doc["inOpen"];
+    OpenSensor.jsonSetup(pinOpen);
+
+    JsonObject pinClose = doc["inClose"];
+    CloseSensor.jsonSetup(pinClose);
+
+    JsonObject pinStart = doc["outStart"];
+    StartOpen.jsonSetup(pinStart);
+
+    JsonObject pinHalt = doc["outHalt"];
+    HaltClose.jsonSetup(pinHalt);
+
+    if(doc["autoClose"].is<JsonObject>()){
+        autoClose.enable = doc["autoClose"]["enable"].as<bool>();
+        autoClose.waitingTime = doc["autoClose"]["minutes"].as<unsigned int>() * 60000;
+    }
+
+    moduleEnable = true;
+}
+
+
+
 void Shutter::getConfiguration(JsonObject obj){
 
     obj["driverType"] = driverType;
-    obj["travelTOut"] = travelTOUT;
+    obj["travelTOut"] = getTravelTimeOut();
 
     JsonObject inOpen = obj["inOpen"].to<JsonObject>();
     OpenSensor.getConfiguration(inOpen);
@@ -499,8 +556,8 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
     
     Serial.println("driver type in range");
 
-    if(!obj["travelTOUT"].is<int>()){
-        err.add("travelTOUTMissing");
+    if(!obj["travelTOut"].is<int>()){
+        err.add("travelTOutMissing");
         return;
     }
 
@@ -578,7 +635,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
         return;
     }
 
-    if(!autoCloseObj["autoCloseTime"].is<unsigned int>()){
+    if(!autoCloseObj["time"].is<unsigned int>()){
         err.add("autoCloseTimeMissing");
         return;
     }
@@ -613,15 +670,15 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
 
     /* apply data don't require a reboot*/
     driverType = shutterObject["driverType"];
-    travelTOUT = shutterObject["travelTOUT"].as<unsigned long>();
 
+    setTravelTimeOut(shutterObject["travelTOut"].as<unsigned int>());
     autoClose.enable = shutterObject["autoClose"]["enable"].as<bool>();
-    autoClose.waitingTime = shutterObject["autoClose"]["autoCloseTime"].as<unsigned long>();
+    autoClose.waitingTime = shutterObject["autoClose"]["time"].as<unsigned long>();
 
     tmpCfg["driverType"] = driverType;
-    tmpCfg["travelTOUT"] = travelTOUT;
+    tmpCfg["travelTOut"] = getTravelTimeOut();
     tmpCfg["autoClose"]["enable"] = autoClose.enable;
-    tmpCfg["autoClose"]["autoCloseTime"] = autoClose.waitingTime;
+    tmpCfg["autoClose"]["time"] = autoClose.waitingTime;
 
     JsonObject inOpen = tmpCfg["inOpen"].to<JsonObject>();
     OpenSensor.copyJsonCfg(shutterObject["inOpen"],inOpen);
@@ -659,63 +716,4 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
 }
 
 
-void Shutter::debug(){
-    log.actual.openState = OpenSensor.status();
-    if(log.actual.openState != log.previous.openState){
-        if(log.actual.openState){
-            LOGV("Open sensor reached");
-        } else {
-            LOGV("Open sensor lost");
-        }
-        log.previous.openState = log.actual.openState;
-    }
-
-    log.actual.closeState = CloseSensor.status();
-    if(log.actual.closeState != log.previous.closeState){
-        if(log.actual.closeState){
-            LOGV("Close sensor reached");
-        } else {
-            LOGV("Close sensor lost");
-        }
-        log.previous.closeState = log.actual.closeState;
-    }
-
-    log.actual.startOutput = StartOpen.status();
-    if(log.actual.startOutput != log.previous.startOutput){
-        if(log.actual.startOutput){
-            LOGV("Start Output On");
-        } else {
-            LOGV("Start Output Off");
-        }
-        log.previous.startOutput = log.actual.startOutput;
-    }
-
-    log.actual.haltOutput = HaltClose.status();
-    if(log.actual.haltOutput != log.previous.haltOutput){
-        if(log.actual.haltOutput){
-            LOGV("Halt Output On");
-        } else {
-            LOGV("Halt Output Off");
-        }
-        log.previous.haltOutput = log.actual.haltOutput;
-    }
-
-    log.actual.cycle = actualStep;
-    if(log.actual.cycle != log.previous.cycle){
-        LOGV("Actual step: %d",log.actual.cycle);
-        log.previous.cycle = log.actual.cycle;
-    }
-
-    log.actual.cmd = actualCmd;
-    if(log.actual.cmd != log.previous.cmd){
-        LOGV("Actual cmd: %d",log.actual.cmd);
-        log.previous.cmd = log.actual.cmd;
-    }
-
-    log.actual.status = status;
-    if(log.actual.status != log.previous.status){
-        LOGV("Actual status: %d",log.actual.status);
-        log.previous.status = log.actual.status;
-    }
-
-}
+#pragma endregion

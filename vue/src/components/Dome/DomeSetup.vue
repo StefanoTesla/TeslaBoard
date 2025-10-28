@@ -108,7 +108,7 @@
           <Input
             :txt="props.txt"
             :index="0"
-            :swi="dome.shutter.pinOpen"
+            :swi="dome.shutter.inOpen"
             @update:validated="handleValidation"
             @update:pinUsed="updatePin"
           />
@@ -121,7 +121,7 @@
           <Input
             :txt="props.txt"
             :index="1"
-            :swi="dome.shutter.pinClose"
+            :swi="dome.shutter.inClose"
             @update:validated="handleValidation"
             @update:pinUsed="updatePin"
           />
@@ -179,13 +179,13 @@
                 name=""
                 type="checkbox"
                 id="dome_autoclose_enable"
-                v-model="dome.shutter.autoclose.enable"
+                v-model="dome.shutter.autoClose.enable"
                 @change="validate()"
               />
               <div class="toggle__fill"></div>
             </label>
           </div>
-          <div v-if="dome.shutter.autoclose.enable">
+          <div v-if="dome.shutter.autoClose.enable">
             <p>{{ props.txt.dome.setting.autoclosewarning1 }}</p>
             <p>{{ props.txt.dome.setting.autoclosewarning2 }}</p>
             <p>{{ props.txt.dome.setting.autoclosewarning3 }}</p>
@@ -201,7 +201,7 @@
                     autoCloseTimeUnvalid ? 'validation_error' : '',
                   ]"
                   type="number"
-                  v-model="dome.shutter.autoclose.time"
+                  v-model="dome.shutter.autoClose.time"
                   @change="validate()"
                 />
               </div>
@@ -327,11 +327,11 @@ const validate = () => {
   }
 
 
-    if(dome.value.shutter.autoclose.enable){
+    if(dome.value.shutter.autoClose.enable){
 
-      dome.value.shutter.autoclose.time = parseInt(dome.value.shutter.autoclose.time);
+      dome.value.shutter.autoClose.time = parseInt(dome.value.shutter.autoClose.time);
       autoCloseTimeUnvalid.value = false;
-      if (isNegative(dome.value.shutter.autoclose.time)) {
+      if (isNegative(dome.value.shutter.autoClose.time)) {
         autoCloseTimeUnvalid.value = true;
         errorResponseNotify(props.txt.errors.general.negativeValue);
         return;
@@ -444,13 +444,13 @@ watch(
 
 const updatePinsforObserver = (data) => {
   pinUsed.value = [];
-  /*
-  pinUsed.value[0]={"pin":data.shutter.pinOpen.pin,"type":1,"module": 2}
-  pinUsed.value[1]={"pin":data.shutter.pinClose.pin,"type":1,"module": 2}
-  pinUsed.value[2]={"pin":data.shutter.pinStart.pin,"type":2,"module": 2}
-  pinUsed.value[3]={"pin":data.shutter.pinHalt.pin,"type":2,"module": 2}
+  
+  pinUsed.value[0]={"pin":data.shutter.inOpen.pin,"type":1,"module": 2}
+  pinUsed.value[1]={"pin":data.shutter.inClose.pin,"type":1,"module": 2}
+  pinUsed.value[2]={"pin":data.shutter.outStart.pin,"type":2,"module": 2}
+  pinUsed.value[3]={"pin":data.shutter.outHalt.pin,"type":2,"module": 2}
   emit('update:pinUsed', pinUsed.value);
-  */
+  
 };
 
 const updatePin = (data) => {

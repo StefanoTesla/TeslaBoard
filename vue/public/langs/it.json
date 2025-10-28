@@ -65,6 +65,14 @@
 				"moving": "In Movimento",
 				"unknow": "Sconosciuto",
 				"error" : "Errore"
+			},
+			"calibEnum":{
+				"notPreset":"Non Presente",
+				"off":"Off",
+				"notReady":"Non Pronto",
+				"ready":"Pronto",
+				"unknow":"Sconosciuto",
+				"error":"Errore"
 			}
 		},
 		"setting":{

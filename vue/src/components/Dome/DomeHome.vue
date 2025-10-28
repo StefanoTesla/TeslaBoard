@@ -16,7 +16,7 @@ v-if="props.txt.dome"
 
       <div class="card">
         <p class="title">{{ txt.dome.home.input }}</p>
-        <div class="justify-items-center uppercase flex">
+        <div class="justify-items-center uppercase flex items-center">
           <p>{{ txt.gen.status.open }}</p>
           <span class="block" :class="['led', dome.shutter.input.open ? 'green' : 'black']"></span>
         </div>
@@ -38,12 +38,12 @@ v-if="props.txt.dome"
         </div>
         <div>
           <p class="title">Ultimo tempo di viaggio</p>
-          <p>{{ commandEnum(dome.shutter.actualCommand) }} sec.</p>
+          <p class="text-center">{{ dome.shutter.lastTravelTime }} sec.</p>
         </div>
         <div>
           <p class="title">Chiusura automatica</p>
-          <p v-if="dome.shutter.autoclose.enable">ABILITATA</p>
-          <p v-if="!dome.shutter.autoclose.enable">DISABILITATA</p>
+          <p class="text-center font-bold" v-if="dome.shutter.autoClose?.enable">ABILITATA</p>
+          <p class="text-center" v-if="!dome.shutter.autoClose?.enable">DISABILITATA</p>
         </div>
       </div>
     </div>

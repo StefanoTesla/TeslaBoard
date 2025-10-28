@@ -131,7 +131,7 @@ void Cover::loop() {
   updateStatus();
 }
 
-/* return true if you can open, otherwise false */
+/* return true if you can open (servo is not moving and is not already open), otherwise false */
 bool Cover::canOpen() {
   if (!servo.isMoving() && status != Opened) {
     return true;
@@ -151,9 +151,7 @@ bool Cover::isOpen() {
 
 /* send an open command*/
 void Cover::open() {
-  LOGV("Cover open request");
   if (canOpen()) {
-    LOGV("You can open");
     servo.goTo(openPosition);
   }
 }
@@ -190,7 +188,7 @@ void Cover::updateStatus() {
     LOGV("Cover status: %d", status);
     oldStatus = status;
   }
-  
+
   if (!moduleEnable) {
     status = NotPresent;
     return;

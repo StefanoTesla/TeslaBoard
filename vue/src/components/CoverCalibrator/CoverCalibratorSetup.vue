@@ -38,7 +38,8 @@
         <div class="txt pr-4">
           Nome modulo:
           <input
-            :id="`coverc_module_name`"
+            id="coverc_module_name"
+            class="identifier"
             type="text"
             v-model="coverC.identifier"
           />

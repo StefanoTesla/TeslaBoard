@@ -41,13 +41,13 @@ void domeWebApi(){
             shutter["actualCommand"] = Dome.shutter.getActualCommand();
             shutter["canOpen"] = Dome.shutter.canOpen();
             shutter["canClose"] = Dome.shutter.canClose();
-            shutter["latTravelTime"] = Dome.shutter.lastTravelTime();
+            shutter["lastTravelTime"] = Dome.shutter.lastTravelTime();
 
         JsonObject input = shutter["input"].to<JsonObject>();
             input["open"] = Dome.shutter.getOpenSensorRaw();
             input["close"] = Dome.shutter.getCloseSensorRaw();
 
-        JsonObject autoclose = shutter["autoclose"].to<JsonObject>();
+        JsonObject autoclose = shutter["autoClose"].to<JsonObject>();
             autoclose["enable"] = Dome.shutter.isAutoCloseEnable();
             autoclose["remaing"] = Dome.shutter.autoCloseRemaningTime();
 
