@@ -7,12 +7,16 @@
   >
     <div class="card" v-if="coverC.calibrator.status > 0">
       <div class="title">
-        <p>{{ t('coverC.calibrator') }}</p>
+        <p>{{ t("coverC.calibrator") }}</p>
       </div>
       <div class="flex items-center justify-center">
-        <p>{{ t('coverC.home.coverState') }}</p>
-          <span v-if="coverC.calibrator.status == 1">{{ t('coverC.home.calibEnum.off') }}</span>
-          <span v-if="coverC.calibrator.status == 3">{{ t('coverC.home.calibEnum.ready') }}</span>
+        <p>{{ t("coverC.home.coverState") }}</p>
+        <span v-if="coverC.calibrator.status == 1">{{
+          t("coverC.home.calibEnum.off")
+        }}</span>
+        <span v-if="coverC.calibrator.status == 3">{{
+          t("coverC.home.calibEnum.ready")
+        }}</span>
       </div>
       <div class="range xl:max-w-3xl xl:mx-auto">
         <input
@@ -25,7 +29,7 @@
         />
       </div>
       <div class="flex justify-center">
-        <p>{{ t('gen.status.actualValue') }}</p>
+        <p>{{ t("gen.status.actualValue") }}</p>
         <p class="pl-2">{{ coverC.calibrator.brightness }}/4095</p>
       </div>
       <div class="flex justify-around">
@@ -33,54 +37,57 @@
           :class="calibratorPowerOnCmdClass"
           @click="calibratorPowerOnCmd"
         >
-          {{ t('gen.action.powerOn') }}
+          {{ t("gen.action.powerOn") }}
         </button>
         <button
           :class="calibratorPowerOffCmdClass"
           @click="calibratorPowerOffCmd"
         >
-          {{ t('gen.action.powerOff') }}
+          {{ t("gen.action.powerOff") }}
         </button>
       </div>
     </div>
     <div class="card mt-4" v-if="coverC.cover.status > 0">
       <div class="title">
-        <p>{{ t('coverC.cover') }}</p>
+        <p>{{ t("coverC.cover") }}</p>
       </div>
       <div class="flex justify-center">
-        <p>{{ t('coverC.home.coverState') }}</p>
+        <p>{{ t("coverC.home.coverState") }}</p>
         <p class="pl-2">{{ coverStatus }}</p>
       </div>
       <div class="flex justify-around">
         <button :class="coverOpenCmdClass" @click="coverOpenCmd">
-          {{ t('gen.action.open') }}
+          {{ t("gen.action.open") }}
+        </button>
+        <button class="red cursor-pointer" @click="coverHalt">
+          {{ t("gen.action.halt") }}
         </button>
         <button :class="coverCloseCmdClass" @click="coverCloseCmd">
-          {{ t('gen.action.close') }}
+          {{ t("gen.action.close") }}
         </button>
       </div>
       <div class="flex justify-center">
-        <p>{{ t('gen.status.actualPos') }}</p>
+        <p>{{ t("gen.status.actualPos") }}</p>
         <p class="pl-2">{{ coverC.cover.angle }}°</p>
       </div>
     </div>
   </Card>
 </template>
 
-
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { toast } from "vue3-toastify";
 import Card from "../Card.vue";
 
-
 const props = defineProps({
   t: Function,
 });
 
-
 const open = ref(false);
 
+let pollingTimeout = null;
+let isPolling = false;
+let abortController = null;
 
 const coverC = ref({});
 let dataLoaded = ref(false);
@@ -88,22 +95,60 @@ let statusClass = ref("red");
 let canOpenCover = ref(false);
 let canCloseCover = ref(false);
 let coverStatus = ref("");
+
+// Modifica la funzione fetchData
 const fetchData = async () => {
+  // Cancella la richiesta precedente se ancora in corso
+  if (abortController) {
+    abortController.abort();
+  }
+
+  abortController = new AbortController();
+
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip + "/api/coverc/status");
+    const response = await fetch(ip + "/api/coverc/status", {
+      signal: abortController.signal,
+    });
+
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
+
     const data = await response.json();
     coverC.value = data;
     dataLoaded.value = true;
     updateStatusData();
   } catch (error) {
+    if (error.name === "AbortError") {
+      console.log("Fetch aborted");
+      return;
+    }
     console.error("Errore durante la chiamata API:", error);
+  } finally {
+    if (isPolling) {
+      pollingTimeout = setTimeout(fetchData, 3000);
+    }
   }
 };
 
+// Aggiungi queste funzioni helper
+const startPolling = () => {
+  isPolling = true;
+  fetchData(); // Prima chiamata immediata
+};
+
+const stopPolling = () => {
+  isPolling = false;
+  if (pollingTimeout) {
+    clearTimeout(pollingTimeout);
+    pollingTimeout = null;
+  }
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+};
 
 const updateStatusData = () => {
   if (coverC.value.cover.status >= 4) {
@@ -119,27 +164,23 @@ const updateStatusData = () => {
     statusClass.value = "green";
   }
 
-
   canOpenCover.value =
     coverC.value.cover.status == 2 || coverC.value.cover.status == 3
       ? false
       : true;
 
-
   canCloseCover.value = coverC.value.cover.status <= 2 ? false : true;
 
-
   const enumCommand = [
-    props.t('coverC.home.coverEnum.notPresent'),
-    props.t('gen.status.close'),
-    props.t('coverC.home.coverEnum.moving'),
-    props.t('gen.status.open'),
-    props.t('coverC.home.coverEnum.unknow'),
-    props.t('coverC.home.coverEnum.error'),
+    props.t("coverC.home.coverEnum.notPresent"),
+    props.t("gen.status.close"),
+    props.t("coverC.home.coverEnum.moving"),
+    props.t("gen.status.open"),
+    props.t("coverC.home.coverEnum.unknow"),
+    props.t("coverC.home.coverEnum.error"),
   ];
   coverStatus.value = enumCommand[coverC.value.cover.status];
 };
-
 
 const coverOpenCmdClass = computed(() => {
   return canOpenCover.value
@@ -147,13 +188,11 @@ const coverOpenCmdClass = computed(() => {
     : ["disactivated", "cursor-not-allowed"];
 });
 
-
 const coverCloseCmdClass = computed(() => {
   return canCloseCover.value
     ? ["green", "cursor-pointer"]
     : ["disactivated", "cursor-not-allowed"];
 });
-
 
 const calibratorPowerOffCmdClass = computed(() => {
   return coverC.value.calibrator.brightness != 0
@@ -161,87 +200,77 @@ const calibratorPowerOffCmdClass = computed(() => {
     : ["disactivated", "cursor-not-allowed"];
 });
 
-
 const calibratorPowerOnCmdClass = computed(() => {
   return coverC.value.calibrator.brightness == 0
     ? ["green", "cursor-pointer"]
     : ["disactivated", "cursor-not-allowed"];
 });
 
+const sendCommand = async (endpoint, canExecute = true, errorMsg = null) => {
+  if (!canExecute) {
+    cmdRefusedNotify();
+    return;
+  }
+
+  try {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip + endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/plain, */*",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const res = await response.json();
+
+    if (res.error) {
+      errorResponseNotify(res.error);
+      return false;
+    }
+
+    if (res.execute) {
+      cmdExecutedNotify();
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    noResponseNotify(error);
+    return false;
+  }
+};
+
+const coverOpenCmd = async () => {
+  await sendCommand("/api/coverc/open", canOpenCover.value);
+};
+const coverHalt = async () => {
+  await sendCommand("/api/coverc/halt", true);
+};
+
+const coverCloseCmd = async () => {
+  await sendCommand("/api/coverc/close", canCloseCover.value);
+};
 
 const calibratorPowerOnCmd = async () => {
-  if (coverC.value.calibrator.brightness == 4095) {
-    cmdRefusedNotify();
-    return;
-  }
-  try {
-    const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip + "/api/coverc/on", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/plain, */*",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const res = await response.json();
-
-
-    if (res.error) {
-      errorResponseNotify(error);
-      return;
-    }
-
-
-    if (res.execute) {
-      coverC.value.calibrator.brightness = 4095;
-      cmdExecutedNotify();
-      return;
-    }
-  } catch (error) {
-    noResponseNotify(error);
+  const canExecute = coverC.value.calibrator.brightness != 4095;
+  const success = await sendCommand("/api/coverc/on", canExecute);
+  if (success) {
+    coverC.value.calibrator.brightness = 4095;
   }
 };
-
 
 const calibratorPowerOffCmd = async () => {
-  if (coverC.value.calibrator.brightness == 0) {
-    cmdRefusedNotify();
-    return;
-  }
-  try {
-    const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip + "/api/coverc/off", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/plain, */*",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const res = await response.json();
-
-
-    if (res.error) {
-      errorResponseNotify(error);
-      return;
-    }
-
-
-    if (res.execute) {
-      coverC.value.calibrator.brightness = 0;
-      cmdExecutedNotify();
-      return;
-    }
-  } catch (error) {
-    noResponseNotify(error);
+  const canExecute = coverC.value.calibrator.brightness != 0;
+  const success = await sendCommand("/api/coverc/off", canExecute);
+  if (success) {
+    coverC.value.calibrator.brightness = 0;
   }
 };
-
 
 const calibratorBrightnessChange = async () => {
   if (
@@ -268,7 +297,6 @@ const calibratorBrightnessChange = async () => {
     }
     const res = await response.json();
 
-
     if (res.error) {
       errorResponseNotify(error);
       return;
@@ -282,71 +310,11 @@ const calibratorBrightnessChange = async () => {
   }
 };
 
-
-const coverOpenCmd = async () => {
-  if (!canOpenCover.value) {
-    cmdRefusedNotify();
-    return;
-  }
-  try {
-    const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip + "/api/coverc/open", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/plain, */*",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const res = await response.json();
-
-
-    if (res.execute) {
-      cmdExecutedNotify();
-    }
-  } catch (error) {
-    noResponseNotify(error);
-  }
-};
-
-
-const coverCloseCmd = async () => {
-  if (!canCloseCover.value) {
-    cmdRefusedNotify();
-    return;
-  }
-  try {
-    const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip + "/api/coverc/close", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json, text/plain, */*",
-      },
-    });
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
-    }
-    const res = await response.json();
-
-
-    if (res.execute) {
-      cmdExecutedNotify();
-    }
-  } catch (error) {
-    noResponseNotify(error);
-  }
-};
-
-
 const cmdExecutedNotify = () => {
-  toast.success(props.t('gen.cmdAck'), {
+  toast.success(props.t("gen.cmdAck"), {
     autoClose: 500,
   });
 };
-
 
 const errorResponseNotify = (errorKey) => {
   const errorMessage = props.t(`errors.coverc.${errorKey}`);
@@ -355,13 +323,11 @@ const errorResponseNotify = (errorKey) => {
   });
 };
 
-
 const cmdRefusedNotify = () => {
-  toast.error(props.t('gen.cmdRefused'), {
+  toast.error(props.t("gen.cmdRefused"), {
     autoClose: 500,
   });
 };
-
 
 const noResponseNotify = (error) => {
   toast.error(error, {
@@ -369,15 +335,12 @@ const noResponseNotify = (error) => {
   });
 };
 
-
 let intervalId = null;
 onMounted(() => {
-  fetchData();
-  intervalId = setInterval(fetchData, 3000);
+  startPolling();
 });
 
-
 onUnmounted(() => {
-  clearInterval(intervalId);
+  stopPolling();
 });
 </script>

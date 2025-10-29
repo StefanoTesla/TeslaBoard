@@ -36,7 +36,7 @@
           </select>
         </div>
         <div class="txt pr-4">
-          {{ t('dome.setting.moduleName') }}
+          {{ t('gen.modIdent') }}
           <input
             id="coverc_module_name"
             class="identifier"
@@ -91,7 +91,7 @@
         <div class="grid grid-cols-2">
           <div>
             <div class="setting_row">
-              <p>{{ t('coverC.setting.openPosition') }}</p>
+              <p>{{ t('coverC.setting.cover.openPos') }}</p>
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input
@@ -104,7 +104,7 @@
               </div>
             </div>
             <div class="setting_row">
-              <p>{{ t('coverC.setting.closePosition') }}</p>
+              <p>{{ t('coverC.setting.cover.closePos') }}</p>
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input

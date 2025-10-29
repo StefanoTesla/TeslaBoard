@@ -36,7 +36,7 @@
           </select>
         </div>
         <div class="txt pr-4">
-          {{ t('gen.moduleName') }}
+          {{ t('gen.modIdent') }}
           <input
             id="dome_module_name"
             class="identifier"
