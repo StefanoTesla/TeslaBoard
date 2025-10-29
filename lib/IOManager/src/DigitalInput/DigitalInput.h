@@ -18,7 +18,7 @@ public:
 
     DigitalInput();
     void setup(IOConfigBase* config);
-    void jsonSetup(JsonObject obj);
+    void jsonSetup(JsonObjectConst obj);
     bool pinUnusable(int pin);
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);

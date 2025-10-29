@@ -9,7 +9,12 @@
 			"input":"Stato Ingressi",
 			"roofState": "Stato del Tetto: ",
 			"actualCommand": "Comando attuale:",
-			"lastCommand":"Ultimo comando:",
+			"lastTravelTime":"Ultimo tempo di movimento:",
+			"autoClose":{
+				"title":"Chiusura Automatica:",
+				"enabled":"ABILITATA",
+				"disabled": "DISABILITATA"
+			},
 			"shutterState":{
 				"opening": "In Apertura",
 				"closing": "In Chiusura",
@@ -78,8 +83,8 @@
 		"setting":{
 			"configSaved": "configurazione Cover Calibrator Salvata",
 			"cover":{
-				"openPos": "% di apertura",
-				"closePos": "% di chiusura"
+				"openPos": "Posizione di apertura",
+				"closePos": "Posizione di chiusura"
 			}
 		}
 	},
@@ -115,7 +120,7 @@
 		"utility":"Utility",
 		"moduleIs":"Attiva\\Disattiva Modulo",
 		"uiOrder": "Posizione nella Home Page",
-		"identifier": "identificatore",
+		"modIdent": "identificatore",
 		"moduleSetting": "Configurazione Modulo"
 	},
 	"board":{

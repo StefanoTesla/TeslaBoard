@@ -7,7 +7,7 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 /* Setup the calibrator */
-void Calibrator::begin(JsonDocument doc) {
+void Calibrator::begin(const JsonDocument& doc) {
 
   Serial.println("Calibrator begin");
 
@@ -15,8 +15,7 @@ void Calibrator::begin(JsonDocument doc) {
 
   if (moduleEnable) {
 
-    JsonObject calib = doc["outPWM"];
-    calib["name"] = "Calibrator";
+    JsonObjectConst calib = doc["outPWM"];
     calibrator.jsonSetup(calib, true);
   }
 }

@@ -23,7 +23,7 @@ void DigitalInput::setup(IOConfigBase* config){
 }
 
 
-void DigitalInput::jsonSetup(JsonObject obj){
+void DigitalInput::jsonSetup(JsonObjectConst obj){
     pin = obj["pin"].as<unsigned int>();
     invert = obj["invert"].as<unsigned int>();
     dOn = obj["dOn"].as<unsigned int>();

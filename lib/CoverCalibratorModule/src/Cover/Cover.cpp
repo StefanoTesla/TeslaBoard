@@ -10,14 +10,14 @@
 #pragma region Configuration
 
 /* Setup the shutter */
-void Cover::begin(JsonDocument doc) {
+void Cover::begin(const JsonDocument& doc) {
 
   moduleEnable = doc["enable"].as<bool>();
   openPosition = doc["openPos"].as<unsigned int>();
   closePosition = doc["closePos"].as<unsigned int>();
 
   if (moduleEnable) {
-    JsonObject pinServo = doc["outServo"];
+    JsonObjectConst pinServo = doc["outServo"];
     servo.jsonSetup(pinServo);
   }
 }

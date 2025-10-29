@@ -35,7 +35,7 @@ public:
         calibrator(channelManager)
         {}
 
-    void begin(JsonDocument shutter);
+    void begin(const JsonDocument& shutter);
     void loop();
     bool isEnable(){ return moduleEnable; }
 

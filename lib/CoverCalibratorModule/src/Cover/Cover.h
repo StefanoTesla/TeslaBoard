@@ -38,7 +38,7 @@ public:
         {}
 
 
-    void begin(JsonDocument shutter);
+    void begin(const JsonDocument& shutter);
     bool isEnable(){ return moduleEnable; }
 
     bool isOpen();

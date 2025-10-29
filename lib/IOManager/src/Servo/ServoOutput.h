@@ -35,7 +35,7 @@ public:
 
   ServoOutput(PWMManager *channelManager) : chMgr(channelManager) {}
   void setup(IOConfigBase *config);
-  void jsonSetup(JsonObject setup);
+  void jsonSetup(JsonObjectConst setup);
   void getConfiguration(JsonObject cfg);
   int validateJsonCfg(JsonObject obj);
   bool pinUnusable(int pin);

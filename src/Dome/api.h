@@ -25,8 +25,6 @@ void domeRequestHandler(){
 
 #pragma region webApi
 
-
-
     server.on("/api/dome/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
@@ -56,7 +54,6 @@ void domeRequestHandler(){
 
         JsonObject autoclose = shutter["autoClose"].to<JsonObject>();
             autoclose["enable"] = Dome.shutter.isAutoCloseEnable();
-            autoclose["remaing"] = Dome.shutter.autoCloseRemaningTime();
 
         response->setLength();
         request->send(response);

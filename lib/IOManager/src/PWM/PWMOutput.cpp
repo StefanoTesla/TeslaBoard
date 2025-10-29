@@ -35,7 +35,7 @@ void PWMOutput::setup(IOConfigBase* config){
 
 }
 
-void PWMOutput::jsonSetup(JsonObject setup, bool HS){
+void PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
     LOGV("Servo channel json setup");
     channel = -1;
 

@@ -485,16 +485,16 @@ void Shutter::begin(const JsonDocument& doc){
     driverType = doc["driverType"];
     setTravelTimeOut(doc["travelTOut"].as<unsigned int>());
 
-    JsonObject pinOpen = doc["inOpen"];
+    JsonObjectConst  pinOpen = doc["inOpen"];
     OpenSensor.jsonSetup(pinOpen);
 
-    JsonObject pinClose = doc["inClose"];
+    JsonObjectConst pinClose = doc["inClose"];
     CloseSensor.jsonSetup(pinClose);
 
-    JsonObject pinStart = doc["outStart"];
+    JsonObjectConst pinStart = doc["outStart"];
     StartOpen.jsonSetup(pinStart);
 
-    JsonObject pinHalt = doc["outHalt"];
+    JsonObjectConst pinHalt = doc["outHalt"];
     HaltClose.jsonSetup(pinHalt);
 
     if(doc["autoClose"].is<JsonObject>()){

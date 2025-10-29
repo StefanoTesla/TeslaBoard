@@ -24,7 +24,7 @@ void DigitalOutput::setup(IOConfigBase* config){
 }
 
 
-void DigitalOutput::jsonSetup(JsonObject obj){
+void DigitalOutput::jsonSetup(JsonObjectConst obj){
     pin = obj["pin"].as<unsigned int>();
     invert = obj["invert"].as<unsigned int>();
     pinMode(pin, OUTPUT);

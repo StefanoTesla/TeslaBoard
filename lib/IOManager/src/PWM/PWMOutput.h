@@ -10,7 +10,7 @@ public:
     PWMOutput(PWMManager* channelManager) : chMgr(channelManager) {}
     unsigned int currentDuty;
     void setup(IOConfigBase* config);
-    void jsonSetup(JsonObject setup,bool HS = false);
+    void jsonSetup(JsonObjectConst setup,bool HS = false);
     void getConfiguration(JsonObject cfg);
     int validateJsonCfg(JsonObject obj);
     void copyJsonCfg(JsonObject obj,JsonObject dest);

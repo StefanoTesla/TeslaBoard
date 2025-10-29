@@ -142,7 +142,7 @@ void ServoOutput::setup(IOConfigBase *config) {
   movingTime = cfg->moveTime * 1000;
 }
 
-void ServoOutput::jsonSetup(JsonObject setup) {
+void ServoOutput::jsonSetup(JsonObjectConst setup) {
   LOGI("Servo channel setup");
   channel = -1;
   channel = chMgr->getSlowChannel();
