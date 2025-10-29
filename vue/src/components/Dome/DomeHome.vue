@@ -32,7 +32,7 @@
       <div class="card flex flex-col justify-evenly">
         <div>
           <p class="title">{{ t('dome.home.actualCommand') }}</p>
-          <p>{{ commandEnum(dome.shutter.actualCommand) }}</p>
+          <p class="text-center">{{ commandEnum(dome.shutter.actualCommand) }}</p>
         </div>
         <div>
           <p class="title">{{ t('dome.home.lastTravelTime') }}</p>
@@ -57,15 +57,29 @@ const props = defineProps({
   t: Function
 })
 
+let pollingTimeout = null;
+let isPolling = false;
+let abortController = null;
+
 const dome = ref({})
 
 let dataLoaded = ref(false)
 let statusClass = ref('red')
 
 const fetchData = async () => {
+
+  if (abortController) {
+    abortController.abort();
+  }
+
+  abortController = new AbortController();
+
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+'/api/dome/status')
+    const response = await fetch(ip+'/api/dome/status',{
+      signal: abortController.signal,
+    });
+
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -78,8 +92,32 @@ const fetchData = async () => {
     
   } catch (error) {
     console.error('Errore durante la chiamata API:', error)
+  } finally {
+    if (isPolling) {
+      pollingTimeout = setTimeout(fetchData, 3000);
+    }
   }
 }
+
+
+const startPolling = () => {
+  isPolling = true;
+  fetchData();
+};
+
+const stopPolling = () => {
+  isPolling = false;
+  if (pollingTimeout) {
+    clearTimeout(pollingTimeout);
+    pollingTimeout = null;
+  }
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+};
+
+
 
 const shutterStateEnum = (status) => {
   const enumShutterState = [
@@ -190,11 +228,10 @@ const noResponseNotify = (error) => {
 
 let intervalId = null
 onMounted(() => {
-  fetchData()
-  intervalId = setInterval(fetchData, 3000)
+  startPolling()
 })
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  stopPolling()
 })
 </script>

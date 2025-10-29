@@ -39,10 +39,13 @@ void PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
     LOGV("Servo channel json setup");
     channel = -1;
 
+    uint32_t freq;
     if(HS){
         channel = chMgr->getFastChannel(true);
-        LOGD("20kHz PWM channel assigned at position %d",channel);
+        freq = 19531;
+        LOGD("20kHz PWM channel assigned at channel %d",channel);
     } else {
+        freq = 5000;
         channel = chMgr->getFastChannel();
         LOGD("5kHz PWM channel assigned at position %d",channel);
     }
@@ -52,18 +55,19 @@ void PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
         Serial.println("Unable to retrive a free ledChannel");
         return;
     }
-    uint32_t freq;
-    if(HS){ 
-        freq = 19531;
-    } else {
-        freq = 5000;
-    }
-    setName(setup["name"]);
+    
+    //setName(setup["name"]);
+    LOGV("name");
     pin = setup["pin"].as<unsigned int>();
+    LOGV("pin");
     min = 0;
+    LOGV("min");
     max = 4095;
+    LOGV("max");
     ledcSetup(channel, freq, 12);
+    LOGV("ledcsetup");
     ledcAttachPin(pin,channel);
+    LOGV("attac");
     LOGD("%s PWM channel configured at pin %d, channel: %d, frequency: %d, ",Name,pin,channel,freq);
 
 }

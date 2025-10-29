@@ -83,7 +83,6 @@ const props = defineProps({
   t: Function,
 });
 
-const open = ref(false);
 
 let pollingTimeout = null;
 let isPolling = false;
@@ -96,9 +95,9 @@ let canOpenCover = ref(false);
 let canCloseCover = ref(false);
 let coverStatus = ref("");
 
-// Modifica la funzione fetchData
+
 const fetchData = async () => {
-  // Cancella la richiesta precedente se ancora in corso
+
   if (abortController) {
     abortController.abort();
   }
@@ -132,7 +131,7 @@ const fetchData = async () => {
   }
 };
 
-// Aggiungi queste funzioni helper
+
 const startPolling = () => {
   isPolling = true;
   fetchData(); // Prima chiamata immediata

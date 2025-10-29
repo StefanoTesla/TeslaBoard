@@ -89,6 +89,8 @@ void CoverCalibratorModule::begin(){
         cover.begin(doc);
     }
 
+    LOGV("CoverC Begin finish");
+
 }
 
 void CoverCalibratorModule::updateNVS1(){

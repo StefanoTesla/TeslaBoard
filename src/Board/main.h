@@ -11,6 +11,7 @@ void startupTask(){
     initBoardConfig();
     Dome.begin();
     CoverCalibrator.begin();
+    Serial.println("starting with switches");
     initSwitchConfig();
 }
 

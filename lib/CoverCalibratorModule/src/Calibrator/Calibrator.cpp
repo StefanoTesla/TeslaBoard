@@ -9,7 +9,7 @@
 /* Setup the calibrator */
 void Calibrator::begin(const JsonDocument& doc) {
 
-  Serial.println("Calibrator begin");
+  LOGV("Calibrator begin");
 
   moduleEnable = doc["enable"];
 
@@ -18,6 +18,8 @@ void Calibrator::begin(const JsonDocument& doc) {
     JsonObjectConst calib = doc["outPWM"];
     calibrator.jsonSetup(calib, true);
   }
+
+  LOGV("Calibrator END");
 }
 
 /* loop cycle, status and cycle update */
