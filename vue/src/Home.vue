@@ -10,10 +10,10 @@
 
   <div v-if="txtLoaded">
     <div v-for="mod in components" :key="mod.name">
-      <component :is="resolveComponent(mod.name)" :txt="translations" />
+      <component :is="resolveComponent(mod.name)" :t="t" />
     </div>
 
-    <BoardHome :txt="translations" />
+    <BoardHome :t=t />
   </div>
 </template>
 
@@ -28,7 +28,7 @@ import { useTranslations } from "./composables/translation";
 import BoardHome from "./components/Board/BoardHome.vue";
 
 const components = ref([]);
-const { translations, loadTranslations } = useTranslations();
+const { translations, loadTranslations, t } = useTranslations();
 const txtLoaded = ref(false);
 const loadError = ref();
 

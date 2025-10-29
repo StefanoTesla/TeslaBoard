@@ -113,7 +113,10 @@
 		"cmdRefused": "Comando Rifiutato",
 		"configSaved": "Configurazione Salvata",
 		"utility":"Utility",
-		"moduleIs":"Attiva\\Disattiva Modulo"
+		"moduleIs":"Attiva\\Disattiva Modulo",
+		"uiOrder": "Posizione nella Home Page",
+		"identifier": "identificatore",
+		"moduleSetting": "Configurazione Modulo"
 	},
 	"board":{
 		"home": {

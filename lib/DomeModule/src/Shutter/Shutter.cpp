@@ -125,8 +125,6 @@ void Shutter::checkTravelTimeOut(){
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
         LOGE("Trivel time out triggered, sending Halt Command");
         halt();
-    } else {
-        startTravelMillis = millis();
     }
 }
 
@@ -134,14 +132,10 @@ void Shutter::checkAutoCloseTimeOut(){
 
     if(isAutoCloseEnable()){
         if(isOpen()){
-            autoClose.remaningTime = (autoClose.waitingTime - (millis() - autoClose.lastCommunication) ) / 1000;
-
             if(millis() - autoClose.lastCommunication > autoClose.waitingTime){
                 close();
                 LOGE("AutoClose timeout, going to close");
             }
-        } else {
-            autoClose.remaningTime = autoClose.waitingTime / 60; //convert minutes in seconds
         }
     }
 }
@@ -152,6 +146,7 @@ Main Cicle
 void Shutter::cycle(){
 
     checkTravelTimeOut();
+    checkAutoCloseTimeOut();
 
     if(actualCmd == Halt && actualStep < HaltBegin){
         actualStep = HaltBegin;
@@ -163,9 +158,9 @@ void Shutter::cycle(){
 
         // intial step...waiting for a new command
     case WaitForACommand:
-        retry = false;
         setOutput(Stop);
-
+        retry = false;
+        startTravelMillis = millis();
 
         if(actualCmd == Close){
                 ackTimeout = millis();
@@ -410,7 +405,9 @@ void Shutter::setOutputforStartAndDirectionalOutput(outputDirection direction){
     }
 }
 
-
+void Shutter::setAutoCloseTimeMin(unsigned int minutes){
+    autoClose.waitingTime = minutes * 60000;
+}
 
 
 void Shutter::debug(){
@@ -481,7 +478,7 @@ Configuration Area
 
 #pragma region Configuration
 
-void Shutter::begin(JsonDocument doc){
+void Shutter::begin(const JsonDocument& doc){
 
     LOGI("start loading configuration");
     
@@ -502,7 +499,7 @@ void Shutter::begin(JsonDocument doc){
 
     if(doc["autoClose"].is<JsonObject>()){
         autoClose.enable = doc["autoClose"]["enable"].as<bool>();
-        autoClose.waitingTime = doc["autoClose"]["minutes"].as<unsigned int>() * 60000;
+        setAutoCloseTimeMin(doc["autoClose"]["time"].as<unsigned int>());
     }
 
     moduleEnable = true;
@@ -529,7 +526,7 @@ void Shutter::getConfiguration(JsonObject obj){
 
     JsonObject autClose = obj["autoClose"].to<JsonObject>();
     autClose["enable"] = autoClose.enable;
-    autClose["time"] = autoClose.waitingTime;
+    autClose["time"] = getAutoCloseTimeMin();
 
 }
 
@@ -538,7 +535,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
     JsonArray err = response["errors"].to<JsonArray>();
     int retVal = 0;
 
-    Serial.println("---SHUTTER VALIDATION---");
+    LOGV("---SHUTTER VALIDATION---");
 
     serializeJson(obj,Serial);
 
@@ -546,7 +543,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
         err.add("DriveTypeMissing");
         return;
     }
-    Serial.println("driver type is ok");
+
 
     int tmp = obj["driverType"].as<int>();
     if(tmp < 0 || tmp > 3){
@@ -554,21 +551,18 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
         return;
     }
     
-    Serial.println("driver type in range");
 
     if(!obj["travelTOut"].is<int>()){
         err.add("travelTOutMissing");
         return;
     }
 
-    Serial.println("travelTOUT ok");
 
     if(!obj["inOpen"].is<JsonObject>()){
         err.add("InOpenMissing");
         return;
     }
 
-    Serial.println("inOpen Exist");
 
     JsonObject inOpen = obj["inOpen"];
     retVal = OpenSensor.validateJsonCfg(inOpen);
@@ -673,12 +667,12 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
 
     setTravelTimeOut(shutterObject["travelTOut"].as<unsigned int>());
     autoClose.enable = shutterObject["autoClose"]["enable"].as<bool>();
-    autoClose.waitingTime = shutterObject["autoClose"]["time"].as<unsigned long>();
+    setAutoCloseTimeMin(shutterObject["autoClose"]["time"].as<unsigned int>());
 
     tmpCfg["driverType"] = driverType;
     tmpCfg["travelTOut"] = getTravelTimeOut();
     tmpCfg["autoClose"]["enable"] = autoClose.enable;
-    tmpCfg["autoClose"]["time"] = autoClose.waitingTime;
+    tmpCfg["autoClose"]["time"] = getAutoCloseTimeMin();
 
     JsonObject inOpen = tmpCfg["inOpen"].to<JsonObject>();
     OpenSensor.copyJsonCfg(shutterObject["inOpen"],inOpen);

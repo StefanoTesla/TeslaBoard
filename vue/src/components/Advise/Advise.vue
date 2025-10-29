@@ -16,7 +16,7 @@
 <script setup>
 
 const props = defineProps({
-  txt: Object,
+  t: Function,
   notifies: Object,
 })
 

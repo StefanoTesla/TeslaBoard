@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-2">
     <div class="setting_row">
-      <p>{{ props.txt.IOBase.pin }}</p>
+      <p>{{ t('IOBase.pin') }}</p>
       <div class="input_with_unit">
         <span class="unit">n</span
         ><input
@@ -14,19 +14,19 @@
       </div>
     </div>
     <div class="setting_row">
-      <p>{{ props.txt.IOBase.DI.func }}</p>
+      <p>{{ t('IOBase.DI.func') }}</p>
       <select
         :id="`sw_${index}_invert`"
         :class="{ validation_error: invertUnvalid }"
         v-model="swi.invert"
         @change="validate()"
       >
-        <option :value="false">{{ props.txt.IOBase.DI.invertEnum[0] }}</option>
-        <option :value="true">{{ props.txt.IOBase.DI.invertEnum[1] }}</option>
+        <option :value="false">{{ t('IOBase.DI.invertEnum.0') }}</option>
+        <option :value="true">{{ t('IOBase.DI.invertEnum.1') }}</option>
       </select>
     </div>
     <div class="setting_row">
-      <p>{{ props.txt.IOBase.DI.onDelay }}</p>
+      <p>{{ t('IOBase.DI.onDelay') }}</p>
       <div class="input_with_unit">
         <span class="unit">ms</span
         ><input
@@ -39,7 +39,7 @@
       </div>
     </div>
     <div class="setting_row">
-      <p>{{ props.txt.IOBase.DI.offDelay }}</p>
+      <p>{{ t('IOBase.DI.offDelay') }}</p>
       <div class="input_with_unit">
         <span class="unit">ms</span
         ><input
@@ -62,7 +62,7 @@ import { useValidator } from "../../composables/Validator";
 const { isInvalidPin, isNegative } = useValidator();
 
 const props = defineProps({
-  txt: Object,
+  t: Function,
   index: Number,
   swi: Object,
 });
@@ -82,11 +82,11 @@ const validate = () => {
   if (isInvalidPin(props.swi.pin, "input")) {
     pinUnvalid.value = true;
     const errorMessage =
-      props.txt.gen.pin +
+      props.t('gen.pin') +
       " " +
       props.swi.pin +
       " - " +
-      props.txt.errors.gpio.noUsableAsInput;
+      props.t('errors.gpio.noUsableAsInput');
     errorResponseNotify(errorMessage);
     return;
   }
@@ -95,7 +95,7 @@ const validate = () => {
   dOnUnvalid.value = false;
   if (isNegative(props.swi.dOn)) {
     dOnUnvalid.value = true;
-    errorResponseNotify(props.txt.errors.general.negativeValue);
+    errorResponseNotify(props.t('errors.general.negativeValue'));
     return;
   }
 
@@ -103,7 +103,7 @@ const validate = () => {
   dOffUnvalid.value = false;
   if (isNegative(props.swi.dOff)) {
     dOffUnvalid.value = true;
-    errorResponseNotify(props.txt.errors.general.negativeValue);
+    errorResponseNotify(props.t('errors.general.negativeValue'));
     return;
   }
 

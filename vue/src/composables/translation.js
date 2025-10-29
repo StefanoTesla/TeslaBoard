@@ -13,8 +13,39 @@ export function useTranslations() {
     }
   };
 
+  /**
+   * Accede in modo sicuro a proprietà nested nelle traduzioni
+   * @param {string} path - Il path come "dome.home.roofState"
+   * @param {string} fallback - Testo di fallback
+   * @returns {string}
+   */
+  const t = (path, fallback = '⚠️ STRING_MISSING') => {
+    if (!translations.value || !path) {
+      if (import.meta.env.DEV) {
+        console.warn(`Translation not loaded or empty path: ${path}`)
+      }
+      return fallback
+    }
+    
+    const keys = path.split('.')
+    let result = translations.value
+    
+    for (const key of keys) {
+      if (result === null || result === undefined || !(key in result)) {
+        if (import.meta.env.DEV) {
+          console.warn(`🌐 Translation missing: ${path}`)
+        }
+        return fallback
+      }
+      result = result[key]
+    }
+    
+    return result || fallback
+  }
+
   return {
     translations,
     loadTranslations,
+    t  // ← Esponi la funzione t
   };
 }

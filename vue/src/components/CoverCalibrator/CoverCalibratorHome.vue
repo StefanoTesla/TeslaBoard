@@ -1,18 +1,18 @@
 <template>
   <Card
-    v-if="props.txt.dome"
-    :moduleName="props.txt.coverC.title"
+    v-if="t('coverC')"
+    :moduleName="t('coverC.title')"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
     <div class="card" v-if="coverC.calibrator.status > 0">
       <div class="title">
-        <p>{{ txt.coverC.calibrator }}</p>
+        <p>{{ t('coverC.calibrator') }}</p>
       </div>
       <div class="flex items-center justify-center">
-        <p>{{ txt.coverC.home.coverState }}</p>
-          <span v-if="coverC.calibrator.status == 1">{{txt.coverC.home.calibEnum.off}}</span>
-          <span v-if="coverC.calibrator.status == 3">{{txt.coverC.home.calibEnum?.ready}}</span>
+        <p>{{ t('coverC.home.coverState') }}</p>
+          <span v-if="coverC.calibrator.status == 1">{{ t('coverC.home.calibEnum.off') }}</span>
+          <span v-if="coverC.calibrator.status == 3">{{ t('coverC.home.calibEnum.ready') }}</span>
       </div>
       <div class="range xl:max-w-3xl xl:mx-auto">
         <input
@@ -25,7 +25,7 @@
         />
       </div>
       <div class="flex justify-center">
-        <p>{{ txt.gen.status.actualValue }}</p>
+        <p>{{ t('gen.status.actualValue') }}</p>
         <p class="pl-2">{{ coverC.calibrator.brightness }}/4095</p>
       </div>
       <div class="flex justify-around">
@@ -33,50 +33,54 @@
           :class="calibratorPowerOnCmdClass"
           @click="calibratorPowerOnCmd"
         >
-          {{ txt.gen.action.powerOn }}
+          {{ t('gen.action.powerOn') }}
         </button>
         <button
           :class="calibratorPowerOffCmdClass"
           @click="calibratorPowerOffCmd"
         >
-          {{ txt.gen.action.powerOff }}
+          {{ t('gen.action.powerOff') }}
         </button>
       </div>
     </div>
     <div class="card mt-4" v-if="coverC.cover.status > 0">
       <div class="title">
-        <p>{{ txt.coverC.cover }}</p>
+        <p>{{ t('coverC.cover') }}</p>
       </div>
       <div class="flex justify-center">
-        <p>{{ txt.coverC.home.coverState }}</p>
+        <p>{{ t('coverC.home.coverState') }}</p>
         <p class="pl-2">{{ coverStatus }}</p>
       </div>
       <div class="flex justify-around">
         <button :class="coverOpenCmdClass" @click="coverOpenCmd">
-          {{ txt.gen.action.open }}
+          {{ t('gen.action.open') }}
         </button>
         <button :class="coverCloseCmdClass" @click="coverCloseCmd">
-          {{ txt.gen.action.close }}
+          {{ t('gen.action.close') }}
         </button>
       </div>
       <div class="flex justify-center">
-        <p>{{ txt.gen.status.actualPos }}</p>
+        <p>{{ t('gen.status.actualPos') }}</p>
         <p class="pl-2">{{ coverC.cover.angle }}°</p>
       </div>
     </div>
   </Card>
 </template>
 
+
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { toast } from "vue3-toastify";
 import Card from "../Card.vue";
 
+
 const props = defineProps({
-  txt: Object,
+  t: Function,
 });
 
+
 const open = ref(false);
+
 
 const coverC = ref({});
 let dataLoaded = ref(false);
@@ -100,6 +104,7 @@ const fetchData = async () => {
   }
 };
 
+
 const updateStatusData = () => {
   if (coverC.value.cover.status >= 4) {
     statusClass.value = "red";
@@ -114,23 +119,27 @@ const updateStatusData = () => {
     statusClass.value = "green";
   }
 
+
   canOpenCover.value =
     coverC.value.cover.status == 2 || coverC.value.cover.status == 3
       ? false
       : true;
 
+
   canCloseCover.value = coverC.value.cover.status <= 2 ? false : true;
 
+
   const enumCommand = [
-    props.txt.coverC.home.coverEnum.notPresent,
-    props.txt.gen.status.close,
-    props.txt.coverC.home.coverEnum.moving,
-    props.txt.gen.status.open,
-    props.txt.coverC.home.coverEnum.unknow,
-    props.txt.coverC.home.coverEnum.error,
+    props.t('coverC.home.coverEnum.notPresent'),
+    props.t('gen.status.close'),
+    props.t('coverC.home.coverEnum.moving'),
+    props.t('gen.status.open'),
+    props.t('coverC.home.coverEnum.unknow'),
+    props.t('coverC.home.coverEnum.error'),
   ];
   coverStatus.value = enumCommand[coverC.value.cover.status];
 };
+
 
 const coverOpenCmdClass = computed(() => {
   return canOpenCover.value
@@ -138,11 +147,13 @@ const coverOpenCmdClass = computed(() => {
     : ["disactivated", "cursor-not-allowed"];
 });
 
+
 const coverCloseCmdClass = computed(() => {
   return canCloseCover.value
     ? ["green", "cursor-pointer"]
     : ["disactivated", "cursor-not-allowed"];
 });
+
 
 const calibratorPowerOffCmdClass = computed(() => {
   return coverC.value.calibrator.brightness != 0
@@ -150,11 +161,13 @@ const calibratorPowerOffCmdClass = computed(() => {
     : ["disactivated", "cursor-not-allowed"];
 });
 
+
 const calibratorPowerOnCmdClass = computed(() => {
   return coverC.value.calibrator.brightness == 0
     ? ["green", "cursor-pointer"]
     : ["disactivated", "cursor-not-allowed"];
 });
+
 
 const calibratorPowerOnCmd = async () => {
   if (coverC.value.calibrator.brightness == 4095) {
@@ -175,10 +188,12 @@ const calibratorPowerOnCmd = async () => {
     }
     const res = await response.json();
 
+
     if (res.error) {
       errorResponseNotify(error);
       return;
     }
+
 
     if (res.execute) {
       coverC.value.calibrator.brightness = 4095;
@@ -189,6 +204,7 @@ const calibratorPowerOnCmd = async () => {
     noResponseNotify(error);
   }
 };
+
 
 const calibratorPowerOffCmd = async () => {
   if (coverC.value.calibrator.brightness == 0) {
@@ -209,10 +225,12 @@ const calibratorPowerOffCmd = async () => {
     }
     const res = await response.json();
 
+
     if (res.error) {
       errorResponseNotify(error);
       return;
     }
+
 
     if (res.execute) {
       coverC.value.calibrator.brightness = 0;
@@ -223,6 +241,7 @@ const calibratorPowerOffCmd = async () => {
     noResponseNotify(error);
   }
 };
+
 
 const calibratorBrightnessChange = async () => {
   if (
@@ -249,6 +268,7 @@ const calibratorBrightnessChange = async () => {
     }
     const res = await response.json();
 
+
     if (res.error) {
       errorResponseNotify(error);
       return;
@@ -261,6 +281,7 @@ const calibratorBrightnessChange = async () => {
     noResponseNotify(error);
   }
 };
+
 
 const coverOpenCmd = async () => {
   if (!canOpenCover.value) {
@@ -281,6 +302,7 @@ const coverOpenCmd = async () => {
     }
     const res = await response.json();
 
+
     if (res.execute) {
       cmdExecutedNotify();
     }
@@ -288,6 +310,7 @@ const coverOpenCmd = async () => {
     noResponseNotify(error);
   }
 };
+
 
 const coverCloseCmd = async () => {
   if (!canCloseCover.value) {
@@ -308,6 +331,7 @@ const coverCloseCmd = async () => {
     }
     const res = await response.json();
 
+
     if (res.execute) {
       cmdExecutedNotify();
     }
@@ -316,24 +340,28 @@ const coverCloseCmd = async () => {
   }
 };
 
+
 const cmdExecutedNotify = () => {
-  toast.success(props.txt.gen.cmdAck, {
+  toast.success(props.t('gen.cmdAck'), {
     autoClose: 500,
   });
 };
 
+
 const errorResponseNotify = (errorKey) => {
-  const errorMessage = props.txt.errors.coverc[errorKey];
+  const errorMessage = props.t(`errors.coverc.${errorKey}`);
   toast.error(errorMessage, {
     autoClose: 3000,
   });
 };
 
+
 const cmdRefusedNotify = () => {
-  toast.error(props.txt.gen.cmdRefused, {
+  toast.error(props.t('gen.cmdRefused'), {
     autoClose: 500,
   });
 };
+
 
 const noResponseNotify = (error) => {
   toast.error(error, {
@@ -341,11 +369,13 @@ const noResponseNotify = (error) => {
   });
 };
 
+
 let intervalId = null;
 onMounted(() => {
   fetchData();
   intervalId = setInterval(fetchData, 3000);
 });
+
 
 onUnmounted(() => {
   clearInterval(intervalId);

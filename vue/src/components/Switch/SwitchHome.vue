@@ -1,12 +1,10 @@
 <template>
-
   <Card
-    v-if="props.txt.dome"
-    :moduleName="props.txt.switch.title"
+    v-if="t('switch')"
+    :moduleName="t('switch.title')"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-
     <div class="sw_grid">
       <div class="card" v-for="(swi,index) in switches.Switches" :key="index">
         <div class="title">
@@ -41,7 +39,7 @@
               <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.intValue" @change="changeValueCmd(index)"/>
             </div>
             <div class="sw_value">
-              <p>{{ props.txt.gen.status.actualValue }}</p> <span> {{ swi.intValue }} </span> / <span> {{ swi.max }} </span>
+              <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.intValue }} </span> / <span> {{ swi.max }} </span>
             </div>
           </div>
       </div>  
@@ -50,126 +48,125 @@
 </template>
   
   
-  <script setup>
-  import { ref,onMounted,onUnmounted,computed } from 'vue'
-  import { toast } from 'vue3-toastify';
-  import Card from '../Card.vue';
-  
-  const props = defineProps({
-    txt: Object
-  })
-  
-  const switches = ref({})
-  let dataLoaded = ref(false)
-  let statusClass = ref('black')
+<script setup>
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { toast } from 'vue3-toastify';
+import Card from '../Card.vue';
 
-  const fetchData = async () => {
-    try {
-      const ip = import.meta.env.VITE_API_IP;
-      const response = await fetch(ip+'/api/switch/status')
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      const data = await response.json()
-      switches.value = data
-      dataLoaded.value = true
+const props = defineProps({
+  t: Function
+})
 
-      updateStatusData()
-      
-      
-    } catch (error) {
-      console.error('Errore durante la chiamata API:', error)
+const switches = ref({})
+let dataLoaded = ref(false)
+let statusClass = ref('black')
+
+const fetchData = async () => {
+  try {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+'/api/switch/status')
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
     }
+    const data = await response.json()
+    switches.value = data
+    dataLoaded.value = true
+
+    updateStatusData()
+    
+  } catch (error) {
+    console.error('Errore durante la chiamata API:', error)
+  }
+}
+
+const changeValueCmd = async(index) => {
+
+  if( switches.value.Switches[index].type == 1){
+    cmdRefusedNotify()
+    return
   }
 
+  if( switches.value.Switches[index].type == 2){
+    switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
+    switches.value.Switches[index].intValue = switches.value.Switches[index].boValue ? 1:0
+  }
 
-  const changeValueCmd = async(index) => {
+  try {
+    const ip = import.meta.env.VITE_API_IP;
+    const response = await fetch(ip+"/api/switch/set-value", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Accept": "application/json, text/plain, */*"
+        },
+        body:new URLSearchParams({
+          "id": index,
+          "value" : switches.value.Switches[index].intValue
+        })
+      });
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+    const res = await response.json()
 
-    if( switches.value.Switches[index].type == 1){
-      cmdRefusedNotify()
+    if(res.error){
+      errorResponseNotify(res.error)
+      return
+    }
+    if(res.execute){
+      cmdExecutedNotify()
       return
     }
 
-    if( switches.value.Switches[index].type == 2){
-      switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
-      switches.value.Switches[index].intValue = switches.value.Switches[index].boValue ? 1:0
+    
+  } catch (error) {
+    noResponseNotify(error)
+  }
+}
+
+const updateStatusData = () => {
+  let hasActive = false;
+  switches.value.Switches.forEach(element => {
+    if(element.type != 1 && element.intValue > 0){
+      hasActive = true;
     }
+  });
+  statusClass.value = hasActive ? 'green' : 'black';
+}
 
-    try {
-      const ip = import.meta.env.VITE_API_IP;
-      const response = await fetch(ip+"/api/switch/set-value", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json, text/plain, */*"
-          },
-          body:new URLSearchParams({
-            "id": index,
-            "value" : switches.value.Switches[index].intValue
-          })
-        });
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      const res = await response.json()
+const cmdExecutedNotify = () => {
+  toast.success(props.t('gen.cmdAck'), {
+    autoClose: 500,
+  });
+}
 
-      if(res.error){
-        errorResponseNotify(res.error)
-        return
-      }
-      if(res.execute){
-        cmdExecutedNotify()
-        return
-      }
-  
-      
-    } catch (error) {
-      noResponseNotify(error)
-    }
-  }
+const cmdRefusedNotify = () => {
+  toast.error(props.t('gen.cmdRefused'), {
+    autoClose: 500,
+  });
+}
 
+const errorResponseNotify = (errorKey) => {
+  const errorMessage = props.t(`errors.switch.${errorKey}`)
+  toast.error(errorMessage, {
+    autoClose: 3000,
+  });
+}
 
-  const updateStatusData = () => {
-    let hasActive = false;
-    switches.value.Switches.forEach(element => {
-      if(element.type != 1 && element.intValue > 0){
-        hasActive = true;
-      }
-    });
-    statusClass.value = hasActive ? 'green' : 'black';
-  }
-  
-  const cmdExecutedNotify = () => {
-      toast.success(props.txt.gen.cmdAck, {
-      autoClose: 500,
-    });
-  }
-  const cmdRefusedNotify = () => {
-      toast.error(props.txt.gen.cmdRefused, {
-      autoClose: 500,
-    });
-  }
-  const errorResponseNotify = (errorKey) => {
-      const errorMessage = props.txt.errors.switch[errorKey]
-      toast.error(errorMessage, {
-      autoClose: 3000,
-    });
-  }
-  const noResponseNotify = (error) => {
-      toast.error(error, {
-      autoClose: 3000,
-    });
-  }
+const noResponseNotify = (error) => {
+  toast.error(error, {
+    autoClose: 3000,
+  });
+}
 
-  
-  let intervalId = null
-  onMounted(() => {
-    fetchData()
-    intervalId = setInterval(fetchData, 3000)
-  })
-  
-  onUnmounted(() => {
-    clearInterval(intervalId)
-  })
-  
-  </script>
+let intervalId = null
+onMounted(() => {
+  fetchData()
+  intervalId = setInterval(fetchData, 3000)
+})
+
+onUnmounted(() => {
+  clearInterval(intervalId)
+})
+
+</script>

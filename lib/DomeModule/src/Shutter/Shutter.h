@@ -49,7 +49,6 @@ private:
       safeStop  
     };
 
-    outputDirection direction;
 
     enum CycleStep{
         WaitForACommand,
@@ -70,16 +69,16 @@ private:
     };
 
     CycleStep actualStep = WaitForACommand;
-    CycleStep previousStep;
-    struct autoClose{
+
+    struct autoCloseConfig{
         bool enable = false;
         unsigned long waitingTime = 30; //[min] during the setup is multiplied by 60000 to conver minutes to ms
-        unsigned long remaningTime; //[s] return the seconds before the roof will be closed automatically
         unsigned long lastCommunication; //[ms] the last comunication millis from api or alpaca
     };
 
-    unsigned long ackTimeout = 0;
+    autoCloseConfig autoClose;
 
+    unsigned long ackTimeout = 0;
 
     struct logging{
         bool openState;
@@ -106,8 +105,6 @@ private:
     bool retry = false; //used only for gate controller board
 
     bool moduleEnable = false;
-
-    autoClose autoClose;
     
     JsonDocument tmpCfg;
 
@@ -115,7 +112,7 @@ private:
 public:
     Shutter() = default;
 
-    void begin(JsonDocument shutter);
+    void begin(const JsonDocument& shutter);
     bool isEnable(){ return moduleEnable; }
 
     bool isOpen();
@@ -148,7 +145,10 @@ public:
     void setTravelTimeOut(unsigned int time);
     unsigned long lastTravelTime(){ return travelTime / 1000; }
     bool isAutoCloseEnable(){ return autoClose.enable; };
-    unsigned long autoCloseRemaningTime() { return autoClose.remaningTime; };
+
+    unsigned int getAutoCloseTimeMin(){return autoClose.waitingTime / 60000;}
+    void setAutoCloseTimeMin(unsigned int minutes);
+
 
 private:
     void cycle();

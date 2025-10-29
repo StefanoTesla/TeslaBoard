@@ -5,41 +5,37 @@
     <Advise :notifies="permNotify" />
 
     <Switch
-      :txt="translations"
+      :t="t"
       v-model:reboot="modal"
       @update:pinUsed="handleSwitchPinUpdate"
     />
 
     <CoverCalibrator
-      :txt="translations"
+      :t="t"
       v-model:reboot="modal"
       @update:pinUsed="handleCoverCPinUpdate"
     />
 
     <Dome
-      :txt="translations"
+      :t="t"
       v-model:reboot="modal"
       @update:pinUsed="handleDomePinUpdate"
     />
 
-    <Board :txt="translations" :gpio="gpioObserver" v-model:reboot="modal" />
+    <Board :t="t" :gpio="gpioObserver" v-model:reboot="modal" />
   </div>
 
   <div class="modal" v-if="modal">
     <div class="modal_box">
-      <p class="error">{{ translations.board.reboot.warning }}</p>
-      <p x-text="text.board.reboot.text1">
-        {{ translations.board.reboot.text1 }}
-      </p>
-      <p x-text="text.board.reboot.text2">
-        {{ translations.board.reboot.text2 }}
-      </p>
+      <p class="error">{{ t('board.reboot.warning') }}</p>
+      <p>{{ t('board.reboot.text1') }}</p>
+      <p>{{ t('board.reboot.text2') }}</p>
       <div class="modal_selection">
         <button class="green" @click="closeModal()">
-          {{ translations.board.reboot.later }}
+          {{ t('board.reboot.later') }}
         </button>
         <button class="red" @click="rebootNow()">
-          {{ translations.board.reboot.now }}
+          {{ t('board.reboot.now') }}
         </button>
       </div>
     </div>
@@ -68,7 +64,7 @@ const switchGPIO = ref([]);
 const permNotify = ref([]);
 
 const components = ref([]);
-const { translations, loadTranslations } = useTranslations();
+const { translations, loadTranslations, t } = useTranslations(); // ✅ Aggiungi t
 const txtLoaded = ref(false);
 const modal = ref(false);
 
@@ -140,12 +136,12 @@ const rebuildGPIOPinList = () => {
   gpioObserver.value.forEach((element) => {
     removePermanentNotifiy(
       "warning",
-      translations.value.errors.general.error +
+      t('errors.general.error') +
         " " +
-        translations.value.IOBase.pin +
+        t('IOBase.pin') +
         element.pin +
         " " +
-        translations.value.errors.gpio.doubleUsage
+        t('errors.gpio.doubleUsage')
     );
   });
 
@@ -161,12 +157,12 @@ const rebuildGPIOPinList = () => {
     if (!isInvalidPin(gpio, "")) {
       addPermanentNotifiy(
         "warning",
-        translations.value.errors.general.error +
+        t('errors.general.error') +
           " " +
-          translations.value.IOBase.pin +
+          t('IOBase.pin') +
           gpio +
           " " +
-          translations.value.errors.gpio.doubleUsage
+          t('errors.gpio.doubleUsage')
       );
     }
   });

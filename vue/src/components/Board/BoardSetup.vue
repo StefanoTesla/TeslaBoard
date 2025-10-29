@@ -1,114 +1,106 @@
 <template>
-
   <Card
-    v-if="props.txt.board"
+    v-if="t('board')"
     moduleName="TeslaBoard"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
-    
   >
-  <div class="card">
-    <div class="setting_table">
-      <div class="sw_header">
-        <p>{{ props.txt.board.setting.locale }}</p>
-      </div>
-      <div class="setting_row">
-        <select id="board_locale" :class="[localeUnvalid ? 'validation_error' : '']" v-model="board.locale" @change="validate()">
-          <option value="it">Italiano</option>
-          <option value="en">English</option>
-          <option value="fr">Français</option>
-          <option value="de">Deutsch</option>
-          <option value="es">Español</option>
-        </select> 
+    <div class="card">
+      <div class="setting_table">
+        <div class="sw_header">
+          <p>{{ t('board.setting.locale') }}</p>
+        </div>
+        <div class="setting_row">
+          <select id="board_locale" :class="[localeUnvalid ? 'validation_error' : '']" v-model="board.locale" @change="validate()">
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="es">Español</option>
+          </select> 
+        </div>
       </div>
     </div>
-  </div>
 
-
-  <div class="card">
-    <div class="sw_header">
-        <p>{{ props.txt.board.setting.wifi }}</p>
+    <div class="card">
+      <div class="sw_header">
+        <p>{{ t('board.setting.wifi') }}</p>
       </div>
       <div class="setting_row">
-        <p>{{ props.txt.board.setting.waitToReconnect }}</p>
+        <p>{{ t('board.setting.waitToReconnect') }}</p>
         <div class="input_with_unit">
           <span class="unit">sec</span><input :id="`dome_timeout`" :class="['with_unit', reconTimeUnvalid ? 'validation_error' : '']" type="number" v-model="board.wifi.reconTime" @change="validate()"/>
         </div> 
       </div>
       <div class="setting_row">
-        <p>{{ props.txt.board.setting.ipAddress }} {{  board.wifi.actualip }}</p>
-        <p>{{ props.txt.board.home.wifi.macAddress }} {{  board.wifi.mac }}</p>
-      </div>
-
-  </div>
-
-  <div class="card">
-    <div class="title">
-      <p>{{ props.txt.IOBase.pin }}</p>
-    </div>
-
-    <div class="grid grid-cols-2 justify-items-center">
-      <div>
-        <p>Input:</p>
-        <ul>
-          <li v-for="el in inputGPIO">
-            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ props.txt.IOBase.moduleEnum[module] }}</span></p>
-            
-          </li>
-        </ul>
-      </div>
-      <div>
-      <p>Output:</p>
-        <ul>
-          <li v-for="el in outputGPIO">
-            <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ props.txt.IOBase.moduleEnum[module] }}</span></p>
-            
-          </li>
-        </ul>
+        <p>{{ t('board.setting.ipAddress') }} {{ board.wifi.actualip }}</p>
+        <p>{{ t('board.home.wifi.macAddress') }} {{ board.wifi.mac }}</p>
       </div>
     </div>
-  </div>
 
-  <div class="card">
+    <div class="card">
+      <div class="title">
+        <p>{{ t('IOBase.pin') }}</p>
+      </div>
+
+      <div class="grid grid-cols-2 justify-items-center">
+        <div>
+          <p>{{ t('board.setting.input') }}</p>
+          <ul>
+            <li v-for="el in inputGPIO">
+              <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ t(`IOBase.moduleEnum.${module}`) }}</span></p>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p>{{ t('board.setting.output') }}</p>
+          <ul>
+            <li v-for="el in outputGPIO">
+              <p :class="[el.used===0 ? 'text-green-400!' : 'text-red-400!']">{{ el.pin }} <span v-for="module in el.module">{{ t(`IOBase.moduleEnum.${module}`) }}</span></p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="sw_header">
-        <p>Update</p>
+        <p>{{ t('board.setting.update') }}</p>
       </div>
-    <div class="setting_row">
-      <button class="green cursor-pointer" @click="checkUpdate()">{{ props.txt.board.setting.checkUpdate }}</button>
-      <p>{{ props.txt.board.setting.currentVersion }} {{ swVersion  }}</p>
-      <template v-if="newVersion.check == true">
-        <p v-if="newVersion.version == 0">{{ props.txt.board.setting.noUpdate }}</p>
-        <p v-else>{{ props.txt.board.setting.newUpdate }} {{ newVersion.version }}</p>
-      </template>
-
+      <div class="setting_row">
+        <button class="green cursor-pointer" @click="checkUpdate()">{{ t('board.setting.checkUpdate') }}</button>
+        <p>{{ t('board.setting.currentVersion') }} {{ swVersion }}</p>
+        <template v-if="newVersion.check == true">
+          <p v-if="newVersion.version == 0">{{ t('board.setting.noUpdate') }}</p>
+          <p v-else>{{ t('board.setting.newUpdate') }} {{ newVersion.version }}</p>
+        </template>
+      </div>
     </div>
-  </div>
 
-
-  <div class="card">
-    <div class="setting_row">
-      <button class="red cursor-pointer" @click="rebootBoard()">{{ props.txt.board.setting.reboot }}</button>
+    <div class="card">
+      <div class="setting_row">
+        <button class="red cursor-pointer" @click="rebootBoard()">{{ t('board.setting.reboot') }}</button>
+      </div>
     </div>
-  </div>
 
-  <div class="config_buttons">
-      <button class="green cursor-pointer" @click="getOriginal()">{{ props.txt.gen?.loadFromBoard }}</button>
-      <a href="./board/boarcfg.txt" class="f_button orange" download>{{ props.txt.gen?.downloadFile }}</a>
-      <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ props.txt.gen?.save }}</button>
+    <div class="config_buttons">
+      <button class="green cursor-pointer" @click="getOriginal()">{{ t('gen.loadFromBoard') }}</button>
+      <a href="./board/boarcfg.txt" class="f_button orange" download>{{ t('gen.downloadFile') }}</a>
+      <button :class="[validationState ? 'red cursor-pointer' : 'black cursor-not-allowed']" @click="saveData()">{{ t('gen.save') }}</button>
     </div>
   </Card>
 </template>
 
-
 <script setup>
-import { ref,onMounted,watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
 import { useValidator } from '../../composables/validator';
 
-const { isNegative,isGreaterThan,isInvalidPin  } = useValidator();
+const { isNegative, isGreaterThan, isInvalidPin } = useValidator();
+
 const props = defineProps({
-  txt: Object,
+  t: Function,
   reboot: Boolean,
   gpio: Array
 })
@@ -159,7 +151,6 @@ const rebootBoard = () => {
 }
 
 const deleteWiFiData = async() => {
-
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip+'/api/board/wifi-reset') 
@@ -174,30 +165,29 @@ const deleteWiFiData = async() => {
   } catch (error) {
     errorResponseNotify(error)
   }
-
 }
 
 const saveData = async () => {
   validate()
   if(!validationState.value){
-    errorResponseNotify(props.txt.errors.general.validationFailed)
+    errorResponseNotify(props.t('errors.general.validationFailed'))
     return
   }
 
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip+"/api/board/cfg", {
-        method: "POST",
-        headers: {
+      method: "POST",
+      headers: {
         'Accept': 'application/json, text/plain, */*',
         'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(board.value)
-      });
+      },
+      body: JSON.stringify(board.value)
+    });
 
     if (!response.ok) { 
       if (response.status === 500) {
-        throw new Error(props.txt.errors.general.configRejected)
+        throw new Error(props.t('errors.general.configRejected'))
       } else {
         throw new Error('Network response was not ok')
       }
@@ -222,7 +212,7 @@ const validate = () => {
   const localeAvailables = ["it","en","fr","de","es"]
   localeUnvalid.value = false
   if(!localeAvailables.includes(board.value.locale)){
-    errorResponseNotify(props.txt.errors.general.wrongValue)
+    errorResponseNotify(props.t('errors.general.wrongValue'))
     localeUnvalid.value = true
     return
   }
@@ -231,13 +221,11 @@ const validate = () => {
   reconTimeUnvalid.value = false
   if(isNegative(board.value.wifi.reconTime)){
     reconTimeUnvalid.value = true;
-    errorResponseNotify(props.txt.errors.general.negativeValue)
+    errorResponseNotify(props.t('errors.general.negativeValue'))
     return
   }
 
-
   validationState.value = true
-
 }
 
 onMounted(() => {
@@ -249,44 +237,40 @@ onMounted(() => {
 })
 
 const cmdExecutedNotify = () => {
-  toast.success(props.txt.gen.configSaved, {
-  autoClose: 500,
-});
+  toast.success(props.t('gen.configSaved'), {
+    autoClose: 500,
+  });
 }
 
 const errorResponseNotify = (errorMessage) => {
- toast.error(errorMessage, {
-  autoClose: 3000,
+  toast.error(errorMessage, {
+    autoClose: 3000,
   });
 }
 
 const checkUpdate = () => {
-
-fetch('https://api.stefanotesla.it/api/teslaboard')
-  .then(response => {
-    if (!response.ok){
+  fetch('https://api.stefanotesla.it/api/teslaboard')
+    .then(response => {
+      if (!response.ok){
+        newVersion.value.check = true
+        return null;
+      }
       newVersion.value.check = true
-      return null;
-    }
-    newVersion.value.check = true
-    return response.json(); 
-  })
-  .then(data => {
-    if (data.version > import.meta.env.VITE_SW_VERSION) {
-      let str = String(data.version)
-      str = str.slice(0, str.length - 2) + '.' + str.slice(str.length - 2);
-      str = str.slice(0, str.length - 5) + '.' + str.slice(str.length - 5);
-      newVersion.value.version = str
-      console.log(newVersion.value)
-    }
-  })
-  .catch(() => {
-    newVersion.value.check = true;
-    return null
-  }
-
-);
-
+      return response.json(); 
+    })
+    .then(data => {
+      if (data.version > import.meta.env.VITE_SW_VERSION) {
+        let str = String(data.version)
+        str = str.slice(0, str.length - 2) + '.' + str.slice(str.length - 2);
+        str = str.slice(0, str.length - 5) + '.' + str.slice(str.length - 5);
+        newVersion.value.version = str
+        console.log(newVersion.value)
+      }
+    })
+    .catch(() => {
+      newVersion.value.check = true;
+      return null
+    });
 }
 
 const checkWherIsUsed = (pin,list) => {
@@ -299,11 +283,9 @@ const checkWherIsUsed = (pin,list) => {
   });
 
   return ret
-
 }
 
 watch(() => props.gpio, (newValue) => {
-  
   const gpios = Array.from({ length: 39 }, (_, i) => ({
     pin: i + 1,
     module: 0
@@ -333,8 +315,5 @@ watch(() => props.gpio, (newValue) => {
       }
     }
   });
-
-
 }, { deep: true });
-
 </script>

@@ -2,6 +2,8 @@
 #define DOME_API
 extern DomeModule Dome;
 
+
+#pragma region Middleware 
 AsyncMiddlewareFunction isDomeEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
     if(Dome.isEnable()){
       next();
@@ -17,8 +19,13 @@ AsyncMiddlewareFunction upLastCom([](AsyncWebServerRequest* request, ArMiddlewar
   next();
 });
 
+#pragma endregion
 
-void domeWebApi(){
+void domeRequestHandler(){
+
+#pragma region webApi
+
+
 
     server.on("/api/dome/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -153,10 +160,10 @@ void domeWebApi(){
 
     server.addHandler(domeConfigHandler);
 
-}
+#pragma endregion
 
+#pragma region aplacaManage
 
-void domeAlpacaManage(){
 
   alpaca.on("/api/v1/dome/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -207,9 +214,13 @@ void domeAlpacaManage(){
     response->setLength();
     request->send(response);
   }).addMiddlewares({&isDomeEnable,&getAlpacaID});
-}
 
-void domeAlpacaDevices(){ 
+
+
+#pragma endregion
+
+#pragma region alpacaDevice
+
 
 alpaca.on("/api/v1/dome/0/shutterstatus",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -388,12 +399,8 @@ alpaca.on("/api/v1/dome/0/commandstring",   HTTP_PUT, alpacaMethodNotImplemented
 alpaca.on("/api/v1/dome/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 alpaca.on("/api/v1/dome/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddlewares({&isDomeEnable,&getAlpacaID,&upLastCom});
 
-}
 
+#pragma endregion
 
-void domeRequestHandler(){
-  domeAlpacaDevices();
-  domeAlpacaManage();
-  domeWebApi();
 }
 #endif

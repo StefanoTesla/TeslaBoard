@@ -43,7 +43,7 @@
           <p>{{ board.board.rev }}</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.cpu.speed }}</p>
+          <p>{{ props.t("board.home.cpu.speed") }}</p>
           <p>{{ board.board.freq }} MHz</p>
         </div>
         <div class="row">
@@ -75,7 +75,7 @@
   const title = "TeslaBoard"
 
   const props = defineProps({
-    txt: Object
+    t: Function
   })
   
 

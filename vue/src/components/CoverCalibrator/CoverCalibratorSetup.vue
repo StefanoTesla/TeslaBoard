@@ -1,16 +1,16 @@
 <template>
   <Card
-    v-if="props.txt.switch"
-    :moduleName="props.txt.coverC.title"
+    v-if="t('switch')"
+    :moduleName="t('coverC.title')"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <p class="title">Configurazione Modulo</p>
+    <p class="title">{{ t('gen.moduleSetting') }}</p>
     <div class="card mb-4">
       <div class="setting_table">
         <div class="flex">
           <div class="txt pr-4">
-            {{ props.txt.gen?.moduleIs }}
+            {{ t('gen.moduleIs') }}
           </div>
           <div class="module_toggle">
             <label class="toggle" for="coverc_modlue_state">
@@ -28,7 +28,7 @@
         </div>
 
         <div class="txt pr-4">
-          Posizione nella homepage:
+          {{ t('gen.uiOrder') }}
           <select id="board_locale" v-model="coverC.uiOrder">
             <option :value="1">1</option>
             <option :value="2">2</option>
@@ -36,7 +36,7 @@
           </select>
         </div>
         <div class="txt pr-4">
-          Nome modulo:
+          {{ t('dome.setting.moduleName') }}
           <input
             id="coverc_module_name"
             class="identifier"
@@ -48,7 +48,7 @@
     </div>
     <div v-if="coverC.enable">
       <div class="my-4 flex justify-evenly">
-        <p class="font-bold">{{ props.txt.coverC.calibrator }}</p>
+        <p class="font-bold">{{ t('coverC.calibrator') }}</p>
         <label class="toggle" for="coverc_calib_present">
           <input
             class="toggle__input"
@@ -64,7 +64,7 @@
 
       <div class="card" v-if="coverC.calibrator.enable">
         <PWM
-          :txt="props.txt"
+          :t="t"
           :index="0"
           :swi="coverC.calibrator.outPWM"
           @update:validated="handleValidation"
@@ -73,7 +73,7 @@
       </div>
 
       <div class="my-4 flex justify-evenly">
-        <p class="font-bold">{{ props.txt.coverC.cover }}</p>
+        <p class="font-bold">{{ t('coverC.cover') }}</p>
         <label class="toggle" for="coverc_cover_present">
           <input
             class="toggle__input"
@@ -91,7 +91,7 @@
         <div class="grid grid-cols-2">
           <div>
             <div class="setting_row">
-              <p>Pos. apertura</p>
+              <p>{{ t('coverC.setting.openPosition') }}</p>
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input
@@ -104,7 +104,7 @@
               </div>
             </div>
             <div class="setting_row">
-              <p>Pos. chiusura</p>
+              <p>{{ t('coverC.setting.closePosition') }}</p>
               <div class="input_with_unit">
                 <span class="unit">%</span
                 ><input
@@ -123,7 +123,7 @@
 
           <div>
             <Servo
-              :txt="props.txt"
+              :t="t"
               :index="1"
               :swi="coverC.cover.outServo"
               @update:validated="handleValidation"
@@ -136,7 +136,7 @@
 
     <div class="config_buttons">
       <button class="green cursor-pointer" @click="getOriginal()">
-        {{ props.txt.gen?.loadFromBoard }}
+        {{ t('gen.loadFromBoard') }}
       </button>
       <button
         :class="[
@@ -144,7 +144,7 @@
         ]"
         @click="saveData()"
       >
-        {{ props.txt.gen?.save }}
+        {{ t('gen.save') }}
       </button>
     </div>
   </Card>
@@ -161,7 +161,7 @@ import { useValidator } from "../../composables/Validator";
 const { isGreaterThan, isNegative } = useValidator();
 
 const props = defineProps({
-  txt: Object,
+  t: Function,
   reboot: Boolean,
 });
 
@@ -192,12 +192,12 @@ const validate = () => {
     openPosValid.value = false;
     if (isNegative(coverC.value.cover.openPos)) {
       openPosValid.value = true;
-      errorResponseNotify(props.txt.errors.general.negativeValue);
+      errorResponseNotify(props.t('errors.general.negativeValue'));
       return;
     }
     if (isGreaterThan(coverC.value.cover.openPos, 100)) {
       openPosValid.value = true;
-      const errorMessage = props.txt.errors.general.greaterThan + " 100";
+      const errorMessage = props.t('errors.general.greaterThan') + " 100";
       errorResponseNotify(errorMessage);
       return;
     }
@@ -206,12 +206,12 @@ const validate = () => {
     closePosValid.value = false;
     if (isNegative(coverC.value.cover.closePos)) {
       closePosValid.value = true;
-      errorResponseNotify(props.txt.errors.general.negativeValue);
+      errorResponseNotify(props.t('errors.general.negativeValue'));
       return;
     }
     if (isGreaterThan(coverC.value.cover.closePos, 100)) {
       closePosValid.value = true;
-      const errorMessage = props.txt.errors.general.greaterThan + " 100";
+      const errorMessage = props.t('errors.general.greaterThan') + " 100";
       errorResponseNotify(errorMessage);
       return;
     }
@@ -257,7 +257,7 @@ const fetchData = async () => {
 
 const saveData = async () => {
   if (!validationState.value) {
-    errorResponseNotify(props.txt.errors.general.validationFailed);
+    errorResponseNotify(props.t('errors.general.validationFailed'));
     return;
   }
 
@@ -290,7 +290,7 @@ const saveData = async () => {
       );
     } else {
       errorResponseNotify(
-        err?.message || props.txt.errors.general.configRejected
+        err?.message || props.t('errors.general.configRejected')
       );
     }
   }
@@ -301,21 +301,21 @@ const handleStructuredError = (e) => {
   let pinName;
   switch (e.id) {
     case 1:
-      pinName = props.txt.coverC.calibrator;
+      pinName = props.t('coverC.calibrator');
       break;
     case 2:
-      pinName = props.txt.coverC.cover;
+      pinName = props.t('coverC.cover');
       break;
     default:
       pinName = `Pin ${e.id}`;
   }
 
-  msg = pinName + ": " + props.txt.errors.gpioValidation[e.error];
+  msg = pinName + ": " + props.t(`errors.gpioValidation.${e.error}`);
   errorResponseNotify(msg);
 };
 
 const cmdExecutedNotify = () => {
-  toast.success(props.txt.gen.configSaved, {
+  toast.success(props.t('gen.configSaved'), {
     autoClose: 500,
   });
 };

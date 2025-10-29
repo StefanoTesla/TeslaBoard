@@ -1,18 +1,16 @@
 <template>
   <Card
-    v-if="props.txt.dome"
-    :moduleName="props.txt.dome.title"
+    v-if="t('dome')"
+    :moduleName="t('dome.title')"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <p class="title">Configurazione Modulo</p>
+    <p class="title">{{ t('gen.moduleSetting') }}</p>
     <div class="card mb-4">
       <div class="setting_table">
-
         <div class="flex">
-          
           <div class="txt pr-4">
-            {{ props.txt.gen?.moduleIs }}
+            {{ t('gen.moduleIs') }}
           </div>
           <div class="module_toggle">
             <label class="toggle" for="dome_module_status">
@@ -30,7 +28,7 @@
         </div>
 
         <div class="txt pr-4">
-          Posizione nella homepage:
+          {{ t('gen.uiOrder') }}
           <select id="board_locale" v-model="dome.uiOrder">
             <option :value="1">1</option>
             <option :value="2">2</option>
@@ -38,13 +36,13 @@
           </select>
         </div>
         <div class="txt pr-4">
-          Nome modulo:
-            <input
-                  id="dome_module_name"
-                  class="identifier"
-                  type="text"
-                  v-model="dome.identifier"
-                />
+          {{ t('gen.moduleName') }}
+          <input
+            id="dome_module_name"
+            class="identifier"
+            type="text"
+            v-model="dome.identifier"
+          />
         </div>
       </div>
     </div>
@@ -55,7 +53,7 @@
         <div class="card">
           <div class="setting_table">
             <div class="sw_header">
-              <p>{{ props.txt.dome.setting.driverType }}</p>
+              <p>{{ t('dome.setting.driverType') }}</p>
             </div>
             <div class="setting_row">
               <select
@@ -64,15 +62,9 @@
                 v-model="dome.shutter.driverType"
                 @change="validate()"
               >
-                <option
-                  v-for="[key, value] in Object.entries(
-                    props.txt.dome.setting.driverTypeEnum
-                  )"
-                  :key="key"
-                  :value="key"
-                >
-                  {{ value }}
-                </option>
+                <option value="0">{{ t('dome.setting.driverTypeEnum.0') }}</option>
+                <option value="1">{{ t('dome.setting.driverTypeEnum.1') }}</option>
+                <option value="2">{{ t('dome.setting.driverTypeEnum.2') }}</option>
               </select>
             </div>
           </div>
@@ -82,7 +74,7 @@
         <div class="card">
           <div class="setting_table">
             <div class="sw_header">
-              <p>{{ props.txt.dome.setting.timeOutMoviment }}</p>
+              <p>{{ t('dome.setting.timeOutMoviment') }}</p>
             </div>
             <div class="setting_row">
               <div class="input_with_unit">
@@ -104,9 +96,9 @@
 
         <!-- open input-->
         <div class="card">
-          <p class="title">{{ props.txt.dome.setting.inOpen }}</p>
+          <p class="title">{{ t('dome.setting.inOpen') }}</p>
           <Input
-            :txt="props.txt"
+            :t="t"
             :index="0"
             :swi="dome.shutter.inOpen"
             @update:validated="handleValidation"
@@ -116,10 +108,10 @@
 
         <!-- close input -->
         <div class="card">
-          <p class="title">{{ props.txt.dome.setting.inClose }}</p>
+          <p class="title">{{ t('dome.setting.inClose') }}</p>
 
           <Input
-            :txt="props.txt"
+            :t="t"
             :index="1"
             :swi="dome.shutter.inClose"
             @update:validated="handleValidation"
@@ -130,17 +122,17 @@
         <!--out Start/Open/Movement -->
         <div class="card">
           <p class="title" v-if="dome.shutter.driverType == 0">
-            {{ props.txt.dome.setting.outStart }}
+            {{ t('dome.setting.outStart') }}
           </p>
           <p class="title" v-if="dome.shutter.driverType == 1">
-            {{ props.txt.dome.setting.outOpen }}
+            {{ t('dome.setting.outOpen') }}
           </p>
           <p class="title" v-if="dome.shutter.driverType == 2">
-            {{ props.txt.dome.setting.outMove }}
+            {{ t('dome.setting.outMove') }}
           </p>
 
           <Output
-            :txt="props.txt"
+            :t="t"
             :index="2"
             :swi="dome.shutter.outStart"
             @update:validated="handleValidation"
@@ -150,17 +142,17 @@
         <!--out Halt/Close/Direction -->
         <div class="card">
           <p class="title" v-if="dome.shutter.driverType == 0">
-            {{ props.txt.dome.setting.outHalt }}
+            {{ t('dome.setting.outHalt') }}
           </p>
           <p class="title" v-if="dome.shutter.driverType == 1">
-            {{ props.txt.dome.setting.outClose }}
+            {{ t('dome.setting.outClose') }}
           </p>
           <p class="title" v-if="dome.shutter.driverType == 2">
-            {{ props.txt.dome.setting.outDir }}
+            {{ t('dome.setting.outDir') }}
           </p>
 
           <Output
-            :txt="props.txt"
+            :t="t"
             :index="3"
             :swi="dome.shutter.outHalt"
             @update:validated="handleValidation"
@@ -172,7 +164,7 @@
       <div class="card my-4">
         <div>
           <div class="flex items-center justify-evenly">
-            <p class="font-bold">{{ props.txt.dome.setting.autoClose }}</p>
+            <p class="font-bold">{{ t('dome.setting.autoClose') }}</p>
             <label class="toggle" for="dome_autoclose_enable">
               <input
                 class="toggle__input"
@@ -186,11 +178,11 @@
             </label>
           </div>
           <div v-if="dome.shutter.autoClose.enable">
-            <p>{{ props.txt.dome.setting.autoclosewarning1 }}</p>
-            <p>{{ props.txt.dome.setting.autoclosewarning2 }}</p>
-            <p>{{ props.txt.dome.setting.autoclosewarning3 }}</p>
-            <p>{{ props.txt.dome.setting.autoclosewarning4 }}</p>
-            <p>{{ props.txt.dome.setting.autoclosewarning5 }}</p>
+            <p>{{ t('dome.setting.autoclosewarning1') }}</p>
+            <p>{{ t('dome.setting.autoclosewarning2') }}</p>
+            <p>{{ t('dome.setting.autoclosewarning3') }}</p>
+            <p>{{ t('dome.setting.autoclosewarning4') }}</p>
+            <p>{{ t('dome.setting.autoclosewarning5') }}</p>
             <div class="setting_row">
               <div class="input_with_unit">
                 <span class="unit">min</span
@@ -213,7 +205,7 @@
 
     <div class="config_buttons">
       <button class="green cursor-pointer" @click="getOriginal()">
-        {{ props.txt.gen?.loadFromBoard }}
+        {{ t('gen.loadFromBoard') }}
       </button>
       <button
         :class="[
@@ -221,7 +213,7 @@
         ]"
         @click="saveData()"
       >
-        {{ props.txt.gen?.save }}
+        {{ t('gen.save') }}
       </button>
     </div>
   </Card>
@@ -236,7 +228,7 @@ import Output from "../IOBase/Output.vue";
 import { useValidator } from "../../composables/Validator";
 
 const props = defineProps({
-  txt: Object,
+  t: Function,
   reboot: Boolean,
   pinUsed: Array,
 });
@@ -304,41 +296,34 @@ const validate = () => {
 
   if (isNegative(dome.value.shutter.driverType)) {
     boardTypeUnvalid.value = true;
-    errorResponseNotify(props.txt.errors.general.negativeValue);
+    errorResponseNotify(props.t('errors.general.negativeValue'));
     return;
   }
 
-  
   if (isGreaterThan(dome.value.shutter.driverType, 2)) {
     boardTypeUnvalid.value = true;
-    const errorMessage = props.txt.errors.general.greaterThan + " " + "2";
+    const errorMessage = props.t('errors.general.greaterThan') + " " + "2";
     errorResponseNotify(errorMessage);
     return;
   }
-
-
 
   dome.value.shutter.travelTOut = parseInt(dome.value.shutter.travelTOut);
   movTimeOutUnvalid.value = false;
   if (isNegative(dome.value.shutter.travelTOut)) {
     movTimeOutUnvalid.value = true;
-    errorResponseNotify(props.txt.errors.general.negativeValue);
+    errorResponseNotify(props.t('errors.general.negativeValue'));
     return;
   }
 
-
-    if(dome.value.shutter.autoClose.enable){
-
-      dome.value.shutter.autoClose.time = parseInt(dome.value.shutter.autoClose.time);
-      autoCloseTimeUnvalid.value = false;
-      if (isNegative(dome.value.shutter.autoClose.time)) {
-        autoCloseTimeUnvalid.value = true;
-        errorResponseNotify(props.txt.errors.general.negativeValue);
-        return;
-      }
-
+  if(dome.value.shutter.autoClose.enable){
+    dome.value.shutter.autoClose.time = parseInt(dome.value.shutter.autoClose.time);
+    autoCloseTimeUnvalid.value = false;
+    if (isNegative(dome.value.shutter.autoClose.time)) {
+      autoCloseTimeUnvalid.value = true;
+      errorResponseNotify(props.t('errors.general.negativeValue'));
+      return;
     }
-
+  }
 
   const containsFalse = validation.value.some((item) => item === false);
   if (containsFalse) {
@@ -351,7 +336,7 @@ const validate = () => {
 
 const saveData = async () => {
   if (!validationState.value && dome.value.enable) {
-    errorResponseNotify(props.txt.errors.general.validationFailed);
+    errorResponseNotify(props.t('errors.general.validationFailed'));
     return;
   }
 
@@ -385,7 +370,7 @@ const saveData = async () => {
       );
     } else {
       errorResponseNotify(
-        err?.message || props.txt.errors.general.configRejected
+        err?.message || props.t('errors.general.configRejected')
       );
     }
   }
@@ -396,27 +381,27 @@ const handleStructuredError = (e) => {
   let pinName;
   switch (e.id) {
     case 1:
-      pinName = props.txt.dome.setting.inOpen;
+      pinName = props.t('dome.setting.inOpen');
       break;
     case 2:
-      pinName = props.txt.dome.setting.inClose;
+      pinName = props.t('dome.setting.inClose');
       break;
     case 3:
-      pinName = props.txt.dome.setting.outStart;
+      pinName = props.t('dome.setting.outStart');
       break;
     case 4:
-      pinName = props.txt.dome.setting.outHalt;
+      pinName = props.t('dome.setting.outHalt');
       break;
     default:
       pinName = `Pin ${e.id}`;
   }
 
-  msg = pinName + ": " + props.txt.errors.gpioValidation[e.error];
+  msg = pinName + ": " + props.t(`errors.gpioValidation.${e.error}`);
   errorResponseNotify(msg);
 };
 
 const cmdExecutedNotify = () => {
-  toast.success(props.txt.gen.configSaved, {
+  toast.success(props.t('gen.configSaved'), {
     autoClose: 500,
   });
 };
@@ -450,7 +435,6 @@ const updatePinsforObserver = (data) => {
   pinUsed.value[2]={"pin":data.shutter.outStart.pin,"type":2,"module": 2}
   pinUsed.value[3]={"pin":data.shutter.outHalt.pin,"type":2,"module": 2}
   emit('update:pinUsed', pinUsed.value);
-  
 };
 
 const updatePin = (data) => {
