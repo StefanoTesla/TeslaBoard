@@ -10,7 +10,7 @@
 #pragma region Configuration
 
 /* Setup the shutter */
-void Cover::begin(const JsonDocument& doc) {
+void Cover::begin(const JsonDocument &doc) {
 
   moduleEnable = doc["enable"].as<bool>();
   openPosition = doc["openPos"].as<unsigned int>();
@@ -36,7 +36,7 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
   JsonArray err = response["errors"].to<JsonArray>();
   int retVal = 0;
 
-  Serial.println("---Cover VALIDATION---");
+  LOGV("---Cover VALIDATION---");
 
   if (!obj["enable"].is<bool>()) {
     err.add("EnableMissing");
@@ -56,15 +56,15 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
     return;
   }
 
-  unsigned int oD = obj["openPos"].is<unsigned int>();
+  unsigned int oD = obj["openPos"].as<unsigned int>();
 
-  if (oD < 0 || oD > 100) {
+  if (oD > 100) {
     err.add("openPosOutOfRange");
     return;
   }
-  unsigned int oC = obj["closePos"].is<unsigned int>();
+  unsigned int oC = obj["closePos"].as<unsigned int>();
 
-  if (oD < 0 || oD > 100) {
+  if (oC > 100) {
     err.add("closePosOutOfRange");
     return;
   }
@@ -86,7 +86,10 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
 
   /* check if board need a reboot */
 
-  if (coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()) {
+  if (
+    coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()
+    || moduleEnable != obj["enable"].as<bool>()
+  ) {
     response["reboot"] = true;
   }
 }
@@ -131,7 +134,8 @@ void Cover::loop() {
   updateStatus();
 }
 
-/* return true if you can open (servo is not moving and is not already open), otherwise false */
+/* return true if you can open (servo is not moving and is not already open),
+ * otherwise false */
 bool Cover::canOpen() {
   if (!servo.isMoving() && status != Opened) {
     return true;
@@ -174,7 +178,11 @@ bool Cover::isClosed() {
 }
 
 /* send a close command */
-void Cover::close() { servo.goTo(closePosition, false); }
+void Cover::close() {
+  if (canClose()) {
+    servo.goTo(closePosition, false);
+  }
+}
 
 /* send an halt command */
 void Cover::halt() { servo.halt(); }

@@ -56,6 +56,11 @@ void Calibrator::validateConfiguration(const JsonObject &obj,
   JsonArray err = response["errors"].to<JsonArray>();
   int retVal = 0;
 
+  if (!obj["enable"].is<bool>()) {
+    err.add("enable is missing");
+    return;
+  }
+
   if (!obj["outPWM"].is<JsonObject>()) {
     err.add("calibrator is missing");
     return;
@@ -73,7 +78,8 @@ void Calibrator::validateConfiguration(const JsonObject &obj,
 
   /* check if board need a reboot */
 
-  if (calibPin["pin"].as<unsigned int>() != calibrator.getPinNumber()) {
+  if (calibPin["pin"].as<unsigned int>() != calibrator.getPinNumber()
+      || moduleEnable != obj["enable"].as<bool>()) {
     response["reboot"] = true;
   }
 }

@@ -42,7 +42,7 @@ private:
     JsonDocument tmpCfg;
     bool moduleEnable;
     bool validConfig;
-
+    bool rebootNeeded;
 
 private:
     PWMManager* chMgr;

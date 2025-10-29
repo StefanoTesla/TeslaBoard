@@ -19,9 +19,12 @@ void CoverCalibratorModule::begin(){
 
     if(!pref.begin(COVERC_SCHEMA_NAME,true)){
         LOGE("Error loading nvs partition, trying to format it");
+        pref.end();
         nvsEnded = true;
         initNVS();
         if(!pref.begin(COVERC_SCHEMA_NAME,true)){
+            pref.end();
+            nvsEnded = true;
             LOGE("Critical, unable to load nvs after initialization");
             return;
         };
@@ -92,8 +95,8 @@ void CoverCalibratorModule::updateNVS1(){
     Preferences pref;
     pref.begin(COVERC_SCHEMA_NAME);
     pref.putBool("enable",false);
-    pref.putInt("schema",1);
-    pref.putInt("order",COVERC_SCHEMA_VERSION);
+    pref.putInt("schema",COVERC_SCHEMA_VERSION);
+    pref.putInt("order",1);
     pref.putString("calibrator","{}");
     pref.putString("cover","{}");
     pref.end();
@@ -112,7 +115,7 @@ void CoverCalibratorModule::initNVS(){
 
     pref.putBool("enable",false);
     pref.putInt("order",1);
-    pref.putInt("schema",1);
+    pref.putInt("schema",COVERC_SCHEMA_VERSION);
     pref.putString("identifier","CoverCalibrator");
     pref.putString("calibrator","{}");
     pref.putString("cover","{}");
@@ -136,7 +139,6 @@ void CoverCalibratorModule::getConfiguration(JsonObject dest){
     cover.getConfiguration(coverObj);
 
 }
-
 
 void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidated, JsonObject response){
 
@@ -193,8 +195,12 @@ void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidate
 
     cover.validateConfiguration(toBeValidated["cover"],response);
 
-}
+    if(err.size()>0){
+        return;
+    }
 
+    rebootNeeded = response["reboot"].as<bool>();
+}
 
 void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
     LOGI("Writing new configuration on the NVS");

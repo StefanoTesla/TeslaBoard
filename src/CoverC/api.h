@@ -105,6 +105,17 @@ void CoverCalibratorApi(){
         response->setLength();
         request->send(response);
     }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
+    
+    server.on("/api/coverc/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
+        AsyncJsonResponse* response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
+
+        CoverCalibrator.cover.halt();
+        doc["execute"] = true;
+
+        response->setLength();
+        request->send(response);
+    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
 
     server.on("/api/coverc/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
