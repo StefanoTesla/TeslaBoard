@@ -47,7 +47,7 @@ void initBoardConfig(){
     if(error){
         Serial.print(F("deserializeJson() failed: "));
         Serial.println(error.c_str());
-        Switch.config.load.isValid = false;
+
         return;
     }
 

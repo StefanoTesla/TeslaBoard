@@ -1,10 +1,5 @@
 #define ALPACA_PORT 4567
 
-#define BOARD_IDENTIFIER "TeslaBoard"
-#define CC_IDENTIFIER "Cover Calibrator"
-#define SWITCH_IDENTIFIER "Switch"
-
-
 //---- STOP EDITING FROM THIS LINE
 
 #define SW_VERSION "4.0.0"
@@ -23,13 +18,14 @@ PWMManager pwmMgr;
 #include "Alpaca/middleware.h"
 #include "Dome/api.h"
 #include "CoverC/api.h"
-#include "Switch/main.h"
+#include "Switch/api.h"
 #include "Board/webserver.h"
 #include "Board/main.h"
 #include "Alpaca/apiManage.h"
 
 DomeModule Dome;
 CoverCalibratorModule CoverCalibrator(&pwmMgr);
+SwitchModule Switches(&pwmMgr); 
 DNSServer dns;
 AsyncUDP udp;
 
@@ -66,7 +62,7 @@ void setup() {
 
 
   startupTask();
-  WiFi.setHostname(BOARD_IDENTIFIER);
+  WiFi.setHostname("TeslaBoard");
   
   wi.init();
 
@@ -76,6 +72,7 @@ void setup() {
   domeRequestHandler();
   CoverCalibratorApi();
   //switchRequestHandler();
+  webApi();
   boardWebServer();
 
   server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");
@@ -103,7 +100,7 @@ void loop() {
   boardLoop();
   Dome.loop();
   CoverCalibrator.loop();
-  SwitchLoop();
+  Switches.loop();
 
 }
 

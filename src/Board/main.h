@@ -5,14 +5,15 @@
 
 extern DomeModule Dome;
 extern CoverCalibratorModule CoverCalibrator;
+extern SwitchModule Switches;
 
 void startupTask(){
 
     initBoardConfig();
     Dome.begin();
     CoverCalibrator.begin();
-    Serial.println("starting with switches");
-    initSwitchConfig();
+    Switches.begin();
+
 }
 
 

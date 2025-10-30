@@ -37,9 +37,9 @@ void AlpacaManager(){
       dome["UniqueID"] = "e989c9b6-ba0f-4834-b299-79a629f2ee59";
     }
 
-    if(Switch.config.isEnable){
+    if(Switches.isEnable()){
       JsonObject switc = Value.add<JsonObject>();
-      switc["DeviceName"] = std::string(SWITCH_IDENTIFIER) + " - TeslaBoard";
+      switc["DeviceName"] = Switches.getIdentifier() + " - TeslaBoard";
       switc["DeviceType"] = "Switch";
       switc["DeviceNumber"] = 0;
       switc["UniqueID"] = "d93f20fb-aa85-49ed-8799-9f50c0969ede";
@@ -47,7 +47,7 @@ void AlpacaManager(){
 
     if(CoverCalibrator.isEnable()){
     JsonObject cover = Value.add<JsonObject>();
-    cover["DeviceName"] = std::string(CC_IDENTIFIER) +" - TeslaBoard";
+    cover["DeviceName"] = CoverCalibrator.getIdentifier() +" - TeslaBoard";
     cover["DeviceType"] = "CoverCalibrator";
     cover["DeviceNumber"] = 0;
     cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";

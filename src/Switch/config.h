@@ -5,6 +5,7 @@
 extern PWMManager pwmMgr;
 
 void SWdebug(const char *format, ...) {
+    /*
     char buffer[256];
     va_list args;
     va_start(args, format);
@@ -12,12 +13,13 @@ void SWdebug(const char *format, ...) {
     va_end(args);
 
     Serial.print("[SW] "); 
-    Serial.println(buffer);    
+    Serial.println(buffer);    */
 }
 
 
 //since nvs have a string limit I need to split switchs in different parameter sections
 void saveSwitchConfig(){
+    /*
     Switch.config.save.execute=false;   
     SWdebug("Saving data operation started...");
     Preferences preferences;
@@ -46,10 +48,12 @@ void saveSwitchConfig(){
 
     tmpSwitchCfg.clear();
     SWdebug("Saving operations completed");
+    */
 }
 
 
 void initSwitchConfig(){
+    /*
     SWdebug("Init operation started...");
 
     JsonDocument doc;
@@ -143,6 +147,7 @@ void initSwitchConfig(){
     }
     
     Switch.config.load.isValid = true;
-}
+*/
+    }
 
 #endif

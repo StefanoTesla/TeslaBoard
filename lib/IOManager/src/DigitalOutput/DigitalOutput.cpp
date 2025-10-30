@@ -1,36 +1,25 @@
 #include <Arduino.h>
 #include "DigitalOutput.h"
-#include "IOConfigStruct.h"
 
 DigitalOutput::DigitalOutput(){
     
 }
 
-void DigitalOutput::setup(IOConfigBase* config){
-    if (config->getType() == 2) { 
-        DigitalOutputConfig* cfg = static_cast<DigitalOutputConfig*>(config);
 
-        pin = cfg->pin;
-        invert = cfg->invert;
-        min = 0;
-        max = 1;
-        pinMode(pin, OUTPUT);
-        Serial.print("New DO setup at pin: ");
-        Serial.println(pin);
-        write(0);
-    } else {
-        Serial.println("Errore: DO tipo di configurazione non valido!");
+bool DigitalOutput::jsonSetup(JsonObjectConst obj,bool notUsedHere){
+    if(obj["type"].as<int>() != 2){
+        Serial.println("TYPE ERROR");
+        return false;
     }
-}
-
-
-void DigitalOutput::jsonSetup(JsonObjectConst obj){
+    setName(obj["name"]);
+    setDescription(obj["desc"]);
     pin = obj["pin"].as<unsigned int>();
     invert = obj["invert"].as<unsigned int>();
     pinMode(pin, OUTPUT);
     Serial.print("New DO setup at pin: ");
     Serial.println(pin);
     write(0);
+    return true;
 }
 
 bool DigitalOutput::pinUnusable(int pin){
@@ -72,14 +61,20 @@ int DigitalOutput::validateJsonCfg(JsonObject json){
  * @return nothing
  */
 void DigitalOutput::copyJsonCfg(JsonObject src,JsonObject dest){
+    dest["type"] = 2;
+    dest["name"] = src["name"];
+    dest["desc"] = src["desc"];
     dest["pin"] = src["pin"];
     dest["invert"] = src["invert"];
 
 }
 
-void DigitalOutput::getConfiguration(JsonObject obj){
-    obj["pin"] = pin;
-    obj["invert"] = invert;
+void DigitalOutput::getConfiguration(JsonObject cfg){
+    cfg["type"] = 2;
+    cfg["name"] = Name;
+    cfg["desc"] = Description;
+    cfg["pin"] = pin;
+    cfg["invert"] = invert;
 }
 
 

@@ -34,12 +34,11 @@ public:
   int currentAngle;
 
   ServoOutput(PWMManager *channelManager) : chMgr(channelManager) {}
-  void setup(IOConfigBase *config);
-  void jsonSetup(JsonObjectConst setup);
-  void getConfiguration(JsonObject cfg);
-  int validateJsonCfg(JsonObject obj);
-  bool pinUnusable(int pin);
-  void copyJsonCfg(JsonObject obj, JsonObject dest);
+  bool jsonSetup(JsonObjectConst setup,bool HS = false) override;
+  void getConfiguration(JsonObject cfg) override;
+  static int validateJsonCfg(JsonObject obj);
+  static bool pinUnusable(int pin);
+  static void copyJsonCfg(JsonObject obj, JsonObject dest);
 
   int write(int _angle) override;
   //    bool goToSlowly(int _percentage=0, bool overridePosition = true);
@@ -49,7 +48,7 @@ public:
   int readPosition();
   bool isMoving() { return positioning; };
   void halt();
-  void loop();
+  void loop() override;
   void setMax(int _value);
   void goTo(int _percentage, bool direct = false,
             bool _oPos = false); // used only for switch, software decide to

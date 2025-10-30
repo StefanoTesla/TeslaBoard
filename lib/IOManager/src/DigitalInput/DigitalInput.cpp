@@ -1,29 +1,18 @@
 #include <Arduino.h>
-#include "IOConfigStruct.h"
+
 #include "DigitalInput.h"
 
 DigitalInput::DigitalInput(){
 }
 
-void DigitalInput::setup(IOConfigBase* config){
-    if (config->getType() == 1) {  // 1 è il tipo di DigitalInputConfig
-        DigitalInputConfig* cfg = static_cast<DigitalInputConfig*>(config);
-        pin = cfg->pin;
-        invert = cfg->invert;
-        dOn = cfg->dOn;
-        dOff = cfg->dOff;
-        min = 0;
-        max = 1;
-        pinMode(pin, INPUT);
-        Serial.print("New DI setup at pin: ");
-        Serial.println(pin);
-    } else {
-        Serial.println("Errore: DI tipo di configurazione non valido!");
+
+bool DigitalInput::jsonSetup(JsonObjectConst obj,bool notUsedHere){
+    if(obj["type"].as<int>() != 1){
+        Serial.println("TYPE ERROR");
+        return false;
     }
-}
-
-
-void DigitalInput::jsonSetup(JsonObjectConst obj){
+    setName(obj["name"]);
+    setDescription(obj["desc"]);
     pin = obj["pin"].as<unsigned int>();
     invert = obj["invert"].as<unsigned int>();
     dOn = obj["dOn"].as<unsigned int>();
@@ -33,6 +22,7 @@ void DigitalInput::jsonSetup(JsonObjectConst obj){
     pinMode(pin, INPUT);
     Serial.print("New DI setup at pin: ");
     Serial.println(pin);
+    return true;
 }
 
 //
@@ -73,19 +63,34 @@ int DigitalInput::validateJsonCfg(JsonObject json){
 }
 
 
-void DigitalInput::copyJsonCfg(JsonObject obj,JsonObject dest){
-    dest["pin"] = obj["pin"];
-    dest["invert"] = obj["invert"];
-    dest["dOn"] = obj["dOn"];
-    dest["dOff"] = obj["dOff"];
+void DigitalInput::copyJsonCfg(JsonObject src,JsonObject dest){
+    dest["type"] = 1;
+    if(src["name"].is<String>()){
+        dest["name"] = src["name"];
+    } else {
+        dest["name"] = "";
+    }
+    if(src["desc"].is<String>()){
+        dest["desc"] = src["desc"];
+    } else {
+        dest["desc"] = "";
+    }
+
+    dest["pin"] = src["pin"];
+    dest["invert"] = src["invert"];
+    dest["dOn"] = src["dOn"];
+    dest["dOff"] = src["dOff"];
 
 }
 
-void DigitalInput::getConfiguration(JsonObject obj){
-    obj["pin"] = pin;
-    obj["invert"] = invert;
-    obj["dOn"] = dOn;
-    obj["dOff"] = dOff;
+void DigitalInput::getConfiguration(JsonObject cfg){
+    cfg["type"] = 1;
+    cfg["name"] = Name;
+    cfg["desc"] = Description;
+    cfg["pin"] = pin;
+    cfg["invert"] = invert;
+    cfg["dOn"] = dOn;
+    cfg["dOff"] = dOff;
 
 }
 
@@ -131,6 +136,9 @@ int DigitalInput::status(){
     return value;
 }
 
+void DigitalInput::loop(){
+    status();
+}
 
 int DigitalInput::getType(){
     return 1;

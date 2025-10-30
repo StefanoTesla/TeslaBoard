@@ -1,5 +1,4 @@
 #include "ServoOutput.h"
-#include "IOConfigStruct.h"
 #include "esp_log.h"
 #include <Arduino.h>
 #define LOG_TAG "IOServo"
@@ -126,24 +125,14 @@ bool ServoOutput::isReferenced() {
 
 #pragma region Configuration
 
-void ServoOutput::setup(IOConfigBase *config) {
-  if (config->getType() != 4) {
-    Serial.println("Errore: SERVO tipo di configurazione non valido!");
-    return;
-  }
-
-  ServoOutputConfig *cfg = static_cast<ServoOutputConfig *>(config);
-  ledcSetup(cfg->ledChannel, 50, 12);
-  ledcAttachPin(cfg->pin, cfg->ledChannel);
-
-  pin = cfg->pin;
-  min = 0;
-  max = 100;
-  movingTime = cfg->moveTime * 1000;
-}
-
-void ServoOutput::jsonSetup(JsonObjectConst setup) {
+bool ServoOutput::jsonSetup(JsonObjectConst setup, bool notUsedHere) {
   LOGI("Servo channel setup");
+    if(setup["type"].as<int>() != 4){
+        Serial.println("TYPE ERROR");
+        return false;
+    }
+    setName(setup["name"]);
+    setDescription(setup["desc"]);
   channel = -1;
   channel = chMgr->getSlowChannel();
   LOGD("Servo channel assigned at position %d", channel);
@@ -158,7 +147,10 @@ void ServoOutput::jsonSetup(JsonObjectConst setup) {
          channel, movingTime);
   } else {
     LOGE("Unable to find a free channel");
+    return false;
   }
+
+  return true;
 }
 
 bool ServoOutput::pinUnusable(int pin) {
@@ -173,9 +165,12 @@ bool ServoOutput::pinUnusable(int pin) {
   return false;
 }
 
-void ServoOutput::copyJsonCfg(JsonObject incoming, JsonObject retConfig) {
-  retConfig["pin"] = incoming["pin"].as<unsigned int>();
-  retConfig["moveTime"] = incoming["moveTime"].as<unsigned int>();
+void ServoOutput::copyJsonCfg(JsonObject src, JsonObject dest) {
+  dest["type"] = 4;
+  dest["name"] = src["name"];
+  dest["desc"] = src["desc"];
+  dest["pin"] = src["pin"].as<unsigned int>();
+  dest["moveTime"] = src["moveTime"].as<unsigned int>();
 }
 
 int ServoOutput::validateJsonCfg(JsonObject json) {
@@ -185,8 +180,6 @@ int ServoOutput::validateJsonCfg(JsonObject json) {
   -1: pin is not unsigned integer
   -10: pin is not asable as output
   -8:movingTime not unsigned integer
-  -10: type is not unsigned integer
-  -1010: wrong type passed
   */
 
   if (!json["pin"].is<unsigned int>()) {
@@ -205,6 +198,9 @@ int ServoOutput::validateJsonCfg(JsonObject json) {
 }
 
 void ServoOutput::getConfiguration(JsonObject cfg) {
+  cfg["type"] = 4;
+  cfg["name"] = Name;
+  cfg["desc"] = Description;
   cfg["pin"] = pin;
   cfg["moveTime"] = movingTime / 1000;
 }

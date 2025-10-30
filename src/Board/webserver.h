@@ -2,6 +2,8 @@
 #define BOARD_WEBSERVER
 
 extern DomeModule Dome;
+extern CoverCalibratorModule CoverCalibrator;
+extern SwitchModule Switches;
 
 void boardWebServer(){
 
@@ -18,8 +20,8 @@ void boardWebServer(){
         dome["order"] = Dome.uiOrder;
         JsonObject sw = modules.add<JsonObject>();
         sw["name"] = "switch";
-        sw["enable"] = Switch.config.isEnable;
-        sw["order"] = Switch.config.order;
+        sw["enable"] = Switches.isEnable();
+        sw["order"] = Switches.uiOrder;
         JsonObject coverc = modules.add<JsonObject>();
         coverc["name"] = "coverc";
         coverc["enable"] = CoverCalibrator.isEnable();

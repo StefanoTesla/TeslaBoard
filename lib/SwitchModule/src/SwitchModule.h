@@ -1,5 +1,5 @@
-#ifndef DOME_H
-#define DOME_H
+#ifndef SWITCH_H
+#define SWITCH_H
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -18,13 +18,20 @@
 
 class SwitchModule {
 public:
+    enum Type {
+        NotPresent,
+        Input,
+        Output,
+        PWM,
+        Servo
+    };
+
 public:
     SwitchModule(PWMManager* channelManager) : chMgr(channelManager) {}
 
     void begin(); 
-    bool isEnable();
+    bool isEnable() { return moduleEnable; };
     void loop();
-
 
     void getConfiguration(JsonObject dest);
     void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
@@ -38,6 +45,7 @@ private:
     void initNVS();
     void updateNVS1();
 
+    JsonObject tmpLoad;
     JsonDocument tmpCfg;
     bool moduleEnable;
     bool validConfig;
@@ -47,6 +55,7 @@ private:
     PWMManager* chMgr;
     String identifier = "Switch";
     IOBase* Switches[SWITCH_MAX_SWITCHES] = {nullptr};
+    unsigned int configuredSwitches;
 
 };
 

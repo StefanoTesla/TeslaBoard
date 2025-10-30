@@ -2,26 +2,24 @@
 #define IOBASE_H
 
 #include <Arduino.h>
-#include "IOConfigStruct.h"
+
 #include <ArduinoJson.h>
 
 class IOBase {
 protected:
     int pin;
-    char Name[21];
-    char Description[21];
+    char Name[21] ="";
+    char Description[21]="";
     int type;
     unsigned int min;
     unsigned int max;
 
 public:
     IOBase() {}
-    virtual void setup(IOConfigBase* config){};
-    virtual void jsonSetup(JsonObject obj){};
-    void jsonSetup(JsonObject setup,bool HS = false);
-    void getConfiguration(JsonObject cfg);
-    int validateJsonCfg(JsonObject obj);
-    void copyJsonCfg(JsonObject obj,JsonObject dest);
+    virtual bool jsonSetup(JsonObjectConst obj, bool HS=false){ return false;};
+    virtual void getConfiguration(JsonObject cfg);
+    static int validateJsonCfg(JsonObject obj);
+    static void copyJsonCfg(JsonObject obj,JsonObject dest);
     virtual int write(int _value) = 0;
     virtual int status();
     virtual int getType(){
@@ -51,6 +49,7 @@ public:
     virtual const char* getDescription(){
         return Description;
     }
+    virtual void loop(){}
     virtual ~IOBase() {}
 
 private:

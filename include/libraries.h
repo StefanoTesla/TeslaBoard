@@ -12,4 +12,5 @@
 #include <Preferences.h>
 #include <pwmManager.h>
 #include <DomeModule.h>
+#include <SwitchModule.h>
 #include <CoverCalibratorModule.h>

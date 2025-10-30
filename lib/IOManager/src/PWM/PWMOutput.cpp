@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "PWMOutput.h"
-#include "IOConfigStruct.h"
+
 #define LOG_TAG "IOPWM"
 #define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
@@ -8,35 +8,15 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
-void PWMOutput::setup(IOConfigBase* config){
-    if (config->getType() != 3) {
-        Serial.println("Error: Configuration type of PWM not valid!");
-        return;
-    }
 
-    PWMOutputConfig* cfg = static_cast<PWMOutputConfig*>(config);
-    if(cfg->fastPWM){
-        ledcSetup(cfg->ledChannel, 19531, 12);
-        ledcAttachPin(cfg->pin,cfg->ledChannel);           
-        pin = cfg->pin;
-        min = 0;
-        max = 4095;
-        Serial.print("New 20kHz PWM setup at pin: ");
-        Serial.print(pin);
-    } else {
-        ledcSetup(cfg->ledChannel, 5000, 12);
-        ledcAttachPin(cfg->pin,cfg->ledChannel); 
-            pin = cfg->pin;
-            min = 0;
-            max = 4095;
-            Serial.print("New 5kHz PWM setup at pin: ");
-            Serial.println(pin);
-    }
-
-}
-
-void PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
+bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
     LOGV("Servo channel json setup");
+    if(setup["type"].as<int>() != 3){
+        Serial.println("TYPE ERROR");
+        return false;
+    }
+    setName(setup["name"]);
+    setDescription(setup["desc"]);
     channel = -1;
 
     uint32_t freq;
@@ -53,27 +33,26 @@ void PWMOutput::jsonSetup(JsonObjectConst setup, bool HS){
     if(channel<0){
         LOGE("Unable to retrive a PWM channel");
         Serial.println("Unable to retrive a free ledChannel");
-        return;
+        return false;
     }
     
     //setName(setup["name"]);
-    LOGV("name");
-    pin = setup["pin"].as<unsigned int>();
-    LOGV("pin");
-    min = 0;
-    LOGV("min");
-    max = 4095;
-    LOGV("max");
-    ledcSetup(channel, freq, 12);
-    LOGV("ledcsetup");
-    ledcAttachPin(pin,channel);
-    LOGV("attac");
-    LOGD("%s PWM channel configured at pin %d, channel: %d, frequency: %d, ",Name,pin,channel,freq);
 
+    pin = setup["pin"].as<unsigned int>();
+
+    min = 0;
+    max = 4095;
+    ledcSetup(channel, freq, 12);
+    ledcAttachPin(pin,channel);
+    LOGD("%s PWM channel configured at pin %d, channel: %d, frequency: %d, ",Name,pin,channel,freq);
+    return true;
 }
 
 
 void PWMOutput::getConfiguration(JsonObject cfg){
+    cfg["type"] = 3;
+    cfg["name"] = Name;
+    cfg["desc"] = Description;
     cfg["pin"] = pin;
 }
 
@@ -104,6 +83,9 @@ int PWMOutput::validateJsonCfg(JsonObject json){
 }
 
 void PWMOutput::copyJsonCfg(JsonObject src,JsonObject dest){
+    dest["type"] = 3;
+    dest["name"] = src["name"];
+    dest["desc"] = src["desc"];
     dest["pin"] = src["pin"];
 }
 
