@@ -11,8 +11,8 @@ protected:
     char Name[21] ="";
     char Description[21]="";
     int type;
-    unsigned int min;
-    unsigned int max;
+    unsigned int min = 0;
+    unsigned int max = 0;
 
 public:
     IOBase() {}
@@ -20,7 +20,7 @@ public:
     virtual void getConfiguration(JsonObject cfg);
     static int validateJsonCfg(JsonObject obj);
     static void copyJsonCfg(JsonObject obj,JsonObject dest);
-    virtual int write(int _value) = 0;
+    virtual int write(int _percentage) = 0;
     virtual int status();
     virtual int getType(){
         return 0;

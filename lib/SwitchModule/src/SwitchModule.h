@@ -18,7 +18,7 @@
 class SwitchModule {
 public:
   enum Type { NotPresent, Input, Output, PWM, Servo };
-
+  bool rebootNeeded = false;
 public:
   SwitchModule(PWMManager *channelManager) : chMgr(channelManager) {}
 
@@ -30,6 +30,19 @@ public:
   void validateConfiguration(const JsonObject &incomingData, JsonObject response);
   void storeConfiguration();
   String getIdentifier() { return identifier; }
+
+
+  int getConfiguredSwitch(){return configuredSwitches;}
+
+  void reportSwitchState(int id,JsonObject state);
+  bool isWritable(int id);
+  bool setSwitchState(int id,unsigned int state);
+  int getSwitchState(int id);
+  int getType(int id);
+  int getMax(int id);
+  int getMin(int id);
+
+
   unsigned int uiOrder;
 
 private:
@@ -62,6 +75,9 @@ private:
 
   void storeMainFields();
   void storeSwitches();
+
+
+ 
 
 };
 

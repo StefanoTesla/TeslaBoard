@@ -196,7 +196,7 @@ void SwitchModule::begin() {
   }
   closeNVS();
 
-  configuredSwitches = id +1;
+  configuredSwitches = id + 1;
 
   LOGV("Switch begin finished");
   LOGV("%d confugred switches", configuredSwitches);
@@ -359,7 +359,9 @@ void SwitchModule::validateSwitches(const JsonArray &switches,
     incomingSwitches.add(singleSW);
     checkIfRebootNeeded(id, type, singleSW, response);
   }
-
+  if (response["reboot"]) {
+    rebootNeeded = true;
+  }
   LOGI("All switches validated successfully");
 }
 
@@ -548,3 +550,75 @@ void SwitchModule::loop() {
     }
   }
 }
+
+void SwitchModule::reportSwitchState(int id, JsonObject status) {
+
+  if (Switches[id] == nullptr) {
+    return;
+  }
+  status["type"] = Switches[id]->getType();
+  status["name"] = Switches[id]->getName();
+  status["desc"] = Switches[id]->getDescription();
+  status["min"] = Switches[id]->getMin();
+  status["max"] = Switches[id]->getMax();
+  if (Switches[id]->getType() <= 2) {
+    status["status"] = (bool)Switches[id]->status();
+  } else {
+    status["status"] = Switches[id]->status();
+  }
+}
+
+bool SwitchModule::isWritable(int id) {
+
+  if (id >= configuredSwitches) {
+    LOGE("Accessing outside the array");
+    return false;
+  }
+  if (Switches[id] == nullptr) {
+    LOGE("Accessing to a nullptr, id: %d", id);
+    return false;
+  }
+
+  int type = Switches[id]->getType();
+
+  if (type > 1 && type >= 4) {
+    return true;
+  }
+
+  return false;
+}
+
+bool SwitchModule::setSwitchState(int id, unsigned int state) {
+
+  if (isWritable(id)) {
+
+    if (Switches[id]->getType() == Type::Servo) {
+      ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
+      servo->goTo(state, false, true);
+    } else {
+      Switches[id]->write(state);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+
+int SwitchModule::getSwitchState(int id) {
+
+  if (id >= configuredSwitches) {
+    LOGE("Accessing outside the array");
+    return -1;
+  }
+  if (Switches[id] == nullptr) {
+    LOGE("Accessing to a nullptr, id: %d", id);
+    return -1;
+  }
+
+  return Switches[id]->status();
+}
+
+int SwitchModule::getType(int id) { return Switches[id]->getType(); }
+int SwitchModule::getMax(int id) { return Switches[id]->getMax(); }
+int SwitchModule::getMin(int id) { return Switches[id]->getMin(); }

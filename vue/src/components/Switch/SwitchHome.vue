@@ -11,7 +11,7 @@
           <p>{{ swi.name }}</p>
         </div>
         <div class="sw_desc">
-          <p>{{ swi.desc }}</p>
+          <p class="text-center italic">{{ swi.desc }}</p>
         </div>
           <div class="sw_containter" v-if="swi.type == 1">
             <div>
@@ -20,7 +20,7 @@
                   :name="`sw_${index}_status`" 
                   type="checkbox" 
                   :id="`sw_${index}_status`" 
-                  v-model="swi.boValue" 
+                  v-model="swi.status" 
                   disabled>
                 <div class="toggle__fill cursor-not-allowed"></div>
               </label>
@@ -29,17 +29,17 @@
           <div class="sw_containter" v-if="swi.type == 2">
             <div>
               <label class="toggle" :for="`sw_${index}_status`">
-                <input class="toggle__input" type="checkbox" v-model="swi.boValue" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)">
+                <input class="toggle__input" type="checkbox" v-model="swi.status" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)">
                 <div class="toggle__fill cursor-pointer"></div>
               </label>
             </div>
           </div>
           <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
             <div class="range">
-              <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.intValue" @change="changeValueCmd(index)"/>
+              <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.status" @change="changeValueCmd(index)"/>
             </div>
             <div class="sw_value">
-              <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.intValue }} </span> / <span> {{ swi.max }} </span>
+              <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>
             </div>
           </div>
       </div>  
@@ -58,13 +58,24 @@ const props = defineProps({
 })
 
 const switches = ref({})
+let pollingTimeout = null;
+let isPolling = false;
+let abortController = null;
 let dataLoaded = ref(false)
 let statusClass = ref('black')
 
 const fetchData = async () => {
+
+  if (abortController) {
+    abortController.abort();
+  }
+
+  abortController = new AbortController();
   try {
     const ip = import.meta.env.VITE_API_IP;
-    const response = await fetch(ip+'/api/switch/status')
+    const response = await fetch(ip+'/api/switch/status',{
+      signal: abortController.signal,
+    });
     if (!response.ok) {
       throw new Error('Network response was not ok')
     }
@@ -76,8 +87,30 @@ const fetchData = async () => {
     
   } catch (error) {
     console.error('Errore durante la chiamata API:', error)
+  } finally {
+    if (isPolling) {
+      pollingTimeout = setTimeout(fetchData, 3000);
+    }
   }
 }
+
+const startPolling = () => {
+  isPolling = true;
+  fetchData();
+};
+
+const stopPolling = () => {
+  isPolling = false;
+  if (pollingTimeout) {
+    clearTimeout(pollingTimeout);
+    pollingTimeout = null;
+  }
+  if (abortController) {
+    abortController.abort();
+    abortController = null;
+  }
+};
+
 
 const changeValueCmd = async(index) => {
 
@@ -87,8 +120,7 @@ const changeValueCmd = async(index) => {
   }
 
   if( switches.value.Switches[index].type == 2){
-    switches.value.Switches[index].boValue = !switches.value.Switches[index].boValue
-    switches.value.Switches[index].intValue = switches.value.Switches[index].boValue ? 1:0
+    switches.value.Switches[index].status = switches.value.Switches[index].status ? 0:1
   }
 
   try {
@@ -101,7 +133,7 @@ const changeValueCmd = async(index) => {
         },
         body:new URLSearchParams({
           "id": index,
-          "value" : switches.value.Switches[index].intValue
+          "value" : switches.value.Switches[index].status
         })
       });
     if (!response.ok) {
@@ -161,12 +193,11 @@ const noResponseNotify = (error) => {
 
 let intervalId = null
 onMounted(() => {
-  fetchData()
-  intervalId = setInterval(fetchData, 3000)
+  startPolling()
 })
 
 onUnmounted(() => {
-  clearInterval(intervalId)
+  stopPolling()
 })
 
 </script>
