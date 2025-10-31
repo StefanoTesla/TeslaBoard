@@ -32,7 +32,6 @@ private:
     void initNVS();
     void updateNVS1();
 
-    JsonDocument tmpCfg;
     bool moduleEnable;
     bool validConfig;
 

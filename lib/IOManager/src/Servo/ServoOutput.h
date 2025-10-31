@@ -39,7 +39,7 @@ public:
   static int validateJsonCfg(JsonObject obj);
   static bool pinUnusable(int pin);
   static void copyJsonCfg(JsonObject obj, JsonObject dest);
-
+  virtual void setMoveTime(unsigned int newTime) override;
   int write(int _angle) override;
   //    bool goToSlowly(int _percentage=0, bool overridePosition = true);
   int status();

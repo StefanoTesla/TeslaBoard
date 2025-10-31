@@ -50,6 +50,10 @@ public:
         return Description;
     }
     virtual void loop(){}
+
+    virtual void setDelays(unsigned int dOn,unsigned int dOff){};
+    virtual void setInvert(bool invert){};
+    virtual void setMoveTime(unsigned int newTime){};
     virtual ~IOBase() {}
 
 private:

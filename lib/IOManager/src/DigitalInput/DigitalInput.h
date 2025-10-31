@@ -26,7 +26,8 @@ public:
     int write(int _value) override;
     int status();
     void loop() override;
-    
+    void setDelays(unsigned int newDOn,unsigned int newDOff) override;
+    void setInvert(bool newInvert) override;
 
 
 private:

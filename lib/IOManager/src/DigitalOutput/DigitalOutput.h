@@ -17,6 +17,7 @@ public:
     static int validateJsonCfg(JsonObject obj);
     static void copyJsonCfg(JsonObject obj,JsonObject dest);
     void getConfiguration(JsonObject obj) override;
+    void setInvert(bool newInvert) override;
 
     int write(int valore) override;
     int status();

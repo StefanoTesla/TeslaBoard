@@ -58,9 +58,7 @@ void ServoOutput::halt() { positioning = false; }
 // between each position change. Instead of mapping the motion over a simple
 // 0–100 range, the function uses the 401 PWM output steps (from 544 µs to 2500
 // µs pulse width) to ensure smoother transitions and avoid jerky movements.
-void ServoOutput::setMovingTime(unsigned int _time) {
-  movingTime = _time * 1000;
-}
+
 
 void ServoOutput::goTo(int _percentage, bool direct, bool _oPos) {
   LOGV("Movement request to %d %, direct movement: %d override position: %d",
@@ -167,8 +165,8 @@ bool ServoOutput::pinUnusable(int pin) {
 
 void ServoOutput::copyJsonCfg(JsonObject src, JsonObject dest) {
   dest["type"] = 4;
-  dest["name"] = src["name"];
-  dest["desc"] = src["desc"];
+  dest["name"] = src["name"].is<String>() ? src["name"].as<String>() : "";
+  dest["desc"] = src["desc"].is<String>() ? src["desc"].as<String>() : "";
   dest["pin"] = src["pin"].as<unsigned int>();
   dest["moveTime"] = src["moveTime"].as<unsigned int>();
 }
@@ -203,6 +201,14 @@ void ServoOutput::getConfiguration(JsonObject cfg) {
   cfg["desc"] = Description;
   cfg["pin"] = pin;
   cfg["moveTime"] = movingTime / 1000;
+}
+
+void ServoOutput::setMovingTime(unsigned int _time) {
+  movingTime = _time * 1000;
+}
+
+void ServoOutput::setMoveTime(unsigned int newTime){
+  setMovingTime(newTime);
 }
 
 #pragma endregion

@@ -7,44 +7,114 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
+#pragma region nvsHandler
+
+bool SwitchModule::openNVS(bool readOnly) {
+
+  switch (nvsStatus) {
+
+    // nvs is closed, i need to ope according by the readOnly
+  case CLOSED:
+    LOGV("NVS seems to be closed");
+    if (nvs.begin(SWITCH_SCHEMA_NAME, readOnly)) {
+      if (readOnly) {
+        LOGV("NVS opened in readonly");
+        nvsStatus = OPEN_READOLNY;
+      } else {
+        LOGV("NVS opened with write rights");
+        nvsStatus = OPEN_WRITE;
+      }
+      return true;
+    } else {
+      LOGE("Error opening the NVS");
+      nvsStatus = CLOSED;
+      return false;
+    }
+    break;
+
+  case OPEN_READOLNY:
+    LOGV("NVS seems open in read only");
+    if (!readOnly) {
+      closeNVS();
+      if (nvs.begin(SWITCH_SCHEMA_NAME, false)) {
+        nvsStatus = OPEN_WRITE;
+        LOGV("NVS opened with write rights");
+        return true;
+      } else {
+        LOGV("Error during opening NVS with write rights");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open in read only");
+      return true;
+    }
+    break;
+
+  case OPEN_WRITE:
+    LOGV("NVS seems open with write rights");
+    if (readOnly) {
+      closeNVS();
+      nvsStatus = CLOSED;
+      if (nvs.begin(SWITCH_SCHEMA_NAME, true)) {
+        nvsStatus = OPEN_READOLNY;
+        LOGV("NVS opened in read only");
+        return true;
+      } else {
+        LOGV("Error during opening NVS in read only");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open with write rigts");
+      return true;
+    }
+    break;
+
+  default:
+    LOGE("Unknown NVS status: %d", nvsStatus);
+    return false;
+    break;
+  }
+
+  LOGE("Arrived at the buttom of the function, don't know what happed..");
+  return false;
+}
+
+void SwitchModule::closeNVS() {
+  if (nvsStatus != CLOSED) {
+    nvs.end();
+    nvsStatus = CLOSED;
+    LOGV("NVS closed");
+  } else {
+    LOGV("NVS already closed");
+  }
+}
+
+#pragma endregion
+
 #pragma region Configuration
 /* initialize the switches */
 void SwitchModule::begin() {
   LOGI("Loading configuration");
   JsonDocument doc;
-  Preferences pref;
 
-  bool nvsStop = false;
-
-  if (!pref.begin(SWITCH_SCHEMA_NAME)) {
-    LOGE("Error loading switch nvs partition, trying to format it");
-    pref.end();
-    nvsStop = true;
-    initNVS();
-    if (!pref.begin(SWITCH_SCHEMA_NAME)) {
-      LOGE("Critical, unable to loading switches nvs after initialization");
-      pref.end();
-      return;
-    } else {
-      pref.end();
-      nvsStop = true;
+  if (!openNVS(true)) {
+    LOGE(
+        "Error loading switch nvs partition in read only, trying to format it");
+    if (!initNVS()) {
+      LOGE("NVS INITIALIZATION FAILED");
+      moduleEnable = false;
     }
   }
-  LOGV("Namespace open without problem");
 
-  if (nvsStop) {
-    pref.begin(SWITCH_SCHEMA_NAME);
-  }
-
-  int schemaVersion = pref.getInt("schema", 0);
+  LOGV("Checking the schema version");
+  // if I'm here NVS is surelly working, no more check...for the moment
+  openNVS(true);
+  int schemaVersion = nvs.getInt("schema", 0);
   LOGD("schema version is: %d", schemaVersion);
 
   if (schemaVersion < SWITCH_SCHEMA_VERSION) {
-    LOGV("pref.end");
-    pref.end(); // since the upgrade operation required to open the nvs with
-                // write rigths I close it for reopen again in read only leater
-    nvsStop = true;
-    LOGW("schema need an upgrade");
+    LOGW("Schema version: %d, new version: %d", schemaVersion,
+         SWITCH_SCHEMA_VERSION);
     switch (schemaVersion) {
     case 0:
       LOGI("upgrading from 0 to 1");
@@ -56,26 +126,19 @@ void SwitchModule::begin() {
     }
   }
 
-  if (nvsStop) {
-    LOGV("nvs was stopped previusly, reopening it");
-    if (!pref.begin(SWITCH_SCHEMA_NAME)) {
-      moduleEnable = false;
-      LOGE("Error loading switch nvs partition, stop");
-      return;
-    };
-  }
+  openNVS(true);
 
-  moduleEnable = pref.getBool("enable", false);
-  uiOrder = pref.getInt("order", 1);
-  identifier = pref.getString("identifier", "Switch");
+  moduleEnable = nvs.getBool("enable", false);
+  uiOrder = nvs.getInt("order", 1);
+  identifier = nvs.getString("identifier", "Switch");
 
   if (!moduleEnable) {
     LOGW("Module not enable, setup completed");
-    pref.end();
+    closeNVS();
     return;
   }
 
-  configuredSwitches = pref.getInt("cfg_sw", 0);
+  configuredSwitches = nvs.getInt("cfg_sw", 0);
 
   if (configuredSwitches == 0) {
     LOGI("Any switches configured yet, disabling the module...");
@@ -83,14 +146,17 @@ void SwitchModule::begin() {
     return;
   }
 
+  int id = -1;
   for (size_t i = 0; i < configuredSwitches; i++) {
+
+    id++;
     tmpCfg.clear();
     // prepare the page key "swX"
     char key[10];
     sprintf(key, "sw%d", i);
     // get the string stored
     String swString;
-    swString = pref.getString(key, "{\"type\":0}");
+    swString = nvs.getString(key, "{\"type\":0}");
     DeserializationError err;
     err = deserializeJson(tmpCfg, swString);
 
@@ -128,50 +194,45 @@ void SwitchModule::begin() {
       LOGE("Wrong Type stored on NVS");
     }
   }
-  pref.end();
+  closeNVS();
+
+  configuredSwitches = id +1;
+
   LOGV("Switch begin finished");
+  LOGV("%d confugred switches", configuredSwitches);
+}
+
+bool SwitchModule::initNVS() {
+
+  LOGW("Switch nvs area will be formatted");
+  if (!openNVS(false)) {
+    LOGE("Unable to open the namespace with write rights, initialization "
+         "failed");
+    return false;
+  }
+  LOGI("namespace open or created, writing default parameters");
+
+  nvs.putBool("enable", false);
+  nvs.putInt("schema", 0);
+  closeNVS();
+  return true;
 }
 
 void SwitchModule::updateNVS1() {
-  Preferences pref;
-  LOGI("upgrading NVS from 0 to 1");
-  if (pref.begin(SWITCH_SCHEMA_NAME)) {
-    pref.putBool("enable", false);
-    pref.putInt("schema", SWITCH_SCHEMA_VERSION);
-    pref.putString("identifier", "Switch");
-    pref.putInt("order", 1);
+  // this is the first schema, don't check if something already exist.
+  openNVS(false);
+  nvs.putInt("schema", 1);
+  nvs.putString("identifier", "Switch");
+  nvs.putInt("order", 1);
+  nvs.putInt("cfg_sw", 0);
 
-    pref.end();
-  } else {
-    LOGE("Unable to open the name space for the upgrade");
-  }
-}
-
-void SwitchModule::initNVS() {
-  Preferences pref;
-  LOGI("initNVS() initialization begin");
-  if (!pref.begin(SWITCH_SCHEMA_NAME, false)) {
-    LOGE("initNVS() failed to open the namespace with write rights, "
-         "initialization failed");
-    pref.end();
-    return;
-  };
-
-  LOGV("Storing default keys");
-  pref.putBool("enable", false);
-  pref.putInt("order", 1);
-  pref.putInt("schema", 1);
-  pref.putString("identifier", "Switch");
-  pref.putInt("cfg_sw", 0);
-  for (int i = 0; i < SWITCH_MAX_SWITCHES; i++) {
+  for (size_t i = 0; i < SWITCH_MAX_SWITCHES; i++) {
     char key[10];
     sprintf(key, "sw%d", i);
-    pref.putString(key, "{\"type\":0}");
+    nvs.putString(key, "{\"type\":0}");
   }
 
-  pref.end();
-
-  LOGI("initNVS() end");
+  closeNVS();
 }
 
 void SwitchModule::getConfiguration(JsonObject dest) {
@@ -182,43 +243,25 @@ void SwitchModule::getConfiguration(JsonObject dest) {
 
   JsonArray switchesArray = dest["Switches"].to<JsonArray>();
 
-  for (size_t i = 0; i < SWITCH_MAX_SWITCHES; i++) {
+  for (size_t i = 0; i < configuredSwitches; i++) {
     if (Switches[i] == nullptr || Switches[i]->getType() > Type::Servo) {
       continue;
     }
 
-    JsonObject swi;
+    JsonObject swi = switchesArray.add<JsonObject>();
     Switches[i]->getConfiguration(swi);
-    switchesArray.add(swi);
   }
 }
 
 void SwitchModule::validateConfiguration(const JsonObject &toBeValidated,
                                          JsonObject response) {
-  LOGI("data validation");
+  LOGI("swtich data validation");
+  tmpCfg.clear();
   response["reboot"] = false;
-
   JsonArray err = response["errors"].to<JsonArray>();
-  if (!toBeValidated["enable"].is<bool>()) {
-    LOGE("enable don't exist or is not a boolean");
-    err.add("Enable is not a boolean");
-    return;
-  }
 
-  if (moduleEnable != toBeValidated["enable"]) {
-    LOGW("enable is not the same as actual, reboot requested");
-    response["reboot"] = true;
-  }
-
-  if (!toBeValidated["uiOrder"].is<int>()) {
-    LOGE("order for ui don't exist or is not a integer");
-    err.add("Order is not a numeber");
-    return;
-  }
-
-  if (!toBeValidated["identifier"].is<String>()) {
-    LOGE("board identifier don't exist or is not a string");
-    err.add("Identifier is not a string");
+  // Validazione campi principali
+  if (!validateMainFields(toBeValidated, response)) {
     return;
   }
 
@@ -227,119 +270,268 @@ void SwitchModule::validateConfiguration(const JsonObject &toBeValidated,
     return;
   }
 
-  LOGI("Main data validation ok, starting with shutter data");
+  LOGI("Main data validation ok, starting with switches data");
 
   if (!toBeValidated["Switches"].is<JsonArray>()) {
-    err.add("Switches is not an array");
+    response["errors"].add("Switches is not an array");
     return;
   }
 
+  validateSwitches(toBeValidated["Switches"].as<JsonArray>(), response);
+}
+
+bool SwitchModule::validateMainFields(const JsonObject &data,
+                                      JsonObject response) {
+  JsonArray err = response["errors"].to<JsonArray>();
+
+  if (!data["enable"].is<bool>()) {
+    LOGE("enable don't exist or is not a boolean");
+    err.add("Enable is not a boolean");
+    return false;
+  } else if (moduleEnable != data["enable"]) {
+    LOGW("enable changed, reboot requested");
+    response["reboot"] = true;
+  }
+
+  if (!data["uiOrder"].is<int>()) {
+    LOGE("order for ui don't exist or is not a integer");
+    err.add("Order is not a number");
+    return false;
+  }
+
+  if (!data["identifier"].is<String>()) {
+    LOGE("board identifier don't exist or is not a string");
+    err.add("Identifier is not a string");
+    return false;
+  }
+
+  tmpCfg["enable"] = data["enable"];
+  tmpCfg["uiOrder"] = data["uiOrder"];
+  tmpCfg["identifier"] = data["identifier"];
+
+  return true;
+}
+
+void SwitchModule::validateSwitches(const JsonArray &switches,
+                                    JsonObject response) {
+
+  JsonArray incomingSwitches = tmpCfg["Switches"].to<JsonArray>();
+  JsonArray err = response["errors"].to<JsonArray>();
   int id = -1;
-  for (JsonObject singleSW : toBeValidated["Switches"].as<JsonArray>()) {
-    id++;
-    int retVal = 0;
-    LOGV("In the loop");
+
+  for (JsonObject singleSW : switches) {
+
+    // Controlla se il tipo esiste ed è valido - FAIL FAST
     if (!singleSW["type"].is<unsigned int>()) {
-      continue;
+      LOGE("Type is missing or not an unsigned int");
+      err.add("Switch type is missing or invalid");
+      return;
     }
-    Type type = static_cast<Type>(singleSW["type"].as<unsigned int>());
+
+    unsigned int typeValue = singleSW["type"].as<unsigned int>();
+
+    if (typeValue > 4) {
+      LOGE("Type value %u is out of range (max 4)", typeValue);
+      JsonObject e = err.add<JsonObject>();
+      e["error"] = "Type out of range";
+      return;
+    }
+
+    Type type = static_cast<Type>(typeValue);
 
     if (NotPresent == type) {
-      continue;
-    } else if (Input == type) {
-      retVal = DigitalInput::validateJsonCfg(singleSW);
-      LOGV("retVal: %d", retVal);
-      if (retVal != 1) {
-        JsonObject e = err.add<JsonObject>();
-        e["id"] = id;
-        e["error"] = retVal;
-        return;
-      }
-    } else if (Output == type) {
-      retVal = DigitalOutput::validateJsonCfg(singleSW);
-      if (retVal != 1) {
-        JsonObject e = err.add<JsonObject>();
-        e["id"] = id;
-        e["error"] = retVal;
-        return;
-      }
-    } else if (PWM == type) {
-      retVal = PWMOutput::validateJsonCfg(singleSW);
-      if (retVal != 1) {
-        JsonObject e = err.add<JsonObject>();
-        e["id"] = id;
-        e["error"] = retVal;
-        return;
-      }
-    } else if (Servo == type) {
-      retVal = ServoOutput::validateJsonCfg(singleSW);
-      if (retVal != 1) {
-        JsonObject e = err.add<JsonObject>();
-        e["id"] = id;
-        e["error"] = retVal;
-        return;
-      }
-    } else {
-      LOGV("undefind type");
+      LOGV("Type is NotPresent, skipping");
       continue;
     }
+
+    id++;
+
+    int retVal = validateSwitchType(type, singleSW);
+
+    if (retVal != 1) {
+      LOGE("Validation failed for switch id: %d with error code: %d", id,
+           retVal);
+      JsonObject e = err.add<JsonObject>();
+      e["id"] = id;
+      e["error"] = retVal;
+      return;
+    }
+    incomingSwitches.add(singleSW);
+    checkIfRebootNeeded(id, type, singleSW, response);
+  }
+
+  LOGI("All switches validated successfully");
+}
+
+int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
+  switch (type) {
+  case NotPresent:
+    return 1;
+  case Input:
+    return DigitalInput::validateJsonCfg(singleSW);
+  case Output:
+    return DigitalOutput::validateJsonCfg(singleSW);
+  case PWM:
+    return PWMOutput::validateJsonCfg(singleSW);
+  case Servo:
+    return ServoOutput::validateJsonCfg(singleSW);
+  default:
+    LOGV("Undefined type");
+    return 0;
   }
 }
 
-void SwitchModule::storeConfiguration(JsonObject toBeStored) {
+void SwitchModule::checkIfRebootNeeded(int id, Type type,
+                                       const JsonObject &singleSW,
+                                       JsonObject response) {
+
+  if (Switches[id] == nullptr) {
+    LOGV("Switch %d: new position, reboot needed", id);
+    response["reboot"] = true;
+    return;
+  }
+
+  if (Switches[id]->getType() != static_cast<unsigned int>(type)) {
+    LOGV("Switch %d: type changed, reboot needed", id);
+    response["reboot"] = true;
+    return;
+  }
+
+  if (Switches[id]->getPinNumber() != singleSW["pin"].as<unsigned int>()) {
+    LOGV("Switch %d: pin changed, reboot needed", id);
+    response["reboot"] = true;
+    return;
+  }
+
+  LOGV("Switch %d: no changes detected", id);
+}
+
+void SwitchModule::storeConfiguration() {
   LOGI("Writing new configuration on the NVS");
-  Preferences pref;
 
-  serializeJson(toBeStored, Serial);
-  pref.begin(SWITCH_SCHEMA_NAME);
+  serializeJson(tmpCfg, Serial);
 
-  bool inEnable = toBeStored["enable"].as<bool>();
+  if (!openNVS(false)) {
+    LOGE("Failed to open NVS for writing");
+    return;
+  }
 
-  pref.putBool("enable", inEnable);
-  pref.putInt("uiOrder", toBeStored["uiOrder"].as<int>());
-  pref.putInt("schema", SWITCH_SCHEMA_VERSION);
-  pref.putString("identifier", toBeStored["identifier"].as<String>());
-
-  /* apply only the changes that don't require a reboot */
-  LOGI("Applying data dont require a reboot");
-  uiOrder = toBeStored["uiOrder"].as<int>();
-  identifier = toBeStored["identifier"].as<String>();
+  storeMainFields();
 
   /* if module is not enable don't write anymore*/
-  if (!inEnable) {
+  if (!tmpCfg["enable"].as<bool>()) {
     LOGI("Main Module is not enable, writing new configuration done.");
+    closeNVS();
     return;
   }
   LOGI("Main config done, start with switches");
 
+  storeSwitches();
+
+  tmpCfg.clear();
+  closeNVS();
+}
+
+void SwitchModule::storeMainFields() {
+
+  nvs.putBool("enable", tmpCfg["enable"].as<bool>());
+  nvs.putInt("uiOrder", tmpCfg["uiOrder"].as<int>());
+  nvs.putInt("schema", SWITCH_SCHEMA_VERSION);
+  nvs.putString("identifier", tmpCfg["identifier"].as<String>());
+
+  LOGI("Applying main data don't require a reboot");
+  uiOrder = tmpCfg["uiOrder"].as<int>();
+  identifier = tmpCfg["identifier"].as<String>();
+}
+
+void SwitchModule::storeSwitches() {
   int id = -1;
-  JsonDocument tmpDoc;
-  for (JsonObject inSwitch : toBeStored["Switches"].as<JsonArray>()) {
-    tmpDoc.clear();
+
+  JsonDocument sanDoc;
+  JsonObject sanitizedObject = sanDoc.to<JsonObject>();
+
+  serializeJson(tmpCfg["Switches"].as<JsonArray>(), Serial);
+  for (JsonObject inSwitch : tmpCfg["Switches"].as<JsonArray>()) {
+    sanitizedObject.clear();
+
     if (!inSwitch["type"].is<int>()) {
-      LOGE("type don't exist");
+      LOGE("This should never happens! missing type in storing configuration");
       continue;
     }
-
     Type type = static_cast<Type>(inSwitch["type"].as<unsigned int>());
-    LOGV("Type is: %d", type);
     if (NotPresent == type) {
+      LOGE("This should never happens! NotPresent type in storing "
+           "configuration");
       continue;
-    } else if (Input == type) {
-      id++;
-      LOGV("is an input");
-      serializeJson(inSwitch, Serial);
-
-      JsonObject tmp = tmpDoc.to<JsonObject>();
-      DigitalInput::copyJsonCfg(inSwitch, tmp);
-
-      char key[10];
-      sprintf(key, "sw%d", id);
-      String swString;
-      serializeJson(inSwitch,swString);
-      pref.putString(key, swString);
     }
+
+    id++;
+
+    // sanitize the json arriving from the web
+    switch (type) {
+    case Input:
+      DigitalInput::copyJsonCfg(inSwitch, sanitizedObject);
+      break;
+    case Output:
+      DigitalOutput::copyJsonCfg(inSwitch, sanitizedObject);
+      break;
+    case PWM:
+      PWMOutput::copyJsonCfg(inSwitch, sanitizedObject);
+      break;
+    case Servo:
+      ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
+      break;
+
+    default:
+      LOGE("This should never happens! Undefined type during sanitifaction");
+      break;
+    }
+
+    // apply soft parameters
+    // if already configured is the same type and same pin
+    if (Switches[id] != nullptr) {
+      if (Switches[id]->getType() ==
+              sanitizedObject["type"].as<unsigned int>() &&
+          Switches[id]->getPinNumber() ==
+              sanitizedObject["pin"].as<unsigned int>()) {
+
+        Switches[id]->setName(sanitizedObject["name"].as<const char *>());
+        Switches[id]->setDescription(
+            sanitizedObject["desc"].as<const char *>());
+
+        switch (type) {
+        case Input:
+          Switches[id]->setDelays(sanitizedObject["dOn"].as<unsigned int>(),
+                                  sanitizedObject["dOff"].as<unsigned int>());
+          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
+          break;
+        case Output:
+          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
+          break;
+        case PWM:
+          // nothing to do here
+          break;
+        case Servo:
+          Switches[id]->setMoveTime(
+              sanitizedObject["moveTime"].as<unsigned int>());
+          break;
+
+        default:
+          LOGE(
+              "This should never happens! Undefined type during sanitifaction");
+          break;
+        }
+      }
+    }
+
+    char key[10];
+    sprintf(key, "sw%d", id);
+    String swString;
+    serializeJson(sanitizedObject, swString);
+    nvs.putString(key, swString);
   }
+
+  nvs.putInt("cfg_sw", id + 1);
 }
 
 #pragma endregion
