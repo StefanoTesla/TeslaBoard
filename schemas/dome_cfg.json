@@ -6,22 +6,34 @@
       "driverType":1,
       "travelTOut":50,
       "inOpen":{
+         "type":1,
+         "name":"",
+         "desc":"",
          "pin":17,
          "invert":false,
          "dOn":100,
          "dOff":100
       },
       "inClose":{
+         "type":1,
+         "name":"",
+         "desc":"",
          "pin":16,
          "invert":false,
          "dOn":100,
          "dOff":100
       },
       "outStart":{
+         "type":2,
+         "name":"",
+         "desc":"",
          "pin":32,
          "invert":false
       },
       "outHalt":{
+         "type":2,
+         "name":"",
+         "desc":"",
          "pin":4,
          "invert":false
       },

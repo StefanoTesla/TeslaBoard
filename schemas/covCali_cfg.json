@@ -5,6 +5,9 @@
    "calibrator":{
       "enable":true,
       "outPWM":{
+         "type":3,
+         "name":"",
+         "desc":"",
          "pin":2
       }
    },
@@ -13,6 +16,9 @@
       "openPos":100,
       "closePos":0,
       "outServo":{
+         "type":4,
+         "name":"",
+         "desc":"",
          "pin":32,
          "moveTime":5
       }

@@ -1,0 +1,9 @@
+{
+   "type":1,
+   "name":"theName",
+   "desc":"Descriptiom",
+   "pin":1,
+   "dOn":100,
+   "dOff":100,
+   "invert":false
+}

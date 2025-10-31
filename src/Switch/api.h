@@ -50,7 +50,7 @@ void webApi() {
           return;
         }
 
-        Switches.storeConfiguration(incomingObj);
+        Switches.storeConfiguration();
 
         response->setLength();
         request->send(response);

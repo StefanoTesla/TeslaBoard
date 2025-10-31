@@ -1,0 +1,7 @@
+{
+   "type":2,
+   "name":"theName",
+   "desc":"Descriptiom",
+   "pin":1,
+   "invert":false
+}
