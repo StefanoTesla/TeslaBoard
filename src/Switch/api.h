@@ -5,6 +5,8 @@ extern SwitchModule Switches;
 
 void webApi() {
 
+#pragma region webApi
+
   server.on("/api/switch/cfg", HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse *response = new AsyncJsonResponse();
     JsonObject doc = response->getRoot().to<JsonObject>();
@@ -32,65 +34,68 @@ void webApi() {
     request->send(response);
   });
 
-  server.on(
-      "/api/switch/set-value", HTTP_POST, [](AsyncWebServerRequest *request) {
-        AsyncJsonResponse *response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        String parameter;
-        doc["execute"] = false;
-        bool inRange = false;
-        int id = -1;
-        int value = -1;
-        int paramsNr = request->params();
+  server.on("/api/switch/set-value", HTTP_POST,
+            [](AsyncWebServerRequest *request) {
+              AsyncJsonResponse *response = new AsyncJsonResponse();
+              JsonObject doc = response->getRoot().to<JsonObject>();
+              String parameter;
+              doc["execute"] = false;
+              bool inRange = false;
+              int id = NULL;
+              int value = NULL;
+              int paramsNr = request->params();
 
-        for (int i = 0; i < paramsNr; i++) {
-          const AsyncWebParameter *p = request->getParam(i);
-          parameter = p->name();
-          if (parameter == "id") {
-            id = p->value().toInt();
-          }
-          if (parameter == "value") {
-            value = p->value().toInt();
-          }
-        }
+              for (int i = 0; i < paramsNr; i++) {
+                const AsyncWebParameter *p = request->getParam(i);
+                parameter = p->name();
+                if (parameter == "id") {
+                  id = p->value().toInt();
+                }
+                if (parameter == "value") {
+                  value = p->value().toInt();
+                }
+              }
 
-        if (id < 0 || id >= Switches.getConfiguredSwitch()) {
-          doc["error"] = "SwIdOutOfRange";
-          response->setLength();
-          request->send(response);
-          return;
-        }
+              if (id == NULL) {
+                doc["error"] = "SwIdOAbsent";
+                response->setLength();
+                request->send(response);
+                return;
+              }
 
-        if (Switches.isWritable(id))
-          ;
+              if (value == NULL) {
+                doc["error"] = "SwValueAbsent";
+                response->setLength();
+                request->send(response);
+                return;
+              }
 
-        if (value < 0) {
-          doc["error"] = "SwValueAbsent";
-          response->setLength();
-          request->send(response);
-          return;
-        } else {
-          if (value < Switches.getMin(id)) {
-            doc["error"] = "SwValueBehindMin";
-            response->setLength();
-            request->send(response);
-            return;
-          }
-          if (value > Switches.getMax(id)) {
-            doc["error"] = "SwValueOverMax";
-            response->setLength();
-            request->send(response);
-            return;
-          }
-        }
+              switch (Switches.setSwitchState(id, value)) {
+              case 1:
+                doc["execute"] = true;
+                break;
+              case -1:
+                doc["error"] = "SwIdOutOfRange";
+                break;
+              case -2:
+                doc["error"] = "SwValueBehindMin";
+                break;
+              case -3:
+                doc["error"] = "SwValueOverMax";
+                break;
+              case -4:
+                doc["error"] = "SwNotWritable";
+                break;
 
-        Switches.setSwitchState(id,value);
+              default:
+                doc["error"] = "Undefined Error";
+                break;
+              }
+              Switches.setSwitchState(id, value);
 
-        doc["execute"] = true;
-
-        response->setLength();
-        request->send(response);
-      });
+              response->setLength();
+              request->send(response);
+            });
 
   AsyncCallbackJsonWebHandler *switchConfigHandler =
       new AsyncCallbackJsonWebHandler("/api/switch/cfg");
@@ -122,5 +127,71 @@ void webApi() {
       });
 
   server.addHandler(switchConfigHandler);
+
+#pragma endregion
+
+#pragma region AlpachaManagement
+
+  alpaca
+      .on("/api/v1/switch/0/name", HTTP_GET,
+          [](AsyncWebServerRequest *request) {
+            AsyncJsonResponse *response = prepareAlpacaResponse(request);
+            JsonObject doc = response->getRoot();
+
+            doc["Value"] = Switches.getIdentifier() + " - TeslaBoard";
+
+            response->setLength();
+            request->send(response);
+          })
+      .addMiddleware(&getAlpacaID);
+
+  alpaca
+      .on("/api/v1/switch/0/description", HTTP_GET,
+          [](AsyncWebServerRequest *request) {
+            AsyncJsonResponse *response = prepareAlpacaResponse(request);
+            JsonObject doc = response->getRoot();
+
+            doc["Value"] = "Switch handled by Stefano TeslaBoard";
+
+            response->setLength();
+            request->send(response);
+          })
+      .addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/switch/0/driverversion", HTTP_GET,
+            [](AsyncWebServerRequest *request) {
+              AsyncJsonResponse *response = prepareAlpacaResponse(request);
+              JsonObject doc = response->getRoot();
+
+              doc["Value"] = "4.0.0";
+
+              response->setLength();
+              request->send(response);
+            });
+
+  alpaca.on("/api/v1/switch/0/driverinfo", HTTP_GET,
+          [](AsyncWebServerRequest *request) {
+            AsyncJsonResponse *response = prepareAlpacaResponse(request);
+            JsonObject doc = response->getRoot();
+
+            doc["Value"] = "Servo cna be async now";
+
+            response->setLength();
+            request->send(response);
+          })
+      .addMiddleware(&getAlpacaID);
+
+  alpaca.on("/api/v1/switch/0/interfaceversion", HTTP_GET,
+          [](AsyncWebServerRequest *request) {
+            AsyncJsonResponse *response = prepareAlpacaResponse(request);
+            JsonObject doc = response->getRoot();
+
+            doc["Value"] = 3;
+
+            response->setLength();
+            request->send(response);
+          })
+      .addMiddleware(&getAlpacaID);
+#pragma endregion
 }
 #endif

@@ -35,8 +35,8 @@ public:
   int getConfiguredSwitch(){return configuredSwitches;}
 
   void reportSwitchState(int id,JsonObject state);
-  bool isWritable(int id);
-  bool setSwitchState(int id,unsigned int state);
+  
+  int setSwitchState(int id,unsigned int state);
   int getSwitchState(int id);
   int getType(int id);
   int getMax(int id);
@@ -75,7 +75,8 @@ private:
 
   void storeMainFields();
   void storeSwitches();
-
+  
+  bool isWritable(int id);
 
  
 

@@ -570,37 +570,50 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
 
 bool SwitchModule::isWritable(int id) {
 
-  if (id >= configuredSwitches) {
-    LOGE("Accessing outside the array");
-    return false;
-  }
-  if (Switches[id] == nullptr) {
-    LOGE("Accessing to a nullptr, id: %d", id);
-    return false;
-  }
-
   int type = Switches[id]->getType();
 
-  if (type > 1 && type >= 4) {
-    return true;
+  if (type == Type::Input)
+  {
+    return false;
   }
-
-  return false;
+  
+  return true;
 }
 
-bool SwitchModule::setSwitchState(int id, unsigned int state) {
 
-  if (isWritable(id)) {
+/*
+Write a value on the Switch
 
-    if (Switches[id]->getType() == Type::Servo) {
-      ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
-      servo->goTo(state, false, true);
-    } else {
-      Switches[id]->write(state);
-    }
+Return:
 
-    return true;
+1 - OK
+-1 : id don't exist or nullptr
+-2 : value excede min value
+-3 : value exced max value
+-4 : switch not writable
+
+*/
+int SwitchModule::setSwitchState(int id, unsigned int state) {
+
+  if(id<0 || id >= configuredSwitches){ return -1; }
+
+  if(Switches[id] == nullptr){ return -1; }
+
+  if(state > Switches[id]->getMin()){ return -2; }
+
+  if(state > Switches[id]->getMax()){ return -3; }
+  
+  if (!isWritable(id)) { return -4;}
+
+  if (Switches[id]->getType() == Type::Servo) {
+    ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
+    servo->goTo(state, false, true);
+    return 1;
+  } else {
+    Switches[id]->write(state);
+    return 1;
   }
+
 
   return false;
 }
