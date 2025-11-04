@@ -41,6 +41,7 @@ public:
   int getType(int id);
   int getMax(int id);
   int getMin(int id);
+  bool canBeWrite(int id);
 
 
   unsigned int uiOrder;

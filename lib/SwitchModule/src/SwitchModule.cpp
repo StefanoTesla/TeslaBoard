@@ -568,6 +568,9 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
   }
 }
 
+/* unsafe private method
+id is not checked by this method
+*/
 bool SwitchModule::isWritable(int id) {
 
   int type = Switches[id]->getType();
@@ -635,3 +638,21 @@ int SwitchModule::getSwitchState(int id) {
 int SwitchModule::getType(int id) { return Switches[id]->getType(); }
 int SwitchModule::getMax(int id) { return Switches[id]->getMax(); }
 int SwitchModule::getMin(int id) { return Switches[id]->getMin(); }
+
+
+bool SwitchModule::canBeWrite(int id){
+
+  if(id < 0 && id >= configuredSwitches){
+    return false;
+  }
+
+  if(Switches[id] == nullptr){
+    return false;
+  }
+
+  if(Switches[id]->getType() == Type::Input){
+    return false;
+  }
+
+  return true;
+}

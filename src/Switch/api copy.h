@@ -4,67 +4,12 @@
 extern SwitchModule Switches
 
 #pragma region Middleware
-
-bool canBeWritten(unsigned int id){
-  /*
-      if(SwitchObjects[id] == nullptr){ return false; }
-      switch (SwitchObjects[id]->getType())
-      {
-      case SwTypeDOutput:
-      case SwTypePWM:
-      case SwTypeServo:
-            return true;
-            break;
-      
-      default:
-            break;
-      } */
-      return false;
-     
-}
-
-/* Not writable error related */
-void unWritableIdErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      char message[100];
-      int tmp = Switch.config.configuredSwitch - 1;
-      int id = request->getAttribute("id").toInt();
-      sprintf(message, "Switch n: %d, cannot be written", id);
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = message;
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
-
-/* ID error realted */
-void missingIdErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
-      
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = "ID not provided";
-      
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
-
-void IdOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
-      char message[100];
-      int tmp = Switch.config.configuredSwitch - 1;
-      int id = request->getAttribute("id").toInt();
-      sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, tmp);
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = message;
-
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
+AsyncMiddlewareFunction getSwitchesParametersD([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+      int paramsNr = request->params();
+      request->setAttribute("id", NULL);
+      request->setAttribute("state", NULL);
+      request->setAttribute("value", null);
+});
 
 AsyncMiddlewareFunction getID([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
       int paramsNr = request->params();
@@ -91,18 +36,7 @@ AsyncMiddlewareFunction getID([](AsyncWebServerRequest* request, ArMiddlewareNex
 });
 
 /* State error realted */
-void missingStateErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot().to<JsonObject>();
-      char message[100];
-      int tmp = Switch.config.configuredSwitch - 1;
-      sprintf(message,"\"State\" parameter not provided");
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = message;
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
+
 
 AsyncMiddlewareFunction getState([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
       int paramsNr = request->params();
@@ -114,8 +48,7 @@ AsyncMiddlewareFunction getState([](AsyncWebServerRequest* request, ArMiddleware
             parameter.toLowerCase();
             if (parameter == "state") {
                   request->setAttribute("state",  static_cast<long>(0));
-                  String value = p->value();
-                  value.toLowerCase();
+                  
                   if(value == "true"){
                         request->setAttribute("state",  static_cast<long>(1));
                   }
@@ -128,32 +61,9 @@ AsyncMiddlewareFunction getState([](AsyncWebServerRequest* request, ArMiddleware
 });
 
 /* Value error realted */
-void missingValueErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
 
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = "\"Value\" parameter not provided";
 
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
 
-void valueOutOfRangeErrorMessage(AsyncWebServerRequest *request) {
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
-      char message[100];
-      int id = request->getAttribute("id").toInt();
-      int value = request->getAttribute("value").toInt();
-      sprintf(message, "ID provided: %d, outside range, maximum is: %d", id, value);
-      doc["ErrorNumber"] = 1025;
-      doc["ErrorMessage"] = message;
-
-      response->setLength();
-      response->setCode(400);
-      request->send(response);
-}
 
 AsyncMiddlewareFunction getValue([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
       int paramsNr = request->params();
@@ -171,26 +81,7 @@ AsyncMiddlewareFunction getValue([](AsyncWebServerRequest* request, ArMiddleware
       missingValueErrorMessage(request);
 });
 /* used where value is provided */
-AsyncMiddlewareFunction isValueable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-      int id = request->getAttribute("id").toInt();
-      int value = request->getAttribute("value").toInt();
-      if(canBeWritten(id) && (value >= SwitchObjects[id]->getMin() && value <= SwitchObjects[id]->getMax()) ){
-            next();
-            return;
-      }
-      valueOutOfRangeErrorMessage(request);
-      
-});
-/* used where state is provided */
-AsyncMiddlewareFunction isSettable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-      int id = request->getAttribute("id").toInt();
-      if(canBeWritten(id)){
-            next();
-            return;
-      }
-      unWritableIdErrorMessage(request);
-      
-});
+
 
 
 #pragma endregion
@@ -200,58 +91,13 @@ void switchRequestHandler() {
 
 #pragma region alpacaDevice
 
-  alpaca
-      .on("/api/v1/switch/0/maxswitch", HTTP_GET,
-          [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse *response = prepareAlpacaResponse(request);
-            JsonObject doc = response->getRoot();
 
-            doc["Value"] = Switch.config.configuredSwitch;
 
-            response->setLength();
-            request->send(response);
-          })
-      .addMiddleware(&getAlpacaID);
 
-  alpaca
-      .on("/api/v1/switch/0/canasync", HTTP_GET,
-          [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse *response = prepareAlpacaResponse(request);
-            JsonObject doc = response->getRoot();
 
-            doc["Value"] = true;
 
-            request->send(response);
-          })
-      .addMiddlewares({&getAlpacaID, &getID});
 
-  alpaca
-      .on("/api/v1/switch/0/canwrite", HTTP_GET,
-          [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse *response = prepareAlpacaResponse(request);
-            JsonObject doc = response->getRoot();
-            int id = request->getAttribute("id").toInt();
 
-            doc["Value"] = canBeWritten(id);
-
-            response->setLength();
-            request->send(response);
-          })
-      .addMiddlewares({&getAlpacaID, &getID});
-
-  alpaca
-      .on("/api/v1/switch/0/getswitch", HTTP_GET,
-          [](AsyncWebServerRequest *request) {
-            AsyncJsonResponse *response = prepareAlpacaResponse(request);
-            JsonObject doc = response->getRoot();
-            int id = request->getAttribute("id").toInt();
-
-            doc["Value"] = SwitchObjects[id]->status() ? true : false;
-
-            response->setLength();
-            request->send(response);
-          })
-      .addMiddlewares({&getAlpacaID, &getID});
 
   alpaca
       .on("/api/v1/switch/0/getswitchdescription", HTTP_GET,

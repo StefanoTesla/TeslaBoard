@@ -1,9 +1,0 @@
-#ifndef SWITCH_ALPACA_DEVICE
-#define SWITCH_ALPACA_DEVICE
-
-
-
-
-
-
-#endif

@@ -462,7 +462,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
 #pragma region AlpacaManage
 
 
-  alpaca.on("/api/v1/covercalibrator/0/name",                                                     HTTP_GET, [](AsyncWebServerRequest *request) {
+  alpaca.on("/api/v1/covercalibrator/0/name", HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
       JsonObject doc = response->getRoot();
       doc["Value"] = CoverCalibrator.getIdentifier() + " - TeslaBoard";

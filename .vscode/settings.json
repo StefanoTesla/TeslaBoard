@@ -93,5 +93,7 @@
     "[html]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: LLVM, BreakBeforeBraces: Attach }"
+  "C_Cpp.clang_format_style": "{ BasedOnStyle: LLVM, ColumnLimit: 0, BreakBeforeBraces: Attach, IndentWidth: 4, UseTab: Always, TabWidth: 4, BinPackArguments: false, AlignAfterOpenBracket: Always, AllowAllArgumentsOnNextLine: false, AllowShortLambdasOnASingleLine: All }"
+
+
 }
