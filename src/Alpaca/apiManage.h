@@ -10,7 +10,7 @@ void AlpacaManager(){
     Value.add(1);
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/management/v1/description",                HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -22,7 +22,7 @@ void AlpacaManager(){
     Value["Location"] = "Empoli, IT";
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/management/v1/configureddevices",          HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -46,16 +46,16 @@ void AlpacaManager(){
     }
 
     if(CoverCalibrator.isEnable()){
-    JsonObject cover = Value.add<JsonObject>();
-    cover["DeviceName"] = CoverCalibrator.getIdentifier() +" - TeslaBoard";
-    cover["DeviceType"] = "CoverCalibrator";
-    cover["DeviceNumber"] = 0;
-    cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";
+      JsonObject cover = Value.add<JsonObject>();
+      cover["DeviceName"] = CoverCalibrator.getIdentifier() +" - TeslaBoard";
+      cover["DeviceType"] = "CoverCalibrator";
+      cover["DeviceNumber"] = 0;
+      cover["UniqueID"] = "35672690-40bf-4165-b44e-d59c2c524f11";
     }
     
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
 }
 

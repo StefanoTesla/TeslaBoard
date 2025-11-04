@@ -1,5 +1,39 @@
-#ifndef ALPACA_COMMON_RESPONSE
-#define ALPACA_COMMON_RESPONSE
+#ifndef ALPACA_UTILITY
+#define ALPACA_UTILITY
+
+
+AsyncMiddlewareFunction getAlpParams([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+  int paramsNr = request->params();
+  String parameter;
+  AlpacaData.serverTransactionID++;
+
+  request->setAttribute("ServerTransactionID",  String(AlpacaData.serverTransactionID));
+  request->setAttribute("ClientTransactionID",  static_cast<long>(0));
+  for (int i = 0; i < paramsNr; i++) {
+    const AsyncWebParameter* p = request->getParam(i);
+    String name;
+    name = p->name();
+    name.toLowerCase();
+    
+    if (name == "clienttransactionid" || name == "id" || name == "value" || name == "brightness") {
+        request->setAttribute(name.c_str(), p->value());
+    }
+
+	if(name == "state"){
+		String State = p->value();
+        State.toLowerCase();
+		if(State == "true") {
+			request->setAttribute(name.c_str(), (long)0);
+		} else if (State == "false"){
+			request->setAttribute(name.c_str(), (long)1);
+		}
+	}
+  }
+  
+  next();
+});
+
+
 
 //This function prepare the response with error 0, client and server transiction id
 AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
@@ -68,57 +102,5 @@ void alpacaActionNotImplemented(AsyncWebServerRequest *request){
     response->setLength();
     request->send(response);
 }
-
-
-/*
-*
-* Validate Pin Number as Input
-*
-*/
-
-bool commonValidateInputPin(unsigned int pin){
-    int unusable[15] = {1, 6, 7, 8, 9, 10, 11,20,24,28,29,30,31,37,38};
-    int i =0;
-    if(
-        pin < 0 and
-        pin > 39
-    ){
-        return false;
-    }
-
-    // check if I can't use this pin
-    for(i=0;i<7;i++){
-
-        if(pin == unusable[i]){
-            return false;
-        }
-    }
-
-    return true;
-
-}
-
-bool commonValidateOutputPin(unsigned int pin){
-    int unusable[15] = {3,6,7,8,9,10,11,20,24,28,29,30,31,37,38};
-    int i =0;
-    if(
-        pin < 0 and
-        pin > 33
-    ){
-        return false;
-    }
-
-    // check if I can't use this pin
-    for(i=0;i<7;i++){
-
-        if(pin == unusable[i]){
-            return false;
-        }
-    }
-
-    return true;
-
-}
-
 
 #endif

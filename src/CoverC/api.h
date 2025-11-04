@@ -32,22 +32,14 @@ AsyncMiddlewareFunction isCalibratorEnable([](AsyncWebServerRequest* request, Ar
     
 });
 
-AsyncMiddlewareFunction getBrightness([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-  int paramsNr = request->params();
-  String parameter;
-
-  request->setAttribute("brightness",  static_cast<long>(-1));
-  for (int i = 0; i < paramsNr; i++) {
-    const AsyncWebParameter* p = request->getParam(i);
-    parameter = p->name();
-    parameter.toLowerCase();
-    if (parameter == "brightness") {
-      request->setAttribute("brightness",  p->value().toInt());
-      next();
-    }
-  }
-  
-  next();
+AsyncMiddlewareFunction checkBrightness([](AsyncWebServerRequest *request, ArMiddlewareNext next) {
+    	String id = request->getAttribute("brightness", String("null"));
+		if (id == "null") {
+			missingIdErrorMessage(request);
+			return;
+		} else {
+			next();
+		}
 });
 
 #pragma endregion 
@@ -84,7 +76,7 @@ void CoverCalibratorApi(){
         
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCoverEnable}); 
+    }).addMiddleware(&isCoverCEnable); 
 
     server.on("/api/coverc/open", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -104,7 +96,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
+    }).addMiddleware(&isCalibratorEnable);
     
     server.on("/api/coverc/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -115,7 +107,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
+    }).addMiddleware(&isCoverEnable);
 
     server.on("/api/coverc/close", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -134,7 +126,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCoverEnable});
+    }).addMiddleware(&isCoverEnable);
 
     server.on("/api/coverc/brightness", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -174,7 +166,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
+    }).addMiddleware(&isCalibratorEnable); 
 
     server.on("/api/coverc/on", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -198,7 +190,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
+    }).addMiddleware(&isCalibratorEnable); 
 
 
     AsyncCallbackJsonWebHandler* coverCConfigHandler = new AsyncCallbackJsonWebHandler("/api/coverc/cfg");
@@ -249,7 +241,7 @@ void CoverCalibratorApi(){
         doc["Value"] = CoverCalibrator.calibrator.getBrightness();
         response->setLength();
         request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/calibratorchanging", HTTP_GET, [](AsyncWebServerRequest *request){
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -259,7 +251,7 @@ void CoverCalibratorApi(){
       
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/calibratorstate", HTTP_GET, [](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -267,7 +259,7 @@ void CoverCalibratorApi(){
         doc["Value"] = CoverCalibrator.calibrator.getStatus();
         response->setLength();
         request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
 
 alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -276,86 +268,67 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
         doc["Value"] = CoverCalibrator.calibrator.getMaxBrightness();
         response->setLength();
         request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
 
     alpaca.on("/api/v1/covercalibrator/0/calibratoron", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
 
-      if(!CoverCalibrator.calibrator.isEnable()){
-             alpacaMethodNotImplemented(request);
-             return;
-      }
-      int br = request->getAttribute("brightness").toInt();
-      if(br == -1){
-            doc["ErrorNumber"] = 1025;
-            doc["ErrorMessage"] = "Brightness parameter not found";
-      } else if(br < 0 or br > CoverCalibrator.calibrator.getMaxBrightness()){
-            doc["ErrorNumber"] = 1025;
-            doc["ErrorMessage"] = "Brightness outside range";
-      } else {
-            CoverCalibrator.calibrator.setBrightness(br);
-            doc["ErrorNumber"] = 0;
-            doc["ErrorMessage"] = "";
-      }
-      response->setLength();
-      request->send(response);
-  }).addMiddlewares({&getAlpacaID,&getBrightness});
+        CoverCalibrator.calibrator.setBrightness(request->getAttribute("brightness").toInt());
+
+        response->setLength();
+        request->send(response);
+    }).addMiddlewares({&getAlpParams,&checkBrightness});
 
 
-  alpaca.on("/api/v1/covercalibrator/0/calibratoroff", HTTP_PUT, [](AsyncWebServerRequest *request){
-      AsyncJsonResponse* response = prepareAlpacaResponse(request);
-      JsonObject doc = response->getRoot();
+    alpaca.on("/api/v1/covercalibrator/0/calibratoroff", HTTP_PUT, [](AsyncWebServerRequest *request){
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
 
-      if(!CoverCalibrator.calibrator.isEnable()){
-             alpacaMethodNotImplemented(request);
-             return;
-      }
+        CoverCalibrator.calibrator.setBrightness(0);
       
-      CoverCalibrator.calibrator.setBrightness(0);
-      
-      response->setLength();
-      request->send(response); 
-  }).addMiddleware(&getAlpacaID);
+        response->setLength();
+        request->send(response); 
+    }).addMiddleware(&getAlpParams);
 
-  alpaca.on("/api/v1/covercalibrator/0/covermoving", HTTP_GET, [](AsyncWebServerRequest *request){
+    alpaca.on("/api/v1/covercalibrator/0/covermoving", HTTP_GET, [](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
         doc["Value"] = CoverCalibrator.cover.isMoving();
         response->setLength();
         request->send(response);
-  }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
-  alpaca.on("/api/v1/covercalibrator/0/coverstate", HTTP_GET, [](AsyncWebServerRequest *request){
+    alpaca.on("/api/v1/covercalibrator/0/coverstate", HTTP_GET, [](AsyncWebServerRequest *request){
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
         doc["Value"] = CoverCalibrator.cover.getStatus();
         response->setLength();
         request->send(response);
-  }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
 
 
-  alpaca.on("/api/v1/covercalibrator/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
-    AsyncJsonResponse* response = prepareAlpacaResponse(request);
-    JsonObject doc = response->getRoot();
-    JsonArray Value = doc["Value"].to<JsonArray>();
-    JsonObject calibStatus = Value.add<JsonObject>();
-    calibStatus["Name"] = "CalibratorState";
-    calibStatus["Value"] = CoverCalibrator.calibrator.getStatus();
-    JsonObject calibChanging = Value.add<JsonObject>();
-    calibChanging["Name"] = "CalibratorChanging";
-    calibChanging["Value"] = false;
-    JsonObject coverState = Value.add<JsonObject>();
-    coverState["Name"] = "CoverState";
-    coverState["Value"] = CoverCalibrator.cover.getStatus();
-    JsonObject coverMoving = Value.add<JsonObject>();
-    coverMoving["Name"] = "CoverMoving";
-    coverMoving["Value"] = CoverCalibrator.cover.isMoving();
-    response->setLength();
-    request->send(response);
-}).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/devicestate", HTTP_GET, [](AsyncWebServerRequest *request) {
+        AsyncJsonResponse* response = prepareAlpacaResponse(request);
+        JsonObject doc = response->getRoot();
+        JsonArray Value = doc["Value"].to<JsonArray>();
+        JsonObject calibStatus = Value.add<JsonObject>();
+        calibStatus["Name"] = "CalibratorState";
+        calibStatus["Value"] = CoverCalibrator.calibrator.getStatus();
+        JsonObject calibChanging = Value.add<JsonObject>();
+        calibChanging["Name"] = "CalibratorChanging";
+        calibChanging["Value"] = false;
+        JsonObject coverState = Value.add<JsonObject>();
+        coverState["Name"] = "CoverState";
+        coverState["Value"] = CoverCalibrator.cover.getStatus();
+        JsonObject coverMoving = Value.add<JsonObject>();
+        coverMoving["Name"] = "CoverMoving";
+        coverMoving["Value"] = CoverCalibrator.cover.isMoving();
+        response->setLength();
+        request->send(response);
+    }).addMiddleware(&getAlpParams);
 
 
 
@@ -380,7 +353,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
       
       response->setLength();
       request->send(response); 
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/opencover", HTTP_PUT, [](AsyncWebServerRequest *request){
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -403,17 +376,17 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
       
       response->setLength();
       request->send(response); 
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
 
     /* Property not implemented:*/
-    alpaca.on("/api/v1/covercalibrator/0/haltcover",        HTTP_PUT, alpacaPropertyNotImplemented).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/haltcover",        HTTP_PUT, alpacaPropertyNotImplemented).addMiddleware(&getAlpParams);
 
 
     /* Methods not implemented:*/
-    alpaca.on("/api/v1/covercalibrator/0/commandblind",     HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
-    alpaca.on("/api/v1/covercalibrator/0/commandbool",      HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
-    alpaca.on("/api/v1/covercalibrator/0/commandstring",    HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/commandblind",     HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpParams);
+    alpaca.on("/api/v1/covercalibrator/0/commandbool",      HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpParams);
+    alpaca.on("/api/v1/covercalibrator/0/commandstring",    HTTP_PUT, alpacaMethodNotImplemented).addMiddleware(&getAlpParams);
 
    /* I don't care about connection but we need to declare it*/
     alpaca.on("/api/v1/covercalibrator/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
@@ -421,14 +394,14 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
         response->setLength();
         request->send(response);
 
-    }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
     alpaca.on("/api/v1/covercalibrator/0/disconnect", HTTP_PUT, [](AsyncWebServerRequest *request) {
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
         response->setLength();
         request->send(response);
 
-    }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
     alpaca.on("/api/v1/covercalibrator/0/connecting", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -436,7 +409,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
         doc["Value"] = false;
         response->setLength();
         request->send(response);
-    }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
     alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_GET, [](AsyncWebServerRequest *request) {
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -444,17 +417,17 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
         doc["Value"] = true;
         response->setLength();
         request->send(response);
-    }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
     alpaca.on("/api/v1/covercalibrator/0/connected", HTTP_PUT, [](AsyncWebServerRequest *request) {
         AsyncJsonResponse* response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
         response->setLength();
         request->send(response);
-    }).addMiddleware(&getAlpacaID);
+    }).addMiddleware(&getAlpParams);
 
-    alpaca.on("/api/v1/covercalibrator/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddleware(&getAlpacaID);
-    alpaca.on("/api/v1/covercalibrator/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddleware(&getAlpacaID);
+    alpaca.on("/api/v1/covercalibrator/0/supportedactions",HTTP_GET, alpacaNoActions).addMiddleware(&getAlpParams);
+    alpaca.on("/api/v1/covercalibrator/0/action",HTTP_PUT, alpacaActionNotImplemented).addMiddleware(&getAlpParams);
 
 
 #pragma endregion
@@ -468,7 +441,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
       doc["Value"] = CoverCalibrator.getIdentifier() + " - TeslaBoard";
       response->setLength();
       request->send(response);
-  }).addMiddlewares({&isCalibratorEnable,&getAlpacaID});
+  }).addMiddlewares({&isCalibratorEnable,&getAlpParams});
 
   alpaca.on("/api/v1/covercalibrator/0/description",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
       AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -476,7 +449,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
       doc["Value"] = "CoverCalibrator by Stefano TeslaBoard";
       response->setLength();
       request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/driverversion",                                            HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -484,7 +457,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
     doc["Value"] = SW_VERSION;
     response->setLength();
     request->send(response);
-  });
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/driverinfo",                                               HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -494,7 +467,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
     
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
   alpaca.on("/api/v1/covercalibrator/0/interfaceversion",                                         HTTP_GET, [](AsyncWebServerRequest *request) {
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
@@ -504,7 +477,7 @@ alpaca.on("/api/v1/covercalibrator/0/maxbrightness", HTTP_GET, [](AsyncWebServer
 
     response->setLength();
     request->send(response);
-  }).addMiddleware(&getAlpacaID);
+  }).addMiddleware(&getAlpParams);
 
 #pragma endregion
 

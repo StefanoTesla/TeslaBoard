@@ -14,8 +14,7 @@ PWMManager pwmMgr;
 #include "header.h"
 
 
-#include "Alpaca/common.h"
-#include "Alpaca/middleware.h"
+#include "Alpaca/utility.h"
 #include "Dome/api.h"
 #include "CoverC/api.h"
 #include "Switch/api.h"

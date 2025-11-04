@@ -656,3 +656,24 @@ bool SwitchModule::canBeWrite(int id){
 
   return true;
 }
+
+const char* SwitchModule::getSwitchName(int id){
+
+  if(id>0 && id<configuredSwitches){
+    if(Switches[id] != nullptr){
+      return Switches[id]->getName();
+    }
+  }
+
+  return "notExist";
+}
+const char* SwitchModule::getSwitchDescription(int id){
+
+  if(id>0 && id<configuredSwitches){
+    if(Switches[id] != nullptr){
+      return Switches[id]->getDescription();
+    }
+  }
+
+  return "notExist";
+}

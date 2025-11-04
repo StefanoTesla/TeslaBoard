@@ -42,7 +42,8 @@ public:
   int getMax(int id);
   int getMin(int id);
   bool canBeWrite(int id);
-
+  const char* getSwitchName(int id);
+  const char* getSwitchDescription(int id);
 
   unsigned int uiOrder;
 
