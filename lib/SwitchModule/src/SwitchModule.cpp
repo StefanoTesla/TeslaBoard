@@ -545,7 +545,7 @@ void SwitchModule::loop() {
       continue;
     }
 
-    if (Switches[i]->getType() == 2 || Switches[i]->getType() == 4) {
+    if (Switches[i]->getType() == Type::Input || Switches[i]->getType() == Type::Servo) {
       Switches[i]->loop();
     }
   }
@@ -568,20 +568,99 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
   }
 }
 
-/* unsafe private method
-id is not checked by this method
+
+/*
+Check if provided id is valid
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
 */
-bool SwitchModule::isWritable(int id) {
+int SwitchModule::isValidID(int id){
 
-  int type = Switches[id]->getType();
+  if(id<0 || id>= configuredSwitches){
+    return -1;
+  }
 
-  if (type == Type::Input)
-  {
-    return false;
+  if(Switches[id] == nullptr){
+    return -2;
+  }
+
+  return 1;
+}
+
+
+/*
+Check if provided id is writable
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-3 = unwritable switch
+*/
+int SwitchModule::isWritable(int id){
+
+  int validID = isValidID(id);
+
+  if(validID != 1){ return validID;}
+
+  if(Switches[id]->getType() == Type::Input){
+    return -3;
+  }
+
+  return 1;
+}
+/*
+Check if provided id is valid
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-4 = value lower than min value
+-5 = value greater than max value
+*/
+int SwitchModule::isValidValue(int id, int value){
+
+  int validID=isValidID(id);
+  if(validID!=1){ return validID; }
+
+  int min = Switches[id]->getMin();
+  int max = Switches[id]->getMax();
+
+  if(value < min){ return -4; }
+  if(value > max){ return -5; }
+
+  return 1;
+}
+
+
+/*
+To be used only for servo
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-3 = unwritable Switch
+-4 = value lower than min value
+-5 = value greater than max value
+-6 = is not a servo
+*/
+int SwitchModule::setServoPositionAsync(int id, int position){
+
+  int validID=isValidID(id);
+  if(validID!=1){ return validID; }
+
+  if(!isWritable(id)){ return -3;}
+
+  int validPos = isValidValue(id,position);
+  if(validPos != 1){ return validPos; }
+  
+  if (Switches[id]->getType() == Type::Servo) {
+      ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
+      servo->goTo(position, false, false);
+      return 1;
   }
   
-  return true;
+  return -6;
+
 }
+
 
 
 /*
@@ -589,31 +668,32 @@ Write a value on the Switch
 
 Return:
 
-1 - OK
--1 : id don't exist or nullptr
--2 : value excede min value
--3 : value exced max value
--4 : switch not writable
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-3 = unwritable Switch
+-4 = value lower than min value
+-5 = value greater than max value
 
 */
-int SwitchModule::setSwitchState(int id, unsigned int state) {
+int SwitchModule::setSwitchValue(int id, int value) {
 
-  if(id<0 || id >= configuredSwitches){ return -1; }
+  int validID = isValidID(id);
+  if(validID != 1){ return validID; }
 
-  if(Switches[id] == nullptr){ return -1; }
+  if (!isWritable(id)) { return -3;}
 
-  if(state > Switches[id]->getMin()){ return -2; }
+  int validState = isValidValue(id,value);
+  if(validState != 1){ return validState;}
 
-  if(state > Switches[id]->getMax()){ return -3; }
   
-  if (!isWritable(id)) { return -4;}
 
   if (Switches[id]->getType() == Type::Servo) {
     ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
-    servo->goTo(state, false, true);
+    servo->goTo(value, false, true);
     return 1;
   } else {
-    Switches[id]->write(state);
+    Switches[id]->write(value);
     return 1;
   }
 
@@ -639,24 +719,6 @@ int SwitchModule::getType(int id) { return Switches[id]->getType(); }
 int SwitchModule::getMax(int id) { return Switches[id]->getMax(); }
 int SwitchModule::getMin(int id) { return Switches[id]->getMin(); }
 
-
-bool SwitchModule::canBeWrite(int id){
-
-  if(id < 0 && id >= configuredSwitches){
-    return false;
-  }
-
-  if(Switches[id] == nullptr){
-    return false;
-  }
-
-  if(Switches[id]->getType() == Type::Input){
-    return false;
-  }
-
-  return true;
-}
-
 const char* SwitchModule::getSwitchName(int id){
 
   if(id>0 && id<configuredSwitches){
@@ -667,6 +729,7 @@ const char* SwitchModule::getSwitchName(int id){
 
   return "notExist";
 }
+
 const char* SwitchModule::getSwitchDescription(int id){
 
   if(id>0 && id<configuredSwitches){
@@ -676,4 +739,47 @@ const char* SwitchModule::getSwitchDescription(int id){
   }
 
   return "notExist";
+}
+
+/* unsafe private method
+id is not checked by this method
+*/
+bool SwitchModule::is_Writable(int id) {
+
+  int validID = isValidID(id);
+
+  if(validID != 1){ return validID; }
+
+
+  if (Switches[id]->getType() == Type::Input)
+  {
+    return false;
+  }
+  
+  return true;
+}
+
+
+/*
+Check if provided id is valid
+1 = Is Moving
+0 = Is not moving
+-1 = ID outside limits
+-2 = unconfigured Switch
+*/
+int SwitchModule::getServoIsMoving(int id){
+
+  int validID = isValidID(id);
+  if(validID != 1){
+    return validID;
+  }
+
+  if(getType(id) == Type::Servo){
+    ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
+    if(servo->isMoving()){
+      return 1;
+    }
+  }
+
+  return 0;
 }

@@ -35,7 +35,7 @@ AsyncMiddlewareFunction isCalibratorEnable([](AsyncWebServerRequest* request, Ar
 AsyncMiddlewareFunction checkBrightness([](AsyncWebServerRequest *request, ArMiddlewareNext next) {
     	String id = request->getAttribute("brightness", String("null"));
 		if (id == "null") {
-			missingIdErrorMessage(request);
+			//missingIdErrorMessage(request);
 			return;
 		} else {
 			next();

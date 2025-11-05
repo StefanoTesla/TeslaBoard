@@ -36,12 +36,17 @@ public:
 
   void reportSwitchState(int id,JsonObject state);
   
-  int setSwitchState(int id,unsigned int state);
+  int isValidID(int id);
+  int isWritable(int id);
+  int isValidValue(int id, int value);
+  int setSwitchValue(int id, int state);
+  int setServoPositionAsync(int id,int position);
+  int getServoIsMoving(int id);
   int getSwitchState(int id);
   int getType(int id);
   int getMax(int id);
   int getMin(int id);
-  bool canBeWrite(int id);
+
   const char* getSwitchName(int id);
   const char* getSwitchDescription(int id);
 
@@ -78,7 +83,7 @@ private:
   void storeMainFields();
   void storeSwitches();
   
-  bool isWritable(int id);
+  bool is_Writable(int id);
 
  
 

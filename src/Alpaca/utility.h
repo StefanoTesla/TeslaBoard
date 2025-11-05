@@ -6,18 +6,21 @@ AsyncMiddlewareFunction getAlpParams([](AsyncWebServerRequest* request, ArMiddle
   int paramsNr = request->params();
   String parameter;
   AlpacaData.serverTransactionID++;
-
-  request->setAttribute("ServerTransactionID",  String(AlpacaData.serverTransactionID));
-  request->setAttribute("ClientTransactionID",  static_cast<long>(0));
+  static char stidBuffer[12];
+    sprintf(stidBuffer, "%lu", AlpacaData.serverTransactionID);
+  request->setAttribute("stid",  stidBuffer);
+  request->setAttribute("ctid",  static_cast<long>(0));
   for (int i = 0; i < paramsNr; i++) {
     const AsyncWebParameter* p = request->getParam(i);
     String name;
     name = p->name();
     name.toLowerCase();
-    
-    if (name == "clienttransactionid" || name == "id" || name == "value" || name == "brightness") {
-        request->setAttribute(name.c_str(), p->value());
-    }
+
+    //since the parameter name pointer goes I have to hard write any parameter name :(
+    if(name=="id"){ request->setAttribute("id", p->value().c_str()); continue; }
+    if(name == "clienttransactionid"){ request->setAttribute("ctid", p->value().c_str()); continue; }
+    if(name == "value"){ request->setAttribute("value", p->value().c_str()); continue; }
+    if(name == "brightness") { request->setAttribute("", p->value().c_str()); continue; }
 
 	if(name == "state"){
 		String State = p->value();
@@ -41,8 +44,8 @@ AsyncJsonResponse* prepareAlpacaResponse(AsyncWebServerRequest *request) {
   JsonObject doc = response->getRoot();
 
   //the library store parameters as string, i need to reconvert back to uint32
-  doc["ClientTransactionID"] = strtoul(request->getAttribute("ClientTransactionID").c_str(), nullptr, 10);
-  doc["ServerTransactionID"] = strtoul(request->getAttribute("ServerTransactionID").c_str(), nullptr, 10);
+  doc["ClientTransactionID"] = strtoul(request->getAttribute("ctid").c_str(), nullptr, 10);
+  doc["ServerTransactionID"] = strtoul(request->getAttribute("stid").c_str(), nullptr, 10);
   doc["ErrorNumber"] = 0;
   doc["ErrorMessage"] = "";
   return response;
