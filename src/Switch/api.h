@@ -591,7 +591,6 @@ void webApi() {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
         JsonObject doc = response -> getRoot();
         int id = request -> getAttribute("id").toInt();
-
         if(Switches.getType(id) != Switches.Servo){
             doc["Value"] = true;
         } else if (Switches.getType(id) == Switches.Servo){

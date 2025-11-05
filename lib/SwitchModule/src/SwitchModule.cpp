@@ -778,7 +778,6 @@ int SwitchModule::getServoIsMoving(int id){
     if(servo->isMoving()){
       return 1;
     }
-  }
-
+  } 
   return 0;
 }

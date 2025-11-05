@@ -76,7 +76,7 @@ void ServoOutput::goTo(int _percentage, bool direct, bool _oPos) {
   moveTo.destInDuty = dutyValue; // destinazione
   moveTo.startMillis = millis(); // tempo di partenza
   moveTo.totalTime = movingTime; // tempo per tragitto completo
-  moveTo.startPercentage = map(moveTo.startDuty, 0, 4095, 0, 100);
+  moveTo.startPercentage = readPosition();
   moveTo.destination = _percentage;
 
   positioning = true;
