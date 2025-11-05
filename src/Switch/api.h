@@ -10,7 +10,7 @@ extern SwitchModule Switches;
 
 void missingIdErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
-    JsonObject doc = response -> getRoot();
+    JsonObject doc = response->getRoot();
 
     doc["ErrorNumber"] = 1025;
     doc["ErrorMessage"] = "ID not provided";
@@ -53,7 +53,7 @@ void UnconfiguredIdErrorMessage(AsyncWebServerRequest * request) {
 
 void unWritableIdErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
-    JsonObject doc = response -> getRoot().to < JsonObject > ();
+    JsonObject doc = response->getRoot();
     char message[100];
     int id = request -> getAttribute("id").toInt();
     sprintf(message, "Switch n: %d, cannot be written", id);
@@ -66,7 +66,7 @@ void unWritableIdErrorMessage(AsyncWebServerRequest * request) {
 
 void missingStateErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
-    JsonObject doc = response -> getRoot().to < JsonObject > ();
+    JsonObject doc = response->getRoot();
     char message[100];
     sprintf(message, "\"State\" parameter not provided");
     doc["ErrorNumber"] = 1025;
@@ -78,7 +78,7 @@ void missingStateErrorMessage(AsyncWebServerRequest * request) {
 
 void missingValueErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
-    JsonObject doc = response -> getRoot();
+    JsonObject doc = response->getRoot();
 
     doc["ErrorNumber"] = 1025;
     doc["ErrorMessage"] = "\"Value\" parameter not provided";
@@ -88,7 +88,7 @@ void missingValueErrorMessage(AsyncWebServerRequest * request) {
     request -> send(response);
 }
 
-void valueIsAboveMinErrorMessage(AsyncWebServerRequest * request) {
+void valueIsBelowMinErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
     JsonObject doc = response -> getRoot();
     char message[100];
@@ -181,10 +181,10 @@ AsyncMiddlewareFunction checkIdAndValue([](AsyncWebServerRequest * request,ArMid
         unWritableIdErrorMessage(request);
         return;
     case -4:
-        valueIsAboveMinErrorMessage(request);
+        valueIsBelowMinErrorMessage(request);
         return;
     case -5:
-        valueIsAboveMinErrorMessage(request);
+        valueIsGreaterMaxErrorMessage(request);
         return;
     }
     
@@ -258,8 +258,7 @@ void webApi() {
         request -> send(response);
     });
 
-    server.on("/api/switch/set-value", HTTP_POST,
-        [](AsyncWebServerRequest * request) {
+    server.on("/api/switch/set-value", HTTP_POST, [](AsyncWebServerRequest * request) {
             AsyncJsonResponse * response = new AsyncJsonResponse();
             JsonObject doc = response -> getRoot().to < JsonObject > ();
             String parameter;
@@ -320,7 +319,7 @@ void webApi() {
             }
             response -> setLength();
             request -> send(response);
-        });
+    });
 
     AsyncCallbackJsonWebHandler * switchConfigHandler = new AsyncCallbackJsonWebHandler("/api/switch/cfg");
 
@@ -595,7 +594,7 @@ void webApi() {
 
             response->setLength();
             request->send(response);
-    }).addMiddlewares({&getAlpParams, &checkIdAndState});
+    }).addMiddlewares({&getAlpParams, &checkIdAndValue});
 
     alpaca.on("/api/v1/switch/0/statechangecomplete", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
@@ -604,7 +603,7 @@ void webApi() {
 
         if(Switches.getType(id) != Switches.Servo){
             doc["Value"] = true;
-        } else if (Switches.getType(id) != Switches.Servo){
+        } else if (Switches.getType(id) == Switches.Servo){
             if(Switches.getServoIsMoving(id) == 1){
                 doc["Value"] = false;
             } else {
