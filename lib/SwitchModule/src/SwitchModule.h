@@ -82,8 +82,6 @@ private:
 
   void storeMainFields();
   void storeSwitches();
-  
-  bool is_Writable(int id);
 
  
 

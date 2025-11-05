@@ -64,7 +64,7 @@ bool SwitchModule::openNVS(bool readOnly) {
         return false;
       }
     } else {
-      LOGV("NVS already open with write rigts");
+      LOGV("NVS already open with write rights");
       return true;
     }
     break;
@@ -738,26 +738,6 @@ const char* SwitchModule::getSwitchDescription(int id){
 
   return "notExist";
 }
-
-
-/* unsafe private method
-id is not checked by this method
-*/
-bool SwitchModule::is_Writable(int id) {
-
-  int validID = isValidID(id);
-
-  if(validID != 1){ return validID; }
-
-
-  if (Switches[id]->getType() == Type::Input)
-  {
-    return false;
-  }
-  
-  return true;
-}
-
 
 /*
 Check if provided id is valid
