@@ -81,10 +81,14 @@ void ServoOutput::goTo(int _percentage, bool direct, bool _oPos) {
 
   positioning = true;
   overridePosition = _oPos;
+  int distanceInDuty = (moveTo.destInDuty > moveTo.startDuty) ? 
+                        (moveTo.destInDuty - moveTo.startDuty) : 
+                        (moveTo.startDuty - moveTo.destInDuty);
+  moveTo.totalTime = (distanceInDuty * movingTime) / 400;  // Dividi per 400
 
-  LOGV("New movement from %d%% to %d%% (duty %d→%d)", moveTo.startPercentage,
-       moveTo.destination, moveTo.startDuty, moveTo.destInDuty);
-  LOGV("Total movement time: %d ms", moveTo.totalTime);
+
+  LOGV("New movement from %d%% to %d%% (duty %d→%d) performed in: %d ms", moveTo.startPercentage,moveTo.destination, moveTo.startDuty, moveTo.destInDuty,moveTo.totalTime);
+
 }
 
 void ServoOutput::servoHandler() {
@@ -96,17 +100,17 @@ void ServoOutput::servoHandler() {
 
   unsigned long elapsed = millis() - moveTo.startMillis;
   if (elapsed >= moveTo.totalTime) {
+    LOGV("Positioning completed");
     write(moveTo.destination);
     positioning = false;
     return;
   }
 
-  // Calcola la progressione normalizzata [0..1]
   float t = (float)elapsed / (float)moveTo.totalTime;
-  // Applica interpolazione lineare
+
   int currentDuty = moveTo.startDuty + (moveTo.destInDuty - moveTo.startDuty) * t;
 
-  LOGV("New step: %d", currentDuty);
+
   ledcWrite(channel, currentDuty);
 }
 
