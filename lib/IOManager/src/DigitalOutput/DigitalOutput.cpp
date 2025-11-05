@@ -15,6 +15,8 @@ bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   pinMode(pin, OUTPUT);
   Serial.print("New DO setup at pin: ");
   Serial.println(pin);
+  min = 0;
+  max = 1;
   write(0);
   return true;
 }

@@ -16,7 +16,7 @@ AsyncMiddlewareFunction getAlpParams([](AsyncWebServerRequest* request, ArMiddle
     name = p->name();
     name.toLowerCase();
 
-    //since the parameter name pointer goes I have to hard write any parameter name :(
+    //since the parameter name pointer goes away, I have to hard write any parameter name :(
     if(name=="id"){ request->setAttribute("id", p->value().c_str()); continue; }
     if(name == "clienttransactionid"){ request->setAttribute("ctid", p->value().c_str()); continue; }
     if(name == "value"){ request->setAttribute("value", p->value().c_str()); continue; }
@@ -24,11 +24,11 @@ AsyncMiddlewareFunction getAlpParams([](AsyncWebServerRequest* request, ArMiddle
 
 	if(name == "state"){
 		String State = p->value();
-        State.toLowerCase();
+    State.toLowerCase();
 		if(State == "true") {
-			request->setAttribute(name.c_str(), (long)0);
+			request->setAttribute("state", (long)1);
 		} else if (State == "false"){
-			request->setAttribute(name.c_str(), (long)1);
+			request->setAttribute("state", (long)0);
 		}
 	}
   }

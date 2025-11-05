@@ -12,7 +12,7 @@ protected:
     char Description[21]="";
     int type;
     unsigned int min = 0;
-    unsigned int max = 0;
+    unsigned int max = 1;
 
 public:
     IOBase() {}

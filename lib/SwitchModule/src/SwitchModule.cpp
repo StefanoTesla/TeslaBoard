@@ -721,10 +721,9 @@ int SwitchModule::getMin(int id) { return Switches[id]->getMin(); }
 
 const char* SwitchModule::getSwitchName(int id){
 
-  if(id>0 && id<configuredSwitches){
-    if(Switches[id] != nullptr){
+  int retVal = isValidID(id);
+  if(isValidID(id) == 1){
       return Switches[id]->getName();
-    }
   }
 
   return "notExist";
@@ -732,14 +731,14 @@ const char* SwitchModule::getSwitchName(int id){
 
 const char* SwitchModule::getSwitchDescription(int id){
 
-  if(id>0 && id<configuredSwitches){
-    if(Switches[id] != nullptr){
+  int retVal = isValidID(id);
+  if(isValidID(id) == 1){
       return Switches[id]->getDescription();
-    }
   }
 
   return "notExist";
 }
+
 
 /* unsafe private method
 id is not checked by this method

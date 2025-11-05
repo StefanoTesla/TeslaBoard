@@ -68,7 +68,7 @@ void missingStateErrorMessage(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     char message[100];
-    sprintf(message, "\"State\" parameter not provided");
+    sprintf(message, "State parameter not provided");
     doc["ErrorNumber"] = 1025;
     doc["ErrorMessage"] = message;
     response -> setLength();
@@ -364,21 +364,17 @@ void webApi() {
         request -> send(response);
     }).addMiddleware( & getAlpParams);
 
-    alpaca
-        .on("/api/v1/switch/0/description", HTTP_GET,
-            [](AsyncWebServerRequest * request) {
-                AsyncJsonResponse * response = prepareAlpacaResponse(request);
-                JsonObject doc = response -> getRoot();
+    alpaca.on("/api/v1/switch/0/description", HTTP_GET, [](AsyncWebServerRequest * request) {
+        AsyncJsonResponse * response = prepareAlpacaResponse(request);
+        JsonObject doc = response -> getRoot();
 
-                doc["Value"] = "Switch handled by Stefano TeslaBoard";
+        doc["Value"] = "Switch handled by Stefano TeslaBoard";
 
-                response -> setLength();
-                request -> send(response);
-            })
-        .addMiddleware( & getAlpParams);
+        response -> setLength();
+        request -> send(response);
+    }).addMiddleware( & getAlpParams);
 
-    alpaca.on("/api/v1/switch/0/driverversion", HTTP_GET,
-        [](AsyncWebServerRequest * request) {
+    alpaca.on("/api/v1/switch/0/driverversion", HTTP_GET,  [](AsyncWebServerRequest * request) {
             AsyncJsonResponse * response = prepareAlpacaResponse(request);
             JsonObject doc = response -> getRoot();
 
@@ -386,33 +382,27 @@ void webApi() {
 
             response -> setLength();
             request -> send(response);
-        });
+    });
 
-    alpaca
-        .on("/api/v1/switch/0/driverinfo", HTTP_GET,
-            [](AsyncWebServerRequest * request) {
-                AsyncJsonResponse * response = prepareAlpacaResponse(request);
-                JsonObject doc = response -> getRoot();
+    alpaca.on("/api/v1/switch/0/driverinfo", HTTP_GET, [](AsyncWebServerRequest * request) {
+        AsyncJsonResponse * response = prepareAlpacaResponse(request);
+        JsonObject doc = response -> getRoot();
 
-                doc["Value"] = "Servo can be async now";
+        doc["Value"] = "Servo can be async now";
 
-                response -> setLength();
-                request -> send(response);
-            })
-        .addMiddleware( & getAlpParams);
+        response -> setLength();
+        request -> send(response);
+    }).addMiddleware( & getAlpParams);
 
-    alpaca
-        .on("/api/v1/switch/0/interfaceversion", HTTP_GET,
-            [](AsyncWebServerRequest * request) {
-                AsyncJsonResponse * response = prepareAlpacaResponse(request);
-                JsonObject doc = response -> getRoot();
+    alpaca.on("/api/v1/switch/0/interfaceversion", HTTP_GET, [](AsyncWebServerRequest * request) {
+        AsyncJsonResponse * response = prepareAlpacaResponse(request);
+        JsonObject doc = response -> getRoot();
 
-                doc["Value"] = 3;
+        doc["Value"] = 3;
 
-                response -> setLength();
-                request -> send(response);
-            })
-        .addMiddleware( & getAlpParams);
+        response -> setLength();
+        request -> send(response);
+    }).addMiddleware( & getAlpParams);
 
     #pragma endregion
 
@@ -434,8 +424,9 @@ void webApi() {
 
         doc["Value"] = true;
 
-        request -> send(response);
-    }).addMiddlewares({&getAlpParams});
+        response->setLength();
+        request->send(response);
+    }).addMiddlewares({&getAlpParams,&checkID});
 
     alpaca.on("/api/v1/switch/0/canwrite", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
@@ -456,7 +447,7 @@ void webApi() {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
         JsonObject doc = response -> getRoot();
 
-        doc["Value"] = Switches.getSwitchState(request -> getAttribute("id").toInt()) ? true : false;
+        doc["Value"] = Switches.getSwitchState(request->getAttribute("id").toInt()) ? true : false;
 
         response -> setLength();
         request -> send(response);
@@ -644,7 +635,7 @@ void webApi() {
         AsyncJsonResponse *response = prepareAlpacaResponse(request);
         JsonObject doc = response->getRoot();
 
-        doc["Value"] = true;
+        doc["Value"] = Switches.isEnable();
 
         response->setLength();
         request->send(response);
