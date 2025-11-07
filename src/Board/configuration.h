@@ -66,10 +66,6 @@ void initBoardConfig() {
 		Serial.println("false");
 	}
 
-	for (int i = 0; i < 40; i++) {
-		Global.gpio[i].module = noModule;
-		Global.gpio[i].type = notUsed;
-	}
 }
 
 #endif

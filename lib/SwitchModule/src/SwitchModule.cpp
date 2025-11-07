@@ -693,6 +693,7 @@ int SwitchModule::setSwitchValue(int id, int value) {
     servo->goTo(value, false, true);
     return 1;
   } else {
+    LOGV("Writing switch id:%d with value %d",id,value);
     Switches[id]->write(value);
     return 1;
   }

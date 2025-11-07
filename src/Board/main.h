@@ -26,10 +26,6 @@ void boardLoop(){
         Global.config.save.execute = false;
     }
 
-    if(millis() - Global.pulse.second.oldMillis >= 1000){
-        Global.pulse.second.pulse = true;
-        Global.pulse.second.oldMillis = millis();
-    } else { Global.pulse.second.pulse = false; }
     if(millis() - Global.pulse.minute.oldMillis >= 60000){
         Global.pulse.minute.pulse = true;
         Global.pulse.minute.oldMillis = millis();
