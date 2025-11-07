@@ -11,6 +11,7 @@
 #include <TeslaWiFiManager.h>
 #include <Preferences.h>
 #include <pwmManager.h>
+#include <BoardModule.h>
 #include <DomeModule.h>
 #include <SwitchModule.h>
 #include <CoverCalibratorModule.h>

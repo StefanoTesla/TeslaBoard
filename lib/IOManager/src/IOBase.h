@@ -8,8 +8,8 @@
 class IOBase {
 protected:
     int pin;
-    char Name[21] ="";
-    char Description[21]="";
+    char Name[31] ="";
+    char Description[31]="";
     int type;
     unsigned int min = 0;
     unsigned int max = 1;

@@ -1,4 +1,11 @@
 #include "TeslaWiFiManager.h"
+#undef LOG_TAG
+#define LOG_TAG "WiFiMgr"
+#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 
@@ -9,12 +16,17 @@ void TeslaWiFiManager::init(){
     if(!_routeInit){
         initNVS();
         serverRouting(); 
-        WiFi.mode(WIFI_STA); //turn on wifi
+        WiFi.mode(WIFI_AP_STA); //turn on wifi
         _routeInit = true;
     }
+
+    
     unsigned int ackmillis=0;
     while (1)
     {
+    ap.loop();
+
+
         switch (_cycle)
             {
             case INIT:
@@ -61,16 +73,17 @@ void TeslaWiFiManager::init(){
                 //goes to AP
             case AP_START:
                 waitWiFiScanCompleted();
-                APstart();
+                ap.startAP();
+
                 _cycle = WAIT_AP_RUNNING;
                 break;
 
             case WAIT_AP_RUNNING:
-                while(WiFi.softAPIP() != IPAddress(192,168,4,1)){
-                    ;
-                }
+                while(ap.getStatus() != 3){ ; }
+                _dnsServer.start(53, "*",IPAddress(192,168,4,1));
+                _dnsServerActive = true;
+                _server->begin();
                 _cycle = AP_LOOP;
-                serverBegin();
                 Serial.println("[WiFiMgr] Waiting for WiFi data");
                 _lms = millis();
                 break;
@@ -79,9 +92,17 @@ void TeslaWiFiManager::init(){
                 break;
 
             case AP_STOP:
-                APstop();
-                _cycle = CONNECT_TO_WIFI;
+                ap.stopAP();
+                 _cycle = CONNECT_TO_WIFI;
                 break;
+
+            case WAIT_AP_STOP:
+                while(ap.getStatus() != 0){ ; }
+                _dnsServer.stop();
+                _dnsServerActive = false;
+                serverStop();
+                break;
+
             case CONNECT_TO_WIFI:
                 connect(_toConnectNetwork);
                 _cycle = WAIT_FOR_CONNECTION;
@@ -305,22 +326,6 @@ bool TeslaWiFiManager::asyncWaitWiFiScan(){
     return true;
 }
 
-void TeslaWiFiManager::APstart(){
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP("TeslaBoard", "123456789");
-    WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0));
-    _dnsServer.start(53, "*",IPAddress(192,168,4,1));
-    _dnsServerActive = true;
-}
-
-void TeslaWiFiManager::APstop(){
-    _dnsServer.stop();
-    _dnsServerActive = false;
-    serverStop();
-    WiFi.softAPdisconnect(true);
-    WiFi.mode(WIFI_OFF);
-    Serial.println("[WiFiMgr] AP closed");    
-}
 
 void TeslaWiFiManager::APLoop(){
     //new connection request

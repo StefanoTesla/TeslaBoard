@@ -11,6 +11,8 @@
 #include <ArduinoJson.h>
 #include <DNSServer.h>
 #include <AsyncJson.h>
+#include "WiFi/TeslaWiFiSta.h"
+#include "WiFi/TeslaWiFiAp.h"
 
 /*
 Task to do:
@@ -59,11 +61,13 @@ class TeslaWiFiManager{
     void writeNVS(); //write all the wifi from NVS memory
     void printIP(); //print the IP addres
 
+    void PortalCycle();
     //read and write NVS
 
     AsyncWebServer* _server;
     DNSServer _dnsServer;
     File _fileReader;
+    TeslaWiFiAP ap;
     bool _lmsAck = false;
     unsigned long _lms;
     unsigned long _reconnectTimeOut;
@@ -78,7 +82,7 @@ class TeslaWiFiManager{
     unsigned int _SSIDWiFiPointer = 0;
     int _wifiNetworkFound = 0;
 
-
+    
     enum initCycle {
       INIT,
       CONNECT_TO_STORED_WIFI,
@@ -90,6 +94,7 @@ class TeslaWiFiManager{
       WAIT_AP_RUNNING,
       AP_LOOP,
       AP_STOP,
+      WAIT_AP_STOP,
       STORE_INCOMING_WIFI,
       CONNECT_TO_WIFI,
       WAIT_FOR_CONNECTION,

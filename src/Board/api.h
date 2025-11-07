@@ -1,9 +1,11 @@
 #ifndef BOARD_WEBSERVER
 #define BOARD_WEBSERVER
 
+extern BoardModule Board;
 extern DomeModule Dome;
 extern CoverCalibratorModule CoverCalibrator;
 extern SwitchModule Switches;
+
 
 void boardWebServer(){
 
@@ -11,7 +13,7 @@ void boardWebServer(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        doc["locale"] = Global.config.language.locale;
+        doc["locale"] = Board.getLocale();
 
         JsonArray modules = doc["modules"].to<JsonArray>();
         JsonObject dome = modules.add<JsonObject>();
@@ -33,51 +35,26 @@ void boardWebServer(){
         request->send(response);
     });
 
-
     server.on("/api/board/cfg", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        doc["locale"] = Global.config.language.locale;
+        doc["locale"] = Board.getLocale();
 
         JsonObject wifi = doc["wifi"].to<JsonObject>();
-        wifi["reconTime"] = Global.config.wifi.reconnection.intervall;
         wifi["actualip"] = WiFi.localIP();
         wifi["mac"] = WiFi.macAddress();
-
-        JsonObject address = doc["address"].to<JsonObject>();
-        address["enStaticIP"] = Global.config.wifi.ip.enable;
-
-        JsonObject ip = address["staticIp"].to<JsonObject>();
-        ip["0"]= Global.config.wifi.ip.ip[0];
-        ip["1"]= Global.config.wifi.ip.ip[1];
-        ip["2"]= Global.config.wifi.ip.ip[2];
-        ip["3"]= Global.config.wifi.ip.ip[3];
-
-        JsonObject gw = address["staticGateway"].to<JsonObject>();
-        gw["0"]= Global.config.wifi.ip.gw[0];
-        gw["1"]= Global.config.wifi.ip.gw[1];
-        gw["2"]= Global.config.wifi.ip.gw[2];
-        gw["3"]= Global.config.wifi.ip.gw[3];
-
-
-        JsonObject sub = address["staticSubnet"].to<JsonObject>();
-        sub["0"]= Global.config.wifi.ip.sub[0];
-        sub["1"]= Global.config.wifi.ip.sub[1];
-        sub["2"]= Global.config.wifi.ip.sub[2];
-        sub["3"]= Global.config.wifi.ip.sub[3];
 
         response->setLength();
         request->send(response);
     });
-
 
     server.on("/api/board/status", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         JsonObject wifi = doc["wifi"].to<JsonObject>();
-        wifi["uptime"] = Global.config.wifi.upTime.minutes;
+        wifi["uptime"] = 0;
         wifi["ssid"] = WiFi.SSID();
         wifi["db"] = WiFi.RSSI();
         wifi["ip"] = WiFi.localIP();
@@ -90,7 +67,7 @@ void boardWebServer(){
         memo["minHeap"] = ESP.getMinFreeHeap();
 
         JsonObject board = doc["board"].to<JsonObject>();
-        board["uptime"] = Global.config.esp32.upTime.minutes;
+        board["uptime"] = Board.getUptime();
         board["cpu"] = ESP.getChipModel();
         board["cores"] = ESP.getChipCores();
         board["rev"] = ESP.getChipRevision();
@@ -104,34 +81,25 @@ void boardWebServer(){
     AsyncCallbackJsonWebHandler* boardConfigHandler = new AsyncCallbackJsonWebHandler("/api/board/cfg");
 
     boardConfigHandler->setMethod(HTTP_POST | HTTP_PUT);
-    boardConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& json) {
-            AsyncJsonResponse* response = new AsyncJsonResponse();
-            JsonObject doc = response->getRoot().to<JsonObject>();
-            JsonArray err = doc["errors"].to<JsonArray>();
-            bool error = false;
-            bool reboot = false;
-            bool enable = false;
-            
-            serializeJson(json, Serial);
+    boardConfigHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
+        AsyncJsonResponse* response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
 
-            if(!json["locale"].is<String>()){
-                error = true;
-                doc["errors"].add("Wrong Locale");
-            }
-            if(!json["wifi"]["reconTime"].is<unsigned int>()){
-                error = true;
-                doc["errors"].add("Wrong reconnection time");
-            }
+        const JsonObject& incomingObj = root.as<JsonObject>();
 
-            if(!error){
-            Global.config.save.execute = true;
-            }
+        JsonArray err = doc["errors"].to<JsonArray>();
 
-            if(error){
-                response->setCode(500);
-            }
+        CoverCalibrator.validateConfiguration(incomingObj,doc);
+
+        if(err.size()>0){
+            response->setCode(500);
             response->setLength();
             request->send(response);
+            return;
+        }
+
+
+        CoverCalibrator.storeConfiguration(incomingObj);
         });
 
     server.addHandler(boardConfigHandler);
@@ -145,7 +113,7 @@ void boardWebServer(){
         
         response->setLength();
         request->send(response);
-        Global.config.reboot.rebootRequest =true;
+
     });
 
 }

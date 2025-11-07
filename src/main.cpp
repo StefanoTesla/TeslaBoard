@@ -18,11 +18,10 @@ PWMManager pwmMgr;
 #include "Dome/api.h"
 #include "CoverC/api.h"
 #include "Switch/api.h"
-#include "Board/webserver.h"
-#include "Board/main.h"
+#include "Board/api.h"
 #include "Alpaca/apiManage.h"
-#include "test.h"
 
+BoardModule Board;
 DomeModule Dome;
 CoverCalibratorModule CoverCalibrator(&pwmMgr);
 SwitchModule Switches(&pwmMgr); 
@@ -60,13 +59,13 @@ void setup() {
   //  return;
   }
 
-
-  startupTask();
+  Board.begin();
+  Dome.begin();
+  CoverCalibrator.begin();
+  Switches.begin();
   WiFi.setHostname("TeslaBoard");
   
   wi.init();
-
-  test();
 
   //start alpaca discovery
   alpacaDiscovery(udp);
@@ -99,7 +98,7 @@ void setup() {
 
 void loop() {
 
-  boardLoop();
+  Board.loop();
   Dome.loop();
   CoverCalibrator.loop();
   Switches.loop();
