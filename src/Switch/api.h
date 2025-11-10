@@ -227,7 +227,7 @@ AsyncMiddlewareFunction checkIdAndState([](AsyncWebServerRequest * request,ArMid
 
 #pragma endregion
 
-void webApi() {
+void SwitchApi() {
 
     #pragma region webApi
 

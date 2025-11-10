@@ -8,8 +8,9 @@
 #include <AsyncJson.h>
 #include <ArduinoJson.h>
 #include "LittleFS.h"
-#include <TeslaWiFiManager.h>
+#include <nvs_flash.h>
 #include <Preferences.h>
+#include <TeslaWiFiManager.h>
 #include <pwmManager.h>
 #include <BoardModule.h>
 #include <DomeModule.h>

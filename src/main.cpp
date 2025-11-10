@@ -9,7 +9,7 @@
 
 AsyncWebServer server(80);
 AsyncWebServer alpaca(ALPACA_PORT);
-TeslaWiFiManager wi(&server);
+TeslaWiFiManager WiFiManager(&server);
 PWMManager pwmMgr;
 #include "header.h"
 
@@ -25,7 +25,7 @@ BoardModule Board;
 DomeModule Dome;
 CoverCalibratorModule CoverCalibrator(&pwmMgr);
 SwitchModule Switches(&pwmMgr); 
-DNSServer dns;
+
 AsyncUDP udp;
 
 #include "Alpaca/discovery.h"
@@ -51,7 +51,6 @@ void initNVS(){
 
 
 void setup() {
-  esp_log_level_set("Dome", ESP_LOG_VERBOSE);
   initNVS();
   Serial.begin(115200);
   if(!LittleFS.begin()){
@@ -59,21 +58,19 @@ void setup() {
   //  return;
   }
 
+  WiFiManager.begin();
   Board.begin();
   Dome.begin();
   CoverCalibrator.begin();
   Switches.begin();
-  WiFi.setHostname("TeslaBoard");
-  
-  wi.init();
+  WiFi.setHostname(Board.getIdentifier().c_str());
 
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();
   domeRequestHandler();
   CoverCalibratorApi();
-  //switchRequestHandler();
-  webApi();
+  SwitchApi();
   boardWebServer();
 
   server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");
@@ -83,10 +80,18 @@ void setup() {
   DefaultHeaders::Instance().addHeader("Access-Control-Allow-Headers", "Content-Type");
   
   server.onNotFound([](AsyncWebServerRequest *request) {
-    if (request->method() == HTTP_OPTIONS) {
-      request->send(200);
+    if(WiFiManager.APisRunning()){
+      if (request->method() == HTTP_OPTIONS) {
+        request->send(200);
+      } else {
+      request->redirect("/wifi-mgr");
+      }
     } else {
-      request->send(404);
+      if (request->method() == HTTP_OPTIONS) {
+        request->send(200);
+      } else {
+        request->send(404);
+      }
     }
   });
   
@@ -97,7 +102,7 @@ void setup() {
 }
 
 void loop() {
-
+  WiFiManager.loop();
   Board.loop();
   Dome.loop();
   CoverCalibrator.loop();
