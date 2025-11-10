@@ -388,9 +388,21 @@ void TeslaWiFiManager::storeNewWiFi(){
 }
 
 
-void TeslaWiFiManager::deleteWiFi(){
+void TeslaWiFiManager::deleteWiFi(int id){
 
+  if(id < 0 || id >= configuredWiFi) {
+        LOGE("Unable to delete wifi number %d outside the limits",id);
+        return;  // ID non valido
+  }
+
+  for(int i = id; i < configuredWiFi - 1; i++){
+      wifiList[i] = wifiList[i+1];
+  }
+      
+  configuredWiFi--;
 }
+
+
 void TeslaWiFiManager::web(){
     
     //wifi list
