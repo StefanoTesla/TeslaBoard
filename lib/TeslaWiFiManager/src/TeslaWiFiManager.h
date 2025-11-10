@@ -25,13 +25,13 @@ public:
     bool APisRunning() { return apRunning; }
 
     void getConfiguration(JsonObject dest);
-    void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
-    void storeConfiguration();
+
+    
 
     unsigned long getUptime() { return upTime; }
 
 private:
-
+    void storeConfiguration();
 /* functions to handle the configuration */
     bool openNVS(bool readOnly);
     void closeNVS();
@@ -54,8 +54,8 @@ private:
     bool toBeStored = false;
  
     void storeNewWiFi();
+    void deleteWiFi(int id);
 
-    int freePosition();
 
     Preferences nvs;
     AsyncWebServer* _server;

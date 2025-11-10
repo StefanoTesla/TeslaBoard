@@ -199,23 +199,6 @@ void TeslaWiFiManager::updateNVS1() {
 void TeslaWiFiManager::getConfiguration(JsonObject dest){
 }
 
-void TeslaWiFiManager::validateConfiguration(const JsonObject &toBeValidated, JsonObject response){
-
-    response["reboot"] = false;
-
-    JsonArray err = response["errors"].to<JsonArray>();
-
-    /*
-    if(!toBeValidated["identifier"].is<String>()){
-        err.add("Identifier is not a string");
-        LOGE("Identifier is not a String");
-        return;
-    }*/
-
-
-    LOGI("WiFi Module Initialized");
-}
-
 void TeslaWiFiManager::storeConfiguration(){
     LOGI("Writing new configuration on the NVS");
     openNVS(false);
@@ -336,6 +319,8 @@ void TeslaWiFiManager::loop(){
           oneMinMillis = millis();
           upTime++;
       }
+    } else {
+
     }
 
 
@@ -402,6 +387,10 @@ void TeslaWiFiManager::storeNewWiFi(){
   storeConfiguration();
 }
 
+
+void TeslaWiFiManager::deleteWiFi(){
+
+}
 void TeslaWiFiManager::web(){
     
     //wifi list
