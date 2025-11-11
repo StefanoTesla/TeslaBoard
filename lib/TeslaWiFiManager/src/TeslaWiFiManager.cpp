@@ -418,7 +418,7 @@ void TeslaWiFiManager::APloop(){
     LOGV("Trying to connect");
     WiFi.begin(wifiToConnect["ssid"].as<const char*>(),wifiToConnect["psw"].as<const char*>());
     APcycle = 11;
-
+    break;
   case 11:
     if(WiFi.status() == WL_CONNECTED){
       storeNewWiFi(wifiToConnect["ssid"].as<String>(),wifiToConnect["psw"].as<String>());
@@ -466,7 +466,7 @@ void TeslaWiFiManager::STAConnectionCycle(){
     break;
 
   case 2:
-    scanStatus == scanStateEnum::SCAN_OFF;//stop the scan operation
+    scanStatus = scanStateEnum::SCAN_OFF;//stop the scan operation
     LOGV("Stop the scan operations");
     STAConCy = 10;
     lastFound = 0; //reset the comparing pointer
