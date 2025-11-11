@@ -13,7 +13,7 @@
 
 #define WIFI_SCHEMA_VERSION 1
 #define WIFI_SCHEMA_NAME "wifimgr"
-#define MAX_CONFIGURED_WIFI 10
+#define MAX_CONFIGURED_WIFI 5 //save ram like a tree
 
 class TeslaWiFiManager {
 public:
@@ -24,9 +24,7 @@ public:
 
     bool APisRunning() { return apRunning; }
 
-    void getConfiguration(JsonObject dest);
-
-    
+   // void getConfiguration(JsonObject dest);
 
     unsigned long getUptime() { return upTime; }
 
@@ -40,22 +38,41 @@ private:
 
     void web();
 
+    /* function for the scan*/
+    enum scanStateEnum{
+        SCAN_OFF,
+        SCAN_WAIT_START,
+        SCAN_SCANNING,
+        SCAN_DONE,
+        SCAN_TIMEOUT
+    };
+
+    scanStateEnum scanStatus = SCAN_OFF;
+
+    bool okToScan = false;
+    bool scanInProgress = false;
+    bool scanDone = false;
+    bool scanTimeOut = false;
+    unsigned long scanTimeOutMillis;
+    unsigned long scanDelayMillis;
     void scanManager();
-    JsonDocument wifiScanList;
     void startWiFiscan();
     void copyWiFiList();
+    JsonDocument wifiScanList;
 
-    
+    /* WIFI STATUS */
+    bool isWiFiReady;
+    bool isWiFiApSta;
+    bool isWiFiSta;
+    bool connecting = false;
+
 
     JsonDocument tmpCfg;
 
-    JsonDocument wifiToConnect;
-    void connectToWifi();
+    void connectToWifi(const char* ssid, const char* password);
     bool toBeStored = false;
  
-    void storeNewWiFi();
-    void deleteWiFi(int id);
-
+    void storeNewWiFi(String ssid,String password);
 
     Preferences nvs;
     AsyncWebServer* _server;
@@ -70,22 +87,38 @@ private:
     unsigned long oneMinMillis = 0;
     unsigned long upTime = 0;
 
-    bool okToScan;
-    bool scanInProgress;
-    unsigned long scanTimeOutMillis;
-    unsigned long scanDelayMillis;
+
 
     struct WiFiCredential {
         char ssid[33] ="\0";
         char password[64] = "\0";
-        bool preferred = false;
     };
 
     WiFiCredential wifiList[MAX_CONFIGURED_WIFI];
     unsigned int configuredWiFi;
 
-
     void handleWiFiEvent(arduino_event_id_t event, arduino_event_info_t info);
+
+    void mainCycle();
+    int mainState = 0;
+    unsigned long waitChange = 0;
+
+
+    int APcycle;
+    bool incomingWiFi;
+    JsonDocument wifiToConnect;
+    void APloop();
+
+    bool findMatchingWiFi();
+    int lastFound = 0;
+
+
+
+    void STAloop();
+    int STAConCy;
+    void STAConnectionCycle();
 };
+
+
 
 #endif
