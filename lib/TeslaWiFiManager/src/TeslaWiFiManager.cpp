@@ -98,6 +98,8 @@ void TeslaWiFiManager::closeNVS() {
 #pragma region CONFIGURATION
 /* initialize the board */
 void TeslaWiFiManager::begin() {
+    LOGV("Setting up GPIO 0 for force captive portal");
+    pinMode(0, INPUT_PULLUP);
     LOGI("Loading configuration");
     JsonDocument doc;
 
@@ -145,9 +147,6 @@ void TeslaWiFiManager::begin() {
         const char* password = tmpCfg["psw"] | "";
         strlcpy(wifiList[i].ssid, ssid, sizeof(wifiList[i].ssid));
         strlcpy(wifiList[i].password, password, sizeof(wifiList[i].password));
-        LOGV("%d",i);
-        LOGV("%s",wifiList[i].ssid);
-        LOGV("%s",wifiList[i].password);
       }
     }
 
@@ -160,6 +159,7 @@ void TeslaWiFiManager::begin() {
     });
 
     WiFi.mode(WIFI_STA);
+    WiFi.setAutoReconnect(false);
 
 }
 
@@ -262,6 +262,7 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
             break;
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
         case ARDUINO_EVENT_WIFI_STA_LOST_IP:
+            staDisconnected = true;
             LOGV("%d",mainState);
             oneMinMillis = 0;
             upTime = 0;
@@ -285,98 +286,113 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
 void TeslaWiFiManager::loop(){
     if(apRunning){ _dnsServer.processNextRequest(); }
     mainCycle();
-
 }
 
 void TeslaWiFiManager::mainCycle(){
       switch (mainState)
     {
-    case 0:
-      APcycle = 0;
-      STAConCy = 0;
+    case DECISION:
+      forceAPRequest = false;
+      APcycle = AP_INIT;
+      STAConCy = STA_INIT;
       scanDelayMillis = 0;
       lastFound = 0;
       if(configuredWiFi == 0){
-        LOGV("Any configured wifi, going to AP");
-        mainState = 10;
+        LOGI("Any configured wifi, going to AP");
+        mainState = GOAP_RADIO_OFF;
         break;
       }
-      LOGV("Some configured wifi, going to STA");
-      mainState = 50;
+      LOGI("Some wifi was configured, going to STA");
+      mainState = MAIN_STA_LOOP;
       break;
 
-    case 5:
-      APcycle = 0;
-      STAConCy = 0;
+    case GOAP_RADIO_OFF:
+      connectDirectly = false;
+      APcycle = AP_INIT;
+      STAConCy = STA_INIT;
       scanDelayMillis = 0;
       WiFi.disconnect(true,true);
       waitChange = millis();
-      mainState = 6;
+      mainState = GOAP_WAIT_DELAY;
       break;
 
-    case 6:
+    case GOAP_WAIT_DELAY:
       if(millis() - waitChange >= 200){
-        mainState = 10;
+        mainState = GOAP_RADIO_ON;
       }
       break;
 
-    case 10:
-      APcycle = 0;
+    case GOAP_RADIO_ON:
+      APcycle = AP_INIT;
       scanDelayMillis = 0;
       WiFi.mode(WIFI_AP_STA);
       WiFi.softAP("TelsaBoard","123456789");
       WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0));
-      mainState = 11;
+      waitChange = millis();
+      mainState = GOAP_WAIT_AP_READY;
       break;
 
-    case 11:
+    case GOAP_WAIT_AP_READY:
+      if(millis() - waitChange > 30000){
+        LOGE("AP is not ready after 30sec...trying to restart");
+        mainState = GOAP_RADIO_OFF;
+      }
       if(!APisRunning()){
         break;
       }
-      mainState = 12;
+
+      mainState = MAIN_AP_LOOP;
+      LOGI("You can now connect to the WiFi Teslaboard the password is: 123456789");
       break;
 
-    case 12:
+    case MAIN_AP_LOOP:
       APloop();
       break;
 
-    case 20:
-      APcycle = 0;
-      STAConCy = 0;
+    case GOSTA_RADIO_OFF:
+      APcycle = AP_INIT;
+      STAConCy = STA_INIT;
       scanDelayMillis = 0;
       WiFi.disconnect(true,true);
       waitChange = millis();
-      mainState = 21;
+      mainState = GOSTA_WAIT_DELAY;
       break;
-    case 21:
+    case GOSTA_WAIT_DELAY:
       if(millis() - waitChange >= 200){
-        mainState = 50;
+        mainState = GOSTA_RADIO_ON;
         break;
       }
 
-    case 50:
+    case GOSTA_RADIO_ON:
       LOGV("Enabling STA mode");
       WiFi.mode(WIFI_STA);
-      mainState = 51;
+      mainState = GOSTA_WAIT_AP_READY;
+      waitChange = millis();
       break;
 
-    case 51:
+    case GOSTA_WAIT_AP_READY:
       if(isWiFiSta){
         LOGV("STA mode enabled");
-        mainState = 60;
+        mainState = MAIN_STA_LOOP;
+      }
+      if(millis() - waitChange > 30000){
+        LOGE("Unable to turn on STA, trying to shuwtdow the radio");
+        mainState = GOSTA_RADIO_OFF;
       }
       break;
 
-    case 60:
+    case MAIN_STA_LOOP:
       STAloop();
       break;
     
     default:
+      LOGE("UNDEFINED STEP");
       break;
     }
 
 }
 
+#pragma region  AP Cycle
 
 void TeslaWiFiManager::APloop(){
   /*
@@ -387,54 +403,79 @@ void TeslaWiFiManager::APloop(){
   */
   scanManager();
 
+  //if AP was requested wait 5 minutes before trying to connect
+  if(forceAPRequest && (millis() - apRequestMillis >= 300000)){
+      LOGI("AP request auto disabled after 5 mniutes");
+      forceAPRequest = false;
+  }
+  
 
   switch (APcycle)
   {
-  case 0: //run the wifi scan
+  case AP_INIT: //run the wifi scan
     LOGV("Starting the scan operation from AP");
     scanStatus = scanStateEnum::SCAN_WAIT_START;
-    APcycle = 1;
+    APcycle = AP_WAIT_OPERATION;
     break;
 
-  case 1: //waiting to find a configured wifi or a new wifi
+  case AP_WAIT_OPERATION: //waiting to find a configured wifi or a new wifi
     if(scanStatus == scanStateEnum::SCAN_DONE){
       if(findMatchingWiFi()){
-        LOGV("One WiFi was found, trying to connect");
-        mainState = 20;
+        if(forceAPRequest){
+          LOGV("One WiFi was found, but AP was requested by the user");
+        }else{
+          LOGV("One WiFi was found, trying to connect");
+          connectDirectly = true;
+          mainState = GOSTA_RADIO_OFF;
+        }
       }
       scanStatus = scanStateEnum::SCAN_WAIT_START;
     }
     if(scanStatus == scanStateEnum::SCAN_TIMEOUT){
         LOGV("Unable to scan wifi, reboot wifi driver");
-        mainState = 5;
+        mainState = GOAP_RADIO_OFF;
     }
 
     if(incomingWiFi){
-      APcycle = 10;
+      APcycle = AP_CONNECT_TO_WIFI;
     }
     break;
 
-  case 10:
+  case AP_CONNECT_TO_WIFI:
     LOGV("Trying to connect");
-    WiFi.begin(wifiToConnect["ssid"].as<const char*>(),wifiToConnect["psw"].as<const char*>());
-    APcycle = 11;
+    connectToWifi(wifiToConnect["ssid"].as<const char*>(),wifiToConnect["psw"].as<const char*>());
+    APcycle = AP_WAIT_CONNECTION;
     break;
-  case 11:
+
+  case AP_WAIT_CONNECTION:
     if(WiFi.status() == WL_CONNECTED){
       storeNewWiFi(wifiToConnect["ssid"].as<String>(),wifiToConnect["psw"].as<String>());
+      if(configuredWiFi > 0){
+        lastFound = configuredWiFi -1;
+        connectDirectly = true;
+      }
       LOGV("Connection was ok, going in STA mode");
-      mainState = 20;
+      mainState = GOSTA_RADIO_OFF;
+    } else if((millis()- connectionTOUTMillis >= 10000 || staDisconnected)){
+      LOGE("Unable to connect");
+      APcycle = AP_INIT;
     }
+    break;
   
   default:
+    LOGE("UNDEFINED STEP");
     break;
   }
 }
 
+#pragma endregion
+
+#pragma region STA Cycle
+
 void TeslaWiFiManager::STAloop(){
 
   if(WiFi.status() == WL_CONNECTED){
-    STAConCy = 0; 
+    STAConCy = STA_INIT; 
     if(oneMinMillis == 0){ oneMinMillis = millis();}
     if(millis()-oneMinMillis >= 60000){
       oneMinMillis = millis();
@@ -444,73 +485,108 @@ void TeslaWiFiManager::STAloop(){
     STAConnectionCycle();
   }
 
+  if(!digitalRead(0)){
+    if(!gpio0pressed){
+      LOGV("GPIO 0 pressed");
+      gpio0pressed= true;
+      waitOneSecondMillis = millis();
+    } else {
+      if(millis()- waitOneSecondMillis >= 1000){
+        LOGW("Captive Portal requested, going to AP");
+        forceAPRequest = true;
+        mainState = GOAP_RADIO_OFF;
+      }
+    }
+  } else {
+    gpio0pressed = false;
+  }
+
 }
 
+#pragma endregion
+
 void TeslaWiFiManager::STAConnectionCycle(){
+
+
   scanManager();
   switch (STAConCy)
   {
-  case 0:
-    LOGV("Scanning for configured wifi");
-    scanStatus = SCAN_WAIT_START;
-    STAConCy = 1;
+  case STA_INIT:
+   staDisconnected = false;
+    if(connectDirectly){
+      LOGV("A Wifi was found from AP, connect directly");
+      STAConCy = STA_CONNECT_TO_WIFI;
+      connectDirectly = false;
+    } else {
+      LOGV("Scanning for configured wifi");
+      scanStatus = SCAN_WAIT_START;
+      STAConCy = STA_WAIT_SCAN;
+    }
+
     break;
 
-  case 1:
+  case STA_WAIT_SCAN:
     if(scanStatus == scanStateEnum::SCAN_DONE){
-      STAConCy = 2;
+      STAConCy = STA_BEFORE_CONNECT;
     } else if(scanStatus == scanStateEnum::SCAN_TIMEOUT){
       LOGV("Scan goes in timeout, trying to restart the wifi");
-      mainState = 20; // if scan don't work we need to reboot the wifi
+      mainState = GOSTA_RADIO_OFF; // if scan don't work we need to reboot the wifi
     }
     break;
 
-  case 2:
+  case STA_BEFORE_CONNECT:
     scanStatus = scanStateEnum::SCAN_OFF;//stop the scan operation
     LOGV("Stop the scan operations");
-    STAConCy = 10;
+    STAConCy = STA_LOOK_FOR_WIFI;
     lastFound = 0; //reset the comparing pointer
     break;
 
-  case 10:
+  case STA_LOOK_FOR_WIFI:
 
     if(findMatchingWiFi()){
-      STAConCy = 50;
+      STAConCy = STA_CONNECT_TO_WIFI;
+      LOGV("Configured WiFi was found");
     } else {
-      STAConCy = 11;
+      STAConCy = STA_GO_TO_AP;
+      LOGV("No Configured WiFi was found, going to AP");
     }
     break;
 
-  case 11:
+  case STA_GO_TO_AP:
     LOGV("Any wifi found, going to AP");
-    STAConCy = 0;
-    mainState = 5;
+    STAConCy = STA_INIT;
+    mainState = GOAP_RADIO_OFF;
     break;
 
-  case 50:
-    LOGV("Try to connect to the wifi %s %s",wifiList[lastFound].ssid, wifiList[lastFound].password);
+  case STA_CONNECT_TO_WIFI:
+    connectDirectly = false;
+    LOGV("%d",lastFound);
+    LOGV("Try to connect to the wifi %s",wifiList[lastFound].ssid);
     connectToWifi(wifiList[lastFound].ssid,wifiList[lastFound].password);
-    STAConCy = 51;
+    STAConCy = STA_WAIT_CONNECTION;
     break;
 
-  case 51:
-    if(WiFi.status() == WL_CONNECT_FAILED){
+  case STA_WAIT_CONNECTION:
+  if((millis() - connectionTOUTMillis > 10000) || WiFi.status() == WL_CONNECT_FAILED || staDisconnected){
       LOGV("Unable to connect");
-      STAConCy = 10;
+      staDisconnected = false;
+      STAConCy = STA_INIT;
     }
     break;
 
   default:
+    LOGE("UNDEFINED STEP");
     break;
   }
 }
 
 bool TeslaWiFiManager::findMatchingWiFi() {
+
   for (int i = lastFound; i < configuredWiFi; i++)
   {
     for (int x = 0; x < wifiScanList.size(); x++) {
       JsonObject wifi = wifiScanList[x].as<JsonObject>();
-      LOGV("Comparing %s with %s", wifiList[i].ssid, wifi["ssid"].as<const char*>());
+      //LOGV("Comparing %s with %s", wifiList[i].ssid, wifi["ssid"].as<const char*>());
       if (strcmp(wifiList[i].ssid, wifi["ssid"].as<const char*>()) == 0) {
         LOGV("Match: %s", wifiList[i].ssid);
         lastFound = i;
@@ -586,6 +662,8 @@ void TeslaWiFiManager::copyWiFiList(){
 void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
   connecting = true;
   WiFi.begin(ssid,password);
+  connectionTOUTMillis = millis();
+  staDisconnected = false;
 }
 
 void TeslaWiFiManager::storeNewWiFi(String ssid,String password){

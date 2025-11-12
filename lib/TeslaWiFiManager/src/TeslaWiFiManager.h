@@ -99,23 +99,62 @@ private:
 
     void handleWiFiEvent(arduino_event_id_t event, arduino_event_info_t info);
 
+    enum mainCycleSteps{
+        DECISION,
+        GOAP_RADIO_OFF,
+        GOAP_WAIT_DELAY,
+        GOAP_RADIO_ON,
+        GOAP_WAIT_AP_READY,
+        MAIN_AP_LOOP,
+        GOSTA_RADIO_OFF,
+        GOSTA_WAIT_DELAY,
+        GOSTA_RADIO_ON,
+        GOSTA_WAIT_AP_READY,
+        MAIN_STA_LOOP,
+    };
+    mainCycleSteps mainState = DECISION;
     void mainCycle();
-    int mainState = 0;
+
     unsigned long waitChange = 0;
 
 
-    int APcycle;
+    //int APcycle;
     bool incomingWiFi;
+    bool connectDirectly;
+    bool forceAPRequest;
+    unsigned long apRequestMillis;
+    bool staDisconnected;
     JsonDocument wifiToConnect;
+    enum APCycleEnum {
+        AP_INIT,
+        AP_WAIT_OPERATION,
+        AP_CONNECT_TO_WIFI,
+        AP_WAIT_CONNECTION
+    };
+    APCycleEnum APcycle;
     void APloop();
 
     bool findMatchingWiFi();
     int lastFound = 0;
 
 
+    unsigned long connectionTOUTMillis;
 
     void STAloop();
-    int STAConCy;
+    
+    enum STACycleEnum {
+        STA_INIT,
+        STA_WAIT_SCAN,
+        STA_BEFORE_CONNECT,
+        STA_LOOK_FOR_WIFI,
+        STA_GO_TO_AP,
+        STA_CONNECT_TO_WIFI,
+        STA_WAIT_CONNECTION
+    };
+
+    bool gpio0pressed;
+    unsigned long waitOneSecondMillis;
+    STACycleEnum STAConCy;
     void STAConnectionCycle();
 };
 
