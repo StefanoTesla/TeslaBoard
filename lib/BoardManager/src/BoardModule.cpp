@@ -128,6 +128,9 @@ void BoardModule::begin() {
     openNVS(true);
     identifier = nvs.getString("identifier", "TeslaBoard");
     locale = nvs.getString("locale", "en");
+    LOGV("Board identifier: %s", identifier);
+    LOGV("Board locale: %s", locale);
+
 
     closeNVS();
 }
@@ -150,6 +153,8 @@ bool BoardModule::initNVS() {
 void BoardModule::updateNVS1() {
   // this is the first schema, don't check if something already exist.
     openNVS(false);
+    nvs.putInt("schema", 1);
+    nvs.putString("identifier", "TeslaBoard");
     nvs.putString("locale", "en");
     closeNVS();
 }
@@ -187,13 +192,14 @@ void BoardModule::validateConfiguration(const JsonObject &toBeValidated, JsonObj
         return;
     }
 
-    LOGI("Board Module Initialized");
+    LOGI("Board Module Validated");
 }
 
 void BoardModule::storeConfiguration(JsonObject toBeStored){
     LOGI("Writing new configuration on the NVS");
     openNVS(false);
 
+    Serial.println(toBeStored["locale"].as<String>());
     identifier = toBeStored["identifier"].as<String>();
     locale = toBeStored["locale"].as<String>();
 

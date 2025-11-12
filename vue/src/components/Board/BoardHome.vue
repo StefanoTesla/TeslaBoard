@@ -5,12 +5,13 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
     >
+    <div class="sw_grid">
       <div class="card">
         <div class="title">
           <p>WiFi</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.wifi.ssid }}</p>
+          <p>{{ t("board.home.wifi.ssid") }}</p>
           <p>{{ board.wifi.ssid }}</p>
         </div>
         <div class="row">
@@ -18,19 +19,19 @@
           <p>{{ board.wifi.ip }}</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.wifi.macAddress }}</p>
+          <p>{{ t("board.home.wifi.macAddress") }}</p>
           <p>{{ board.wifi.mac }}</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.wifi.db }}</p>
+          <p>{{ t("board.home.wifi.db") }}</p>
           <p>{{ board.wifi.db }} dB</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.uptime.from }}</p>
+          <p>{{ t("board.home.uptime.from") }}</p>
           <p>{{ upTime(board.wifi.uptime) }}</p>
         </div>
       </div>
-      <div class="card">
+      <div class="card my-4">
         <div class="title">
           <p>CPU</p>
         </div>
@@ -43,26 +44,28 @@
           <p>{{ board.board.rev }}</p>
         </div>
         <div class="row">
-          <p>{{ props.t("board.home.cpu.speed") }}</p>
+          <p>{{ t("board.home.cpu.speed") }}</p>
           <p>{{ board.board.freq }} MHz</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.uptime.from }}</p>
+          <p>{{ t("board.home.uptime.from") }}</p>
           <p>{{ upTime(board.board.uptime) }}</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.memory.total }}</p>
+          <p>{{ t("board.home.memory.total") }}</p>
           <p>{{ kBconv(board.memory.heapSize) }} kB</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.memory.free }}</p>
+          <p>{{ t("board.home.memory.free") }}</p>
           <p>{{ kBconv(board.memory.freeHeap) }} kB ({{ percentage(board.memory.heapSize,board.memory.freeHeap) }}%)</p>
         </div>
         <div class="row">
-          <p>{{ props.txt.board.home.memory.minFree }}</p>
+          <p>{{ t("board.home.memory.minFree") }}</p>
           <p>{{ kBconv(board.memory.minHeap) }} kB ({{ percentage(board.memory.heapSize,board.memory.minHeap) }}%)</p>
         </div>
       </div>
+    </div>
+
     </Card>
     <footer class="mt-4"></footer>
   </template>
@@ -114,13 +117,15 @@
     minutes = time % 60;
     let string = ""
     if(days > 0){
-      string += days + " " +  props.txt.board.home.uptime.days + " "
+      string += days + " " +  props.t("board.home.uptime.days") + " "
     }
     if(hours > 0){
-      string += hours + " " +  props.txt.board.home.uptime.hours + " "
+      string += hours + " " +  props.t("board.home.uptime.hours") + " "
     }
     if(minutes > 0){
-      string += minutes + " " + props.txt.board.home.uptime.minutes
+      string += minutes + " " + props.t("board.home.uptime.minutes")
+    } else {
+      string += "0 " + props.t("board.home.uptime.minutes")
     }
 
     return string

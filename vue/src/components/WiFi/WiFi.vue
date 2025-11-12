@@ -38,19 +38,11 @@
 
           <div class="sw_header">
             <p>SSID:</p>
-            <input type="text" class="w-full" v-model="wifiToConnect.ssid"/>
+            <input type="text" class="w-full identifier" v-model="wifiToConnect.ssid"/>
           </div>
           <div class="sw_header">
             <p>Password:</p>
-            <input type="password" class="w-full" v-model="wifiToConnect.psw"/>
-          </div>
-          <div class="sw_header">
-            <p>Set as Default:</p>
-              <label class="toggle" for="wifiDefault">
-                <input class="toggle__input" name="wifiDefault" id="wifiDefault" type="checkbox" v-model="wifiToConnect.default">
-                <div class="toggle__fill cursor-pointer"></div>
-              </label>
-
+            <input type="password" class="w-full identifier" v-model="wifiToConnect.psw"/>
           </div>
           <div class="flex justify-around">
             <button class="green cursor-pointer" @click="connectToWifi()">Connect</button>
@@ -85,14 +77,6 @@
             </div>  
           </div>
         </div>
-
-      <div class="card">
-        <div>
-          <div class="title">
-            <p>Setting:</p>
-          </div>
-        </div>
-      </div>
 
   </Card>
 </template>

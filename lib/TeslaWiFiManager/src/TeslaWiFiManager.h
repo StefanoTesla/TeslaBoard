@@ -49,10 +49,6 @@ private:
 
     scanStateEnum scanStatus = SCAN_OFF;
 
-    bool okToScan = false;
-    bool scanInProgress = false;
-    bool scanDone = false;
-    bool scanTimeOut = false;
     unsigned long scanTimeOutMillis;
     unsigned long scanDelayMillis;
     void scanManager();
@@ -62,7 +58,6 @@ private:
 
     /* WIFI STATUS */
     bool isWiFiReady;
-    bool isWiFiApSta;
     bool isWiFiSta;
     bool connecting = false;
 

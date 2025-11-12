@@ -107,6 +107,7 @@
 			"powerOff": "Spegni"
 		},
 		"input": "Ingresso",
+		"inputs": "Ingressi",
 		"output": "Uscita",
 		"outputs": "Uscite",
 		"pin" : "GPIO",

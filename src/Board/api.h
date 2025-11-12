@@ -1,6 +1,7 @@
 #ifndef BOARD_WEBSERVER
 #define BOARD_WEBSERVER
 
+extern TeslaWiFiManager WiFiManager;
 extern BoardModule Board;
 extern DomeModule Dome;
 extern CoverCalibratorModule CoverCalibrator;
@@ -39,7 +40,7 @@ void boardWebServer(){
         AsyncJsonResponse* response = new AsyncJsonResponse();
         JsonObject doc = response->getRoot().to<JsonObject>();
 
-        doc["locale"] = Board.getLocale();
+        Board.getConfiguration(doc);
 
         JsonObject wifi = doc["wifi"].to<JsonObject>();
         wifi["actualip"] = WiFi.localIP();
@@ -54,7 +55,7 @@ void boardWebServer(){
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         JsonObject wifi = doc["wifi"].to<JsonObject>();
-        wifi["uptime"] = 0;
+        wifi["uptime"] = WiFiManager.getUptime();
         wifi["ssid"] = WiFi.SSID();
         wifi["db"] = WiFi.RSSI();
         wifi["ip"] = WiFi.localIP();
@@ -89,7 +90,7 @@ void boardWebServer(){
 
         JsonArray err = doc["errors"].to<JsonArray>();
 
-        CoverCalibrator.validateConfiguration(incomingObj,doc);
+        Board.validateConfiguration(incomingObj,doc);
 
         if(err.size()>0){
             response->setCode(500);
@@ -99,7 +100,9 @@ void boardWebServer(){
         }
 
 
-        CoverCalibrator.storeConfiguration(incomingObj);
+        Board.storeConfiguration(incomingObj);
+        response->setLength();
+        request->send(response);
         });
 
     server.addHandler(boardConfigHandler);
@@ -113,7 +116,7 @@ void boardWebServer(){
         
         response->setLength();
         request->send(response);
-
+        ESP.restart();
     });
 
 }

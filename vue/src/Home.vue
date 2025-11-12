@@ -13,7 +13,7 @@
       <component :is="resolveComponent(mod.name)" :t="t" />
     </div>
 
-    <BoardHome :t=t />
+    <BoardHome :t="t" />
   </div>
 </template>
 
@@ -28,7 +28,7 @@ import { useTranslations } from "./composables/translation";
 import BoardHome from "./components/Board/BoardHome.vue";
 
 const components = ref([]);
-const { translations, loadTranslations, t } = useTranslations();
+const { loadTranslations, t } = useTranslations();
 const txtLoaded = ref(false);
 const loadError = ref();
 
