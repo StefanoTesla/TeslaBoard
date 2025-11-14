@@ -33,9 +33,9 @@
       </div>
 
     </div>
-    <div class="card">
+    <div class="card my-4">
         Connect or Add a WiFi:
-
+        
           <div class="sw_header">
             <p>SSID:</p>
             <input type="text" class="w-full identifier" v-model="wifiToConnect.ssid"/>

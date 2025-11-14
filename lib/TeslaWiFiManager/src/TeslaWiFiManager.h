@@ -68,7 +68,7 @@ private:
     bool toBeStored = false;
  
     void storeNewWiFi(String ssid,String password);
-
+    void removeWiFiById(int id);
     Preferences nvs;
     AsyncWebServer* _server;
     DNSServer _dnsServer;

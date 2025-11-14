@@ -503,7 +503,7 @@ void TeslaWiFiManager::STAloop(){
 
 }
 
-#pragma endregion
+
 
 void TeslaWiFiManager::STAConnectionCycle(){
 
@@ -579,6 +579,8 @@ void TeslaWiFiManager::STAConnectionCycle(){
     break;
   }
 }
+
+#pragma endregion
 
 bool TeslaWiFiManager::findMatchingWiFi() {
 
@@ -674,6 +676,17 @@ void TeslaWiFiManager::storeNewWiFi(String ssid,String password){
   storeConfiguration();
 }
 
+void TeslaWiFiManager::removeWiFiById(int id) {
+  if (id < 0 || id >= configuredWiFi) return;
+
+  for (int i = id; i < configuredWiFi - 1; i++) {
+    wifiList[i] = wifiList[i + 1];
+  }
+  strcpy(wifiList[configuredWiFi - 1].ssid, "");
+  strcpy(wifiList[configuredWiFi - 1].password, "");
+
+  configuredWiFi--;
+}
 
 #pragma region web
 void TeslaWiFiManager::web(){
@@ -686,6 +699,13 @@ void TeslaWiFiManager::web(){
         doc["mode"] = WiFi.getMode();
         doc["connected"] = WiFi.status() == WL_CONNECTED;
         doc["wifi"].set(wifiScanList);
+        JsonArray wifiStored = doc["stored"].to<JsonArray>();
+        for (int i = 0; i < configuredWiFi; i++) {
+          JsonObject obj = wifiStored.add<JsonObject>();
+          obj["ssid"] = wifiList[i].ssid;
+          obj["psw"]  = wifiList[i].password;
+          LOGV("MANNAGGIA");
+        }
 
         response->setLength();
         request->send(response);
