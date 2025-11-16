@@ -8,7 +8,7 @@
   <div class="setting_row">
     <p>{{ t('IOBase.Servo.movingTime') }}</p>
     <div class="input_with_unit">
-      <span class="unit">sec</span><input :id="`sw_${index}_movTime`" :class="['with_unit', movTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.moveTime" @change="validate()"/>
+      <span class="unit">sec</span><input :id="`sw_${index}_moveTime`" :class="['with_unit', moveTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.moveTime" @change="validate()"/>
     </div>
   </div>
 </template>
@@ -18,7 +18,7 @@ import { ref, onMounted } from 'vue'
 import { toast } from 'vue3-toastify';
 import { useValidator } from '../../composables/Validator';
 
-const { isInvalidPin, isGreaterThan, isNegative } = useValidator();
+const { isInvalidPin, isNegative } = useValidator();
 
 const props = defineProps({
   t: Function,
@@ -26,6 +26,7 @@ const props = defineProps({
   swi: {
     type: Object,
     default: () => ({
+      pin:null,
       moveTime: 0
     })
   }
@@ -34,7 +35,7 @@ const props = defineProps({
 const emit = defineEmits(['update:validated','update:pinUsed']);
 
 let pinUnvalid = ref(false)
-let movTimeUnvalid = ref(false)
+let moveTimeUnvalid = ref(false)
 
 const validate = () => {
   emit('update:validated', { index: props.index, isValid: false});
@@ -48,9 +49,9 @@ const validate = () => {
   }
 
   props.swi.moveTime = parseInt(props.swi.moveTime)
-  movTimeUnvalid.value = false
+  moveTimeUnvalid.value = false
   if (isNegative(props.swi.moveTime)){
-    movTimeUnvalid.value = true 
+    moveTimeUnvalid.value = true 
     errorResponseNotify(props.t('errors.general.negativeValue'))
     return
   }

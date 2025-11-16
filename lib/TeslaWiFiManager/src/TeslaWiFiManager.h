@@ -144,7 +144,11 @@ private:
         STA_LOOK_FOR_WIFI,
         STA_GO_TO_AP,
         STA_CONNECT_TO_WIFI,
-        STA_WAIT_CONNECTION
+        STA_WAIT_CONNECTION,
+        //after connection failed
+        STA_DISCONNECT,
+        STA_TURN_ON_WIFI,
+        STA_WAIT_RADIO_ON
     };
 
     bool gpio0pressed;

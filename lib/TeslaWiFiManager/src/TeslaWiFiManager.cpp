@@ -570,10 +570,33 @@ void TeslaWiFiManager::STAConnectionCycle(){
   if((millis() - connectionTOUTMillis > 10000) || WiFi.status() == WL_CONNECT_FAILED || staDisconnected){
       LOGV("Unable to connect");
       staDisconnected = false;
-      STAConCy = STA_INIT;
+      if(lastFound < MAX_CONFIGURED_WIFI){
+        lastFound++;
+      }
+      STAConCy = STA_LOOK_FOR_WIFI; //try if you can connect to another one
     }
     break;
 
+    case STA_DISCONNECT:
+        LOGV("Disconnetting WiFi");
+        WiFi.disconnect();
+        STAConCy = STA_TURN_ON_WIFI;
+        waitChange = millis();
+    
+    case STA_TURN_ON_WIFI:
+        if(millis() - waitChange > 200){
+            break;
+        }
+        LOGV("WiFi in STA mode");
+        WiFi.mode(WIFI_STA);
+        STAConCy = STA_WAIT_RADIO_ON;
+        break;
+
+    case STA_WAIT_RADIO_ON:
+        if(!isWiFiSta){
+            break;
+        }
+        STAConCy = STA_LOOK_FOR_WIFI;
   default:
     LOGE("UNDEFINED STEP");
     break;
@@ -588,7 +611,6 @@ bool TeslaWiFiManager::findMatchingWiFi() {
   {
     for (int x = 0; x < wifiScanList.size(); x++) {
       JsonObject wifi = wifiScanList[x].as<JsonObject>();
-      //LOGV("Comparing %s with %s", wifiList[i].ssid, wifi["ssid"].as<const char*>());
       if (strcmp(wifiList[i].ssid, wifi["ssid"].as<const char*>()) == 0) {
         LOGV("Match: %s", wifiList[i].ssid);
         lastFound = i;

@@ -216,7 +216,7 @@ void Cover::updateStatus() {
     return;
   }
 
-  status = Error;
+  status = Unknown;
 }
 
 Cover::Status Cover::getStatus() const { return status; }

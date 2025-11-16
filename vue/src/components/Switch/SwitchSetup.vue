@@ -264,8 +264,8 @@ const cleanProperty = () => {
     swi.type = parseInt(swi.type);
 
     if (swi.type === 1) {
-      cleanedSwi.dOn = swi.dOn ?? 0;
-      cleanedSwi.dOff = swi.dOff ?? 0;
+      cleanedSwi.dOn = parseInt(swi.dOn) ?? 0;
+      cleanedSwi.dOff = parseInt(swi.dOff) ?? 0;
     }
 
     if (swi.type === 1 || swi.type === 2) {
@@ -273,10 +273,7 @@ const cleanProperty = () => {
     }
 
     if (swi.type === 4) {
-      cleanedSwi.openDeg = swi.openDeg ?? 0;
-      cleanedSwi.closeDeg = swi.closeDeg ?? 0;
-      cleanedSwi.maxDeg = swi.maxDeg ?? 270;
-      cleanedSwi.movTime = swi.movTime ?? 270;
+      cleanedSwi.moveTime = parseInt(swi.moveTime) ?? 0;
     }
 
     return cleanedSwi;
@@ -377,11 +374,9 @@ const addNewSwitch = () => {
       type: 0,
       pin: null,
       invert: 0,
-      maxDeg: 90,
-      closeDeg: 0,
-      openDeg: 0,
       dOn: 0,
       dOff: 0,
+      moveTime: 0
     });
   } else {
     errorResponseNotify(props.t("errors.switch.limitReached"));

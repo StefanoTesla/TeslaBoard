@@ -46,6 +46,6 @@ export function useTranslations() {
   return {
     translations,
     loadTranslations,
-    t  // ← Esponi la funzione t
+    t 
   };
 }
