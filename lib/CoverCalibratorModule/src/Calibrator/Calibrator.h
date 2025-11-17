@@ -6,7 +6,7 @@
 #include <ArduinoJson.h>
 #include <Preferences.h>
 #include <PWMManager.h>
-
+#define COVERC_SCHEMA_NAME "cccfg"
 class Calibrator {
 public:
     enum Status {
@@ -52,6 +52,11 @@ public:
 private:
     void updateStatus();
 
+    Preferences nvs;
+    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
+    PrefEnumStatus nvsStatus = CLOSED;
+    bool openNVS(bool readOnly);
+    void closeNVS();
 };
 
 #endif

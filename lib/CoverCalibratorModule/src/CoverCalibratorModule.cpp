@@ -305,7 +305,7 @@ void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
     calibrator.storeConfiguration(toBeStored["calibrator"],COVERC_SCHEMA_NAME);
 
     LOGI("Writing cover config");
-    cover.storeConfiguration(toBeStored["cover"],COVERC_SCHEMA_NAME);
+    cover.storeConfiguration(toBeStored["cover"]);
 
 }
 

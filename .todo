@@ -1,6 +1,9 @@
-- if the cover was never moved from the starup, nina will not send the command, I need to implement a way to store the last position, now I will change the actual state from "error" to unknow when is not "referenced"
+//- if the cover was never moved from the starup, nina will not send the command, I need to implement a way to store the last position, now I will change the actual state from 
+//"error" to unknow when is not "referenced"
+- need to separate calibrator and cover nvs i think from main module...can be a good things for future indi driver, but actually I need to put last cover pos without sense around the cccfg
 
-- reboot work bad....
+
+- reboot work "bad"....
 
 - I need to rethink the connection cycle, if wifi is lost the board is unable to connect to a new wifi, there's the wifi shutdown but since the wifi is connected for a moment will not try to shutdown the wifi
 

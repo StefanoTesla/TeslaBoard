@@ -6,6 +6,91 @@
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#define COVERC_SCHEMA_NAME "cccfg"
+
+#pragma region nvsHandler
+
+bool Cover::openNVS(bool readOnly) {
+
+  switch (nvsStatus) {
+
+    // nvs is closed, i need to open according by the readOnly
+  case CLOSED:
+    LOGV("NVS seems to be closed");
+    if (nvs.begin(COVERC_SCHEMA_NAME, readOnly)) {
+      if (readOnly) {
+        LOGV("NVS opened in readonly");
+        nvsStatus = OPEN_READOLNY;
+      } else {
+        LOGV("NVS opened with write rights");
+        nvsStatus = OPEN_WRITE;
+      }
+      return true;
+    } else {
+      LOGE("Error opening the NVS");
+      nvsStatus = CLOSED;
+      return false;
+    }
+    break;
+
+  case OPEN_READOLNY:
+    LOGV("NVS seems open in read only");
+    if (!readOnly) {
+      closeNVS();
+      if (nvs.begin(COVERC_SCHEMA_NAME, false)) {
+        nvsStatus = OPEN_WRITE;
+        LOGV("NVS opened with write rights");
+        return true;
+      } else {
+        LOGV("Error during opening NVS with write rights");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open in read only");
+      return true;
+    }
+    break;
+
+  case OPEN_WRITE:
+    LOGV("NVS seems open with write rights");
+    if (readOnly) {
+      closeNVS();
+      nvsStatus = CLOSED;
+      if (nvs.begin(COVERC_SCHEMA_NAME, true)) {
+        nvsStatus = OPEN_READOLNY;
+        LOGV("NVS opened in read only");
+        return true;
+      } else {
+        LOGV("Error during opening NVS in read only");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open with write rights");
+      return true;
+    }
+    break;
+
+  default:
+    LOGE("Unknown NVS status: %d", nvsStatus);
+    return false;
+    break;
+  }
+
+  LOGE("Arrived at the buttom of the function, don't know what happed..");
+  return false;
+}
+
+void Cover::closeNVS() {
+  if (nvsStatus != CLOSED) {
+    nvs.end();
+    nvsStatus = CLOSED;
+    LOGV("NVS closed");
+  } else {
+    LOGV("NVS already closed");
+  }
+}
+
+#pragma endregion
 
 #pragma region Configuration
 
@@ -19,6 +104,12 @@ void Cover::begin(const JsonDocument &doc) {
   if (moduleEnable) {
     JsonObjectConst pinServo = doc["outServo"];
     servo.jsonSetup(pinServo);
+
+    int lastPos = getLastPosition();
+
+    if(lastPos >= 0){
+      servo.goTo(lastPos,true);
+    }
   }
 }
 
@@ -94,7 +185,7 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
   }
 }
 
-void Cover::storeConfiguration(JsonObject coverObject, const char *schema) {
+void Cover::storeConfiguration(JsonObject coverObject) {
 
   tmpCfg.clear();
 
@@ -114,15 +205,11 @@ void Cover::storeConfiguration(JsonObject coverObject, const char *schema) {
     servo.setMovingTime(servoObj["moveTime"].as<unsigned int>());
   }
 
-  Preferences pref;
-  pref.begin(schema);
-
+  openNVS(false);
   String json;
-
   serializeJson(tmpCfg, json);
-
-  pref.putString("cover", json);
-  pref.end();
+  nvs.putString("cover", json);
+  closeNVS();
   tmpCfg.clear();
 }
 
@@ -132,6 +219,8 @@ void Cover::storeConfiguration(JsonObject coverObject, const char *schema) {
 void Cover::loop() {
   servo.loop();
   updateStatus();
+
+  storeLastPosition();
 }
 
 /* return true if you can open (servo is not moving and is not already open),
@@ -221,6 +310,40 @@ void Cover::updateStatus() {
 
 Cover::Status Cover::getStatus() const { return status; }
 
-/*
-Configuration Area
-*/
+void Cover::storeLastPosition(){
+
+  if(millis() - lastPosMillis < 300000){
+    return;
+    //wait until timer don't reach 5minutes
+  }
+  LOGV("Going to store the servo position");
+
+  if(servo.isMoving()){
+    return;
+    //wait until servo is not moving
+  }
+
+  int servoPos = servo.readPosition();
+
+  if(lastPosition != servoPos
+    && servoPos >= 0  ){
+    lastPosition = servo.readPosition();
+    if(openNVS(false)){
+      nvs.putInt("cPos",lastPosition);
+    } else {
+      LOGE("Unable to store last cover position");
+    }
+
+    closeNVS();
+    
+  }
+
+  lastPosMillis = millis();
+}
+
+//return the last know cover position
+//if negative value, don't exist
+int Cover::getLastPosition(){
+  openNVS(true);
+  return nvs.getInt("cPos",-1);
+}

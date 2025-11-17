@@ -67,9 +67,21 @@ public:
     Status getStatus() const;
 
     void validateConfiguration(const JsonObject &obj, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored,const char* schema);
+    void storeConfiguration(JsonObject toBeStored);
     void getConfiguration(JsonObject obj);
 
+private:
+    Preferences nvs;
+    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
+    PrefEnumStatus nvsStatus = CLOSED;
+    bool openNVS(bool readOnly);
+    void closeNVS();
+
+    void storeLastPosition();
+    int getLastPosition();
+    unsigned int lastPosition;
+    unsigned long lastPosMillis;
+    bool deferredStoreLastPosition;
 };
 
 #endif
