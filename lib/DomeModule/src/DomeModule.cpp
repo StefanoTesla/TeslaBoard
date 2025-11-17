@@ -7,46 +7,121 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
+#pragma region nvsHandler
+
+bool DomeModule::openNVS(bool readOnly) {
+
+  switch (nvsStatus) {
+
+    // nvs is closed, i need to open according by the readOnly
+  case CLOSED:
+    LOGV("NVS seems to be closed");
+    if (nvs.begin(DOME_SCHEMA_NAME, readOnly)) {
+      if (readOnly) {
+        LOGV("NVS opened in readonly");
+        nvsStatus = OPEN_READOLNY;
+      } else {
+        LOGV("NVS opened with write rights");
+        nvsStatus = OPEN_WRITE;
+      }
+      return true;
+    } else {
+      LOGE("Error opening the NVS");
+      nvsStatus = CLOSED;
+      return false;
+    }
+    break;
+
+  case OPEN_READOLNY:
+    LOGV("NVS seems open in read only");
+    if (!readOnly) {
+      closeNVS();
+      if (nvs.begin(DOME_SCHEMA_NAME, false)) {
+        nvsStatus = OPEN_WRITE;
+        LOGV("NVS opened with write rights");
+        return true;
+      } else {
+        LOGV("Error during opening NVS with write rights");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open in read only");
+      return true;
+    }
+    break;
+
+  case OPEN_WRITE:
+    LOGV("NVS seems open with write rights");
+    if (readOnly) {
+      closeNVS();
+      nvsStatus = CLOSED;
+      if (nvs.begin(DOME_SCHEMA_NAME, true)) {
+        nvsStatus = OPEN_READOLNY;
+        LOGV("NVS opened in read only");
+        return true;
+      } else {
+        LOGV("Error during opening NVS in read only");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open with write rights");
+      return true;
+    }
+    break;
+
+  default:
+    LOGE("Unknown NVS status: %d", nvsStatus);
+    return false;
+    break;
+  }
+
+  LOGE("Arrived at the buttom of the function, don't know what happed..");
+  return false;
+}
+
+void DomeModule::closeNVS() {
+  if (nvsStatus != CLOSED) {
+    nvs.end();
+    nvsStatus = CLOSED;
+    LOGV("NVS closed");
+  } else {
+    LOGV("NVS already closed");
+  }
+}
+
+#pragma endregion
+
 /* initialize the dome */
 void DomeModule::begin(){
     LOGI("Loading configuration");
     JsonDocument doc;
-    Preferences pref;
-    
-    bool nvsStop = false;
 
 
-    if(!pref.begin(DOME_SCHEMA_NAME)){
+
+    if(!openNVS(true)){
         LOGE("Error loading dome nvs partition, trying to format it");
-        pref.end();
-        initNVS();
-        if(!pref.begin(DOME_SCHEMA_NAME)){
+        if(!initNVS()){
             LOGE("Critical, unable to loading dome nvs after initialization");
             return;
         };
-    }else{LOGV("Namespace open without problem");}
+    }
 
-    moduleEnable = pref.getBool("enable");
-    uiOrder = pref.getInt("order",1);
-    identifier = pref.getString("identifier","Dome");
+    openNVS(true);
+
+    moduleEnable = nvs.getBool("enable");
+    uiOrder = nvs.getInt("order",1);
+    identifier = nvs.getString("identifier","Dome");
 
     if(!moduleEnable){
         LOGW("Module not enable, setup completed");
-        pref.end();
-        LOGV("pref.end");
+        closeNVS();
         return;
     }
 
-    int schemaVersion = pref.getInt("schema");
+    int schemaVersion = nvs.getInt("schema");
     LOGD("schema version is: %d", schemaVersion);
 
-
-
     if(schemaVersion < DOME_SCHEMA_VERSION){
-        LOGV("pref.end");
-        nvsStop = true;
-        pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
-        nvsStop = true;
         LOGW("schema need an upgrade");
         switch (schemaVersion)
         {
@@ -60,22 +135,16 @@ void DomeModule::begin(){
         }
     }
 
-    if(nvsStop){
-        LOGV("nvs was stopped previusly, reopening it");
-        if(!pref.begin(DOME_SCHEMA_NAME)){
-            moduleEnable=false;
-            LOGE("Error loading dome nvs partition, stop");
-            return;
-        };
-    }
+
+    openNVS(true);
 
     /* basic data for dome is taken, module bening*/
 
     LOGI("deserialization of shutter json configuration");
-    String cfg = pref.getString("shutter","{}");
+    String cfg = nvs.getString("shutter","{}");
     LOGD("raw shutter json is: %s",cfg.c_str());
     DeserializationError error = deserializeJson(doc, cfg);
-    pref.end();
+    closeNVS();
     LOGD("shutter deserialization ret val: %d 0=no error",error);
 
     if(!error){
@@ -93,14 +162,13 @@ void DomeModule::begin(){
 }
 
 void DomeModule::updateNVS1(){
-    Preferences pref;
     LOGI("upgrading NVS from 0 to 1");
-    if(pref.begin(DOME_SCHEMA_NAME)){
-        pref.putBool("enable",false);
-        pref.putInt("schema",DOME_SCHEMA_VERSION);
-        pref.putInt("order",1);
-        pref.putString("shutter","{}");
-        pref.end();
+    if(openNVS(false)){
+        nvs.putBool("enable",false);
+        nvs.putInt("schema",DOME_SCHEMA_VERSION);
+        nvs.putInt("order",1);
+        nvs.putString("shutter","{}");
+        nvs.end();
     } else {
         LOGE("Unable to open the name space for the upgrade");
     }
@@ -108,24 +176,25 @@ void DomeModule::updateNVS1(){
 
 }
 
-void DomeModule::initNVS(){
-    Preferences pref;
+bool DomeModule::initNVS(){
+
     LOGI("initNVS() initialization begin");
-    if(!pref.begin(DOME_SCHEMA_NAME, false)){
+    if(!openNVS(false)){
         LOGE("initNVS() failed to open the namespace with write rights, initialization failed");
-        pref.end();
-        return;
+        closeNVS();
+        return false;
     };
 
     LOGV("Storing default keys");
-    pref.putBool("enable",false);
-    pref.putInt("order",1);
-    pref.putInt("schema",1);
-    pref.putString("identifier","Dome");
-    pref.putString("shutter","{}");
-    pref.end();
+    nvs.putBool("enable",false);
+    nvs.putInt("order",1);
+    nvs.putInt("schema",1);
+    nvs.putString("identifier","Dome");
+    nvs.putString("shutter","{}");
+    nvs.end();
 
     LOGI("initNVS() end");
+    return true;
 }
 
 bool DomeModule::isEnable(){

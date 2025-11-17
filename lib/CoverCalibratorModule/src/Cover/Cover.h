@@ -70,7 +70,6 @@ public:
     void storeConfiguration(JsonObject toBeStored,const char* schema);
     void getConfiguration(JsonObject obj);
 
-
 };
 
 #endif

@@ -7,45 +7,123 @@
 #define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
+#pragma region nvsHandler
+
+bool CoverCalibratorModule::openNVS(bool readOnly) {
+
+  switch (nvsStatus) {
+
+    // nvs is closed, i need to open according by the readOnly
+  case CLOSED:
+    LOGV("NVS seems to be closed");
+    if (nvs.begin(COVERC_SCHEMA_NAME, readOnly)) {
+      if (readOnly) {
+        LOGV("NVS opened in readonly");
+        nvsStatus = OPEN_READOLNY;
+      } else {
+        LOGV("NVS opened with write rights");
+        nvsStatus = OPEN_WRITE;
+      }
+      return true;
+    } else {
+      LOGE("Error opening the NVS");
+      nvsStatus = CLOSED;
+      return false;
+    }
+    break;
+
+  case OPEN_READOLNY:
+    LOGV("NVS seems open in read only");
+    if (!readOnly) {
+      closeNVS();
+      if (nvs.begin(COVERC_SCHEMA_NAME, false)) {
+        nvsStatus = OPEN_WRITE;
+        LOGV("NVS opened with write rights");
+        return true;
+      } else {
+        LOGV("Error during opening NVS with write rights");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open in read only");
+      return true;
+    }
+    break;
+
+  case OPEN_WRITE:
+    LOGV("NVS seems open with write rights");
+    if (readOnly) {
+      closeNVS();
+      nvsStatus = CLOSED;
+      if (nvs.begin(COVERC_SCHEMA_NAME, true)) {
+        nvsStatus = OPEN_READOLNY;
+        LOGV("NVS opened in read only");
+        return true;
+      } else {
+        LOGV("Error during opening NVS in read only");
+        return false;
+      }
+    } else {
+      LOGV("NVS already open with write rights");
+      return true;
+    }
+    break;
+
+  default:
+    LOGE("Unknown NVS status: %d", nvsStatus);
+    return false;
+    break;
+  }
+
+  LOGE("Arrived at the buttom of the function, don't know what happed..");
+  return false;
+}
+
+void CoverCalibratorModule::closeNVS() {
+  if (nvsStatus != CLOSED) {
+    nvs.end();
+    nvsStatus = CLOSED;
+    LOGV("NVS closed");
+  } else {
+    LOGV("NVS already closed");
+  }
+}
+
+#pragma endregion
 
 #pragma region CONFIGURATION
 /* initialize the dome */
 void CoverCalibratorModule::begin(){
     LOGI("Loading configuration");
     JsonDocument doc;
-    Preferences pref;
-    
-    bool nvsEnded = false;
 
-    if(!pref.begin(COVERC_SCHEMA_NAME,true)){
+
+    if(!openNVS(true)){
         LOGE("Error loading nvs partition, trying to format it");
-        pref.end();
-        nvsEnded = true;
         initNVS();
-        if(!pref.begin(COVERC_SCHEMA_NAME,true)){
-            pref.end();
-            nvsEnded = true;
+        if(!openNVS(true)){
+            closeNVS();
             LOGE("Critical, unable to load nvs after initialization");
             return;
         };
     }else{LOGV("Namespace open without problem");}
 
-    moduleEnable = pref.getBool("enable");
-    uiOrder = pref.getInt("order",1);
-    identifier = pref.getString("identifier","CoverCalibrator");
+    openNVS(true);
+
+    moduleEnable = nvs.getBool("enable");
+    uiOrder = nvs.getInt("order",1);
+    identifier = nvs.getString("identifier","CoverCalibrator");
 
     if(!moduleEnable){
         LOGW("Module not enable, setup completed");
-        pref.end();
+        closeNVS();
         return;
     }
     
-    int schemaVersion = pref.getInt("schema");
+    int schemaVersion = nvs.getInt("schema");
     LOGD("schema version is: %d", schemaVersion);
 
     if(schemaVersion < COVERC_SCHEMA_VERSION){
-        nvsEnded = true;
-        pref.end(); //since the upgrade operation required to open the nvs with write rigths I close it for reopen again in read only leater
         LOGW("schema need an upgrade");
         switch (schemaVersion)
         {
@@ -59,17 +137,11 @@ void CoverCalibratorModule::begin(){
         }
     }
 
-    if(nvsEnded){
-        if(!pref.begin(COVERC_SCHEMA_NAME)){
-            moduleEnable=false;
-            LOGE("Error loading dome nvs partition, stop");
-            return;
-        }
-    } 
+    openNVS(true);
 
     /* basic data for CoverCalibratorModule is taken, module bening*/
     LOGI("deserialization of calibrator json configuration");
-    String cfg = pref.getString("calibrator","{}");
+    String cfg = nvs.getString("calibrator","{}");
     LOGD("raw calibrator json is: %s",cfg.c_str());
     DeserializationError error = deserializeJson(doc, cfg);
     LOGD("calibrator deserialization ret val: %d 0=no error",error);
@@ -79,11 +151,12 @@ void CoverCalibratorModule::begin(){
     }
 
     cfg.clear();
-    cfg = pref.getString("cover","{}");
+    cfg = nvs.getString("cover","{}");
     LOGD("raw cover json is: %s",cfg.c_str());
     error = deserializeJson(doc, cfg);
     LOGD("cover cover ret val: %d 0=no error",error);
-    pref.end();
+    
+    closeNVS();
 
     if(!error){
         cover.begin(doc);
@@ -94,36 +167,36 @@ void CoverCalibratorModule::begin(){
 }
 
 void CoverCalibratorModule::updateNVS1(){
-    Preferences pref;
-    pref.begin(COVERC_SCHEMA_NAME);
-    pref.putBool("enable",false);
-    pref.putInt("schema",COVERC_SCHEMA_VERSION);
-    pref.putInt("order",1);
-    pref.putString("calibrator","{}");
-    pref.putString("cover","{}");
-    pref.end();
+    openNVS(false);
+    nvs.begin(COVERC_SCHEMA_NAME);
+    nvs.putBool("enable",false);
+    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
+    nvs.putInt("order",1);
+    nvs.putString("calibrator","{}");
+    nvs.putString("cover","{}");
+    nvs.end();
+    closeNVS();
 }
 
-void CoverCalibratorModule::initNVS(){
+bool CoverCalibratorModule::initNVS(){
 
-    Preferences pref;
 
     LOGI("NVS initialization begin");
-    if(!pref.begin(COVERC_SCHEMA_NAME, false)){
+    if(!openNVS(false)){
         LOGE("Unable to access to NVS, initialization failed");
-        pref.end();
-        return;
+        closeNVS();
+        return false;
     };
 
-    pref.putBool("enable",false);
-    pref.putInt("order",1);
-    pref.putInt("schema",COVERC_SCHEMA_VERSION);
-    pref.putString("identifier","CoverCalibrator");
-    pref.putString("calibrator","{}");
-    pref.putString("cover","{}");
-    pref.end();
+    nvs.putBool("enable",false);
+    nvs.putInt("order",1);
+    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
+    nvs.putString("identifier","CoverCalibrator");
+    nvs.putString("calibrator","{}");
+    nvs.putString("cover","{}");
+    closeNVS();
 
-    Serial.println("NVS initialized");
+    return true;
 }
 
 bool CoverCalibratorModule::isEnable(){
@@ -206,18 +279,17 @@ void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidate
 
 void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
     LOGI("Writing new configuration on the NVS");
-    Preferences pref;
 
-    pref.begin(COVERC_SCHEMA_NAME);
+    openNVS(false);
 
     bool inEnable = toBeStored["enable"].as<bool>();
 
-    pref.putBool("enable",inEnable);
-    pref.putInt("uiOrder",toBeStored["uiOrder"].as<int>());
-    pref.putInt("schema",COVERC_SCHEMA_VERSION);
-    pref.putString("identifier",toBeStored["identifier"].as<String>());
+    nvs.putBool("enable",inEnable);
+    nvs.putInt("uiOrder",toBeStored["uiOrder"].as<int>());
+    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
+    nvs.putString("identifier",toBeStored["identifier"].as<String>());
  
-    pref.end();
+    closeNVS();
 
     /* apply only the changes that don't require a reboot */
     uiOrder = toBeStored["uiOrder"].as<int>();

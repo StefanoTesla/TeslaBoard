@@ -18,7 +18,7 @@
 class SwitchModule {
 public:
   enum Type { NotPresent, Input, Output, PWM, Servo };
-  bool rebootNeeded = false;
+
 public:
   SwitchModule(PWMManager *channelManager) : chMgr(channelManager) {}
 
@@ -29,6 +29,8 @@ public:
   void getConfiguration(JsonObject dest);
   void validateConfiguration(const JsonObject &incomingData, JsonObject response);
   void storeConfiguration();
+
+  bool needReboot() { return rebootNeeded; } 
   String getIdentifier() { return identifier; }
 
 
@@ -58,9 +60,9 @@ private:
   void updateNVS1();
   JsonObject tmpLoad;
   JsonDocument tmpCfg;
-  bool moduleEnable;
-  bool validConfig;
-
+  bool moduleEnable = false;
+  bool validConfig = false;
+  bool rebootNeeded = false;
 private:
   PWMManager *chMgr;
   String identifier = "Switch";

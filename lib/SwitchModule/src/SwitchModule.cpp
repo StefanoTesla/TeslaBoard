@@ -359,6 +359,11 @@ void SwitchModule::validateSwitches(const JsonArray &switches,
     incomingSwitches.add(singleSW);
     checkIfRebootNeeded(id, type, singleSW, response);
   }
+
+  if(incomingSwitches.size() != configuredSwitches){
+    response["reboot"] = true;
+  }
+
   if (response["reboot"]) {
     rebootNeeded = true;
   }

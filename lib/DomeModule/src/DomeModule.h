@@ -23,21 +23,28 @@ public:
     void getConfiguration(JsonObject dest);
     void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
     void storeConfiguration(JsonObject toBeStored);
+    bool needReboot() { return rebootNeeded; }
     String getIdentifier(){ return identifier; }
     unsigned int uiOrder;
 
 private:
 
 /* functions to handle the configuration */
-    void initNVS();
+    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
+    PrefEnumStatus nvsStatus = CLOSED;
+    bool openNVS(bool readOnly);
+    void closeNVS();
+    bool initNVS();
     void updateNVS1();
 
-    bool moduleEnable;
-    bool validConfig;
+    bool moduleEnable = false;
+    bool validConfig = false;
+    bool rebootNeeded = false;
 
 
 private:
     String identifier = "Dome";
+    Preferences nvs;
 };
 
 #endif
