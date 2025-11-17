@@ -81,7 +81,6 @@ private:
     int getLastPosition();
     unsigned int lastPosition;
     unsigned long lastPosMillis;
-    bool deferredStoreLastPosition;
 };
 
 #endif
