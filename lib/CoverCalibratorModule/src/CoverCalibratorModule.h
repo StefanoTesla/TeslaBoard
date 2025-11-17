@@ -30,7 +30,6 @@ public:
     void getConfiguration(JsonObject dest);
     void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
     void storeConfiguration(JsonObject toBeStored);
-    bool needReboot() { return rebootNeeded; }
     String getIdentifier(){ return identifier; }
     unsigned int uiOrder;
 

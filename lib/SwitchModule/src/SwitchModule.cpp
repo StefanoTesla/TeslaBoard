@@ -240,7 +240,7 @@ void SwitchModule::getConfiguration(JsonObject dest) {
   dest["enable"] = moduleEnable;
   dest["uiOrder"] = uiOrder;
   dest["identifier"] = identifier;
-
+  dest["reboot"] = rebootNeeded;
   JsonArray switchesArray = dest["Switches"].to<JsonArray>();
 
   for (size_t i = 0; i < configuredSwitches; i++) {

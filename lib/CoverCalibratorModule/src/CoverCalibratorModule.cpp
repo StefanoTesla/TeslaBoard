@@ -208,6 +208,7 @@ void CoverCalibratorModule::getConfiguration(JsonObject dest){
     dest["enable"] = moduleEnable;
     dest["uiOrder"] = uiOrder;
     dest["identifier"] = identifier;
+    dest["reboot"] = rebootNeeded;
     JsonObject calibObj = dest["calibrator"].to<JsonObject>();
     calibrator.getConfiguration(calibObj);
     JsonObject coverObj = dest["cover"].to<JsonObject>();

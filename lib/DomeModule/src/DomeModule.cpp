@@ -215,6 +215,7 @@ void DomeModule::getConfiguration(JsonObject dest){
     dest["enable"] = moduleEnable;
     dest["uiOrder"] = uiOrder;
     dest["identifier"] = identifier;
+    dest["reboot"] = rebootNeeded;
     JsonObject shutterObj = dest["shutter"].to<JsonObject>();
     shutter.getConfiguration(shutterObj);
 

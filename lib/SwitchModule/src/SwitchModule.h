@@ -29,8 +29,6 @@ public:
   void getConfiguration(JsonObject dest);
   void validateConfiguration(const JsonObject &incomingData, JsonObject response);
   void storeConfiguration();
-
-  bool needReboot() { return rebootNeeded; } 
   String getIdentifier() { return identifier; }
 
 
@@ -57,7 +55,6 @@ public:
 private:
   /* functions to handle the configuration */
 
-  void updateNVS1();
   JsonObject tmpLoad;
   JsonDocument tmpCfg;
   bool moduleEnable = false;
@@ -76,6 +73,8 @@ private:
   bool openNVS(bool readOnly);
   void closeNVS();
   bool initNVS();
+  void updateNVS1();
+  
   bool validateMainFields(const JsonObject &data, JsonObject response);
   void validateSwitches(const JsonArray &switches, JsonObject response);
   int validateSwitchType(Type type, const JsonObject &singleSW);
