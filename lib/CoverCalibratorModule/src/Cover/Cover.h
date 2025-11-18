@@ -25,6 +25,7 @@ private:
     bool rebootPending = false;
     unsigned int openPosition;
     unsigned int closePosition;
+    bool storePosition = false;
     Status status = NotPresent;
     Status oldStatus = NotPresent;
     

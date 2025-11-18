@@ -100,16 +100,19 @@ void Cover::begin(const JsonDocument &doc) {
   moduleEnable = doc["enable"].as<bool>();
   openPosition = doc["openPos"].as<unsigned int>();
   closePosition = doc["closePos"].as<unsigned int>();
+  storePosition = doc["storePos"].as<bool>();
 
   if (moduleEnable) {
     JsonObjectConst pinServo = doc["outServo"];
     servo.jsonSetup(pinServo);
 
-    int lastPos = getLastPosition();
-
-    if(lastPos >= 0){
-      servo.goTo(lastPos,true);
+    if(storePosition){
+      int lastPos = getLastPosition();
+      if(lastPos >= 0){
+        servo.goTo(lastPos,true);
+      }
     }
+
   }
 }
 
@@ -117,6 +120,7 @@ void Cover::getConfiguration(JsonObject obj) {
   obj["enable"] = moduleEnable;
   obj["openPos"] = openPosition;
   obj["closePos"] = closePosition;
+  obj["storePos"] = storePosition;
 
   JsonObject servoData = obj["outServo"].to<JsonObject>();
   servo.getConfiguration(servoData);
@@ -220,7 +224,7 @@ void Cover::loop() {
   servo.loop();
   updateStatus();
 
-  storeLastPosition();
+  if(storePosition){ storeLastPosition(); }
 }
 
 /* return true if you can open (servo is not moving and is not already open),
@@ -312,21 +316,23 @@ Cover::Status Cover::getStatus() const { return status; }
 
 void Cover::storeLastPosition(){
 
+  if(servo.isMoving()){
+    return;
+  }
+
   if(millis() - lastPosMillis < 300000){
     return;
     //wait until timer don't reach 5minutes
   }
   LOGV("Going to store the servo position");
 
-  if(servo.isMoving()){
-    return;
-    //wait until servo is not moving
-  }
+
 
   int servoPos = servo.readPosition();
 
   if(lastPosition != servoPos
     && servoPos >= 0  ){
+    LOGV("Storing the cover position");
     lastPosition = servo.readPosition();
     if(openNVS(false)){
       nvs.putInt("cPos",lastPosition);
@@ -342,7 +348,7 @@ void Cover::storeLastPosition(){
 }
 
 //return the last know cover position
-//if negative value, don't exist
+//if negative value, was never witten
 int Cover::getLastPosition(){
   openNVS(true);
   return nvs.getInt("cPos",-1);

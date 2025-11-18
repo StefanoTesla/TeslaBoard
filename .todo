@@ -1,5 +1,3 @@
-//- if the cover was never moved from the starup, nina will not send the command, I need to implement a way to store the last position, now I will change the actual state from 
-//"error" to unknow when is not "referenced"
 
 -cover, need to see what happend when the esp restart, some servo goeas to zero when no pwm arrive...
 
@@ -7,7 +5,3 @@
 
 
 - reboot work "bad"....
-
-- I need to rethink the connection cycle, if wifi is lost the board is unable to connect to a new wifi, there's the wifi shutdown but since the wifi is connected for a moment will not try to shutdown the wifi
-
-- report the reboot needed to the setup page

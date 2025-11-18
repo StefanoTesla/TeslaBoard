@@ -262,6 +262,7 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
             break;
         case ARDUINO_EVENT_WIFI_STA_DISCONNECTED:
         case ARDUINO_EVENT_WIFI_STA_LOST_IP:
+            gotIP = false;
             staDisconnected = true;
             LOGV("%d",mainState);
             oneMinMillis = 0;
@@ -269,7 +270,7 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
             LOGV("Disconnected from WiFi access point");
             break;
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-
+            gotIP = true;
             connecting = false;
             LOGI("Obtained IP address:");
             LOGI("%s",WiFi.localIP().toString());
@@ -474,16 +475,8 @@ void TeslaWiFiManager::APloop(){
 
 void TeslaWiFiManager::STAloop(){
 
-  if(WiFi.status() == WL_CONNECTED){
-    STAConCy = STA_INIT; 
-    if(oneMinMillis == 0){ oneMinMillis = millis();}
-    if(millis()-oneMinMillis >= 60000){
-      oneMinMillis = millis();
-      upTime++;
-    }
-  } else {
     STAConnectionCycle();
-  }
+
 
   if(!digitalRead(0)){
     if(!gpio0pressed){
@@ -573,30 +566,52 @@ void TeslaWiFiManager::STAConnectionCycle(){
       if(lastFound < MAX_CONFIGURED_WIFI){
         lastFound++;
       }
-      STAConCy = STA_LOOK_FOR_WIFI; //try if you can connect to another one
+      STAConCy = STA_DISCONNECT; //try if you can connect to another one
+  }
+  if(gotIP){
+    LOGV("Wifi is connected");
+    STAConCy = STA_CONNECTED;
+  }
+  break;
+
+  case STA_CONNECTED:
+    if(WiFi.status() == WL_CONNECTED){
+      if(oneMinMillis == 0){ oneMinMillis = millis();}
+      if(millis()-oneMinMillis >= 60000){
+        oneMinMillis = millis();
+        upTime++;
+      }
+    } else {
+        oneMinMillis = 0;
+        upTime = 0;
+        LOGV("WiFi Disconnected");
+        STAConCy = STA_DISCONNECT;
     }
     break;
 
-    case STA_DISCONNECT:
-        LOGV("Disconnetting WiFi");
-        WiFi.disconnect();
-        STAConCy = STA_TURN_ON_WIFI;
-        waitChange = millis();
-    
-    case STA_TURN_ON_WIFI:
-        if(millis() - waitChange > 200){
-            break;
-        }
-        LOGV("WiFi in STA mode");
-        WiFi.mode(WIFI_STA);
-        STAConCy = STA_WAIT_RADIO_ON;
-        break;
 
-    case STA_WAIT_RADIO_ON:
-        if(!isWiFiSta){
-            break;
-        }
-        STAConCy = STA_LOOK_FOR_WIFI;
+  case STA_DISCONNECT:
+      LOGV("Disconnetting WiFi");
+      WiFi.disconnect();
+      STAConCy = STA_TURN_ON_WIFI;
+      waitChange = millis();
+      break;
+
+  case STA_TURN_ON_WIFI:
+      if(millis() - waitChange > 200){
+          break;
+      }
+      LOGV("WiFi in STA mode");
+      WiFi.mode(WIFI_STA);
+      STAConCy = STA_WAIT_RADIO_ON;
+      break;
+
+  case STA_WAIT_RADIO_ON:
+      if(!isWiFiSta){
+          break;
+      }
+      STAConCy = STA_LOOK_FOR_WIFI;
+      break;
   default:
     LOGE("UNDEFINED STEP");
     break;
@@ -605,21 +620,6 @@ void TeslaWiFiManager::STAConnectionCycle(){
 
 #pragma endregion
 
-bool TeslaWiFiManager::findMatchingWiFi() {
-
-  for (int i = lastFound; i < configuredWiFi; i++)
-  {
-    for (int x = 0; x < wifiScanList.size(); x++) {
-      JsonObject wifi = wifiScanList[x].as<JsonObject>();
-      if (strcmp(wifiList[i].ssid, wifi["ssid"].as<const char*>()) == 0) {
-        LOGV("Match: %s", wifiList[i].ssid);
-        lastFound = i;
-        return true;
-      }
-    }
-  }
-  return false;
-}
 
 #pragma region Scan Functions
 
@@ -656,6 +656,22 @@ void TeslaWiFiManager::scanManager(){
 
 }
 
+bool TeslaWiFiManager::findMatchingWiFi() {
+
+  for (int i = lastFound; i < configuredWiFi; i++)
+  {
+    for (int x = 0; x < wifiScanList.size(); x++) {
+      JsonObject wifi = wifiScanList[x].as<JsonObject>();
+      if (strcmp(wifiList[i].ssid, wifi["ssid"].as<const char*>()) == 0) {
+        LOGV("Match: %s", wifiList[i].ssid);
+        lastFound = i;
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 void TeslaWiFiManager::startWiFiscan(){
       Serial.println("Start scan");
       scanTimeOutMillis = millis();
@@ -679,7 +695,6 @@ void TeslaWiFiManager::copyWiFiList(){
   WiFi.scanDelete();
   scanStatus = scanStateEnum::SCAN_DONE;
 }
-
 
 #pragma endregion
 

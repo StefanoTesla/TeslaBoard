@@ -78,6 +78,7 @@ private:
     bool validConfig;
     bool rebootNeeded;
     bool apRunning;
+    bool gotIP;
     //uptime data
     unsigned long oneMinMillis = 0;
     unsigned long upTime = 0;
@@ -145,6 +146,7 @@ private:
         STA_GO_TO_AP,
         STA_CONNECT_TO_WIFI,
         STA_WAIT_CONNECTION,
+        STA_CONNECTED,
         //after connection failed
         STA_DISCONNECT,
         STA_TURN_ON_WIFI,

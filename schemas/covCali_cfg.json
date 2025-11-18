@@ -15,6 +15,7 @@
       "enable":true,
       "openPos":100,
       "closePos":0,
+      "savePos": false,
       "outServo":{
          "type":4,
          "name":"",
