@@ -20,10 +20,7 @@ AsyncMiddlewareFunction getAlpParams([](AsyncWebServerRequest* request, ArMiddle
     if(name=="id"){ request->setAttribute("id", p->value().c_str()); continue; }
     if(name == "clienttransactionid"){ request->setAttribute("ctid", p->value().c_str()); continue; }
     if(name == "value"){ request->setAttribute("value", p->value().c_str()); continue; }
-    if(name == "brightness") { 
-
-      Serial.println(p->value());
-      request->setAttribute("brightness", p->value().c_str()); continue; }
+    if(name == "brightness") { request->setAttribute("brightness", p->value().c_str()); continue; }
 
 	if(name == "state"){
 		String State = p->value();

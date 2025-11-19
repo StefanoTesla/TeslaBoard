@@ -1,12 +1,11 @@
 #include "TeslaWiFiManager.h"
 #include "esp_log.h"
 #define LOG_TAG "WiFiMgr"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
-
 
 TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 
@@ -139,7 +138,6 @@ void TeslaWiFiManager::begin() {
       char key[10];
       snprintf(key, sizeof(key), "wifi%d", i);
       String wifiX= nvs.getString(key,"{}");
-      LOGV("%s",wifiX.c_str());
       deserializeJson(tmpCfg,wifiX);
       
       if(tmpCfg.size() != 0){
@@ -219,7 +217,6 @@ void TeslaWiFiManager::storeConfiguration(){
 
 #pragma region WiFiEvents
 void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_info_t info) {
-    Serial.printf("[WiFi-event] event: %d\n", event);
 
     switch (event) {
         case ARDUINO_EVENT_WIFI_READY:
@@ -274,7 +271,6 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
             connecting = false;
             LOGI("Obtained IP address:");
             LOGI("%s",WiFi.localIP().toString());
-        
             break;
 
         default: break;
@@ -417,6 +413,7 @@ void TeslaWiFiManager::APloop(){
     LOGV("Starting the scan operation from AP");
     scanStatus = scanStateEnum::SCAN_WAIT_START;
     APcycle = AP_WAIT_OPERATION;
+    lastFound = 0;
     break;
 
   case AP_WAIT_OPERATION: //waiting to find a configured wifi or a new wifi
@@ -592,7 +589,7 @@ void TeslaWiFiManager::STAConnectionCycle(){
 
   case STA_DISCONNECT:
       LOGV("Disconnetting WiFi");
-      WiFi.disconnect();
+      WiFi.disconnect(true);
       STAConCy = STA_TURN_ON_WIFI;
       waitChange = millis();
       break;
@@ -619,7 +616,6 @@ void TeslaWiFiManager::STAConnectionCycle(){
 }
 
 #pragma endregion
-
 
 #pragma region Scan Functions
 
@@ -673,7 +669,6 @@ bool TeslaWiFiManager::findMatchingWiFi() {
 }
 
 void TeslaWiFiManager::startWiFiscan(){
-      Serial.println("Start scan");
       scanTimeOutMillis = millis();
       WiFi.scanNetworks(true);
       scanStatus = scanStateEnum::SCAN_SCANNING;
@@ -701,6 +696,7 @@ void TeslaWiFiManager::copyWiFiList(){
 void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
   connecting = true;
   WiFi.begin(ssid,password);
+  WiFi.setHostname(hostName.c_str());
   connectionTOUTMillis = millis();
   staDisconnected = false;
 }
@@ -741,7 +737,6 @@ void TeslaWiFiManager::web(){
           JsonObject obj = wifiStored.add<JsonObject>();
           obj["ssid"] = wifiList[i].ssid;
           obj["psw"]  = wifiList[i].password;
-          LOGV("MANNAGGIA");
         }
 
         response->setLength();
@@ -754,8 +749,6 @@ void TeslaWiFiManager::web(){
     incomingWiFi->setMethod(HTTP_POST | HTTP_PUT);
     incomingWiFi->onRequest([this](AsyncWebServerRequest* request, JsonVariant& root) {
 
-        Serial.print("[WiFiMgr] New wifi incoming: ");
-        Serial.println(root["ssid"].as<String>());
         if(root["ssid"] == ""){
             request->send(400, "application/json", "{\"error\":\"no ssid\"");
             return;

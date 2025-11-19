@@ -1,10 +1,10 @@
 #include "SwitchModule.h"
 #undef LOG_TAG
 #define LOG_TAG "Switch"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 #pragma region nvsHandler

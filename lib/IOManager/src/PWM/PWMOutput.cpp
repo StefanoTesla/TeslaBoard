@@ -2,16 +2,15 @@
 #include <Arduino.h>
 
 #define LOG_TAG "IOPWM"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
   LOGV("Servo channel json setup");
   if (setup["type"].as<int>() != 3) {
-    Serial.println("TYPE ERROR");
     return false;
   }
   setName(setup["name"]);
@@ -31,7 +30,6 @@ bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
 
   if (channel < 0) {
     LOGE("Unable to retrive a PWM channel");
-    Serial.println("Unable to retrive a free ledChannel");
     return false;
   }
 

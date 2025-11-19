@@ -19,7 +19,8 @@ class TeslaWiFiManager {
 public:
     TeslaWiFiManager(AsyncWebServer *server);
 
-    void begin(); 
+    void begin();
+    void setHostName(String inHostName){ hostName = inHostName;};
     void loop();
 
     bool APisRunning() { return apRunning; }
@@ -55,7 +56,7 @@ private:
     void startWiFiscan();
     void copyWiFiList();
     JsonDocument wifiScanList;
-
+    String hostName;
     /* WIFI STATUS */
     bool isWiFiReady;
     bool isWiFiSta;

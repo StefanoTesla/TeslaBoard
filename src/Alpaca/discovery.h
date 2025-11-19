@@ -3,7 +3,6 @@
 
 void alpacaDiscovery(AsyncUDP &udp) {
     if (udp.listen(32227)) {
-        Serial.println("Listening for discovery requests...");
         udp.onPacket([](AsyncUDPPacket packet) {
             if (packet.length() < 16) {
                 return;
@@ -13,8 +12,6 @@ void alpacaDiscovery(AsyncUDP &udp) {
             }
             packet.printf("{\"alpacaport\": %d}", ALPACA_PORT);
         });
-    } else {
-        Serial.println("Failed to start UDP listening.");
     }
 }
 

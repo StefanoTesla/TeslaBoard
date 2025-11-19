@@ -6,7 +6,6 @@ DigitalInput::DigitalInput() {}
 
 bool DigitalInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   if (obj["type"].as<int>() != 1) {
-    Serial.println("TYPE ERROR");
     return false;
   }
   setName(obj["name"]);
@@ -18,8 +17,6 @@ bool DigitalInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   min = 0;
   max = 1;
   pinMode(pin, INPUT);
-  Serial.print("New DI setup at pin: ");
-  Serial.println(pin);
   return true;
 }
 
@@ -40,7 +37,6 @@ bool DigitalInput::pinUnusable(int pin) {
 
 int DigitalInput::validateJsonCfg(JsonObject json) {
 
-  Serial.println("DIGITAL INPUT VALIDATION");
   serializeJson(json, Serial);
   if (!json["pin"].is<unsigned int>()) {
     return -1;
@@ -89,7 +85,6 @@ void DigitalInput::setDelays(unsigned int newDOn, unsigned int newDOff) {
 void DigitalInput::setInvert(bool newInvert) { invert = newInvert; }
 
 int DigitalInput::write(int _value) {
-  Serial.println("Errore: Impossibile scrivere su un ingresso digitale.");
   return -1;
 }
 

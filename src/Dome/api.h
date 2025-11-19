@@ -21,7 +21,7 @@ AsyncMiddlewareFunction upLastCom([](AsyncWebServerRequest* request, ArMiddlewar
 
 #pragma endregion
 
-void domeRequestHandler(){
+void domeApi(){
 
 #pragma region webApi
 

@@ -3,7 +3,7 @@
 //---- STOP EDITING FROM THIS LINE
 
 #define SW_VERSION "4.0.0"
-
+#include "esp_log.h"
 #include "libraries.h"
 
 
@@ -34,15 +34,12 @@ void initNVS(){
       esp_err_t ret = nvs_flash_init();
 
     if (ret == ESP_OK) {
-        Serial.println("NVS Initialized");
+
     } else if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        Serial.printf("[WiFiMgr] NVS Error: %s\n", esp_err_to_name(ret));
-        Serial.println("[WiFiMgr] Trying to format it.");
         esp_err_t erase_ret = nvs_flash_erase();
         if (erase_ret == ESP_OK) {
             ret = nvs_flash_init();
             if (ret == ESP_OK) {
-                Serial.println("NVS Initialized");
                 return;
             }
         }
@@ -54,21 +51,22 @@ void setup() {
   initNVS();
   Serial.begin(115200);
   if(!LittleFS.begin()){
-    Serial.println("An Error has occurred while mounting LittleFS");
   //  return;
   }
-
+ 
   WiFiManager.begin();
   Board.begin();
   Dome.begin();
   CoverCalibrator.begin();
   Switches.begin();
-  WiFi.setHostname(Board.getIdentifier().c_str());
+  WiFiManager.setHostName(Board.getIdentifier());
 
+  esp_log_level_set("*", ESP_LOG_NONE);
+  esp_log_level_set("WiFiMgr", ESP_LOG_VERBOSE);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();
-  domeRequestHandler();
+  domeApi();
   CoverCalibratorApi();
   SwitchApi();
   boardWebServer();
@@ -107,6 +105,5 @@ void loop() {
   Dome.loop();
   CoverCalibrator.loop();
   Switches.loop();
-
 }
 

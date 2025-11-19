@@ -5,7 +5,6 @@ DigitalOutput::DigitalOutput() {}
 
 bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   if (obj["type"].as<int>() != 2) {
-    Serial.println("TYPE ERROR");
     return false;
   }
   setName(obj["name"]);
@@ -13,8 +12,6 @@ bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   pin = obj["pin"].as<unsigned int>();
   invert = obj["invert"].as<unsigned int>();
   pinMode(pin, OUTPUT);
-  Serial.print("New DO setup at pin: ");
-  Serial.println(pin);
   min = 0;
   max = 1;
   write(0);

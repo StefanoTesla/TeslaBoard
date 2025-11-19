@@ -1,10 +1,10 @@
 #include "Shutter.h"
 #undef LOG_TAG
 #define LOG_TAG "Shutter"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 /* loop cycle, status and cycle update */
@@ -566,7 +566,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
 
     JsonObject inOpen = obj["inOpen"];
     retVal = OpenSensor.validateJsonCfg(inOpen);
-    Serial.println(retVal);
+
     if(retVal != 1){
         JsonObject e = err.add<JsonObject>();
         e["id"] = 1;
@@ -637,19 +637,15 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
     /* check if board need a reboot */
 
     if(inOpen["pin"].as<unsigned int>() != OpenSensor.getPinNumber()){
-        Serial.print("reboot");
         response["reboot"] = true;
     }
     if(inClose["pin"].as<unsigned int>() != CloseSensor.getPinNumber()){
-        Serial.print("reboot");
         response["reboot"] = true;
     }
     if(outStart["pin"].as<unsigned int>() != StartOpen.getPinNumber()){
-        Serial.print("reboot");
         response["reboot"] = true;
     }
     if(outHalt["pin"].as<unsigned int>() != HaltClose.getPinNumber()){
-        Serial.print("reboot");
         response["reboot"] = true;
     }
 
@@ -703,7 +699,6 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
 
     serializeJson(tmpCfg,json);
 
-    Serial.println(json);
     pref.putString("shutter",json);
     pref.end();
     tmpCfg.clear();

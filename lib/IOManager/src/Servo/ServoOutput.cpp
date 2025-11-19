@@ -2,10 +2,10 @@
 #include "esp_log.h"
 #include <Arduino.h>
 #define LOG_TAG "IOServo"
-#define LOGV(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 // This library is totally outside the Servo.h arduino library
 // I handle the servo like a PWM output and I calcolate the duty in microsecond
@@ -130,7 +130,6 @@ bool ServoOutput::isReferenced() {
 bool ServoOutput::jsonSetup(JsonObjectConst setup, bool notUsedHere) {
   LOGI("Servo channel setup");
     if(setup["type"].as<int>() != 4){
-        Serial.println("TYPE ERROR");
         return false;
     }
     setName(setup["name"]);
