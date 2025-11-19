@@ -3,7 +3,6 @@
 //---- STOP EDITING FROM THIS LINE
 
 #define SW_VERSION "4.0.0"
-#include "esp_log.h"
 #include "libraries.h"
 
 
@@ -60,13 +59,10 @@ void setup() {
   CoverCalibrator.begin();
   Switches.begin();
   WiFiManager.setHostName(Board.getIdentifier());
-
-  esp_log_level_set("*", ESP_LOG_NONE);
-  esp_log_level_set("WiFiMgr", ESP_LOG_VERBOSE);
   //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();
-  domeApi();
+  DomeApi();
   CoverCalibratorApi();
   SwitchApi();
   boardWebServer();
