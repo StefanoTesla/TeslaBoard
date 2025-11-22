@@ -1,7 +1,6 @@
-
--cover, need to see what happend when the esp restart, some servo goeas to zero when no pwm arrive...
-
 - need to separate calibrator and cover nvs i think from main module...can be a good things for future indi driver, but actually I need to put last cover pos without sense around the cccfg #future
 
 
 - reboot work "bad"....
+
+-wifi work really bad

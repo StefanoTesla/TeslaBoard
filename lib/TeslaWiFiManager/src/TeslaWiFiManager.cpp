@@ -131,9 +131,9 @@ void TeslaWiFiManager::begin() {
 
     if(nvsStatus != OPEN_READOLNY){ openNVS(true); }
     
-    configuredWiFi = nvs.getInt("cfgwifi", 0);
+    //configuredWiFi = nvs.getInt("cfgwifi", 0);
     LOGV("%d configured WiFi",configuredWiFi);
-    for (int i = 0; i < configuredWiFi ; i++){
+    for (int i = 0; i < MAX_CONFIGURED_WIFI ; i++){
       tmpCfg.clear();
       char key[10];
       snprintf(key, sizeof(key), "wifi%d", i);
@@ -145,6 +145,7 @@ void TeslaWiFiManager::begin() {
         const char* password = tmpCfg["psw"] | "";
         strlcpy(wifiList[i].ssid, ssid, sizeof(wifiList[i].ssid));
         strlcpy(wifiList[i].password, password, sizeof(wifiList[i].password));
+        configuredWiFi++;
       }
     }
 
