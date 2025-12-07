@@ -145,6 +145,7 @@ void TeslaWiFiManager::begin() {
         const char* password = tmpCfg["psw"] | "";
         strlcpy(wifiList[i].ssid, ssid, sizeof(wifiList[i].ssid));
         strlcpy(wifiList[i].password, password, sizeof(wifiList[i].password));
+        LOGV("SSID: %s PASSWORD: %s", wifiList[i].ssid, wifiList[i].password);
         configuredWiFi++;
       }
     }
@@ -191,26 +192,42 @@ void TeslaWiFiManager::storeConfiguration(){
     LOGI("Writing new configuration on the NVS");
     openNVS(false);
 
+
+    configuredWiFi = 0;
+    for (int i = 0; i < MAX_CONFIGURED_WIFI; i++) {
+        if (strlen(wifiList[i].ssid) > 0) {
+            configuredWiFi++;
+        } else {
+            break; // Esce al primo vuoto (no spazi vuoti)
+        }
+    }
+    LOGV("storing %d wifi",configuredWiFi);
+    
     nvs.putInt("cfgwifi", configuredWiFi);
 
+    // Salva solo le configurazioni valide (0 a configuredWiFi-1)
     for (int i = 0; i < configuredWiFi; i++)
     {
-      tmpCfg.clear();
-      char key[10];
-      snprintf(key, sizeof(key), "wifi%d", i);
-      
-      JsonDocument newWifi;
+        char key[10];
+        snprintf(key, sizeof(key), "wifi%d", i);
+        
+        JsonDocument newWifi;
+        newWifi["ssid"] = wifiList[i].ssid;
+        newWifi["psw"] = wifiList[i].password;
+        String tmp;
+        serializeJson(newWifi, tmp);
+        nvs.putString(key, tmp);
+        LOGD("Saved WiFi %d: %s", i, wifiList[i].ssid);
+    }
 
-      newWifi["ssid"] = wifiList[i].ssid;
-      newWifi["psw"] = wifiList[i].password;
-      String tmp;
-      serializeJson(newWifi,tmp);
-      serializeJson(newWifi,Serial);
-      nvs.putString(key,tmp);
+    // Pulisce tutto il resto con {}
+    for(int i = configuredWiFi; i < MAX_CONFIGURED_WIFI; i++){
+        char key[10];
+        snprintf(key, sizeof(key), "wifi%d", i);
+        nvs.putString(key, "{}");
     }
     
     closeNVS();
-
 }
 
 #pragma endregion CONFIGURATION
@@ -480,11 +497,12 @@ void TeslaWiFiManager::STAloop(){
     if(!gpio0pressed){
       LOGV("GPIO 0 pressed");
       gpio0pressed= true;
-      waitOneSecondMillis = millis();
+      apRequestMillis = millis();
     } else {
-      if(millis()- waitOneSecondMillis >= 1000){
+      if(millis()- apRequestMillis >= 1000){
         LOGW("Captive Portal requested, going to AP");
         forceAPRequest = true;
+        apRequestMillis = millis();
         mainState = GOAP_RADIO_OFF;
       }
     }
@@ -680,12 +698,37 @@ void TeslaWiFiManager::copyWiFiList(){
   wifiScanList.clear();
   JsonArray wifiListArray = wifiScanList.to<JsonArray>();
 
-  for (int i = 0; i < found; i++)
-  {
+  for (int i = 0; i < found; i++) {
     JsonObject wifi = wifiListArray.add<JsonObject>();
     wifi["ssid"] = WiFi.SSID(i);
-    wifi["enc"] = WiFi.encryptionType(i);
+    wifi["enc"]  = WiFi.encryptionType(i);
     wifi["rssi"] = WiFi.RSSI(i);
+  }
+
+  for (int i = 0; i < found - 1; i++) {
+    for (int j = 0; j < found - 1 - i; j++) {
+      JsonObject a = wifiListArray[j];
+      JsonObject b = wifiListArray[j + 1];
+
+      int rssiA = a["rssi"];
+      int rssiB = b["rssi"];
+
+      if (rssiA < rssiB) {
+        String ssidA = a["ssid"].as<String>();
+        int   encA   = a["enc"];
+
+        String ssidB = b["ssid"].as<String>();
+        int   encB   = b["enc"];
+
+        a["ssid"] = ssidB;
+        a["enc"]  = encB;
+        a["rssi"] = rssiB;
+
+        b["ssid"] = ssidA;
+        b["enc"]  = encA;
+        b["rssi"] = rssiA;
+      }
+    }
   }
 
   WiFi.scanDelete();
@@ -696,6 +739,7 @@ void TeslaWiFiManager::copyWiFiList(){
 
 void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
   connecting = true;
+  LOGV("Connecting to: %s psw: %s",ssid,password);
   WiFi.begin(ssid,password);
   WiFi.setHostname(hostName.c_str());
   connectionTOUTMillis = millis();
@@ -703,6 +747,7 @@ void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
 }
 
 void TeslaWiFiManager::storeNewWiFi(String ssid,String password){
+  if(configuredWiFi == MAX_CONFIGURED_WIFI){ return; }
   int i = configuredWiFi;
   strlcpy(wifiList[i].ssid, ssid.c_str(), 33);
   strlcpy(wifiList[i].password, password.c_str(), 64);
@@ -711,15 +756,19 @@ void TeslaWiFiManager::storeNewWiFi(String ssid,String password){
 }
 
 void TeslaWiFiManager::removeWiFiById(int id) {
-  if (id < 0 || id >= configuredWiFi) return;
+  if (id < 0 || id >= MAX_CONFIGURED_WIFI) return;
 
-  for (int i = id; i < configuredWiFi - 1; i++) {
+  for (int i = id; i < MAX_CONFIGURED_WIFI - 1; i++) {
     wifiList[i] = wifiList[i + 1];
   }
-  strcpy(wifiList[configuredWiFi - 1].ssid, "");
-  strcpy(wifiList[configuredWiFi - 1].password, "");
+  strcpy(wifiList[MAX_CONFIGURED_WIFI - 1].ssid, "");
+  strcpy(wifiList[MAX_CONFIGURED_WIFI - 1].password, "");
 
-  configuredWiFi--;
+  if(configuredWiFi > 0){
+    configuredWiFi--;
+  }
+  storeConfiguration();
+  
 }
 
 #pragma region web
@@ -780,14 +829,19 @@ void TeslaWiFiManager::web(){
 
 
     //delete wifi
-    AsyncCallbackJsonWebHandler* deleteWiFi = new AsyncCallbackJsonWebHandler("/wifi-api/delete-wifi");
-    deleteWiFi->setMethod(HTTP_POST | HTTP_PUT);
-    deleteWiFi->onRequest([&](AsyncWebServerRequest* request, JsonVariant& root) {
-
-        request->send(200, "text/plain", "{\"executed\":true}");
+    _server->on("/wifi-api/delete-wifi", HTTP_POST, [this](AsyncWebServerRequest *request) {
+        int id = -1;
         
-    });
-    _server->addHandler(deleteWiFi);
+        if (request->hasParam("id", true)) {  // true = dal body
+          id = request->getParam("id", true)->value().toInt();
+          if(id>=0 || id<MAX_CONFIGURED_WIFI){
+            removeWiFiById(id);
+          }          
+          request->send(200, "application/json", "{\"status\":\"ok\"}");
+        } else {
+          request->send(400, "application/json", "{\"error\":\"Missing ID\"}");
+        }
+      });
 
 
     _server->serveStatic("/wifi-mgr", LittleFS, "/www/").setDefaultFile("wifi.html");
