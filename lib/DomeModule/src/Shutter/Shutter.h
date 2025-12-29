@@ -143,7 +143,7 @@ public:
     int getCloseSensorRaw(){ return CloseSensor.status(); }
     unsigned int getTravelTimeOut(){return travelTOUT / 1000;}
     void setTravelTimeOut(unsigned int time);
-    unsigned long lastTravelTime(){ return travelTime / 1000; }
+    unsigned long lastTravelTime(){ return travelTime; }
     bool isAutoCloseEnable(){ return autoClose.enable; };
 
     unsigned int getAutoCloseTimeMin(){return autoClose.waitingTime / 60000;}

@@ -62,9 +62,9 @@
                 v-model="dome.shutter.driverType"
                 @change="validate()"
               >
-                <option value="0">{{ t('dome.setting.driverTypeEnum.0') }}</option>
-                <option value="1">{{ t('dome.setting.driverTypeEnum.1') }}</option>
-                <option value="2">{{ t('dome.setting.driverTypeEnum.2') }}</option>
+                <option value="1">{{ t('dome.setting.driverTypeEnum.0') }}</option>
+                <option value="2">{{ t('dome.setting.driverTypeEnum.1') }}</option>
+                <option value="3">{{ t('dome.setting.driverTypeEnum.2') }}</option>
               </select>
             </div>
           </div>
@@ -121,13 +121,13 @@
 
         <!--out Start/Open/Movement -->
         <div class="card">
-          <p class="title" v-if="dome.shutter.driverType == 0">
+          <p class="title" v-if="dome.shutter.driverType == 1">
             {{ t('dome.setting.outStart') }}
           </p>
-          <p class="title" v-if="dome.shutter.driverType == 1">
+          <p class="title" v-if="dome.shutter.driverType == 2">
             {{ t('dome.setting.outOpen') }}
           </p>
-          <p class="title" v-if="dome.shutter.driverType == 2">
+          <p class="title" v-if="dome.shutter.driverType == 3">
             {{ t('dome.setting.outMove') }}
           </p>
 
@@ -141,13 +141,13 @@
         </div>
         <!--out Halt/Close/Direction -->
         <div class="card">
-          <p class="title" v-if="dome.shutter.driverType == 0">
+          <p class="title" v-if="dome.shutter.driverType == 1">
             {{ t('dome.setting.outHalt') }}
           </p>
-          <p class="title" v-if="dome.shutter.driverType == 1">
+          <p class="title" v-if="dome.shutter.driverType == 2">
             {{ t('dome.setting.outClose') }}
           </p>
-          <p class="title" v-if="dome.shutter.driverType == 2">
+          <p class="title" v-if="dome.shutter.driverType == 3">
             {{ t('dome.setting.outDir') }}
           </p>
 

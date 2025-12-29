@@ -91,6 +91,10 @@ int DigitalOutput::write(int _value) {
       _value = 0;
     }
   }
+  Serial.print("writing ");
+  Serial.print(_value);
+  Serial.print(" on pin ");
+  Serial.println(pin);  
   digitalWrite(pin, _value);
   return 1;
 }

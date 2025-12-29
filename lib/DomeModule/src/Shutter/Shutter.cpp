@@ -158,7 +158,7 @@ void Shutter::cycle(){
 
         // intial step...waiting for a new command
     case WaitForACommand:
-        setOutput(Stop);
+        //setOutput(Stop);
         retry = false;
         startTravelMillis = millis();
 
@@ -181,7 +181,7 @@ void Shutter::cycle(){
         break;
 
     case WaitSensorLoosing:
-    
+        
         if(driverType == GateController){
               if(millis() - ackTimeout < 1000){
                 break;
@@ -344,11 +344,13 @@ void Shutter::setOutput(outputDirection dir){
         break;
     
     default:
+        //LOGE("Wrong drivertype");
         break;
     }
 }
 
 void Shutter::setOutputforGateBoard(outputDirection direction){
+    LOGV("Setting the outputs");
     switch (direction)
     {
         case Stop:
@@ -454,6 +456,51 @@ void Shutter::debug(){
     log.actual.cycle = actualStep;
     if(log.actual.cycle != log.previous.cycle){
         LOGV("Actual step: %d",log.actual.cycle);
+        switch (log.actual.cycle)
+        {
+        case 0:
+            LOGV("Cmd wait");
+            break;
+        case 1:
+            LOGV("wait sensor loosing");
+            break;
+        case 2:
+            LOGV("CheckToBeArrived,");
+            break;
+        case 3:
+            LOGV("ArrivedToOpenDestination");
+            break;
+        case 4:
+            LOGV("ArrivedToCloseDestination");
+            break;
+        case 5:
+            LOGV("FinalReset");
+            break;
+        case 6:
+            LOGV("PPSendHaltSignal");
+            break;
+        case 7:
+            LOGV("PPResetHaltSignal,");
+            break;
+        case 8:
+            LOGV("PPWaitBeforeSendANewCommand,");
+            break;
+        case 9:
+            LOGV("PPSendTheCommandAgain");
+            break;
+        case 10:
+            LOGV("HaltBegin");
+            break;
+        case 11:
+            LOGV("HaltWait");
+            break;
+        case 12:
+            LOGV("HaltFinalStep");
+            break;        
+        default:
+            LOGV("don't know where I'm");
+            break;
+        }
         log.previous.cycle = log.actual.cycle;
     }
 
