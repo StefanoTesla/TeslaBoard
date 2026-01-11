@@ -89,9 +89,10 @@ void setup() {
     }
   });
   
+  ElegantOTA.begin(&server);
   server.begin();
   alpaca.begin();
-  ElegantOTA.begin(&server);
+  
 
 }
 
@@ -101,5 +102,6 @@ void loop() {
   Dome.loop();
   CoverCalibrator.loop();
   Switches.loop();
+  ElegantOTA.loop();
 }
 
