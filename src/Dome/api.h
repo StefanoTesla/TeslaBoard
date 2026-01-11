@@ -159,7 +159,7 @@ void DomeApi(){
 
 #pragma endregion
 
-#pragma region aplacaManage
+#pragma region aplacaManager
 
 
   alpaca.on("/api/v1/dome/0/name",                                              HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -275,7 +275,7 @@ alpaca.on("/api/v1/dome/0/openshutter",                                         
 
 
 alpaca.on("/api/v1/dome/0/abortslew",                                            HTTP_PUT, [](AsyncWebServerRequest *request) {
-    //Dome.Shutter.command = ShCommandHalt;
+    Dome.shutter.halt();
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
     response->setLength();
@@ -297,7 +297,7 @@ alpaca.on("/api/v1/dome/0/slewing",                                            H
     AsyncJsonResponse* response = prepareAlpacaResponse(request);
     JsonObject doc = response->getRoot();
 
-    doc["Value"] = Dome.shutter.isMoving() ? true : false;
+    doc["Value"] = Dome.shutter.isMoving();
 
     response->setLength();
     request->send(response);
@@ -312,7 +312,7 @@ alpaca.on("/api/v1/dome/0/devicestate",                                         
     shstatus["Value"] = Dome.shutter.getStatus();
     JsonObject shslewing = Value.add<JsonObject>();
     shslewing["Name"] = "Slewing";
-    shslewing["Value"] = false; //Dome.Shutter.command == ShCommandIdle ? false : true; /* TODO */
+    shslewing["Value"] = Dome.shutter.isMoving();
 
     response->setLength();
     request->send(response);
