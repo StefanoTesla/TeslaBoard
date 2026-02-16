@@ -35,42 +35,34 @@ void AlpacaManager(){
       mac[i] = (chipMac >> (i * 8)) & 0xFF;
     }
     char macPart[9];
-    sprintf(macPart, "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
-    String uniqueID = "";
-
+    snprintf(macPart, sizeof(macPart), "%02x%02x%02x%02x", mac[2], mac[3], mac[4], mac[5]);
+    char fullID[46]; 
 
     if(Dome.isEnable()){
       JsonObject dome = Value.add<JsonObject>();
-      dome["DeviceName"] = Dome.getIdentifier() + " - TeslaBoard";
+      dome["DeviceName"] = Dome.getIdentifier() + " - " + Board.getIdentifier();
       dome["DeviceType"] = "Dome";
       dome["DeviceNumber"] = 0;
-
-      String uuidSuffix = "-ba0f-4834-b299-79a629f2ee59";
-      String uniqueID = String(macPart) + uuidSuffix;
-      dome["UniqueID"] = uniqueID;
+      snprintf(fullID, sizeof(fullID), "%s-ba0f-4834-b299-79a629f2ee59", macPart);
+      dome["UniqueID"] = fullID;
     }
-
-    uniqueID = "";
 
     if(Switches.isEnable()){
       JsonObject switc = Value.add<JsonObject>();
-      switc["DeviceName"] = Switches.getIdentifier() + " - TeslaBoard";
+      switc["DeviceName"] = Switches.getIdentifier() + " - " + Board.getIdentifier();
       switc["DeviceType"] = "Switch";
       switc["DeviceNumber"] = 0;
-      String uuidSuffix = "-aa85-49ed-8799-9f50c0969ede";
-      String uniqueID = String(macPart) + uuidSuffix;
-      switc["UniqueID"] = uniqueID;
+      snprintf(fullID, sizeof(fullID), "%s-aa85-49ed-8799-9f50c0969ede", macPart);
+      switc["UniqueID"] = fullID;
     }
 
-    uniqueID = "";
     if(CoverCalibrator.isEnable()){
       JsonObject cover = Value.add<JsonObject>();
-      cover["DeviceName"] = CoverCalibrator.getIdentifier() +" - TeslaBoard";
+      cover["DeviceName"] = CoverCalibrator.getIdentifier() + " - " + Board.getIdentifier();
       cover["DeviceType"] = "CoverCalibrator";
       cover["DeviceNumber"] = 0;
-      String uuidSuffix = "-40bf-4165-b44e-d59c2c524f11";
-      String uniqueID = String(macPart) + uuidSuffix;
-      cover["UniqueID"] = uniqueID;
+      snprintf(fullID, sizeof(fullID), "%s-aa85-49ed-8799-9f50c0969ede", macPart);
+      cover["UniqueID"] = fullID;
     }
     
     response->setLength();
