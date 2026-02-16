@@ -153,7 +153,6 @@ const rebuildGPIOPinList = () => {
     );
 
   doubledGipo.forEach((gpio) => {
-    console.log(gpio);
     if (!isInvalidPin(gpio, "")) {
       addPermanentNotifiy(
         "warning",

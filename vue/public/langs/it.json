@@ -84,7 +84,8 @@
 			"configSaved": "configurazione Cover Calibrator Salvata",
 			"cover":{
 				"openPos": "Posizione di apertura",
-				"closePos": "Posizione di chiusura"
+				"closePos": "Posizione di chiusura",
+				"storePos": "Memorizza ultima posizione"
 			}
 		}
 	},

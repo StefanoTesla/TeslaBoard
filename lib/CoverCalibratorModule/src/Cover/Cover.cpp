@@ -110,6 +110,7 @@ void Cover::begin(const JsonDocument &doc) {
       int lastPos = getLastPosition();
       if(lastPos >= 0){
         servo.goTo(lastPos,true);
+        lastPosition = lastPos;
       }
     }
 
@@ -133,14 +134,16 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
 
   LOGV("---Cover VALIDATION---");
 
+  if (!obj["enable"].as<bool>()) {
+    return;
+  }
+  
   if (!obj["enable"].is<bool>()) {
     err.add("EnableMissing");
     return;
   }
 
-  if (!obj["enable"].as<bool>()) {
-    return;
-  }
+
 
   if (!obj["openPos"].is<unsigned int>()) {
     err.add("openPosMissing");
@@ -200,12 +203,14 @@ void Cover::storeConfiguration(JsonObject coverObject) {
   if (incomingEnable) {
     tmpCfg["openPos"] = coverObject["openPos"].as<unsigned int>();
     tmpCfg["closePos"] = coverObject["closePos"].as<unsigned int>();
+    tmpCfg["storePos"] = coverObject["storePos"].as<bool>();
 
     JsonObject servoObj = tmpCfg["outServo"].to<JsonObject>();
     servo.copyJsonCfg(coverObject["outServo"], servoObj);
     /*set the variables don't need a reboot */
     openPosition = tmpCfg["openPos"];
     closePosition = tmpCfg["closePos"];
+    storePosition = tmpCfg["storePos"];
     servo.setMovingTime(servoObj["moveTime"].as<unsigned int>());
   }
 
@@ -320,13 +325,11 @@ void Cover::storeLastPosition(){
     return;
   }
 
-  if(millis() - lastPosMillis < 300000){
+  if(millis() - lastPosMillis < 5000){
     return;
-    //wait until timer don't reach 5minutes
+    //wait until timer don't reach 5seconds
   }
   LOGV("Going to store the servo position");
-
-
 
   int servoPos = servo.readPosition();
 
@@ -339,7 +342,6 @@ void Cover::storeLastPosition(){
     } else {
       LOGE("Unable to store last cover position");
     }
-
     closeNVS();
     
   }

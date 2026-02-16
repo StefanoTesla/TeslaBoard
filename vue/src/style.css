@@ -39,7 +39,7 @@ header {
 }
 
 header {
-  @apply flex  font-bold sm:py-1 md:py-2 lg:py-4  justify-between;
+  @apply flex  font-bold py-2 lg:py-4  justify-between;
 }
 
 .menu {

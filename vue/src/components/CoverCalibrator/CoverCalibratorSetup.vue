@@ -121,6 +121,7 @@
             </div>
           </div>
 
+
           <div>
             <Servo
               :t="t"
@@ -131,6 +132,20 @@
             />
           </div>
         </div>
+          <div class="flex justify-evenly">
+            <p>{{ t('coverC.setting.cover.storePos') }}</p>
+              <label class="toggle" for="coverc_cover_store">
+                <input
+                  class="toggle__input"
+                  name=""
+                  type="checkbox"
+                  id="coverc_cover_store"
+                  v-model="coverC.cover.storePos"
+                  @change="validate()"
+                />
+                <div class="toggle__fill"></div>
+              </label>
+          </div>
       </div>
     </div>
 
@@ -173,8 +188,8 @@ const pinUsed = ref([]);
 const originalData = ref({});
 let dataLoaded = ref(false);
 let statusClass = ref("green");
-let openPosValid = ref(true);
-let closePosValid = ref(true);
+let openPosValid = ref(false);
+let closePosValid = ref(false);
 let validation = ref([]);
 let validationState = ref(true);
 
