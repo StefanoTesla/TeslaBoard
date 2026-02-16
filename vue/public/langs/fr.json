@@ -1,144 +1,168 @@
 {
-	"menu": {
+	"menu":{
 		"home": "ACCUEIL",
 		"setting": "PARAMÈTRES"
 	},
-	"dome": {
-		"title": "Coupole",
-		"home": {
-			"input": "État des Entrées",
-			"roofState": "État du Toit :",
+	"dome":{
+		"title":"Coupole",
+		"home":{
+			"input":"État des Entrées",
+			"roofState": "État du Toit : ",
 			"actualCommand": "Commande actuelle :",
-			"lastCommand": "Dernière commande :",
-			"shutterState": {
-				"opening": "En Ouverture",
-				"closing": "En Fermeture",
-				"error": "En Erreur"
+			"lastTravelTime":"Dernier temps de mouvement :",
+			"autoClose":{
+				"title":"Fermeture Automatique :",
+				"enabled":"ACTIVÉE",
+				"disabled": "DÉSACTIVÉE"
 			},
-			"shState": {
-				"0": "En Ouverture",
-				"1": "En Fermeture",
-				"2": "En Erreur"
+			"shutterState":{
+				"opening": "Ouverture en cours",
+				"closing": "Fermeture en cours",
+				"error": "Erreur"
 			},
-			"shutterCommand": {
+			"shState":{
+				"0": "Ouverture en cours",
+				"1": "Fermeture en cours",
+				"2": "Erreur"
+			},
+			"shutterCommand":{
 				"idle": "Aucune commande",
 				"halt": "ARRÊT"
 			}
 		},
-		"setting": {
+		"setting":{
 			"driverType": "Type de commande",
 			"inOpen": "Entrée Ouverture",
 			"inClose": "Entrée Fermeture",
-			"onDelay": "Délai d'Activation :",
-			"offDelay": "Délai de Désactivation :",
-			"outStart": "GPIO Start :",
-			"outHalt": "GPIO ARRÊT :",
-			"outOpen": "GPIO Ouverture :",
-			"outClose": "GPIO Fermeture :",
-			"outDir": "GPIO Direction :",
+			"onDelay": "Délai d’activation :",
+			"offDelay": "Délai de désactivation :",
+			"outStart": "Signal Start",
+			"outHalt": "Signal ARRÊT",
+			"outOpen": "Signal Ouverture",
+			"outMove": "Signal Mouvement",
+			"outClose": "Signal Fermeture",
+			"outDir": "Signal Direction",
 			"timeout": "Timeout",
 			"autoClose": "Fermeture Automatique",
-			"timeOutMoviment": "Durée maximale du mouvement :",
-			"autoclosewarning1": "Attention, veuillez lire attentivement avant de l’activer.",
-			"autoclosewarning2": "Cette option ferme automatiquement le toit si celui-ci est ouvert ET que le WiFi est connecté ET qu'il n'y a aucune communication avec la carte (concernant la COUPOLE).",
-			"autoclosewarning3": "Par exemple, en cas de coupure de courant temporaire, une fois le courant rétabli, si le PC reste éteint ou si les logiciels de gestion de la séquence ne redémarrent pas, le système attendra les minutes définies, puis fermera le toit, INDÉPENDAMMENT de l'état de l'équipement (télescope).",
-			"autoclosewarning4": "En cas de maintenance sur le toit, il sera nécessaire de garder le navigateur ouvert sur la page principale pour éviter la fermeture automatique, ou mieux encore, de désactiver cette fonction.",
-			"autoclosewarning5": "En activant cette fonction, vous confirmez avoir lu et compris les risques que cette fonction peut entraîner pour vous et votre équipement.",
-			"autoCloseEn": "Activer la Fermeture Automatique :",
+			"timeOutMoviment" : "Temps maximum de mouvement :",
+			"autoclosewarning1": "Attention, lire attentivement avant activation.",
+			"autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET le WiFi est connecté ET qu’il n’y a aucune communication avec la carte (concernant la COUPOLE).",
+			"autoclosewarning3": "En cas de coupure de courant temporaire, au retour de l’alimentation, si le PC reste éteint ou que les logiciels ne redémarrent pas, le système attendra le temps configuré puis fermera le toit indépendamment de l’état de l’équipement (télescope).",
+			"autoclosewarning4": "En cas de maintenance du toit, laisser le navigateur ouvert sur la page principale ou désactiver cette fonction.",
+			"autoclosewarning5": "En activant cette fonction vous confirmez avoir lu et compris les risques pour vous et votre équipement.",
+			"autoCloseEn": "Activation Fermeture Automatique :",
 			"autoCloseMin": "Fermer après :",
-			"driverTypeEnum": {
-				"0": "Carte de portail",
+			"driverTypeEnum":{
+				"0": "Carte pour Portail",
 				"1": "Signal de direction",
 				"2": "Commande + Direction"
 			}
 		}
 	},
-	"coverC": {
+	"coverC":{
 		"title": "Flat Panel et Couvercle",
-		"calibrator": "Flat Panel",
+		"calibrator" :"Flat Panel",
 		"cover": "Couvercle",
-		"home": {
-			"coverState": "État du couvercle :",
-			"coverEnum": {
+		"home":{
+			"coverState": "État du couvercle : ",
+			"coverEnum":{
 				"notPresent": "Non présent",
-				"moving": "En Mouvement",
+				"moving": "En mouvement",
 				"unknow": "Inconnu",
-				"error": "Erreur"
+				"error" : "Erreur"
+			},
+			"calibEnum":{
+				"notPreset":"Non présent",
+				"off":"Off",
+				"notReady":"Non prêt",
+				"ready":"Prêt",
+				"unknow":"Inconnu",
+				"error":"Erreur"
 			}
 		},
-		"setting": {
-			"configSaved": "Configuration du Flat Panel/Couvercle enregistrée"
+		"setting":{
+			"configSaved": "Configuration Cover Calibrator sauvegardée",
+			"cover":{
+				"openPos": "Position d’ouverture",
+				"closePos": "Position de fermeture",
+				"storePos": "Mémoriser la dernière position"
+			}
 		}
 	},
-	"switch": {
+	"switch":{
 		"title": "Interrupteurs",
 		"switch": "Interrupteur"
 	},
-	"gen": {
-		"status": {
-			"open": "Ouvert",
-			"close": "Fermé",
+	"gen":{
+		"status":{
+			"open":"Ouvert",
+			"close":"Fermé",
 			"actualPos": "Position actuelle :",
 			"actualValue": "Valeur actuelle :"
 		},
-		"action": {
-			"open": "Ouvrir",
-			"close": "Fermer",
-			"halt": "Arrêter",
+		"action":{
+			"open" : "Ouvrir",
+			"close" : "Fermer",
+			"halt" : "Arrêter",
 			"powerOn": "Allumer",
 			"powerOff": "Éteindre"
 		},
 		"input": "Entrée",
+		"inputs": "Entrées",
 		"output": "Sortie",
 		"outputs": "Sorties",
-		"pin": "GPIO",
+		"pin" : "GPIO",
 		"loadFromBoard": "RESTAURER",
 		"downloadFile": "TÉLÉCHARGER FICHIER",
-		"save": "SAUVEGARDER",
+		"save":"ENREGISTRER",
 		"enable": "Activer :",
 		"cmdAck": "Commande reçue",
 		"cmdRefused": "Commande refusée",
-		"configSaved": "Configuration enregistrée",
-		"utility": "Outils"
+		"configSaved": "Configuration sauvegardée",
+		"utility":"Utilitaire",
+		"moduleIs":"Activer/Désactiver Module",
+		"uiOrder": "Position dans la page d’accueil",
+		"modIdent": "Identifiant",
+		"moduleSetting": "Configuration Module"
 	},
-	"board": {
+	"board":{
 		"home": {
-			"wifi": {
-				"ssid": "Réseau WiFi :",
+			"wifi":{
+				"ssid":"Réseau WiFi :",
 				"db": "Signal :",
 				"macAddress": "Adresse MAC"
 			},
-			"cpu": {
-				"cores": "Processeurs :",
+			"cpu":{
+				"cores": "Cœurs :",
 				"speed": "Vitesse :"
 			},
-			"uptime": {
+			"uptime":{
 				"from": "Actif depuis",
 				"days": "Jours,",
 				"hours": "Heures,",
 				"minutes": "Minutes"
 			},
-			"memory": {
+			"memory":{
 				"total": "Mémoire totale :",
 				"free": "Mémoire libre :",
-				"minFree": "Mémoire non fragmentée libre :"
+				"minFree": "Mémoire libre non fragmentée :"
 			},
-			"update": {
+			"update":{
 				"title": "Version",
 				"actual": "Actuelle :",
 				"available": "Disponible :",
 				"check": "Vérifier les mises à jour"
 			},
-			"timers": {
+			"timers":{
 				"channel": "Canal ",
-				"channels": {
+				"channels":{
 					"0": "Non initialisé",
 					"1": "PWM LS",
 					"2": "PWM HS",
 					"3": "Servo"
 				}
 			},
-			"gpio": {
+			"gpio":{
 				"module": {
 					"0": "Non associé",
 					"1": "Coupole",
@@ -151,127 +175,113 @@
 			"locale": "Langue",
 			"wifi": "WiFi",
 			"ipAddress": "Adresse IP :",
-			"gateway": "Passerelle :",
+			"gateway": "Adresse Gateway :",
 			"subnet": "Sous-réseau :",
 			"staticIp": "Adresse IP statique :",
 			"waitToReconnect": "Délai de reconnexion :",
-			"warningIP": "Attention, une simple validation est effectuée ; en cas d'erreur, l'accès à la carte sera impossible.",
-			"configSaved": "Configuration de la Carte enregistrée",
-			"reboot": "REDÉMARRER LA CARTE",
+			"warningIP": "Attention, une validation simple est effectuée. En cas d’erreur, la carte peut devenir inaccessible.",
+			"configSaved": "Configuration Carte sauvegardée",
+			"reboot": "REDÉMARRER CARTE",
 			"wifiReset": "SUPPRIMER CONFIGURATION WIFI",
-			"checkUpdate": "Chercher des mises à jour",
+			"checkUpdate": "Rechercher mises à jour",
 			"newUpdate": "Nouvelle version disponible :",
 			"currentVersion": "Version actuelle :",
-			"noUpdate": "Vous avez déjà la dernière version"
+			"noUpdate": "Vous disposez déjà de la dernière version"
 		},
-		"reboot": {
+		"reboot":{
 			"warning": "ATTENTION",
-			"text1": "La configuration a été sauvegardée, mais elle sera appliquée uniquement au prochain redémarrage.",
-			"text2": "Vous pouvez redémarrer maintenant ou plus tard (le bouton de redémarrage se trouve dans l'onglet Tesla Board).",
+			"text1": "La configuration a été sauvegardée mais sera appliquée uniquement au prochain redémarrage.",
+			"text2": "Vous pouvez redémarrer maintenant ou plus tard (le bouton reset se trouve sur la Tesla Board).",
 			"now": "REDÉMARRER MAINTENANT",
 			"later": "REDÉMARRER PLUS TARD"
 		}
 	},
-	"errors": {
-		"gpioValidation": {
+	"errors":{
+		"gpioValidation":{
 			"IOPinNotInt": "Pin non défini",
-			"IOPinNotUsable": "Pin inutilisable",
-			"IOdOnNotInt": "dOn n'est pas une valeur valide",
-			"IOdOffNotInt": "dOff n'est pas une valeur valide",
-			"IOInvertNotInt": "Inversion non valide",
-			"IOInvertOutRange": "Inversion hors limites",
-			"IOMaxDNotInt": "Angle Maximum non valide",
-			"IOMaxDOutRange": "Angle Maximum hors limites",
-			"IOOpDNotInt": "Pin non valide",
-			"IOOpDBig": "Angle d'Ouverture supérieur à l'angle maximum",
-			"IOClDNotInt": "Pin non valide",
-			"IOClDBig": "Angle de Fermeture supérieur à l'angle maximum",
-			"IOMovTimeNotInt": "Durée de mouvement non valide",
+			"IOPinNotUsable": "Pin non utilisable",
+			"IOdOnNotInt": "dOn n’est pas une valeur valide",
+			"IOdOffNotInt": "dOff n’est pas une valeur valide",
+			"IOInvertNotInt": "Invert n’est pas une valeur valide",
+			"IOInvertOutRange": "Invert hors limites",
+			"IOMovTimeNotInt":"Temps de mouvement non valide",
 			"IOTypeUndef": "Type non défini",
 			"IOTypeOutRange": "Type hors limites",
 			"IONameUndef": "Nom non défini",
-			"IODescUndef": "Description non définie",
-			"IOGenErr": "Erreur générale"
+			"IODescUndef" : "Description non définie",
+			"IOGenErr":"Erreur générale"
 		},
-		"gpio": {
-			"noUsableAsInput": "Inutilisable comme entrée",
-			"noUsableAsOutput": "Inutilisable comme sortie",
-			"doubleUsage": "Déjà utilisé"
+		"gpio":{
+			"noUsableAsInput" : "Non utilisable comme entrée",
+			"noUsableAsOutput" : "Non utilisable comme sortie",
+			"doubleUsage": "Utilisé plusieurs fois"
 		},
-		"dome": {
-			"ShAlreadyMoving": "Le toit est déjà en mouvement",
-			"ShAlreadyOpen": "Le toit est déjà ouvert",
-			"ShAlreadyClosed": "Le toit est déjà fermé"
+		"dome":{
+			"ShAlreadyMoving" : "Le toit est déjà en mouvement",
+			"ShAlreadyOpen" : "Le toit est déjà ouvert",
+			"ShAlreadyClosed" : "Le toit est déjà fermé"
 		},
-		"coverc": {
-			"coverIsMoving": "Le couvercle est déjà en mouvement",
-			"coverNotPresent": "Le couvercle n'est pas présent",
-			"calibNotPresent": "Le Flat Panel n'est pas présent",
-			"calibBrightnessNotPresent": "Paramètre de luminosité absent",
+		"coverc":{
+			"coverIsMoving" : "Le couvercle est déjà en mouvement",
+			"coverNotPresent": "Couvercle non présent",
+			"calibNotPresent": "Flat panel non présent",
+			"calibBrightnessNotPresent" : "Paramètre de luminosité absent",
 			"calibBrightnessNotInRange": "Paramètre de luminosité hors limites"
 		},
-		"switch": {
-			"SwIdOutOfRange": "ID Interrupteur hors limites",
-			"SwValueBehindMin": "Valeur en dessous du minimum",
-			"SwValueOverMax": "Valeur au-dessus du maximum",
-			"SwValueAbsent": "Valeur non fournie",
-			"SwNotWritable": "Interrupteur non modifiable",
-			"limitReached": "Impossible d'ajouter d'autres interrupteurs"
+		"switch":{
+			"SwIdOutOfRange" : "ID Switch hors limites",
+			"SwValueBehindMin" : "Valeur minimale dépassée",
+			"SwValueOverMax" : "Valeur maximale dépassée",
+			"SwValueAbsent" : "Valeur non fournie",
+			"SwNotWritable": "Switch non inscriptible",
+			"limitReached": "Impossible d’ajouter d’autres interrupteurs"
 		},
-		"general": {
-			"negativeValue": "La valeur ne peut pas être négative",
-			"greaterThan": "Valeur supérieure à :",
-			"configRejected": "Données non valides. Configuration non sauvegardée",
-			"validationFailed": "Échec de la validation",
-			"wrongValue": "Valeur incorrecte",
+		"general":{
+			"negativeValue":"La valeur ne peut pas être négative",
+			"greaterThan":"Valeur supérieure à : ",
+			"configRejected": "Données invalides. Configuration non sauvegardée",
+			"validationFailed": "Validation échouée",
+			"wrongValue":"Valeur incorrecte",
 			"error": "Erreur",
 			"warning": "Attention"
 		}
 	},
-	"IOBase": {
-		"name": "Nom :",
-		"description": "Description :",
-		"pin": "GPIO :",
+	"IOBase":{
+		"name":"Nom :",
+		"description":"Description :",
+		"pin" : "GPIO :",
 		"type": "Type :",
 		"typeEnum": {
-			"0": "Non utilisé",
+			"0": "Non utilisée",
 			"1": "Entrée Digitale",
 			"2": "Sortie Digitale",
 			"3": "Sortie PWM",
 			"4": "Sortie Servo"
 		},
 		"moduleEnum": {
-			"0": "Non utilisé",
+			"0": "Non utilisée",
 			"1": "Coupole",
 			"2": "Flat Panel et Couvercle",
 			"3": "Interrupteurs"
 		},
-		"DI": {
-			"onDelay": "Délai d'Activation :",
-			"offDelay": "Délai de Désactivation :",
-			"func": "Fonctionnement :",
-			"invertEnum": {
-				"0": "Normalement Ouvert",
-				"1": "Normalement Fermé"
+		"DI":{
+			"onDelay": "Délai d’activation :",
+			"offDelay": "Délai de désactivation :",
+			"func": "Fonction",
+			"invertEnum":{
+				"0": "N.O.",
+				"1": "N.F."
 			}
 		},
-		"DO": {
-			"func": "Fonctionnement :",
-			"invertEnum": {
-				"0": "Actif HIGH",
-				"1": "Actif LOW"
+		"DO":{
+			"func": "Fonction",
+			"invertEnum":{
+				"0": "Normal",
+				"1": "Inversé"
 			}
 		},
-		"Servo": {
-			"openDeg": "Angle d'Ouverture :",
-			"closeDeg": "Angle de Fermeture :",
-			"maxDeg": "Angle Maximum :",
-			"maxDegEnum": {
-				"90": "90°",
-				"180": "180°",
-				"270": "270°"
-			},
-			"movingTime": "Durée du Mouvement :"
+		"Servo":{
+			"movingTime": "Temps de mouvement :"
 		}
 	}
 }

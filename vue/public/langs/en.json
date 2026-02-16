@@ -1,16 +1,21 @@
 {
-	"menu": {
+	"menu":{
 		"home": "HOME",
 		"setting": "SETTINGS"
 	},
-	"dome": {
-		"title": "Dome",
-		"home": {
-			"input": "Input Status",
-			"roofState": "Roof Status: ",
+	"dome":{
+		"title":"Dome",
+		"home":{
+			"input":"Input Status",
+			"roofState": "Roof State: ",
 			"actualCommand": "Current Command:",
-			"lastCommand": "Last Command:",
-			"shutterState": {
+			"lastTravelTime":"Last Travel Time:",
+			"autoClose":{
+				"title":"Automatic Closing:",
+				"enabled":"ENABLED",
+				"disabled": "DISABLED"
+			},
+			"shutterState":{
 				"opening": "Opening",
 				"closing": "Closing",
 				"error": "Error"
@@ -20,130 +25,149 @@
 				"1": "Closing",
 				"2": "Error"
 			},
-			"shutterCommand": {
-				"idle": "No Command",
+			"shutterCommand":{
+				"idle": "No command",
 				"halt": "HALT"
 			}
 		},
-		"setting": {
-			"driverType": "Control Type",
+		"setting":{
+			"driverType": "Driver Type",
 			"inOpen": "Open Input",
 			"inClose": "Close Input",
 			"onDelay": "Activation Delay:",
 			"offDelay": "Deactivation Delay:",
-			"outStart": "GPIO Start:",
-			"outHalt": "GPIO HALT:",
-			"outOpen": "GPIO Open:",
-			"outClose": "GPIO Close:",
-			"outDir": "GPIO Direction:",
+			"outStart": "Start Signal",
+			"outHalt": "HALT Signal",
+			"outOpen": "Open Signal",
+			"outMove": "Movement Signal",
+			"outClose": "Close Signal",
+			"outDir": "Direction Signal",
 			"timeout": "Timeout",
 			"autoClose": "Automatic Closing",
-			"timeOutMoviment": "Maximum Movement Time:",
+			"timeOutMoviment" : "Maximum Movement Time:",
 			"autoclosewarning1": "Warning, read carefully before enabling.",
-			"autoclosewarning2": "This option will automatically close the roof if the roof is open AND the WiFi is connected AND there is no communication with the board (related to the DOME).",
-			"autoclosewarning3": "For example, in case of a temporary blackout, once power is restored, and if the PC remains off or the management software does not restart, it will wait for the set minutes, after which the roof will be closed, REGARDLESS of the equipment status (telescope).",
-			"autoclosewarning4": "During roof maintenance, it will be necessary to keep the browser open on the main page to prevent automatic closing, or even better, disable this function.",
-			"autoclosewarning5": "By enabling this function, you confirm that you have read and understood the risks this feature may pose to you and your equipment.",
+			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND WiFi is connected AND there is no communication with the board (regarding the DOME).",
+			"autoclosewarning3": "For example, in case of a temporary power outage, once power returns and the PC remains off or the control software does not restart, the system will wait the configured minutes, after which the roof will close, REGARDLESS of the equipment (telescope) status.",
+			"autoclosewarning4": "During roof maintenance, keep the browser open on the main page to prevent automatic closing, or preferably disable this function.",
+			"autoclosewarning5": "By enabling this function you confirm that you have read and understood the risks it may pose to you and your equipment.",
 			"autoCloseEn": "Enable Automatic Closing:",
 			"autoCloseMin": "Close after:",
-			"driverTypeEnum": {
-				"0": "Sliding Gate Board",
+			"driverTypeEnum":{
+				"0": "Gate Controller Board",
 				"1": "Direction Signal",
 				"2": "Command + Direction"
 			}
 		}
 	},
-	"coverC": {
+	"coverC":{
 		"title": "Flat Panel and Cover",
-		"calibrator": "Flat Panel",
+		"calibrator" :"Flat Panel",
 		"cover": "Cover",
-		"home": {
-			"coverState": "Cover Status: ",
-			"coverEnum": {
+		"home":{
+			"coverState": "Cover State: ",
+			"coverEnum":{
 				"notPresent": "Not Present",
 				"moving": "Moving",
 				"unknow": "Unknown",
-				"error": "Error"
+				"error" : "Error"
+			},
+			"calibEnum":{
+				"notPreset":"Not Present",
+				"off":"Off",
+				"notReady":"Not Ready",
+				"ready":"Ready",
+				"unknow":"Unknown",
+				"error":"Error"
 			}
 		},
-		"setting": {
-			"configSaved": "Cover Calibrator Configuration Saved"
+		"setting":{
+			"configSaved": "Cover Calibrator Configuration Saved",
+			"cover":{
+				"openPos": "Open Position",
+				"closePos": "Close Position",
+				"storePos": "Store Last Position"
+			}
 		}
 	},
-	"switch": {
+	"switch":{
 		"title": "Switches",
 		"switch": "Switch"
 	},
-	"gen": {
-		"status": {
-			"open": "Open",
-			"close": "Closed",
+	"gen":{
+		"status":{
+			"open":"Open",
+			"close":"Closed",
 			"actualPos": "Current Position:",
 			"actualValue": "Current Value:"
 		},
-		"action": {
-			"open": "Open",
-			"close": "Close",
-			"halt": "Stop",
-			"powerOn": "Turn On",
-			"powerOff": "Turn Off"
+		"action":{
+			"open" : "Open",
+			"close" : "Close",
+			"halt" : "Stop",
+			"powerOn": "Power On",
+			"powerOff": "Power Off"
 		},
 		"input": "Input",
+		"inputs": "Inputs",
 		"output": "Output",
 		"outputs": "Outputs",
-		"pin": "GPIO",
+		"pin" : "GPIO",
 		"loadFromBoard": "RESTORE",
 		"downloadFile": "DOWNLOAD FILE",
-		"save": "SAVE",
+		"save":"SAVE",
 		"enable": "Enable:",
-		"cmdAck": "Command Received",
-		"cmdRefused": "Command Refused",
+		"cmdAck": "Command received",
+		"cmdRefused": "Command refused",
 		"configSaved": "Configuration Saved",
-		"utility": "Utility"
+		"utility":"Utility",
+		"moduleIs":"Enable/Disable Module",
+		"uiOrder": "Home Page Position",
+		"modIdent": "Identifier",
+		"moduleSetting": "Module Configuration"
 	},
-	"board": {
+	"board":{
 		"home": {
-			"wifi": {
-				"ssdi": "WiFi Network:",
+			"wifi":{
+				"ssid":"WiFi Network:",
 				"db": "Signal Strength:",
 				"macAddress": "MAC Address"
 			},
-			"cpu": {
-				"cores": "Processors:",
+			"cpu":{
+				"cores": "Cores:",
 				"speed": "Speed:"
 			},
-			"uptime": {
+			"uptime":{
 				"from": "Active since",
 				"days": "Days,",
 				"hours": "Hours,",
 				"minutes": "Minutes"
 			},
-			"memory": {
+			"memory":{
 				"total": "Total Memory:",
 				"free": "Free Memory:",
-				"minFree": "Unfragmented Free Memory:"
+				"minFree": "Minimum Free (Unfragmented) Memory:"
 			},
-			"update": {
+			"update":{
 				"title": "Version",
 				"actual": "Current:",
 				"available": "Available:",
 				"check": "Check for Updates"
 			},
-			"timers": {
+			"timers":{
 				"channel": "Channel ",
-				"channels": {
-					"0": "Not Initialized",
+				"channels":{
+					"0": "Not initialized",
 					"1": "PWM LS",
 					"2": "PWM HS",
 					"3": "Servo"
 				}
 			},
-			"gpio": {
+			"gpio":{
 				"module": {
-					"0": "Not Assigned",
+					"0": "Not assigned",
 					"1": "Dome",
-					"2": "CoverC",
-					"3": "Switch"
+					"2": "Flat Panel and Cover",
+					"3": "Switches"
 				}
 			}
 		},
@@ -154,87 +178,81 @@
 			"gateway": "Gateway Address:",
 			"subnet": "Subnet:",
 			"staticIp": "Static IP Address:",
-			"waitToReconnect": "Reconnection Wait Time:",
-			"warningIP": "Warning, simple validation is performed. If incorrect, the board will be unreachable.",
+			"waitToReconnect": "Reconnect Delay:",
+			"warningIP": "Warning, only basic validation is performed. If incorrect, the board may become unreachable.",
 			"configSaved": "Board Configuration Saved",
 			"reboot": "REBOOT BOARD",
 			"wifiReset": "REMOVE WIFI SETTINGS",
-			"checkUpdate": "Check Updates",
+			"checkUpdate": "Check for Updates",
 			"newUpdate": "New version available:",
 			"currentVersion": "Current Version:",
-			"noUpdate": "Teslaboard is up to date"
+			"noUpdate": "You already have the latest version"
 		},
-		"reboot": {
+		"reboot":{
 			"warning": "WARNING",
-			"text1": "The configuration has been saved but will only be applied after the next reboot.",
-			"text2": "You can restart now or later (the reset button is in the Tesla Board tab).",
+			"text1": "Configuration has been saved but will be applied only after the next reboot.",
+			"text2": "You can reboot now or later (the reset button is located on the Tesla Board).",
 			"now": "REBOOT NOW",
 			"later": "REBOOT LATER"
 		}
 	},
-	"errors": {
+	"errors":{
 		"gpioValidation":{
-			"IOPinNotInt": "Pin is not a valid value",
+			"IOPinNotInt": "Pin not defined",
 			"IOPinNotUsable": "Pin not usable",
 			"IOdOnNotInt": "dOn is not a valid value",
 			"IOdOffNotInt": "dOff is not a valid value",
 			"IOInvertNotInt": "Invert is not a valid value",
-			"IOInvertOutRange": "Invert is out of range",
-			"IOMaxDNotInt": "Max angle is not a valid value",
-			"IOMaxDOutRange":"Max Angle is out of range",
-			"IOOpDNotInt": "Open Angle is not a valid value",
-			"IOOpDBig":"Open Angle is bigger than maximum angle",
-			"IOClDNotInt": "Close Angle is not a valid value",
-			"IOClDBig":"Close Angle is bigger than maximum angle",
-			"IOMovTimeNotInt":"Movement time is out of range",
+			"IOInvertOutRange": "Invert out of range",
+			"IOMovTimeNotInt":"Movement time is not a valid value",
 			"IOTypeUndef": "Type not defined",
-			"IOTypeOutRange": "Type is out of range",
+			"IOTypeOutRange": "Type out of range",
 			"IONameUndef": "Name not defined",
 			"IODescUndef" : "Description not defined",
-			"IOGenErr":"General Error"
+			"IOGenErr":"General error"
 		},
-		"gpio": {
-			"noUsableAsInput": "not usable as input",
-			"noUsableAsOutput": "not usable as output",
-			"doubleUsage": "Used many times"
+		"gpio":{
+			"noUsableAsInput" : "Not usable as input",
+			"noUsableAsOutput" : "Not usable as output",
+			"doubleUsage": "Used more than once"
 		},
-		"dome": {
-			"ShAlreadyMoving": "The roof is already moving",
-			"ShAlreadyOpen": "The roof is already open",
-			"ShAlreadyClosed": "The roof is already closed"
+		"dome":{
+			"ShAlreadyMoving" : "The roof is already moving",
+			"ShAlreadyOpen" : "The roof is already open",
+			"ShAlreadyClosed" : "The roof is already closed"
 		},
-		"coverc": {
-			"coverIsMoving": "The cover is already moving",
-			"coverNotPresent": "The cover is not present",
-			"calibNotPresent": "The flat panel is not present",
-			"calibBrightnessNotPresent": "Brightness parameter missing",
+		"coverc":{
+			"coverIsMoving" : "The cover is already moving",
+			"coverNotPresent": "Cover not present",
+			"calibNotPresent": "Flat panel not present",
+			"calibBrightnessNotPresent" : "Brightness parameter missing",
 			"calibBrightnessNotInRange": "Brightness parameter out of range"
 		},
-		"switch": {
-			"SwIdOutOfRange": "Switch ID out of range",
-			"SwValueBehindMin": "Minimum Value Exceeded",
-			"SwValueOverMax": "Maximum Value Exceeded",
-			"SwValueAbsent": "Value Not Provided",
+		"switch":{
+			"SwIdOutOfRange" : "Switch ID out of range",
+			"SwValueBehindMin" : "Minimum value exceeded",
+			"SwValueOverMax" : "Maximum value exceeded",
+			"SwValueAbsent" : "Value not provided",
 			"SwNotWritable": "Switch not writable",
-			"limitReached": "You can't add new switches"
+			"limitReached": "Cannot add more switches"
 		},
 		"general":{
-			"negativeValue":"Value can't be negative",
-			"greaterThan":"Value greater of: ",
-			"configRejected": "Data not valid. Configuration was not saved",
+			"negativeValue":"Value cannot be negative",
+			"greaterThan":"Value greater than: ",
+			"configRejected": "Invalid data. Configuration not saved",
 			"validationFailed": "Validation failed",
-			"wrongValue":"Wrong Value",
+			"wrongValue":"Invalid value",
 			"error": "Error",
 			"warning": "Warning"
-		}		
+		}
 	},
-	"IOBase": {
-		"name": "Name:",
-		"description": "Description:",
-		"pin": "GPIO:",
+	"IOBase":{
+		"name":"Name:",
+		"description":"Description:",
+		"pin" : "GPIO:",
 		"type": "Type:",
 		"typeEnum": {
-			"0": "Not Used",
+			"0": "Not used",
 			"1": "Digital Input",
 			"2": "Digital Output",
 			"3": "PWM Output",
@@ -244,33 +262,25 @@
 			"0": "Not used",
 			"1": "Dome",
 			"2": "Flat Panel and Cover",
-			"3": "Switch"
+			"3": "Switches"
 		},
-		"DI": {
+		"DI":{
 			"onDelay": "Activation Delay:",
 			"offDelay": "Deactivation Delay:",
-			"func": "Operation:",
-			"invertEnum": {
-				"0": "Normally Open",
-				"1": "Normally Closed"
+			"func": "Function",
+			"invertEnum":{
+				"0": "N.O.",
+				"1": "N.C."
 			}
 		},
-		"DO": {
-			"func": "Operation:",
-			"invertEnum": {
-				"0": "Active HIGH",
-				"1": "Active LOW"
+		"DO":{
+			"func": "Function",
+			"invertEnum":{
+				"0": "Normal",
+				"1": "Inverted"
 			}
 		},
-		"Servo": {
-			"openDeg": "Open Degrees:",
-			"closeDeg": "Closed Degrees:",
-			"maxDeg": "Maximum Rotation:",
-			"maxDegEnum": {
-				"90": "90°",
-				"180": "180°",
-				"270": "270°"
-			},
+		"Servo":{
 			"movingTime": "Movement Time:"
 		}
 	}
