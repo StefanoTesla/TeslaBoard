@@ -159,6 +159,7 @@ void TeslaWiFiManager::begin() {
     });
 
     WiFi.mode(WIFI_STA);
+    WiFi.setSleep(false);
     WiFi.setAutoReconnect(false);
 
 }

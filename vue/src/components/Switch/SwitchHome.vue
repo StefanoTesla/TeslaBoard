@@ -141,12 +141,14 @@ const changeValueCmd = async(index) => {
     }
     const res = await response.json()
 
+    updateStatusData()
     if(res.error){
       errorResponseNotify(res.error)
       return
     }
     if(res.execute){
       cmdExecutedNotify()
+      
       return
     }
 
@@ -159,10 +161,13 @@ const changeValueCmd = async(index) => {
 const updateStatusData = () => {
   let hasActive = false;
   switches.value.Switches.forEach(element => {
-    if(element.type != 1 && element.intValue > 0){
+    console.log(element.type)
+    console.log(element.intValue)
+    if(element.type != 1 && element.status > 0){
       hasActive = true;
     }
   });
+
   statusClass.value = hasActive ? 'green' : 'black';
 }
 
