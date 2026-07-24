@@ -596,8 +596,7 @@ void TeslaWiFiManager::STAConnectionCycle(){
     break;
 
   case STA_CONNECTED:
-    if(WiFi.status() == WL_CONNECTED ||
-        WiFi.localIP() == IPAddress(0, 0, 0, 0)){
+    if(WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)){
         if(oneMinMillis == 0){ oneMinMillis = millis();}
           if(millis()-oneMinMillis >= 60000){
             oneMinMillis = millis();
