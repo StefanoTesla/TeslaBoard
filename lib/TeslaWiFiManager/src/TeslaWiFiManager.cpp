@@ -131,7 +131,7 @@ void TeslaWiFiManager::begin() {
 
     if(nvsStatus != OPEN_READOLNY){ openNVS(true); }
     
-    //configuredWiFi = nvs.getInt("cfgwifi", 0);
+
     LOGV("%d configured WiFi",configuredWiFi);
     for (int i = 0; i < MAX_CONFIGURED_WIFI ; i++){
       tmpCfg.clear();
@@ -158,6 +158,7 @@ void TeslaWiFiManager::begin() {
       this->handleWiFiEvent(event, info);
     });
 
+    WiFi.setHostname(hostName.c_str());
     WiFi.mode(WIFI_STA);
     WiFi.setSleep(false);
     WiFi.setAutoReconnect(false);
@@ -342,8 +343,8 @@ void TeslaWiFiManager::mainCycle(){
       APcycle = AP_INIT;
       scanDelayMillis = 0;
       WiFi.mode(WIFI_AP_STA);
-      WiFi.softAP("TelsaBoard","123456789");
       WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0));
+      WiFi.softAP("TelsaBoard","123456789");
       waitChange = millis();
       mainState = GOAP_WAIT_AP_READY;
       break;
@@ -376,8 +377,8 @@ void TeslaWiFiManager::mainCycle(){
     case GOSTA_WAIT_DELAY:
       if(millis() - waitChange >= 200){
         mainState = GOSTA_RADIO_ON;
-        break;
       }
+      break;
 
     case GOSTA_RADIO_ON:
       LOGV("Enabling STA mode");
@@ -460,6 +461,9 @@ void TeslaWiFiManager::APloop(){
 
   case AP_CONNECT_TO_WIFI:
     LOGV("Trying to connect");
+    incomingWiFi = false; // consuma la richiesta
+    gotIP = false;
+    staDisconnected = false;
     connectToWifi(wifiToConnect["ssid"].as<const char*>(),wifiToConnect["psw"].as<const char*>());
     APcycle = AP_WAIT_CONNECTION;
     break;
@@ -577,27 +581,28 @@ void TeslaWiFiManager::STAConnectionCycle(){
     break;
 
   case STA_WAIT_CONNECTION:
-  if((millis() - connectionTOUTMillis > 10000) || WiFi.status() == WL_CONNECT_FAILED || staDisconnected){
-      LOGV("Unable to connect");
-      staDisconnected = false;
-      if(lastFound < MAX_CONFIGURED_WIFI){
+    if (gotIP && WiFi.status() == WL_CONNECTED &&
+        WiFi.localIP() != IPAddress(0, 0, 0, 0)) {
+        LOGI("WiFi connected, IP: %s", WiFi.localIP().toString().c_str());
+        STAConCy = STA_CONNECTED;
+    } 
+    else if ((millis() - connectionTOUTMillis > 10000) || WiFi.status() == WL_CONNECT_FAILED || staDisconnected) {
+        LOGW("Unable to connect");
+        gotIP = false;
+        staDisconnected = false;
         lastFound++;
-      }
-      STAConCy = STA_DISCONNECT; //try if you can connect to another one
-  }
-  if(gotIP){
-    LOGV("Wifi is connected");
-    STAConCy = STA_CONNECTED;
-  }
-  break;
+        STAConCy = STA_DISCONNECT;
+    }
+    break;
 
   case STA_CONNECTED:
-    if(WiFi.status() == WL_CONNECTED){
-      if(oneMinMillis == 0){ oneMinMillis = millis();}
-      if(millis()-oneMinMillis >= 60000){
-        oneMinMillis = millis();
-        upTime++;
-      }
+    if(WiFi.status() == WL_CONNECTED ||
+        WiFi.localIP() == IPAddress(0, 0, 0, 0)){
+        if(oneMinMillis == 0){ oneMinMillis = millis();}
+          if(millis()-oneMinMillis >= 60000){
+            oneMinMillis = millis();
+            upTime++;
+          }
     } else {
         oneMinMillis = 0;
         upTime = 0;
@@ -615,7 +620,7 @@ void TeslaWiFiManager::STAConnectionCycle(){
       break;
 
   case STA_TURN_ON_WIFI:
-      if(millis() - waitChange > 200){
+      if(millis() - waitChange < 200){
           break;
       }
       LOGV("WiFi in STA mode");
@@ -739,10 +744,11 @@ void TeslaWiFiManager::copyWiFiList(){
 #pragma endregion
 
 void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
+  gotIP = false;
   connecting = true;
-  LOGV("Connecting to: %s psw: %s",ssid,password);
-  WiFi.begin(ssid,password);
+  LOGV("Connecting to: %s",ssid);
   WiFi.setHostname(hostName.c_str());
+  WiFi.begin(ssid,password);
   connectionTOUTMillis = millis();
   staDisconnected = false;
 }
@@ -835,7 +841,7 @@ void TeslaWiFiManager::web(){
         
         if (request->hasParam("id", true)) {  // true = dal body
           id = request->getParam("id", true)->value().toInt();
-          if(id>=0 || id<MAX_CONFIGURED_WIFI){
+          if(id>=0 && id<MAX_CONFIGURED_WIFI){
             removeWiFiById(id);
           }          
           request->send(200, "application/json", "{\"status\":\"ok\"}");
