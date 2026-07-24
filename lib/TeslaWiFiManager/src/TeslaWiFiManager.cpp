@@ -589,12 +589,13 @@ void TeslaWiFiManager::STAConnectionCycle(){
     break;
 
   case STA_CONNECTED:
-    if(WiFi.status() == WL_CONNECTED && WiFi.localIP() != IPAddress(0, 0, 0, 0)){
-        if(oneMinMillis == 0){ oneMinMillis = millis();}
-          if(millis()-oneMinMillis >= 60000){
+    if(WiFi.status() == WL_CONNECTED && gotIP && WiFi.localIP() != IPAddress(0, 0, 0, 0)){
+        if(oneMinMillis == 0){ 
+          oneMinMillis = millis(); 
+        } else if(millis()-oneMinMillis >= 60000){
             oneMinMillis = millis();
             upTime++;
-          }
+        }
     } else {
         oneMinMillis = 0;
         upTime = 0;
@@ -616,8 +617,9 @@ void TeslaWiFiManager::STAConnectionCycle(){
           break;
       }
       LOGV("WiFi in STA mode");
+      WiFi.setHostname(hostName.c_str());
       WiFi.mode(WIFI_STA);
-      STAConCy = STA_WAIT_RADIO_ON;
+      STAConCy = STA_INIT;
       break;
 
   case STA_WAIT_RADIO_ON:
