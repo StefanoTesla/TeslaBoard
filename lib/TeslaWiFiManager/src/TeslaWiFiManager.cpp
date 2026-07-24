@@ -100,7 +100,6 @@ void TeslaWiFiManager::begin() {
     LOGV("Setting up GPIO 0 for force captive portal");
     pinMode(0, INPUT_PULLUP);
     LOGI("Loading configuration");
-    JsonDocument doc;
 
     if (!openNVS(true)) {
         LOGE("Error loading wifi nvs partition in read only, trying to format it");
@@ -240,7 +239,6 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
 
     switch (event) {
         case ARDUINO_EVENT_WIFI_READY:
-            isWiFiReady = true;
             LOGV("WiFi interface ready");
             break;
 
@@ -270,10 +268,6 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
         case ARDUINO_EVENT_WIFI_STA_CONNECTED:
             oneMinMillis = 0;
             upTime = 0;
-            if(toBeStored){
-              toBeStored = false;
-              //storeNewWiFi();
-            }
             scanStatus = scanStateEnum::SCAN_OFF;
             LOGV("Connected to access point");
             break;
@@ -288,7 +282,6 @@ void TeslaWiFiManager::handleWiFiEvent(arduino_event_id_t event, arduino_event_i
             break;
         case ARDUINO_EVENT_WIFI_STA_GOT_IP:
             gotIP = true;
-            connecting = false;
             LOGI("Obtained IP address:");
             LOGI("%s",WiFi.localIP().toString());
             break;
@@ -744,7 +737,6 @@ void TeslaWiFiManager::copyWiFiList(){
 
 void TeslaWiFiManager::connectToWifi(const char* ssid, const char* password){
   gotIP = false;
-  connecting = true;
   LOGV("Connecting to: %s",ssid);
   WiFi.setHostname(hostName.c_str());
   WiFi.begin(ssid,password);
