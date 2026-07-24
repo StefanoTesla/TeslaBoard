@@ -50,18 +50,15 @@ private:
 
     scanStateEnum scanStatus = SCAN_OFF;
 
-    unsigned long scanTimeOutMillis;
-    unsigned long scanDelayMillis;
+    unsigned long scanTimeOutMillis = 0;
+    unsigned long scanDelayMillis = 0;
     void scanManager();
     void startWiFiscan();
     void copyWiFiList();
     JsonDocument wifiScanList;
     String hostName;
     /* WIFI STATUS */
-    bool isWiFiReady;
-    bool isWiFiSta;
-    bool connecting = false;
-
+    bool isWiFiSta = false;
 
     JsonDocument tmpCfg;
 
@@ -76,10 +73,8 @@ private:
 
     enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
     PrefEnumStatus nvsStatus = CLOSED;
-    bool validConfig;
-    bool rebootNeeded;
-    bool apRunning;
-    bool gotIP;
+    bool apRunning = false;
+    bool gotIP = false;
     //uptime data
     unsigned long oneMinMillis = 0;
     unsigned long upTime = 0;
@@ -92,7 +87,7 @@ private:
     };
 
     WiFiCredential wifiList[MAX_CONFIGURED_WIFI];
-    unsigned int configuredWiFi;
+    unsigned int configuredWiFi = 0;
 
     void handleWiFiEvent(arduino_event_id_t event, arduino_event_info_t info);
 
@@ -116,11 +111,11 @@ private:
 
 
     //int APcycle;
-    bool incomingWiFi;
-    bool connectDirectly;
-    bool forceAPRequest;
-    unsigned long apRequestMillis;
-    bool staDisconnected;
+    bool incomingWiFi = false;
+    bool connectDirectly = false;
+    bool forceAPRequest = false;
+    unsigned long apRequestMillis = 0;
+    bool staDisconnected = false;
     JsonDocument wifiToConnect;
     enum APCycleEnum {
         AP_INIT,
@@ -128,14 +123,14 @@ private:
         AP_CONNECT_TO_WIFI,
         AP_WAIT_CONNECTION
     };
-    APCycleEnum APcycle;
+    APCycleEnum APcycle = AP_INIT;
     void APloop();
 
     bool findMatchingWiFi();
     int lastFound = 0;
 
 
-    unsigned long connectionTOUTMillis;
+    unsigned long connectionTOUTMillis = 0;
 
     void STAloop();
     
@@ -154,9 +149,8 @@ private:
         STA_WAIT_RADIO_ON
     };
 
-    bool gpio0pressed;
-    unsigned long waitOneSecondMillis;
-    STACycleEnum STAConCy;
+    bool gpio0pressed = 0;
+    STACycleEnum STAConCy = STA_INIT;
     void STAConnectionCycle();
 };
 
