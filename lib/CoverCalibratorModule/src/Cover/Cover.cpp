@@ -8,90 +8,6 @@
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 #define COVERC_SCHEMA_NAME "cccfg"
 
-#pragma region nvsHandler
-
-bool Cover::openNVS(bool readOnly) {
-
-  switch (nvsStatus) {
-
-    // nvs is closed, i need to open according by the readOnly
-  case CLOSED:
-    LOGV("NVS seems to be closed");
-    if (nvs.begin(COVERC_SCHEMA_NAME, readOnly)) {
-      if (readOnly) {
-        LOGV("NVS opened in readonly");
-        nvsStatus = OPEN_READOLNY;
-      } else {
-        LOGV("NVS opened with write rights");
-        nvsStatus = OPEN_WRITE;
-      }
-      return true;
-    } else {
-      LOGE("Error opening the NVS");
-      nvsStatus = CLOSED;
-      return false;
-    }
-    break;
-
-  case OPEN_READOLNY:
-    LOGV("NVS seems open in read only");
-    if (!readOnly) {
-      closeNVS();
-      if (nvs.begin(COVERC_SCHEMA_NAME, false)) {
-        nvsStatus = OPEN_WRITE;
-        LOGV("NVS opened with write rights");
-        return true;
-      } else {
-        LOGV("Error during opening NVS with write rights");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open in read only");
-      return true;
-    }
-    break;
-
-  case OPEN_WRITE:
-    LOGV("NVS seems open with write rights");
-    if (readOnly) {
-      closeNVS();
-      nvsStatus = CLOSED;
-      if (nvs.begin(COVERC_SCHEMA_NAME, true)) {
-        nvsStatus = OPEN_READOLNY;
-        LOGV("NVS opened in read only");
-        return true;
-      } else {
-        LOGV("Error during opening NVS in read only");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open with write rights");
-      return true;
-    }
-    break;
-
-  default:
-    LOGE("Unknown NVS status: %d", nvsStatus);
-    return false;
-    break;
-  }
-
-  LOGE("Arrived at the buttom of the function, don't know what happed..");
-  return false;
-}
-
-void Cover::closeNVS() {
-  if (nvsStatus != CLOSED) {
-    nvs.end();
-    nvsStatus = CLOSED;
-    LOGV("NVS closed");
-  } else {
-    LOGV("NVS already closed");
-  }
-}
-
-#pragma endregion
-
 #pragma region Configuration
 
 /* Setup the shutter */
@@ -214,11 +130,9 @@ void Cover::storeConfiguration(JsonObject coverObject) {
     servo.setMovingTime(servoObj["moveTime"].as<unsigned int>());
   }
 
-  openNVS(false);
   String json;
   serializeJson(tmpCfg, json);
-  nvs.putString("cover", json);
-  closeNVS();
+  NvsManager::getInstance().putString("cover", json);
   tmpCfg.clear();
 }
 
@@ -329,20 +243,24 @@ void Cover::storeLastPosition(){
     return;
     //wait until timer don't reach 5seconds
   }
+
   LOGV("Going to store the servo position");
+  if(NvsManager::getInstance().isModuleBusy()){
+    lastPosMillis = millis();
+    return;
+  }
 
   int servoPos = servo.readPosition();
 
-  if(lastPosition != servoPos
-    && servoPos >= 0  ){
+  if(lastPosition != servoPos && servoPos >= 0  ){
     LOGV("Storing the cover position");
     lastPosition = servo.readPosition();
-    if(openNVS(false)){
-      nvs.putInt("cPos",lastPosition);
+    if(NvsManager::getInstance().openNVS(false,"cccfg")){
+      NvsManager::getInstance().putInt("cPos",lastPosition);
     } else {
       LOGE("Unable to store last cover position");
     }
-    closeNVS();
+    NvsManager::getInstance().closeNVS();
     
   }
 
@@ -352,6 +270,6 @@ void Cover::storeLastPosition(){
 //return the last know cover position
 //if negative value, was never witten
 int Cover::getLastPosition(){
-  openNVS(true);
-  return nvs.getInt("cPos",-1);
+  NvsManager::getInstance().openNVS(true,"cccfg");
+  return NvsManager::getInstance().getInt("cPos",-1);
 }

@@ -4,46 +4,35 @@
 #include <Arduino.h>
 #include "Shutter/Shutter.h"
 #include <ArduinoJson.h>
-#include <Preferences.h>
 #include "esp_log.h"
+#include <NVSManager.h>
+#include <BaseModule.h>
 
 #define DOME_SCHEMA_VERSION 1
 #define DOME_SCHEMA_NAME "domecfg"
 
-class DomeModule {
+class DomeModule : public BaseModule {
 public:
     Shutter shutter;
 
     DomeModule() = default;
-    void begin(); 
     bool isEnable();
     void loop();
-
-
-    void getConfiguration(JsonObject dest);
-    void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored);
-    String getIdentifier(){ return identifier; }
-    unsigned int uiOrder;
-
-private:
-
-/* functions to handle the configuration */
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
-    bool openNVS(bool readOnly);
-    void closeNVS();
-    bool initNVS();
-    void updateNVS1();
-
-    bool moduleEnable = false;
-    bool validConfig = false;
-    bool rebootNeeded = false;
-
+    bool handlePacket(char* payload, Stream& out);
+    
+protected:
+    const char* schemaName() const override { return DOME_SCHEMA_NAME; }
+    uint16_t schemaVersion() const override { return DOME_SCHEMA_VERSION; }
+    const char* defaultIdentifier() const override { return "Dome"; }
+    void initSecondaryData() override;
+    void loadSecondaryData() override;
+    void appendSecondaryConfig(JsonObject dest) override;
+    bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
+    void storeSecondaryConfig(const JsonObject &toBeStored) override;
+    bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
     String identifier = "Dome";
-    Preferences nvs;
 };
 
 #endif

@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include "IOManager.h"
 #include <ArduinoJson.h>
-#include <Preferences.h>
 #include "esp_log.h"
+#include <NVSManager.h>
 
 class Shutter {
 public:
@@ -15,6 +15,13 @@ public:
         Opening,
         Closing,
         Error
+    };
+
+    enum ShutterError {
+        None,
+        TOutOpening,
+        TOutClosing,
+        Halted
     };
 
     enum ActualCommand {
@@ -27,6 +34,7 @@ public:
 
 private:
     Status status = Error;
+    ShutterError error = None;
     DigitalInput OpenSensor;
     DigitalInput CloseSensor;
     DigitalOutput StartOpen;
@@ -122,6 +130,8 @@ public:
     bool isClosed();
     bool canClose();
     void close();
+
+    int getError() {return error;};
 
     void halt();
     

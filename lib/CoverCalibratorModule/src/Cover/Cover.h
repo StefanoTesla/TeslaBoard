@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "IOManager.h"
 #include <ArduinoJson.h>
-#include <Preferences.h>
+#include <NVSManager.h>
 #include <PWMManager.h>
 
 class Cover {
@@ -72,11 +72,6 @@ public:
     void getConfiguration(JsonObject obj);
 
 private:
-    Preferences nvs;
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
-    bool openNVS(bool readOnly);
-    void closeNVS();
 
     void storeLastPosition();
     int getLastPosition();

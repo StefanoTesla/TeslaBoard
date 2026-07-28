@@ -235,7 +235,7 @@ void SwitchApi() {
         AsyncJsonResponse * response = new AsyncJsonResponse();
         JsonObject doc = response -> getRoot().to < JsonObject > ();
         doc["enable"] = Switches.isEnable();
-        doc["order"] = Switches.uiOrder;
+        doc["order"] = Switches.getUiOrder();
         doc["identifier"] = Switches.getIdentifier();
 
         Switches.getConfiguration(doc);
@@ -342,7 +342,7 @@ void SwitchApi() {
             return;
         }
 
-        Switches.storeConfiguration();
+        Switches.storeConfiguration(incomingObj);
 
         response -> setLength();
         request -> send(response);

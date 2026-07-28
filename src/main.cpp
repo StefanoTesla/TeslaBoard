@@ -29,35 +29,26 @@ AsyncUDP udp;
 
 #include "Alpaca/discovery.h"
 
-void initNVS(){
-      esp_err_t ret = nvs_flash_init();
-
-    if (ret == ESP_OK) {
-
-    } else if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        esp_err_t erase_ret = nvs_flash_erase();
-        if (erase_ret == ESP_OK) {
-            ret = nvs_flash_init();
-            if (ret == ESP_OK) {
-                return;
-            }
-        }
-    }
-  }
-
-
 void setup() {
-  initNVS();
   Serial.begin(115200);
   if(!LittleFS.begin()){
   //  return;
   }
- 
+  Serial.println("Begin WIFI");
   WiFiManager.begin();
+  Serial.println("Begin WIFI");
+  Serial.println("Begin Board");
   Board.begin();
+  Serial.println("Begin Board");
+  Serial.println("Begin Dome");
   Dome.begin();
+  Serial.println("Begin Dome");
+  Serial.println("Begin CoverC");
   CoverCalibrator.begin();
+  Serial.println("Begin CoverC");
+  Serial.println("Begin Switches");
   Switches.begin();
+  Serial.println("Begin Switches");
   WiFiManager.setHostName(Board.getIdentifier());
   //start alpaca discovery
   alpacaDiscovery(udp);
@@ -97,6 +88,62 @@ void setup() {
 }
 
 void loop() {
+
+  while (Serial.available() > 0) {
+    const char c = static_cast<char>(Serial.read());
+
+    if (!rxInProgress) {
+      if (c == '<') {
+        rxInProgress = true;
+        rxIndex = 0;
+      }
+      continue;
+    }
+
+    if (c == '<') {
+      rxIndex = 0;
+      continue;
+    }
+
+    if (c == '>') {
+      rxBuffer[rxIndex] = '\0';
+
+      char* sep = strchr(rxBuffer, ':');
+      if (!sep) {
+        Serial.print("<ERR:BAD_FRAME>");
+        rxInProgress = false;
+        rxIndex = 0;
+        continue;
+      }
+
+      *sep = '\0';
+      const char* moduleToken = rxBuffer;
+      char* payload = sep + 1;
+
+      if (strcmp(moduleToken, "ROOF") == 0) {
+        Dome.handlePacket(payload, Serial);
+      } else if (strcmp(moduleToken, "COVER") == 0) {
+        CoverCalibrator.handlePacket(payload, Serial);
+      } else if (strcmp(moduleToken, "SWITCH") == 0) {
+        Switches.handlePacket(payload, Serial);
+      } else {
+        Serial.print("<ERR:UNKNOWN_MOD>");
+      }
+
+      rxInProgress = false;
+      rxIndex = 0;
+      continue;
+    }
+
+    if (c >= 32 && c <= 126 && rxIndex < sizeof(rxBuffer) - 1) {
+      rxBuffer[rxIndex++] = c;
+    } else {
+      Serial.print("<ERR:BAD_FRAME>");
+      rxInProgress = false;
+      rxIndex = 0;
+    }
+  }
+
   WiFiManager.loop();
   Board.loop();
   Dome.loop();

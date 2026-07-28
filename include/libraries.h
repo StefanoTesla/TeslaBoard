@@ -12,6 +12,7 @@
 #include <Preferences.h>
 #include <TeslaWiFiManager.h>
 #include <pwmManager.h>
+#include <NVSManager.h>
 #include <BoardModule.h>
 #include <DomeModule.h>
 #include <SwitchModule.h>

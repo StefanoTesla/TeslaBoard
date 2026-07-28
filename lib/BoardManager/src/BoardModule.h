@@ -3,46 +3,34 @@
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Preferences.h>
+#include <BaseModule.h>
 
-
-#define BOARD_SCHEMA_VERSION 1
+#define BOARD_SCHEMA_VERSION 2
 #define BOARD_SCHEMA_NAME "boardcfg"
 
-class BoardModule {
+class BoardModule : public BaseModule {
 public:
     BoardModule() = default;
-
-    void begin(); 
     void loop();
 
-    void getConfiguration(JsonObject dest);
-    void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored);
-    String getIdentifier(){ return identifier; }
-    String getLocale(){ return locale; }
+    String getLocale() const { return locale; }
+    unsigned long getUptime() const { return upTime; }
 
-    unsigned long getUptime() { return upTime; }
+protected:
+    const char* schemaName() const override { return BOARD_SCHEMA_NAME; }
+    uint16_t schemaVersion() const override { return BOARD_SCHEMA_VERSION; }
+    const char* defaultIdentifier() const override { return "TeslaBoard"; }
+    bool defaultEnable() const override { return true; }
 
-private:
-
-/* functions to handle the configuration */
-    bool openNVS(bool readOnly);
-    void closeNVS();
-    bool initNVS();
-    void updateNVS1();
-
-    JsonDocument tmpCfg;
-    Preferences nvs;
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
-    bool validConfig;
-    bool rebootNeeded;
+    void initSecondaryData() override;
+    void loadSecondaryData() override;
+    void appendSecondaryConfig(JsonObject dest) override;
+    bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
+    void storeSecondaryConfig(const JsonObject &toBeStored) override;
+    bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
-    String identifier = "TeslaBoard";
     String locale = "en";
-
     unsigned long ackMillis = 0;
     unsigned long upTime = 0;
 };

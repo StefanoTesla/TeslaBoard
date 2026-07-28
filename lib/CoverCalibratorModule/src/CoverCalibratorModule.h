@@ -7,11 +7,13 @@
 #include <ArduinoJson.h>
 #include <Preferences.h>
 #include <PWMManager.h>
+#include <BaseModule.h>
+#include <NVSManager.h>
 
 #define COVERC_SCHEMA_VERSION 1
 #define COVERC_SCHEMA_NAME "cccfg"
 
-class CoverCalibratorModule {
+class CoverCalibratorModule : public BaseModule {
 public:
     CoverCalibratorModule(PWMManager* channelManager) :
         chMgr(channelManager),       
@@ -21,37 +23,23 @@ public:
     Cover cover;
     Calibrator calibrator;
 
-
-    void begin(); 
-    bool isEnable();
     void loop();
+    bool handlePacket(char* payload, Stream& out);
 
+protected:
+    const char* schemaName() const override { return COVERC_SCHEMA_NAME; }
+    uint16_t schemaVersion() const override { return COVERC_SCHEMA_VERSION; }
+    const char* defaultIdentifier() const override { return "CoverCal"; }
 
-    void getConfiguration(JsonObject dest);
-    void validateConfiguration(const JsonObject &toBeValidated, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored);
-    String getIdentifier(){ return identifier; }
-    unsigned int uiOrder;
-
-private:
-
-/* functions to handle the configuration */
-    Preferences nvs;
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
-    bool openNVS(bool readOnly);
-    void closeNVS();
-    bool initNVS();
-    void updateNVS1();
-
-    JsonDocument tmpCfg;
-    bool moduleEnable = false;
-    bool validConfig = false;
-    bool rebootNeeded = false;
+    void initSecondaryData() override;
+    void loadSecondaryData() override;
+    void appendSecondaryConfig(JsonObject dest) override;
+    bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
+    void storeSecondaryConfig(const JsonObject &toBeStored) override;
+    bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
     PWMManager* chMgr;
-    String identifier = "CoverCalibrator";
 };
 
 #endif

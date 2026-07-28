@@ -35,6 +35,7 @@ bool Shutter::isOpen(){
 /* senda an open command*/
 void Shutter::open() {
     if(canOpen()){
+        error = None;
         actualCmd = Open;
         LOGI("Open command recived");
     }
@@ -66,6 +67,7 @@ bool Shutter::isClosed(){
 void Shutter::close() {
     if(canClose()){
         LOGI("Closing command recived");
+        error = None;
         actualCmd = Close;
     }
     
@@ -94,11 +96,14 @@ void Shutter::updateStatus() {
     status = Error;
 
     if (actualCmd == Idle){
+        if (error != None){
         if(OpenSensor.status() && !CloseSensor.status()){
             status = Opened;
         } else if(CloseSensor.status() && !OpenSensor.status()){
             status = Closed;
         }
+
+    }
     } else {
         if(actualCmd == Open){
             status = Opening;
@@ -124,6 +129,11 @@ void Shutter::checkTravelTimeOut(){
 
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
         LOGE("Trivel time out triggered, sending Halt Command");
+        if(actualCmd == Open){
+            error = TOutOpening;
+        } else if (actualCmd == Close){
+            error = TOutClosing;
+        }
         halt();
     }
 }
@@ -498,7 +508,7 @@ void Shutter::debug(){
             LOGV("HaltFinalStep");
             break;        
         default:
-            LOGV("don't know where I'm");
+            LOGV("don't know where I'am");
             break;
         }
         log.previous.cycle = log.actual.cycle;
@@ -518,10 +528,10 @@ void Shutter::debug(){
 
 }
 
+
 /*
 Configuration Area
 */
-
 
 #pragma region Configuration
 
@@ -737,17 +747,14 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
     HaltClose.copyJsonCfg(shutterObject["outHalt"],outHalt);
     HaltClose.invert = outHalt["invert"].as<bool>();
 
-    Preferences pref;
-    pref.begin(schema);
-
     serializeJson(shutterObject,Serial);
 
     String json;
 
     serializeJson(tmpCfg,json);
 
-    pref.putString("shutter",json);
-    pref.end();
+    NvsManager::getInstance().putString("shutter",json);
+
     tmpCfg.clear();
 }
 
