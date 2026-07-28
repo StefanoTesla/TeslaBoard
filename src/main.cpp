@@ -34,6 +34,17 @@ void setup() {
   if(!LittleFS.begin()){
   //  return;
   }
+
+  uint32_t start_time = millis();
+  while (!Serial && (millis() - start_time < 4000)) {
+    delay(10);
+  }
+
+  Serial.setDebugOutput(true);
+
+  Serial.println();
+  Serial.println("ESP32-S3 USB CDC attiva");
+  Serial.println("Se leggi qui, stai usando la USB nativa.");
   Serial.println("Begin WIFI");
   WiFiManager.begin();
   Serial.println("Begin WIFI");
