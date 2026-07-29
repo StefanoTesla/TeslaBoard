@@ -105,113 +105,198 @@ void DomeModule::loop(){
 
 /* SERIAL MANAGER */
 
+DomeModule::DomeSerialCommand DomeModule::parseCommand(const char* cmd) {
+  if (strcmp(cmd, "DEVICE_STATE") == 0)     return DomeSerialCommand::DeviceState;
+  if (strcmp(cmd, "OPEN_SH") == 0)     return DomeSerialCommand::OpenShutter;
+  if (strcmp(cmd, "CLOSE_SH") == 0)     return DomeSerialCommand::CloseShutter;
+  if (strcmp(cmd, "CAN_SET_SH") == 0)     return DomeSerialCommand::CanSetShutter;
+  if (strcmp(cmd, "SH_STATUS") == 0)     return DomeSerialCommand::ShutterStatus;
+  if (strcmp(cmd, "ABORT") == 0)     return DomeSerialCommand::AbortSlew;
+
+  if (strcmp(cmd, "NAME") == 0)           return DomeSerialCommand::Name;
+  if (strcmp(cmd, "DESC") == 0)           return DomeSerialCommand::Desc;
+  if (strcmp(cmd, "INT_VRS") == 0)        return DomeSerialCommand::IntVersion;
+  if (strcmp(cmd, "SUP_ACTIONS") == 0)    return DomeSerialCommand::SupportedActions;
+  if (strcmp(cmd, "ACTION") == 0)         return DomeSerialCommand::Action;
+  if (strcmp(cmd, "CMD_BLIND") == 0)      return DomeSerialCommand::CmdBlind;
+  if (strcmp(cmd, "CMD_BOOL") == 0)       return DomeSerialCommand::CmdBool;
+  if (strcmp(cmd, "CMD_STRING") == 0)     return DomeSerialCommand::CmdString;
+  if (strcmp(cmd, "CONNECT") == 0)        return DomeSerialCommand::Connect;
+  if (strcmp(cmd, "CONNECTING") == 0)        return DomeSerialCommand::Connecting;
+  if (strcmp(cmd, "CONNECTED") == 0)        return DomeSerialCommand::Connected;
+  if (strcmp(cmd, "DISCONNECT") == 0)     return DomeSerialCommand::Disconnect;
+  if (strcmp(cmd, "SLAVED") == 0)     return DomeSerialCommand::Slaved;
+  if (strcmp(cmd, "SLEWING") == 0)     return DomeSerialCommand::Slewing;
+  if (strcmp(cmd, "ALTITUDE") == 0)     return DomeSerialCommand::Altitude;
+  if (strcmp(cmd, "AZIMUTH") == 0)     return DomeSerialCommand::Azimuth;
+  if (strcmp(cmd, "AT_HOME") == 0)     return DomeSerialCommand::AtHome;
+  if (strcmp(cmd, "AT_PARK") == 0)     return DomeSerialCommand::AtPark;
+  if (strcmp(cmd, "SLEW_ALTI") == 0)     return DomeSerialCommand::SlewToAltitude;
+  if (strcmp(cmd, "SLEW_AZI") == 0)     return DomeSerialCommand::SlewToAltitude;
+  if (strcmp(cmd, "CAN_HOME") == 0)     return DomeSerialCommand::CanFindHome;
+  if (strcmp(cmd, "CAN_SET_AZI") == 0)     return DomeSerialCommand::CanSetAzi;
+  if (strcmp(cmd, "CAN_SET_PARK") == 0)     return DomeSerialCommand::CanSetPark;
+  if (strcmp(cmd, "CAN_SLAVE") == 0)     return DomeSerialCommand::CanSlave;
+  if (strcmp(cmd, "CAN_SYNC_AZI") == 0)     return DomeSerialCommand::CanSyncAzimuth;
+  if (strcmp(cmd, "FIND_HOME") == 0)     return DomeSerialCommand::FindHome;
+  if (strcmp(cmd, "PARK") == 0)     return DomeSerialCommand::Park;
+  if (strcmp(cmd, "SET_PARK") == 0)     return DomeSerialCommand::SetPark;
+
+  return DomeSerialCommand::Unknown;
+}
+
 bool DomeModule::handlePacket(char* payload, Stream& out) {
     char* saveptr = nullptr;
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<ERR:SWITCH:BAD_CMD>");
+      out.print("<ERR:BAD_CMD:NULLPTR>");
       return false;
     }
 
-    if (strcmp(cmd, "OPEN") == 0) {
-      if(isEnable()){
+    /*
+    If module is not enable refuse all commands
+    */
+
+    if(!isEnable()){
+      out.print("<ERR:NOT_ENABLE>");
+      return false;
+    }
+
+    DomeSerialCommand command;
+    LOGI("Command recived: %d",cmd);
+    command = parseCommand(cmd);
+    /*
+    If command is not listed return the error
+    */
+    if (command == DomeSerialCommand::Unknown) {
+      out.print("<ERR:BAD_CMD:UNKNOW>");
+      return false;
+    }
+    
+    switch (command){
+
+      case DomeSerialCommand::Name:
+        out.print("<");
+        out.print(getIdentifier());
+        out.print("- TeslaBoard>");
+        return true;
+
+      case DomeSerialCommand::Desc:
+        out.print("<OK:");
+        out.print("Dome - TeslaBoard 4.0 via USB");
+        out.print(">");
+        return true;
+
+      case DomeSerialCommand::IntVersion:
+        out.print("<");
+        out.print("3");
+        out.print(">");
+        return true;
+
+      case DomeSerialCommand::Connect:
+      case DomeSerialCommand::Disconnect:
+        out.print("<OK>");
+        return true;
+
+      case DomeSerialCommand::Connecting:
+        out.print("<false>");
+        return true;
+      case DomeSerialCommand::Connected:
+        out.print("<true>");
+        return true;
+
+      case DomeSerialCommand::SupportedActions:
+        out.print("<>");
+        return true;
+
+      /* Not Implemented metods/property*/
+      case DomeSerialCommand::Action:
+      case DomeSerialCommand::CmdBlind:
+      case DomeSerialCommand::CmdBool:
+      case DomeSerialCommand::CmdString:
+      case DomeSerialCommand::Slaved:
+      case DomeSerialCommand::AtHome:
+      case DomeSerialCommand::AtPark:
+      case DomeSerialCommand::Azimuth:
+      case DomeSerialCommand::Altitude:
+      case DomeSerialCommand::SlewToAltitude:
+      case DomeSerialCommand::FindHome:
+      case DomeSerialCommand::Park:
+      case DomeSerialCommand::SetPark:
+      case DomeSerialCommand::SlewToAzimuth:
+        out.print("<ERR:NOT_IMPL>");
+        return true;
+
+      /* thing this board can't do*/
+      case DomeSerialCommand::CanFindHome:
+      case DomeSerialCommand::CanSetAzi:
+      case DomeSerialCommand::CanSetPark:
+      case DomeSerialCommand::CanSlave:
+      case DomeSerialCommand::CanSyncAzimuth:
+        out.print("<false>");
+        return true;
+      /* thing this board can do*/ 
+      case DomeSerialCommand::CanSetShutter:
+        out.print("<false>");
+        return true;
+
+      case DomeSerialCommand::ShutterStatus:
+        out.print("<");
+        out.print(shutter.getStatus());
+        out.print(">");
+        return true;
+
+      case DomeSerialCommand::AbortSlew:
+        shutter.halt();
+        out.print("<false>");
+        return true;
+
+      case DomeSerialCommand::OpenShutter:
         if(shutter.canOpen()){
-          out.print("<DOME:OK:OPEN>");
-        } else {
-          out.print("<DOME:KO:OPEN:CANT_OPEN>");
+          shutter.open();
+          out.print("<OK>");
+          return true;
         }
-      } else {
-        out.print("<DOME:KO:NO_ENABLE>");
-      }
+
+        if(shutter.getActualCommand() != 0 ){
+          out.print("<ERR:ALREADY_MOVING>");
+          return false;
+        } else {
+          out.print("<ERR:ALREADY_OPEN>");
+          return false;
+        }
+        
+      case DomeSerialCommand::CloseShutter:
+        if(shutter.canClose()){
+          shutter.close();
+          out.print("<OK>");
+          return true;
+        }
+
+        if(shutter.getActualCommand() != 0 ){
+          out.print("<ERR:ALREADY_MOVING>");
+          return false;
+        } else {
+          out.print("<ERR:ALREADY_CLOSED>");
+          return false;
+        }
+
+      case DomeSerialCommand::Slewing:
+        if(shutter.getActualCommand() != 0){
+          out.print("<true>");
+          return true;
+        } else {
+          out.print("<false>");
+          return true;
+        }
 
     }
+   
+    #pragma endregion
 
-    if (strcmp(cmd, "SET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* valueStr = strtok_r(nullptr, ":", &saveptr);
 
-      if (chStr == nullptr || valueStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-      const int value = atoi(valueStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      if (value < 0 || value > 4096) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: setSwitch(channel, value);
-      out.print("<OK:SWITCH:SET>");
-      return true;
-    }
-
-    if (strcmp(cmd, "GET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-
-      if (chStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: int value = getSwitch(channel);
-      const int value = 1234;
-
-      out.print("<OK:SWITCH:GET:");
-      out.print(channel);
-      out.print(":");
-      out.print(value);
-      out.print(">");
-      return true;
-    }
-
-    if (strcmp(cmd, "PULSE") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* msStr = strtok_r(nullptr, ":", &saveptr);
-
-      if (chStr == nullptr || msStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-      const int durationMs = atoi(msStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      if (durationMs <= 0 || durationMs > 60000) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: startPulse(channel, durationMs);
-      out.print("<OK:SWITCH:PULSE>");
-      return true;
-    }
-
-    if (strcmp(cmd, "STATUS") == 0) {
-      out.print("<OK:SWITCH:READY>");
-      return true;
-    }
-
-    out.print("<ERR:SWITCH:UNKNOWN_CMD>");
+    /* If i'm here I don't know why :( */
+    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
     return false;
   }

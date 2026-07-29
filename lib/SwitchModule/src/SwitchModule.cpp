@@ -564,6 +564,7 @@ SwitchModule::SwitchSerialCommand SwitchModule::parseCommand(const char* cmd) {
   if (strcmp(cmd, "CONNECT") == 0)        return SwitchSerialCommand::Connect;
   if (strcmp(cmd, "CONNECTING") == 0)        return SwitchSerialCommand::Connecting;
   if (strcmp(cmd, "DISCONNECT") == 0)     return SwitchSerialCommand::Disconnect;
+  if (strcmp(cmd, "CONNECTED") == 0)     return SwitchSerialCommand::Connected;
   if (strcmp(cmd, "GET_SWITCH_VALUE") == 0) return SwitchSerialCommand::GetSwitchValue;
   if (strcmp(cmd, "GET_SWITCH_DESC") == 0)  return SwitchSerialCommand::GetSwitchDesc;
   if (strcmp(cmd, "GET_SWITCH_NAME") == 0)  return SwitchSerialCommand::GetSwitchName;
@@ -577,6 +578,7 @@ SwitchModule::SwitchSerialCommand SwitchModule::parseCommand(const char* cmd) {
   if (strcmp(cmd, "SET_DESC") == 0)       return SwitchSerialCommand::SetDesc;
   if (strcmp(cmd, "SET_VALUE") == 0)      return SwitchSerialCommand::SetValue;
   if (strcmp(cmd, "STEP") == 0)           return SwitchSerialCommand::Step;
+  if (strcmp(cmd, "DEVICE_STATE") == 0)     return SwitchSerialCommand::DeviceState;
 
   return SwitchSerialCommand::Unknown;
 }
@@ -593,13 +595,14 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     /*
     If module is not enable refuse all commands
     */
+
     if(!isEnable()){
       out.print("<ERR:NOT_ENABLE>");
       return false;
     }
 
     SwitchSerialCommand command;
-
+    LOGI("Command recived: %d",cmd);
     command = parseCommand(cmd);
     /*
     If command is not listed return the error
@@ -642,12 +645,18 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
         out.print("<OK>");
         return true;
 
+      case SwitchSerialCommand::Connected:
+        out.print("<true>");
+        return true;
+
       case SwitchSerialCommand::Connecting:
         out.print("<false>");
         return true;
+      case SwitchSerialCommand::SupportedActions:
+        out.print("<>");
+        return true;
 
       /* Not Implemented metods/property*/
-      case SwitchSerialCommand::SupportedActions:
       case SwitchSerialCommand::Action:
       case SwitchSerialCommand::CmdBlind:
       case SwitchSerialCommand::CmdBool:
@@ -655,6 +664,10 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::SetName:
       case SwitchSerialCommand::SetDesc:
         out.print("<ERR:NOT_IMPL>");
+        return true;
+
+      case SwitchSerialCommand::DeviceState:
+        out.print("<ERR:TO_DO>");
         return true;
     }
    

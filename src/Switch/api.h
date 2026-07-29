@@ -609,7 +609,6 @@ void SwitchApi() {
 
     alpaca.on("/api/v1/switch/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
             AsyncJsonResponse *response = prepareAlpacaResponse(request);
-
             response->setLength();
             request->send(response);
     }).addMiddleware(&getAlpParams);

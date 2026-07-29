@@ -97,10 +97,11 @@ private:
     SetName,
     SetDesc,
     SetValue,
-    Step
+    Step,
+    DeviceState
   };
 
-    SwitchSerialCommand parseCommand(const char* cmd);        
+  SwitchSerialCommand parseCommand(const char* cmd);        
 };
 
 #endif
