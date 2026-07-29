@@ -84,3 +84,48 @@ void BoardModule::loop() {
         upTime++;
     }
 }
+
+
+
+
+/* SERIAL MANAGER */
+
+bool BoardModule::handlePacket(char* payload, Stream& out) {
+    char* saveptr = nullptr;
+    char* cmd = strtok_r(payload, ":", &saveptr);
+
+    if (cmd == nullptr) {
+      out.print("<ERR:SWITCH:BAD_CMD>");
+      return false;
+    }
+
+    if (strcmp(cmd, "READ") == 0) {
+        char* nameSpace = strtok_r(nullptr, ":", &saveptr);
+        char* type = strtok_r(nullptr, ":", &saveptr);
+        char* variable = strtok_r(nullptr, ":", &saveptr);
+        LOGI("richiesta di lettura della nvs");
+        if(!NvsManager::getInstance().openNVS(true,nameSpace)){
+            out.print("<ERR:BO:NVS_NO_OPEN>");
+            closeNVS();
+            return false;
+        }
+        if (strcmp(type, "BOOL") == 0 ){
+            out.print(NvsManager::getInstance().getBool(variable));
+        } else if (strcmp(type, "INT") == 0 ){
+            out.print(NvsManager::getInstance().getInt(variable));
+        } 
+        else if (strcmp(type, "STR") == 0 ){
+            out.print(NvsManager::getInstance().getString(variable));
+        } else {
+             out.print("<ERR:BO:WRONG_TYPE>");
+        }
+        
+        closeNVS();
+        return true;
+
+
+    }
+
+    out.print("<ERR:SWITCH:UNKNOWN_CMD>");
+    return false;
+  }

@@ -22,8 +22,6 @@ void SwitchModule::initSecondaryData() {
   NvsManager::getInstance().putInt("schema", 1);
 }
 
-
-
 /* here we load secondary data during the begin */
 void SwitchModule::loadSecondaryData() {
 
@@ -90,7 +88,6 @@ void SwitchModule::loadSecondaryData() {
   LOGV("%d confugred switches", configuredSwitches);
 }
 
-
 /* here we update the nvs when new schema is given */
 bool SwitchModule::applySchemaUpgradeStep(uint16_t currentVersion) {
     LOGI("Applying schema upgrade step from version %u", currentVersion);
@@ -112,8 +109,6 @@ bool SwitchModule::applySchemaUpgradeStep(uint16_t currentVersion) {
             return false;
     }
 }
-
-
 
 /* here we read secondary data during the get config */
 void SwitchModule::appendSecondaryConfig(JsonObject dest) {
@@ -190,7 +185,6 @@ bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
 
     return err.size() == 0;
 }
-
 
 void SwitchModule::storeSecondaryConfig(const JsonObject &toBeStored) {
   int id = -1;
@@ -326,8 +320,6 @@ void SwitchModule::checkIfRebootNeeded(int id, Type type, const JsonObject &sing
   LOGV("Switch %d: no changes detected", id);
 }
 
-
-
 #pragma endregion
 
 void SwitchModule::loop() {
@@ -453,8 +445,6 @@ int SwitchModule::setServoPositionAsync(int id, int position){
 
 }
 
-
-
 /*
 Write a value on the Switch
 
@@ -555,103 +545,287 @@ int SwitchModule::getServoIsMoving(int id){
   return 0;
 }
 
+#pragma region Serial
 
 /* SERIAL MANAGER */
+SwitchModule::SwitchSerialCommand SwitchModule::parseCommand(const char* cmd) {
+  if (strcmp(cmd, "MAX_SWITCH") == 0)      return SwitchSerialCommand::MaxSwitch;
+  if (strcmp(cmd, "DESC") == 0)           return SwitchSerialCommand::Desc;
+  if (strcmp(cmd, "INT_VRS") == 0)        return SwitchSerialCommand::IntVersion;
+  if (strcmp(cmd, "NAME") == 0)           return SwitchSerialCommand::Name;
+  if (strcmp(cmd, "SUP_ACTIONS") == 0)    return SwitchSerialCommand::SupportedActions;
+  if (strcmp(cmd, "ACTION") == 0)         return SwitchSerialCommand::Action;
+  if (strcmp(cmd, "CAN_ASYNC") == 0)      return SwitchSerialCommand::CanAsync;
+  if (strcmp(cmd, "CANC_ASYNC") == 0)     return SwitchSerialCommand::CancelAsync;
+  if (strcmp(cmd, "CAN_WRITE") == 0)      return SwitchSerialCommand::CanWrite;
+  if (strcmp(cmd, "CMD_BLIND") == 0)      return SwitchSerialCommand::CmdBlind;
+  if (strcmp(cmd, "CMD_BOOL") == 0)       return SwitchSerialCommand::CmdBool;
+  if (strcmp(cmd, "CMD_STRING") == 0)     return SwitchSerialCommand::CmdString;
+  if (strcmp(cmd, "CONNECT") == 0)        return SwitchSerialCommand::Connect;
+  if (strcmp(cmd, "CONNECTING") == 0)        return SwitchSerialCommand::Connecting;
+  if (strcmp(cmd, "DISCONNECT") == 0)     return SwitchSerialCommand::Disconnect;
+  if (strcmp(cmd, "GET_SWITCH_VALUE") == 0) return SwitchSerialCommand::GetSwitchValue;
+  if (strcmp(cmd, "GET_SWITCH_DESC") == 0)  return SwitchSerialCommand::GetSwitchDesc;
+  if (strcmp(cmd, "GET_SWITCH_NAME") == 0)  return SwitchSerialCommand::GetSwitchName;
+  if (strcmp(cmd, "GET_SWITCH_MAX") == 0)   return SwitchSerialCommand::GetSwitchMax;
+  if (strcmp(cmd, "GET_SWITCH_MIN") == 0)   return SwitchSerialCommand::GetSwitchMin;
+  if (strcmp(cmd, "SET_ASYNC") == 0)      return SwitchSerialCommand::SetAsync;
+  if (strcmp(cmd, "SET_ASYNC_VAL") == 0)  return SwitchSerialCommand::SetAsyncVal;
+  if (strcmp(cmd, "STATE_CHANGE_OK") == 0)  return SwitchSerialCommand::StateChangeComplete;
+  if (strcmp(cmd, "SET") == 0)            return SwitchSerialCommand::Set;
+  if (strcmp(cmd, "SET_NAME") == 0)       return SwitchSerialCommand::SetName;
+  if (strcmp(cmd, "SET_DESC") == 0)       return SwitchSerialCommand::SetDesc;
+  if (strcmp(cmd, "SET_VALUE") == 0)      return SwitchSerialCommand::SetValue;
+  if (strcmp(cmd, "STEP") == 0)           return SwitchSerialCommand::Step;
+
+  return SwitchSerialCommand::Unknown;
+}
 
 bool SwitchModule::handlePacket(char* payload, Stream& out) {
     char* saveptr = nullptr;
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<ERR:SWITCH:BAD_CMD>");
+      out.print("<ERR:BAD_CMD:NULLPTR>");
       return false;
     }
 
-    if (strcmp(cmd, "SET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* valueStr = strtok_r(nullptr, ":", &saveptr);
-
-      if (chStr == nullptr || valueStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-      const int value = atoi(valueStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      if (value < 0 || value > 4096) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: setSwitch(channel, value);
-      out.print("<OK:SWITCH:SET>");
-      return true;
+    /*
+    If module is not enable refuse all commands
+    */
+    if(!isEnable()){
+      out.print("<ERR:NOT_ENABLE>");
+      return false;
     }
 
-    if (strcmp(cmd, "GET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
+    SwitchSerialCommand command;
 
-      if (chStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: int value = getSwitch(channel);
-      const int value = 1234;
-
-      out.print("<OK:SWITCH:GET:");
-      out.print(channel);
-      out.print(":");
-      out.print(value);
-      out.print(">");
-      return true;
+    command = parseCommand(cmd);
+    /*
+    If command is not listed return the error
+    */
+    if (command == SwitchSerialCommand::Unknown) {
+      out.print("<ERR:BAD_CMD:UNKNOW>");
+      return false;
     }
 
-    if (strcmp(cmd, "PULSE") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* msStr = strtok_r(nullptr, ":", &saveptr);
+    /* command that don't require the ID Valitation*/
+    #pragma region CmdWithoutIDValidation 
+    
+    switch (command){
 
-      if (chStr == nullptr || msStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
+      case SwitchSerialCommand::MaxSwitch:
+        out.print("<");
+        out.print(getConfiguredSwitch());
+        out.print(">");
+        return true;
 
-      const int channel = atoi(chStr);
-      const int durationMs = atoi(msStr);
+      case SwitchSerialCommand::Desc:
+        out.print("<OK:");
+        out.print("Switch - TeslaBoard 4.0");
+        out.print(">");
+        return true;
 
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
+      case SwitchSerialCommand::IntVersion:
+        out.print("<");
+        out.print("3");
+        out.print(">");
+        return true;
 
-      if (durationMs <= 0 || durationMs > 60000) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
+      case SwitchSerialCommand::Name:
+        out.print("<");
+        out.print(getIdentifier());
+        out.print("- TeslaBoard>");
+        return true;
+      case SwitchSerialCommand::Connect:
+      case SwitchSerialCommand::Disconnect:
+        out.print("<OK>");
+        return true;
 
-      // TODO: startPulse(channel, durationMs);
-      out.print("<OK:SWITCH:PULSE>");
-      return true;
+      case SwitchSerialCommand::Connecting:
+        out.print("<false>");
+        return true;
+
+      /* Not Implemented metods/property*/
+      case SwitchSerialCommand::SupportedActions:
+      case SwitchSerialCommand::Action:
+      case SwitchSerialCommand::CmdBlind:
+      case SwitchSerialCommand::CmdBool:
+      case SwitchSerialCommand::CmdString:
+      case SwitchSerialCommand::SetName:
+      case SwitchSerialCommand::SetDesc:
+        out.print("<ERR:NOT_IMPL>");
+        return true;
+    }
+   
+    #pragma endregion
+
+    /* get the switch id */
+    char* chStr = strtok_r(nullptr, ":", &saveptr);
+
+    if (chStr == nullptr) {
+      out.print("<ERR:BAD_CMD:ID_NULLPTR>");
+      return false;
     }
 
-    if (strcmp(cmd, "STATUS") == 0) {
-      out.print("<OK:SWITCH:READY>");
-      return true;
+    /* id will go to the Switches arrya that become form 0*/
+    const int id = atoi(chStr)-1;
+
+    if(isValidID(id) != 1){
+      out.print("<ERR:INVALID_ID>");
+      return false;
     }
 
-    out.print("<ERR:SWITCH:UNKNOWN_CMD>");
+    #pragma region CmdWithOnlyIDValidation
+
+    switch (command){
+
+      case  SwitchSerialCommand::CanAsync:
+      case  SwitchSerialCommand::CancelAsync:
+        out.print("<OK>");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchName:
+        out.print("<");
+        out.print(Switches[id]->getName());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchDesc:
+        out.print("<");
+        out.print(Switches[id]->getDescription());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchMin:
+        out.print("<");
+        out.print(Switches[id]->getMin());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchMax:
+        out.print("<");
+        out.print(Switches[id]->getMax());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::Step:
+        out.print("<1>");
+        return true;
+
+      case SwitchSerialCommand::CanWrite:
+        if(isWritable(id) == 1){
+          out.print("<TRUE>");
+        } else {
+          out.print("<FALSE>");
+        }
+        return true;
+      case SwitchSerialCommand::GetSwitchValue:
+        out.print("<");
+        out.print(Switches[id]->status());
+        out.print(">");
+        return true;
+      case SwitchSerialCommand::StateChangeComplete:
+
+        if(Switches[id]->getType() == Type::Servo){
+          if(getServoIsMoving(id) == 1){
+            out.print("<false>");
+            return true;
+          } 
+          out.print("<true>");
+        }
+        return true;
+            
+    }
+
+    #pragma endregion
+
+    /*
+    from here only command whre the switch need to be writable
+    */
+
+    if(isWritable(id) != 1){
+      out.print("<ERR:ID_NOT_WRITABLE>");
+      return false;
+    }
+
+    char* stateStr =nullptr;
+    char* valueStr =nullptr;
+    bool State;
+    int Value;
+    /* state commands min or max*/
+    #pragma region CommandWithIDAndStateValidation 
+
+    switch (command){
+
+      case SwitchSerialCommand::SetAsync:
+      case SwitchSerialCommand::Set:
+        stateStr = strtok_r(nullptr, ":", &saveptr);
+        if (stateStr == nullptr) {
+          out.print("<ERR:BAD_CMD:STATE_NULLPTR>");
+          return false;
+        }
+
+        bool State = false;
+
+        if( 
+          strcmp(stateStr,"True")==0 ||
+          strcmp(stateStr,"TRUE")==0 ||
+          strcmp(stateStr,"true")==0
+        ){
+          State= true;
+        } else if(
+          strcmp(stateStr,"False")==0 ||
+          strcmp(stateStr,"FALSE")==0 ||
+          strcmp(stateStr,"false")==0
+        ){
+          State = false;
+        } else {
+          out.print("<ERR:BAD_CMD:STATE_MALFORMED>");
+          return false;
+        }
+
+        Switches[id]->write(State ? Switches[id]->getMax() : Switches[id]->getMin());
+        out.print("<OK>");
+        return true;
+
+    }
+
+    #pragma endregion
+
+
+    #pragma region CommandWithIDAndValueValidation 
+
+    switch (command){
+
+      case SwitchSerialCommand::SetAsyncVal:
+      case SwitchSerialCommand::SetValue:
+        valueStr = strtok_r(nullptr, ":", &saveptr);
+        if (valueStr == nullptr) {
+          out.print("<ERR:BAD_CMD:VALUE_NULLPTR>");
+          return false;
+        }
+        Value = atoi(valueStr);
+      
+        if(Value < Switches[id]->getMin()){
+          out.print("<ERR:VALUE_UNDER_MIN>");
+          return false;
+        }
+        if(Value > Switches[id]->getMax()){
+          out.print("<ERR:VALUE_ABOVE_MAX>");
+          return false;
+        }
+
+        Switches[id]->write(Value);
+        out.print("<OK>");
+        return true;
+      }
+
+      #pragma endregion
+
+    /* If i'm here I don't know why :( */
+    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
     return false;
   }
+
+  #pragma endregion

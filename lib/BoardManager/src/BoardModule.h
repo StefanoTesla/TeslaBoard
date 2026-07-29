@@ -12,10 +12,9 @@ class BoardModule : public BaseModule {
 public:
     BoardModule() = default;
     void loop();
-
     String getLocale() const { return locale; }
     unsigned long getUptime() const { return upTime; }
-
+    bool handlePacket(char* payload, Stream& out);
 protected:
     const char* schemaName() const override { return BOARD_SCHEMA_NAME; }
     uint16_t schemaVersion() const override { return BOARD_SCHEMA_VERSION; }

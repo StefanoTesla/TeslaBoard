@@ -56,11 +56,6 @@ protected:
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
-  /* functions to handle the configuration */
-
-  
-
-private:
   JsonDocument tmpCfg;
   PWMManager *chMgr;
   IOBase *Switches[SWITCH_MAX_SWITCHES] = {nullptr};
@@ -71,7 +66,41 @@ private:
   int validateSwitchType(Type type, const JsonObject &singleSW);
   void checkIfRebootNeeded(int id, Type type, const JsonObject &singleSW,
                            JsonObject response);
+                 
+  enum class SwitchSerialCommand : uint8_t {
+    Unknown = 0,
+    MaxSwitch,
+    Desc,
+    IntVersion,
+    Name,
+    SupportedActions,
+    Action,
+    CanAsync,
+    CancelAsync,
+    CanWrite,
+    CmdBlind,
+    CmdBool,
+    CmdString,
+    Connect,
+    Disconnect,
+    Connected,
+    Connecting,
+    GetSwitchValue,
+    GetSwitchDesc,
+    GetSwitchName,
+    GetSwitchMax,
+    GetSwitchMin,
+    SetAsync,
+    SetAsyncVal,
+    StateChangeComplete,
+    Set,
+    SetName,
+    SetDesc,
+    SetValue,
+    Step
+  };
 
+    SwitchSerialCommand parseCommand(const char* cmd);        
 };
 
 #endif

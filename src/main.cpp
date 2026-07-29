@@ -43,6 +43,11 @@ void setup() {
   Serial.setDebugOutput(true);
 
   Serial.println();
+  start_time = millis();
+
+  while (!Serial && (millis() - start_time < 4000)) {
+    delay(10);
+  }
   Serial.println("ESP32-S3 USB CDC attiva");
   Serial.println("Se leggi qui, stai usando la USB nativa.");
   Serial.println("Begin WIFI");
@@ -130,12 +135,13 @@ void loop() {
       *sep = '\0';
       const char* moduleToken = rxBuffer;
       char* payload = sep + 1;
-
-      if (strcmp(moduleToken, "ROOF") == 0) {
+      if (strcmp(moduleToken, "BO") == 0) {
+        Board.handlePacket(payload, Serial);
+      } else if (strcmp(moduleToken, "DO") == 0) {
         Dome.handlePacket(payload, Serial);
-      } else if (strcmp(moduleToken, "COVER") == 0) {
+      } else if (strcmp(moduleToken, "CC") == 0) {
         CoverCalibrator.handlePacket(payload, Serial);
-      } else if (strcmp(moduleToken, "SWITCH") == 0) {
+      } else if (strcmp(moduleToken, "SW") == 0) {
         Switches.handlePacket(payload, Serial);
       } else {
         Serial.print("<ERR:UNKNOWN_MOD>");

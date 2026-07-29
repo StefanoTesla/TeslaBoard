@@ -26,6 +26,9 @@ void DomeModule::loadSecondaryData() {
         shutter.begin(tmpCfg);
     }
 
+    if(shutter.isEnable()){
+      moduleEnable = true;
+    }
     tmpCfg.clear();
 }
 
@@ -70,6 +73,9 @@ bool DomeModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonOb
     }
     
     shutter.validateConfiguration(toBeValidated["shutter"],response);
+
+    rebootNeeded = response["reboot"].as<bool>();
+    
     return err.size() == 0;
 }
 
@@ -106,6 +112,19 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     if (cmd == nullptr) {
       out.print("<ERR:SWITCH:BAD_CMD>");
       return false;
+    }
+
+    if (strcmp(cmd, "OPEN") == 0) {
+      if(isEnable()){
+        if(shutter.canOpen()){
+          out.print("<DOME:OK:OPEN>");
+        } else {
+          out.print("<DOME:KO:OPEN:CANT_OPEN>");
+        }
+      } else {
+        out.print("<DOME:KO:NO_ENABLE>");
+      }
+
     }
 
     if (strcmp(cmd, "SET") == 0) {
