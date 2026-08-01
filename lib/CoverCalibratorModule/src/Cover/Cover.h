@@ -63,7 +63,6 @@ public:
     bool isMoving();
 
     void updateStatus();
-    void updateLastCommunication();
 
     Status getStatus() const;
 

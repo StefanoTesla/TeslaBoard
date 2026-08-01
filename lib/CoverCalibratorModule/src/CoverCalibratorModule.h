@@ -5,7 +5,6 @@
 #include "Cover/Cover.h"
 #include "Calibrator/Calibrator.h"
 #include <ArduinoJson.h>
-#include <Preferences.h>
 #include <PWMManager.h>
 #include <BaseModule.h>
 #include <NVSManager.h>
@@ -40,6 +39,41 @@ protected:
 
 private:
     PWMManager* chMgr;
+    
+    enum class CCSerialCommand : uint8_t {
+        Unknown = 0,
+        Desc,
+        IntVersion,
+        Name,
+        SupportedActions,
+        Action,
+        CmdBlind,
+        CmdBool,
+        CmdString,
+        Connect,
+        Disconnect,
+        Connected,
+        Connecting,
+        DeviceState,
+        Brightness,
+        MaxBrightness,
+        CalibratorChanging,
+        CalibratorState,
+        CalibratorOff,
+        CalibratorOn, 
+        CoverMoving,
+        CoverState,
+        CloseCover,
+        OpenCover,
+        HaltCover
+  };
+
+  CCSerialCommand parseCommand(const char* cmd);  
+
+
+  bool isCalibratorCommand(CCSerialCommand cmd);
+  bool isCoverCommand(CCSerialCommand cmd);
+
 };
 
 #endif

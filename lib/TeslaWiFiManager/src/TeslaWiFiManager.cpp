@@ -9,91 +9,6 @@
 
 TeslaWiFiManager::TeslaWiFiManager(AsyncWebServer *server) : _server(server) {}
 
-
-#pragma region nvsHandler
-
-bool TeslaWiFiManager::openNVS(bool readOnly) {
-
-  switch (nvsStatus) {
-
-    // nvs is closed, i need to ope according by the readOnly
-  case CLOSED:
-    LOGV("NVS seems to be closed");
-    if (nvs.begin(WIFI_SCHEMA_NAME, readOnly)) {
-      if (readOnly) {
-        LOGV("NVS opened in readonly");
-        nvsStatus = OPEN_READOLNY;
-      } else {
-        LOGV("NVS opened with write rights");
-        nvsStatus = OPEN_WRITE;
-      }
-      return true;
-    } else {
-      LOGE("Error opening the NVS");
-      nvsStatus = CLOSED;
-      return false;
-    }
-    break;
-
-  case OPEN_READOLNY:
-    LOGV("NVS seems open in read only");
-    if (!readOnly) {
-      closeNVS();
-      if (nvs.begin(WIFI_SCHEMA_NAME, false)) {
-        nvsStatus = OPEN_WRITE;
-        LOGV("NVS opened with write rights");
-        return true;
-      } else {
-        LOGV("Error during opening NVS with write rights");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open in read only");
-      return true;
-    }
-    break;
-
-  case OPEN_WRITE:
-    LOGV("NVS seems open with write rights");
-    if (readOnly) {
-      closeNVS();
-      nvsStatus = CLOSED;
-      if (nvs.begin(WIFI_SCHEMA_NAME, true)) {
-        nvsStatus = OPEN_READOLNY;
-        LOGV("NVS opened in read only");
-        return true;
-      } else {
-        LOGV("Error during opening NVS in read only");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open with write rights");
-      return true;
-    }
-    break;
-
-  default:
-    LOGE("Unknown NVS status: %d", nvsStatus);
-    return false;
-    break;
-  }
-
-  LOGE("Arrived at the buttom of the function, don't know what happed..");
-  return false;
-}
-
-void TeslaWiFiManager::closeNVS() {
-  if (nvsStatus != CLOSED) {
-    nvs.end();
-    nvsStatus = CLOSED;
-    LOGV("NVS closed");
-  } else {
-    LOGV("NVS already closed");
-  }
-}
-
-#pragma endregion
-
 #pragma region CONFIGURATION
 /* initialize the board */
 void TeslaWiFiManager::begin() {
@@ -101,7 +16,7 @@ void TeslaWiFiManager::begin() {
     pinMode(0, INPUT_PULLUP);
     LOGI("Loading configuration");
 
-    if (!openNVS(true)) {
+    if (!NvsManager::getInstance().openNVS(true,WIFI_SCHEMA_NAME)) {
         LOGE("Error loading wifi nvs partition in read only, trying to format it");
         if (!initNVS()) {
         LOGE("NVS INITIALIZATION FAILED");
@@ -111,8 +26,8 @@ void TeslaWiFiManager::begin() {
 
     LOGV("Checking the schema version");
     // if I'm here NVS is surelly working, no more check...
-    openNVS(true);
-    int schemaVersion = nvs.getInt("schema", 0);
+    NvsManager::getInstance().openNVS(true,WIFI_SCHEMA_NAME);
+    int schemaVersion = !NvsManager::getInstance().getInt("schema", 0);
     LOGD("schema version is: %d", schemaVersion);
 
     if (schemaVersion < WIFI_SCHEMA_VERSION) {
@@ -128,7 +43,7 @@ void TeslaWiFiManager::begin() {
         }
     }
 
-    if(nvsStatus != OPEN_READOLNY){ openNVS(true); }
+    NvsManager::getInstance().openNVS(true,WIFI_SCHEMA_NAME);
     
 
     LOGV("%d configured WiFi",configuredWiFi);
@@ -136,7 +51,7 @@ void TeslaWiFiManager::begin() {
       tmpCfg.clear();
       char key[10];
       snprintf(key, sizeof(key), "wifi%d", i);
-      String wifiX= nvs.getString(key,"{}");
+      String wifiX= NvsManager::getInstance().getString(key,"{}");
       deserializeJson(tmpCfg,wifiX);
       
       if(tmpCfg.size() != 0){
@@ -149,7 +64,7 @@ void TeslaWiFiManager::begin() {
       }
     }
 
-    closeNVS();
+    NvsManager::getInstance().closeNVS();
 
     web();
 
@@ -167,68 +82,69 @@ void TeslaWiFiManager::begin() {
 bool TeslaWiFiManager::initNVS() {
 
   LOGW("Board nvs area will be formatted");
-  if (!openNVS(false)) {
+  if (!NvsManager::getInstance().openNVS(false,WIFI_SCHEMA_NAME)) {
     LOGE("Unable to open the namespace with write rights, initialization failed");
     return false;
   }
   LOGI("namespace open or created, writing default parameters");
 
-  nvs.putInt("schema", 0);
-  nvs.putInt("cfgwifi", 0);
+  NvsManager::getInstance().putInt("schema", 0);
+  NvsManager::getInstance().putInt("cfgwifi", 0);
   
-  closeNVS();
+  NvsManager::getInstance().closeNVS();
   return true;
 }
 
 void TeslaWiFiManager::updateNVS1() {
   // this is the first schema, don't check if something already exist.
-  openNVS(false);
+  NvsManager::getInstance().openNVS(false,WIFI_SCHEMA_NAME);
 
-  nvs.putInt("schema", 1);
+  NvsManager::getInstance().putInt("schema", 1);
 
-  closeNVS();
+  NvsManager::getInstance().closeNVS();
 }
 
 void TeslaWiFiManager::storeConfiguration(){
     LOGI("Writing new configuration on the NVS");
-    openNVS(false);
+    if(NvsManager::getInstance().openNVS(false,WIFI_SCHEMA_NAME)){
 
+      configuredWiFi = 0;
+      for (int i = 0; i < MAX_CONFIGURED_WIFI; i++) {
+          if (strlen(wifiList[i].ssid) > 0) {
+              configuredWiFi++;
+          } else {
+              break; // Esce al primo vuoto (no spazi vuoti)
+          }
+      }
+      LOGV("storing %d wifi",configuredWiFi);
+      
+      NvsManager::getInstance().putInt("cfgwifi", configuredWiFi);
 
-    configuredWiFi = 0;
-    for (int i = 0; i < MAX_CONFIGURED_WIFI; i++) {
-        if (strlen(wifiList[i].ssid) > 0) {
-            configuredWiFi++;
-        } else {
-            break; // Esce al primo vuoto (no spazi vuoti)
-        }
+      // Salva solo le configurazioni valide (0 a configuredWiFi-1)
+      for (int i = 0; i < configuredWiFi; i++)
+      {
+          char key[10];
+          snprintf(key, sizeof(key), "wifi%d", i);
+          
+          JsonDocument newWifi;
+          newWifi["ssid"] = wifiList[i].ssid;
+          newWifi["psw"] = wifiList[i].password;
+          String tmp;
+          serializeJson(newWifi, tmp);
+          NvsManager::getInstance().putString(key, tmp);
+          LOGD("Saved WiFi %d: %s", i, wifiList[i].ssid);
+      }
+
+      // Pulisce tutto il resto con {}
+      for(int i = configuredWiFi; i < MAX_CONFIGURED_WIFI; i++){
+          char key[10];
+          snprintf(key, sizeof(key), "wifi%d", i);
+          NvsManager::getInstance().putString(key, "{}");
+      }
+
     }
-    LOGV("storing %d wifi",configuredWiFi);
-    
-    nvs.putInt("cfgwifi", configuredWiFi);
 
-    // Salva solo le configurazioni valide (0 a configuredWiFi-1)
-    for (int i = 0; i < configuredWiFi; i++)
-    {
-        char key[10];
-        snprintf(key, sizeof(key), "wifi%d", i);
-        
-        JsonDocument newWifi;
-        newWifi["ssid"] = wifiList[i].ssid;
-        newWifi["psw"] = wifiList[i].password;
-        String tmp;
-        serializeJson(newWifi, tmp);
-        nvs.putString(key, tmp);
-        LOGD("Saved WiFi %d: %s", i, wifiList[i].ssid);
-    }
-
-    // Pulisce tutto il resto con {}
-    for(int i = configuredWiFi; i < MAX_CONFIGURED_WIFI; i++){
-        char key[10];
-        snprintf(key, sizeof(key), "wifi%d", i);
-        nvs.putString(key, "{}");
-    }
-    
-    closeNVS();
+    NvsManager::getInstance().closeNVS();
 }
 
 #pragma endregion CONFIGURATION

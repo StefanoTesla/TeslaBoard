@@ -135,101 +135,231 @@ void CoverCalibratorModule::loop(){
 
 
 /* SERIAL MANAGER */
+CoverCalibratorModule::CCSerialCommand CoverCalibratorModule::parseCommand(const char* cmd) {
+  if (strcmp(cmd, "DESC") == 0)           return CCSerialCommand::Desc;
+  if (strcmp(cmd, "INT_VRS") == 0)        return CCSerialCommand::IntVersion;
+  if (strcmp(cmd, "NAME") == 0)           return CCSerialCommand::Name;
+  if (strcmp(cmd, "SUP_ACTIONS") == 0)    return CCSerialCommand::SupportedActions;
+  if (strcmp(cmd, "ACTION") == 0)         return CCSerialCommand::Action;
+  if (strcmp(cmd, "CMD_BLIND") == 0)      return CCSerialCommand::CmdBlind;
+  if (strcmp(cmd, "CMD_BOOL") == 0)       return CCSerialCommand::CmdBool;
+  if (strcmp(cmd, "CMD_STRING") == 0)     return CCSerialCommand::CmdString;
+  if (strcmp(cmd, "CONNECT") == 0)        return CCSerialCommand::Connect;
+  if (strcmp(cmd, "CONNECTING") == 0)        return CCSerialCommand::Connecting;
+  if (strcmp(cmd, "DISCONNECT") == 0)     return CCSerialCommand::Disconnect;
+  if (strcmp(cmd, "CONNECTED") == 0)     return CCSerialCommand::Connected;
+  if (strcmp(cmd, "DEVICE_STATE") == 0)     return CCSerialCommand::DeviceState;
+  if (strcmp(cmd, "CAL_BRI") == 0)     return CCSerialCommand::Brightness;
+  if (strcmp(cmd, "CAL_MAX_BRI") == 0)     return CCSerialCommand::MaxBrightness;
+  if (strcmp(cmd, "CAL_CHANGING") == 0)     return CCSerialCommand::CalibratorChanging;
+  if (strcmp(cmd, "CAL_STATE") == 0)     return CCSerialCommand::CalibratorState;
+  if (strcmp(cmd, "CAL_OFF") == 0)     return CCSerialCommand::CalibratorOff;
+  if (strcmp(cmd, "CAL_ON") == 0)     return CCSerialCommand::CalibratorOn;
+  if (strcmp(cmd, "COV_MOVING") == 0)     return CCSerialCommand::CoverMoving;
+  if (strcmp(cmd, "COV_STATE") == 0)     return CCSerialCommand::CoverState;
+  if (strcmp(cmd, "COV_OPEN") == 0)     return CCSerialCommand::OpenCover;
+  if (strcmp(cmd, "COV_CLOSE") == 0)     return CCSerialCommand::CloseCover;
+  if (strcmp(cmd, "COV_HALT") == 0)     return CCSerialCommand::HaltCover;
+
+  return CCSerialCommand::Unknown;
+}
+
+bool CoverCalibratorModule::isCalibratorCommand(CCSerialCommand cmd){
+  switch (cmd)
+  {
+  case CCSerialCommand::Brightness:
+  case CCSerialCommand::MaxBrightness:
+  case CCSerialCommand::CalibratorChanging:
+  case CCSerialCommand::CalibratorOff:
+  case CCSerialCommand::CalibratorOn:
+  case CCSerialCommand::CalibratorState:
+    return true;
+  }
+  return false;
+}
+
+bool CoverCalibratorModule::isCoverCommand(CCSerialCommand cmd){
+  switch (cmd)
+  {
+  case CCSerialCommand::CoverMoving:
+  case CCSerialCommand::CoverState:
+  case CCSerialCommand::OpenCover:
+  case CCSerialCommand::CloseCover:
+  case CCSerialCommand::HaltCover:
+    return true;
+  }
+  return false;
+}
 
 bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     char* saveptr = nullptr;
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<ERR:SWITCH:BAD_CMD>");
+      out.print("<ERR:BAD_CMD:NULLPTR>");
       return false;
     }
 
-    if (strcmp(cmd, "SET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* valueStr = strtok_r(nullptr, ":", &saveptr);
+    /*
+    If module is not enable refuse all commands
+    */
 
-      if (chStr == nullptr || valueStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-      const int value = atoi(valueStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      if (value < 0 || value > 4096) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: setSwitch(channel, value);
-      out.print("<OK:SWITCH:SET>");
-      return true;
+    if(!isEnable()){
+      out.print("<ERR:NOT_ENABLE>");
+      return false;
     }
 
-    if (strcmp(cmd, "GET") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-
-      if (chStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
-
-      const int channel = atoi(chStr);
-
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
-
-      // TODO: int value = getSwitch(channel);
-      const int value = 1234;
-
-      out.print("<OK:SWITCH:GET:");
-      out.print(channel);
-      out.print(":");
-      out.print(value);
-      out.print(">");
-      return true;
+    CCSerialCommand command;
+    LOGI("Command recived: %d",cmd);
+    command = parseCommand(cmd);
+    /*
+    If command is not listed return the error
+    */
+    if (command == CCSerialCommand::Unknown) {
+      out.print("<ERR:BAD_CMD:UNKNOW>");
+      return false;
     }
 
-    if (strcmp(cmd, "PULSE") == 0) {
-      char* chStr = strtok_r(nullptr, ":", &saveptr);
-      char* msStr = strtok_r(nullptr, ":", &saveptr);
+    switch (command){
 
-      if (chStr == nullptr || msStr == nullptr) {
-        out.print("<ERR:SWITCH:BAD_PARAM>");
-        return false;
-      }
+      case CCSerialCommand::Desc:
+        out.print("<OK:");
+        out.print(getIdentifier());
+        out.print("- TeslaBoard via USB>");
+        out.print(">");
+        return true;
 
-      const int channel = atoi(chStr);
-      const int durationMs = atoi(msStr);
+      case CCSerialCommand::IntVersion:
+        out.print("<");
+        out.print("2");
+        out.print(">");
+        return true;
 
-      if (channel < 0 || channel > 16) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
+      case CCSerialCommand::Name:
+        out.print("<");
+        out.print(getIdentifier());
+        out.print("- TeslaBoard>");
+        return true;
+      case CCSerialCommand::Connect:
+      case CCSerialCommand::Disconnect:
+        out.print("<OK>");
+        return true;
 
-      if (durationMs <= 0 || durationMs > 60000) {
-        out.print("<ERR:SWITCH:RANGE>");
-        return false;
-      }
+      case CCSerialCommand::Connected:
+        out.print("<true>");
+        return true;
 
-      // TODO: startPulse(channel, durationMs);
-      out.print("<OK:SWITCH:PULSE>");
-      return true;
+      case CCSerialCommand::Connecting:
+        out.print("<false>");
+        return true;
+      case CCSerialCommand::SupportedActions:
+        out.print("<>");
+        return true;
+
+      /* Not Implemented metods/property*/
+      case CCSerialCommand::Action:
+      case CCSerialCommand::CmdBlind:
+      case CCSerialCommand::CmdBool:
+      case CCSerialCommand::CmdString:
+      case CCSerialCommand::HaltCover:
+        out.print("<ERR:NOT_IMPL>");
+        return true;
+
+      case CCSerialCommand::DeviceState:
+        out.print("<ERR:TO_DO>");
+        return true;
     }
 
-    if (strcmp(cmd, "STATUS") == 0) {
-      out.print("<OK:SWITCH:READY>");
-      return true;
+    if(isCalibratorCommand(command)){
+
+      if(command == CCSerialCommand::CalibratorState){
+        out.print("<");
+        out.print(calibrator.getStatus());
+        out.print(">");
+        return true;
+      }
+
+      if(!calibrator.isEnable()){
+        out.print("<ERR:NOT_ENABLE>");
+        return false;
+      }
+
+      char* chBrightness = strtok_r(payload, ":", &saveptr);
+      const int brightness = atoi(chBrightness);
+      switch (command)
+      {
+        case CCSerialCommand::Brightness:
+          out.print("<");
+          out.print(calibrator.getBrightness());
+          out.print(">");
+          return true;
+        case CCSerialCommand::MaxBrightness:
+          out.print("<");
+          out.print(calibrator.getMaxBrightness());
+          out.print(">");
+          return true;        
+        case CCSerialCommand::CalibratorChanging:
+          out.print("<false>");
+          return true;
+        case CCSerialCommand::CalibratorOff:
+          out.print("<OK>");
+          return true; 
+        case CCSerialCommand::CalibratorOn:
+          if(brightness < 0 || brightness > calibrator.getMaxBrightness()){
+            out.print("<ERR:BRIGHT_OUT_OF_RANGE>");
+            return false;
+          }
+          out.print("<OK>");
+          return true;
+      }
     }
 
-    out.print("<ERR:SWITCH:UNKNOWN_CMD>");
+    if(isCoverCommand(command)){
+
+      if(command == CCSerialCommand::CoverState){
+        out.print("<");
+        out.print(cover.getStatus());
+        out.print(">");
+        return true;
+      }
+      if(!cover.isEnable()){
+        out.print("<ERR:NOT_ENABLE>");
+        return false;
+      }
+
+      switch (command)
+      {
+        case CCSerialCommand::CoverMoving:
+          out.print("<");
+          if(cover.getStatus() == 2){
+            out.print("true");
+          } else {
+            out.print("false");
+          }
+          out.print(">");
+          return true;
+
+        case CCSerialCommand::OpenCover:
+          if(cover.canOpen()){
+            out.print("<OK>");
+            return true;    
+          }
+          out.print("<ERR:CAN_T_OPEN>");
+          return false;
+              
+        case CCSerialCommand::CloseCover:
+          if(cover.canClose()){
+            out.print("<OK>");
+            return true;    
+          }
+          out.print("<ERR:CAN_T_CLOSE>");
+          return false;
+      }
+
+    }
+
+    /* If i'm here I don't know why :( */
+    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
     return false;
+
   }

@@ -5,7 +5,7 @@
 
 /*
 
-    This "library" is neceesary to keep track of the ledChannel used by the IOManager
+    This "library" is necesary to keep track of the ledChannel used by the IOManager
     ESP32 got two kind of timers, hardware and software, using the espressif sdk you can decide wich kind of timer you wan't to use
     In the arduino framework the first 8 channels (0-7) are connected to hardware timers and the latest 8 are connected to software timers
 

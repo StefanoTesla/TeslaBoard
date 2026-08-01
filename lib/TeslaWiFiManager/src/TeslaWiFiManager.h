@@ -4,11 +4,11 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include "ESPAsyncWebServer.h"
-#include <Preferences.h>
 #include <DNSServer.h>
 #include <AsyncJson.h>
 #include "WiFi.h"
 #include "LittleFS.h"
+#include <NVSManager.h>
 
 
 #define WIFI_SCHEMA_VERSION 1
@@ -32,8 +32,6 @@ public:
 private:
     void storeConfiguration();
 /* functions to handle the configuration */
-    bool openNVS(bool readOnly);
-    void closeNVS();
     bool initNVS();
     void updateNVS1();
 
@@ -67,12 +65,9 @@ private:
  
     void storeNewWiFi(String ssid,String password);
     void removeWiFiById(int id);
-    Preferences nvs;
     AsyncWebServer* _server;
     DNSServer _dnsServer;
 
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
     bool apRunning = false;
     bool gotIP = false;
     //uptime data
