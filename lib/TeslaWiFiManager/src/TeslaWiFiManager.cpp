@@ -215,7 +215,7 @@ void TeslaWiFiManager::loop(){
 }
 
 void TeslaWiFiManager::mainCycle(){
-      switch (mainState)
+    switch (mainState)
     {
     case DECISION:
       forceAPRequest = false;
