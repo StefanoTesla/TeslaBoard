@@ -1,6 +1,1 @@
-- need to separate calibrator and cover nvs i think from main module...can be a good things for future indi driver, but actually I need to put last cover pos without sense around the cccfg #future
-
-
-- reboot work "bad"....
-
--wifi work really bad
+undestanging why esp32 s3 refuse a fast pwm as old esp32

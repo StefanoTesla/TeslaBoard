@@ -125,7 +125,14 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
 
 
     }
-
-    out.print("<ERR:SWITCH:UNKNOWN_CMD>");
+    if (strcmp(cmd, "CONNECT") == 0) {
+            out.print("<OK>");
+        return true;
+    }
+    if (strcmp(cmd, "KEEP_ALIVE") == 0) {
+            out.print("<YEAH>");
+        return true;
+    }
+    out.print("<ERR:BOARD:UNKNOWN_CMD>");
     return false;
   }

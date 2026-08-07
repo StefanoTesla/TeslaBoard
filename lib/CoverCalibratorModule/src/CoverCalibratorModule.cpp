@@ -161,6 +161,7 @@ CoverCalibratorModule::CCSerialCommand CoverCalibratorModule::parseCommand(const
   if (strcmp(cmd, "COV_CLOSE") == 0)     return CCSerialCommand::CloseCover;
   if (strcmp(cmd, "COV_HALT") == 0)     return CCSerialCommand::HaltCover;
 
+  LOGI("Command not found: %s",cmd);
   return CCSerialCommand::Unknown;
 }
 
@@ -203,14 +204,14 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     /*
     If module is not enable refuse all commands
     */
-
+/*
     if(!isEnable()){
       out.print("<ERR:NOT_ENABLE>");
       return false;
     }
-
+/*/
     CCSerialCommand command;
-    LOGI("Command recived: %d",cmd);
+    LOGI("Command recived: %s",cmd);
     command = parseCommand(cmd);
     /*
     If command is not listed return the error
@@ -284,8 +285,9 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
         return false;
       }
 
-      char* chBrightness = strtok_r(payload, ":", &saveptr);
-      const int brightness = atoi(chBrightness);
+      char* chBrightness;
+      int brightness;
+      
       switch (command)
       {
         case CCSerialCommand::Brightness:
@@ -303,13 +305,20 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
           return true;
         case CCSerialCommand::CalibratorOff:
           out.print("<OK>");
+          calibrator.setBrightness(0);
           return true; 
         case CCSerialCommand::CalibratorOn:
+          chBrightness = strtok_r(nullptr, ":", &saveptr);
+          LOGI("Brightness stroked: %s", chBrightness);
+          brightness = atoi(chBrightness);
+          LOGI("Calibrator on request");
+          LOGI("Brightness requested: %d", brightness);
           if(brightness < 0 || brightness > calibrator.getMaxBrightness()){
             out.print("<ERR:BRIGHT_OUT_OF_RANGE>");
             return false;
           }
           out.print("<OK>");
+          calibrator.setBrightness(brightness);
           return true;
       }
     }
@@ -359,7 +368,8 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     }
 
     /* If i'm here I don't know why :( */
-    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
+    LOGI("No switch fired?");
+    out.print("<ERR:BAD_CMD:DRIVER_EXC>");
     return false;
 
   }

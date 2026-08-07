@@ -40,8 +40,6 @@ void setup() {
     delay(10);
   }
 
-  Serial.setDebugOutput(true);
-
   Serial.println();
   start_time = millis();
 

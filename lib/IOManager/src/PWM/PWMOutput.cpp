@@ -20,7 +20,7 @@ bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
   uint32_t freq;
   if (HS) {
     channel = chMgr->getFastChannel(true);
-    freq = 19531;
+    freq = 19500;
     LOGD("20kHz PWM channel assigned at channel %d", channel);
   } else {
     freq = 5000;
@@ -39,7 +39,7 @@ bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
 
   min = 0;
   max = 4095;
-  ledcSetup(channel, freq, 12);
+  ledcSetup(channel, freq, 11);
   ledcAttachPin(pin, channel);
   LOGD("%s PWM channel configured at pin %d, channel: %d, frequency: %d, ",
        Name, pin, channel, freq);
@@ -100,6 +100,7 @@ unsigned int PWMOutput::getMax() { return max; }
 int PWMOutput::readPin() {
   /* esp hardware return 4096 when I wrote 4095 bah.. */
   currentDuty = ledcRead(channel);
+
   if (currentDuty > max) {
     return max;
   }
