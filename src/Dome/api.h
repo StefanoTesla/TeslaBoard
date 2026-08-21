@@ -102,7 +102,7 @@ void DomeApi(){
         }
 
         if (Dome.shutter.isClosed()){
-            doc["error"] = "ShAlreadyOpen";
+            doc["error"] = "ShAlreadyClosed";
             response->setLength();
             request->send(response);
             return;
