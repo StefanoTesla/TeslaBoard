@@ -61,7 +61,7 @@ void AlpacaManager(){
       cover["DeviceName"] = CoverCalibrator.getIdentifier() + " - " + Board.getIdentifier();
       cover["DeviceType"] = "CoverCalibrator";
       cover["DeviceNumber"] = 0;
-      snprintf(fullID, sizeof(fullID), "%s-aa85-49ed-8799-9f50c0969ede", macPart);
+      snprintf(fullID, sizeof(fullID), "%s-4862-4947-a8f5-196b2ee72529", macPart);
       cover["UniqueID"] = fullID;
     }
     
