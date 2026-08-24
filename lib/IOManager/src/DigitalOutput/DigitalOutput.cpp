@@ -7,8 +7,9 @@ bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   if (obj["type"].as<int>() != 2) {
     return false;
   }
-  setName(obj["name"]);
-  setDescription(obj["desc"]);
+
+  setupCommonJson(obj);
+  
   pin = obj["pin"].as<unsigned int>();
   invert = obj["invert"].as<unsigned int>();
   pinMode(pin, OUTPUT);
@@ -59,16 +60,14 @@ int DigitalOutput::validateJsonCfg(JsonObject json) {
  */
 void DigitalOutput::copyJsonCfg(JsonObject src, JsonObject dest) {
   dest["type"] = 2;
-  dest["name"] = src["name"].is<String>() ? src["name"].as<String>() : "";
-  dest["desc"] = src["desc"].is<String>() ? src["desc"].as<String>() : "";
+  copyCommonJsonCfg(src, dest);
   dest["pin"] = src["pin"];
   dest["invert"] = src["invert"];
 }
 
 void DigitalOutput::getConfiguration(JsonObject cfg) {
   cfg["type"] = 2;
-  cfg["name"] = Name;
-  cfg["desc"] = Description;
+  getCommonConfiguration(cfg);
   cfg["pin"] = pin;
   cfg["invert"] = invert;
 }
@@ -76,7 +75,7 @@ void DigitalOutput::getConfiguration(JsonObject cfg) {
 /**
  * @brief Write the value to the gpio.
  *
- * Questa funzione utilizza `digitaldigitalWrite()` per scrivere il valore
+ * Questa funzione utilizza `digitalWrite()` per scrivere il valore
  * di un pin, se configurato, lo inverte
  *
  * @param _value value to be written to the GPIO

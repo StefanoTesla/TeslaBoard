@@ -8,13 +8,13 @@
 #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
-bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
+bool PWMOutput::jsonSetup(JsonObjectConst obj, bool HS) {
   LOGV("Servo channel json setup");
-  if (setup["type"].as<int>() != 3) {
+  if (obj["type"].as<int>() != 3) {
     return false;
   }
-  setName(setup["name"]);
-  setDescription(setup["desc"]);
+  setupCommonJson(obj);
+  
   channel = -1;
 
   uint32_t freq;
@@ -35,7 +35,7 @@ bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
 
   // setName(setup["name"]);
 
-  pin = setup["pin"].as<unsigned int>();
+  pin = obj["pin"].as<unsigned int>();
 
   min = 0;
   max = 4095;
@@ -48,8 +48,7 @@ bool PWMOutput::jsonSetup(JsonObjectConst setup, bool HS) {
 
 void PWMOutput::getConfiguration(JsonObject cfg) {
   cfg["type"] = 3;
-  cfg["name"] = Name;
-  cfg["desc"] = Description;
+  getCommonConfiguration(cfg);
   cfg["pin"] = pin;
 }
 
@@ -80,8 +79,7 @@ int PWMOutput::validateJsonCfg(JsonObject json) {
 
 void PWMOutput::copyJsonCfg(JsonObject src, JsonObject dest) {
   dest["type"] = 3;
-  dest["name"] = src["name"].is<String>() ? src["name"].as<String>() : "";
-  dest["desc"] = src["desc"].is<String>() ? src["desc"].as<String>() : "";
+  copyCommonJsonCfg(src,dest);
   dest["pin"] = src["pin"];
 }
 
