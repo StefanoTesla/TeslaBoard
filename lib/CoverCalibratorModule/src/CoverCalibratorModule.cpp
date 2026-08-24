@@ -287,7 +287,8 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
       char* chBrightness;
       int brightness;
-      
+      char* endPtr;
+
       switch (command)
       {
         case CCSerialCommand::Brightness:
@@ -306,17 +307,31 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
         case CCSerialCommand::CalibratorOff:
           out.print("<OK>");
           calibrator.setBrightness(0);
-          return true; 
+          return true;
         case CCSerialCommand::CalibratorOn:
           chBrightness = strtok_r(nullptr, ":", &saveptr);
-          LOGI("Brightness stroked: %s", chBrightness);
-          brightness = atoi(chBrightness);
-          LOGI("Calibrator on request");
-          LOGI("Brightness requested: %d", brightness);
-          if(brightness < 0 || brightness > calibrator.getMaxBrightness()){
+          if (chBrightness == nullptr || *chBrightness == '\0') {
+            out.print("<ERR:BAD_CMD:NO_BRI>");
+            return false;
+          }
+
+          endPtr = nullptr;
+          long val = strtol(chBrightness, &endPtr, 10);
+
+          if (*endPtr != '\0') {
+            out.print("<ERR:BAD_CMD:BRI_MALFORMED>");
+            return false;
+          }
+
+          if (val < 0 || val > calibrator.getMaxBrightness()) {
             out.print("<ERR:BRIGHT_OUT_OF_RANGE>");
             return false;
           }
+
+          brightness = static_cast<int>(val);
+          
+
+          LOGI("Brightness requested: %d", brightness);
           out.print("<OK>");
           calibrator.setBrightness(brightness);
           return true;

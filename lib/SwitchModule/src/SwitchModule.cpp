@@ -602,7 +602,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     }
 
     SwitchSerialCommand command;
-    LOGI("Command recived: %d",cmd);
+    LOGI("Command received: %s", cmd ? cmd : "(null)");
     command = parseCommand(cmd);
     /*
     If command is not listed return the error
@@ -676,20 +676,35 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     /* get the switch id */
     char* chStr = strtok_r(nullptr, ":", &saveptr);
 
-    if (chStr == nullptr) {
-      out.print("<ERR:BAD_CMD:ID_NULLPTR>");
-      return false;
-    }
+      if (chStr == nullptr || *chStr == '\0') {
+          out.print("<ERR:BAD_CMD:INVALID_ID>");
+          return false;
+      }
 
-    /* id will go to the Switches arrya that become form 0*/
-    const int id = atoi(chStr)-1;
+      /* convert with error checking */
+      char* endPtr = nullptr;
+      long val = strtol(chStr, &endPtr, 10);
+
+      /* must be a pure integer, no trailing chars */
+      if (*endPtr != '\0') {
+          out.print("<ERR:BAD_CMD:INVALID_ID>");
+          return false;
+      }
+
+      /* id is 1-based in the protocol, array is 0-based */
+      if (val < 1 || val > getConfiguredSwitch()) {  
+          out.print("<ERR:BAD_CMD:ID_RANGE>");
+          return false;
+      }
+
+      const int id = static_cast<int>(val) - 1;
 
     if(isValidID(id) != 1){
       out.print("<ERR:INVALID_ID>");
       return false;
     }
 
-    #pragma region CmdWithOnlyIDValidation
+    #pragma region IDValidation
 
     switch (command){
 
@@ -767,7 +782,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     bool State;
     int Value;
     /* state commands min or max*/
-    #pragma region CommandWithIDAndStateValidation 
+    #pragma region StateValidation 
 
     switch (command){
 
@@ -778,8 +793,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
           out.print("<ERR:BAD_CMD:STATE_NULLPTR>");
           return false;
         }
-
-        bool State = false;
+        State = false;
 
         if( 
           strcmp(stateStr,"True")==0 ||
@@ -807,24 +821,41 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     #pragma endregion
 
 
-    #pragma region CommandWithIDAndValueValidation 
+    #pragma region ValueValidation 
 
     switch (command){
 
       case SwitchSerialCommand::SetAsyncVal:
       case SwitchSerialCommand::SetValue:
         valueStr = strtok_r(nullptr, ":", &saveptr);
-        if (valueStr == nullptr) {
+        if (valueStr == nullptr || *valueStr == '\0') {
           out.print("<ERR:BAD_CMD:VALUE_NULLPTR>");
           return false;
         }
-        Value = atoi(valueStr);
-      
-        if(Value < Switches[id]->getMin()){
+
+        {
+          char* endPtr = nullptr;
+          long val = strtol(valueStr, &endPtr, 10);
+
+          if (*endPtr != '\0') {
+            out.print("<ERR:BAD_CMD:VALUE_MALFORMED>");
+            return false;
+          }
+
+          // opzionale: controllo overflow rispetto a int
+          if (val < INT_MIN || val > INT_MAX) {
+            out.print("<ERR:BAD_CMD:VALUE_RANGE>");
+            return false;
+          }
+
+          Value = static_cast<int>(val);
+        }
+
+        if (Value < Switches[id]->getMin()) {
           out.print("<ERR:VALUE_UNDER_MIN>");
           return false;
         }
-        if(Value > Switches[id]->getMax()){
+        if (Value > Switches[id]->getMax()) {
           out.print("<ERR:VALUE_ABOVE_MAX>");
           return false;
         }
