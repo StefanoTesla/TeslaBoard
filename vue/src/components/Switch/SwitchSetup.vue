@@ -276,6 +276,10 @@ const cleanProperty = () => {
       cleanedSwi.moveTime = parseInt(swi.moveTime) ?? 0;
     }
 
+    if (Object.hasOwn(swi, "uniqueId")) {
+      cleanedSwi.uniqueId = swi.uniqueId;
+    }
+
     return cleanedSwi;
   });
 };
