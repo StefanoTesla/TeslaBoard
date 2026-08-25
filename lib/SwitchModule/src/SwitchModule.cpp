@@ -426,6 +426,7 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
   status["desc"] = Switches[id]->getDescription();
   status["min"] = Switches[id]->getMin();
   status["max"] = Switches[id]->getMax();
+  status["uId"] = Switches[id]->getUniqueId();
   if (Switches[id]->getType() <= 2) {
     status["status"] = (bool)Switches[id]->status();
   } else {
