@@ -34,7 +34,6 @@ void IOBase::setupCommonJson(JsonObjectConst obj) {
     setName(obj["name"] | "");
     setDescription(obj["desc"] | "");
 
-    // Se la chiave non esiste, viene utilizzata la stringa vuota.
     const char* id = obj["uniqueId"] | "";
     setUniqueId(id);
 }
@@ -45,7 +44,7 @@ void IOBase::getCommonConfiguration(JsonObject cfg) {
     cfg["uniqueId"] = uniqueId;
 }
 
-void IOBase::copyCommonJsonCfg(JsonObjectConst src,JsonObject dest) {
+void IOBase::copyCommonJsonCfg( JsonObjectConst src, JsonObject dest) {
     dest["name"] = src["name"] | "";
     dest["desc"] = src["desc"] | "";
     dest["uniqueId"] = src["uniqueId"] | "";

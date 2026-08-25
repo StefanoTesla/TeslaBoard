@@ -1,4 +1,5 @@
 #include "SwitchModule.h"
+#include "esp_system.h"
 #undef LOG_TAG
 #define LOG_TAG "Switch"
 #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
@@ -124,7 +125,7 @@ void SwitchModule::appendSecondaryConfig(JsonObject dest) {
 }
 
 /* here the validation of secondary data when store configuration is called*/
-bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {
+bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, JsonObject response) {
     JsonArray err = response["errors"].as<JsonArray>();
 
     if (!toBeValidated["Switches"].is<JsonArray>()) {
@@ -134,13 +135,14 @@ bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
     }
 
     JsonArray switches = toBeValidated["Switches"].as<JsonArray>();
+
     JsonArray incomingSwitches = tmpCfg["Switches"].to<JsonArray>();
 
     int id = -1;
 
     for (JsonObject singleSW : switches) {
         if (!singleSW["type"].is<unsigned int>()) {
-            LOGE("Type is missing or not an unsigned int");
+            LOGE("Type is missing or invalid");
             err.add("Switch type is missing or invalid");
             return false;
         }
@@ -148,7 +150,7 @@ bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
         unsigned int typeValue = singleSW["type"].as<unsigned int>();
 
         if (typeValue > Type::Servo) {
-            LOGE("Type value %u is out of range", typeValue);
+            LOGE("Type value is out of range");
             JsonObject e = err.add<JsonObject>();
             e["error"] = "Type out of range";
             return false;
@@ -161,18 +163,72 @@ bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
             continue;
         }
 
-        id++;
+        ++id;
 
         int retVal = validateSwitchType(type, singleSW);
+
         if (retVal != 1) {
-            LOGE("Validation failed for switch id: %d with error code: %d", id, retVal);
+            LOGE( "Validation failed for switch id: %d", id);
             JsonObject e = err.add<JsonObject>();
             e["id"] = id;
             e["error"] = retVal;
             return false;
         }
 
+        const char* incomingUid =
+            singleSW["uniqueId"].as<const char*>();
+
+        // Nuovo switch oppure vecchia configurazione senza uId.
+        if (incomingUid == nullptr ||
+            incomingUid[0] == '\0') {
+            char generatedUid[UID_LENGTH + 1];
+
+            do {
+                generateSwitchUid(generatedUid);
+            } while (
+                uidAlreadyUsed(
+                    incomingSwitches,
+                    generatedUid
+                )
+            );
+
+            singleSW["uniqueId"] = generatedUid;
+        } else {
+            // Un uId esplicito deve avere il formato corretto.
+            if (!validSwitchUid(incomingUid)) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Invalid uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+
+            // Non sono ammessi duplicati nella lista nuova.
+            if (uidAlreadyUsed(incomingSwitches,incomingUid)) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Duplicate uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+
+            // Un uId presente ma non noto viene considerato errore.
+            // Questa verifica è compatibile con la politica secondo cui
+            // il browser non deve generare gli uId.
+            if (findSwitchByUid(incomingUid) < 0) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Unknown uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+        }
+
         incomingSwitches.add(singleSW);
+
         checkIfRebootNeeded(id, type, singleSW, response);
     }
 
@@ -186,97 +242,101 @@ bool SwitchModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
     return err.size() == 0;
 }
 
-void SwitchModule::storeSecondaryConfig(const JsonObject &toBeStored) {
-  int id = -1;
+void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
+    int id = -1;
 
-  JsonDocument sanDoc;
-  JsonObject sanitizedObject = sanDoc.to<JsonObject>();
+    JsonDocument sanDoc;
+    JsonObject sanitizedObject = sanDoc.to<JsonObject>();
 
-  serializeJson(tmpCfg["Switches"].as<JsonArray>(), Serial);
-  for (JsonObject inSwitch : tmpCfg["Switches"].as<JsonArray>()) {
-    sanitizedObject.clear();
+    JsonArray configured = tmpCfg["Switches"].as<JsonArray>();
 
-    if (!inSwitch["type"].is<int>()) {
-      LOGE("This should never happens! missing type in storing configuration");
-      continue;
-    }
-    Type type = static_cast<Type>(inSwitch["type"].as<unsigned int>());
-    if (NotPresent == type) {
-      LOGE("This should never happens! NotPresent type in storing "
-           "configuration");
-      continue;
-    }
+    for (JsonObject inSwitch : configured) {
+        sanitizedObject.clear();
 
-    id++;
+        if (!inSwitch["type"].is<int>()) {
+            LOGE("Missing type while storing configuration");
+            continue;
+        }
 
-    // sanitize the json arriving from the web
-    switch (type) {
-    case Input:
-      DigitalInput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case Output:
-      DigitalOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case PWM:
-      PWMOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case Servo:
-      ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
+        Type type = static_cast<Type>(inSwitch["type"].as<unsigned int>());
 
-    default:
-      LOGE("This should never happens! Undefined type during sanitifaction");
-      break;
-    }
+        if (type == NotPresent) {
+            LOGE("NotPresent type while storing configuration");
+            continue;
+        }
 
-    // apply soft parameters
-    // if already configured is the same type and same pin
-    if (Switches[id] != nullptr) {
-      if (Switches[id]->getType() ==
-              sanitizedObject["type"].as<unsigned int>() &&
-          Switches[id]->getPinNumber() ==
-              sanitizedObject["pin"].as<unsigned int>()) {
-
-        Switches[id]->setName(sanitizedObject["name"].as<const char *>());
-        Switches[id]->setDescription(
-            sanitizedObject["desc"].as<const char *>());
+        ++id;
 
         switch (type) {
         case Input:
-          Switches[id]->setDelays(sanitizedObject["dOn"].as<unsigned int>(),
-                                  sanitizedObject["dOff"].as<unsigned int>());
-          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
-          break;
+            DigitalInput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
         case Output:
-          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
-          break;
+            DigitalOutput::copyJsonCfg(inSwitch,sanitizedObject);
+            break;
         case PWM:
-          // nothing to do here
-          break;
+            PWMOutput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
         case Servo:
-          Switches[id]->setMoveTime(
-              sanitizedObject["moveTime"].as<unsigned int>());
-          break;
+            ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
 
         default:
-          LOGE(
-              "This should never happens! Undefined type during sanitifaction");
-          break;
+            LOGE("Undefined type during sanitization");
+            continue;
         }
-      }
+
+        // Applica soltanto i parametri soft se l’oggetto
+        // in RAM corrisponde allo stesso uId.
+        const char* uid =
+            sanitizedObject["uniqueId"]
+                .as<const char*>();
+
+        int oldId = findSwitchByUid(uid);
+
+        if (oldId >= 0 && Switches[oldId]->getType() == sanitizedObject["type"].as<int>() &&
+            Switches[oldId]->getPinNumber() == sanitizedObject["pin"].as<int>()) {
+
+            Switches[oldId]->setName(sanitizedObject["name"].as<const char*>());
+            Switches[oldId]->setDescription(sanitizedObject["desc"].as<const char*>());
+
+            switch (type) {
+            case Input:
+                Switches[oldId]->setDelays(sanitizedObject["dOn"].as<unsigned int>(),sanitizedObject["dOff"].as<unsigned int>());
+
+                Switches[oldId]->setInvert(sanitizedObject["invert"].as<bool>());
+                break;
+
+            case Output:
+                Switches[oldId]->setInvert(
+                    sanitizedObject["invert"]
+                        .as<bool>()
+                );
+                break;
+
+            case PWM:
+                break;
+
+            case Servo:
+                Switches[oldId]->setMoveTime(sanitizedObject["moveTime"].as<unsigned int>());
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        char key[10];
+        sprintf(key, "sw%d", id);
+
+        String swString;
+        serializeJson(sanitizedObject, swString);
+
+        NvsManager::getInstance().putString(key,swString);
     }
 
-    char key[10];
-    sprintf(key, "sw%d", id);
-    String swString;
-    serializeJson(sanitizedObject, swString);
-    NvsManager::getInstance().putString(key, swString);
-  }
-
-  NvsManager::getInstance().putInt("cfg_sw", id + 1);
-
+    NvsManager::getInstance().putInt("cfg_sw", id + 1);
 }
-
 
 /* helpers */
 int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
@@ -297,27 +357,48 @@ int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
   }
 }
 
-void SwitchModule::checkIfRebootNeeded(int id, Type type, const JsonObject &singleSW, JsonObject response) {
+void SwitchModule::checkIfRebootNeeded(int newId, Type type, const JsonObject& singleSW, JsonObject response) {
+    const char* uid = singleSW["uniqueId"].as<const char*>();
 
-  if (Switches[id] == nullptr) {
-    LOGV("Switch %d: new position, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
+    if (uid == nullptr || uid[0] == '\0') {
+        LOGV("Switch %d: missing uniqueId, reboot needed", newId);
+        response["reboot"] = true;
+        return;
+    }
 
-  if (Switches[id]->getType() != static_cast<unsigned int>(type)) {
-    LOGV("Switch %d: type changed, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
+    int oldId = findSwitchByUid(uid);
 
-  if (Switches[id]->getPinNumber() != singleSW["pin"].as<unsigned int>()) {
-    LOGV("Switch %d: pin changed, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
+    if (oldId < 0) {
+        LOGV("Switch %d: new switch, reboot needed", newId);
+        response["reboot"] = true;
+        return;
+    }
 
-  LOGV("Switch %d: no changes detected", id);
+    if (Switches[oldId]->getType() !=
+            static_cast<int>(type)) {
+        LOGV("Switch %d: type changed, reboot needed", newId);
+        response["reboot"] = true;
+
+        // Il type è cambiato: l’identità precedente non rappresenta
+        // più lo stesso tipo di oggetto. L’uId verrà rigenerato prima
+        // del salvataggio definitivo.
+        return;
+    }
+
+    if (Switches[oldId]->getPinNumber() !=
+            singleSW["pin"].as<int>()) {
+        LOGV("Switch %d: pin changed, reboot needed", newId);
+        response["reboot"] = true;
+        return;
+    }
+
+    if (oldId != newId) {
+        LOGV("Switch moved from %d to %d, reboot needed", oldId, newId);
+        response["reboot"] = true;
+        return;
+    }
+
+    LOGV("Switch %d: soft changes only", newId);
 }
 
 #pragma endregion
@@ -543,6 +624,94 @@ int SwitchModule::getServoIsMoving(int id){
     }
   } 
   return 0;
+}
+
+void SwitchModule::generateSwitchUid(
+    char uid[UID_LENGTH + 1]
+) {
+    const char alphabet[] =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    const size_t alphabetLength =
+        sizeof(alphabet) - 1;
+
+    uid[0] = 'S';
+
+    for (size_t i = 1; i < UID_LENGTH; ++i) {
+        uid[i] = alphabet[
+            esp_random() % alphabetLength
+        ];
+    }
+
+    uid[UID_LENGTH] = '\0';
+}
+
+
+bool SwitchModule::validSwitchUid(
+    const char* uid
+) {
+    if (uid == nullptr || strlen(uid) != UID_LENGTH) {
+        return false;
+    }
+
+    if (uid[0] != 'S') {
+        return false;
+    }
+
+    const char alphabet[] =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    for (size_t i = 1; i < UID_LENGTH; ++i) {
+        if (strchr(alphabet, uid[i]) == nullptr) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool SwitchModule::uidAlreadyUsed(
+    JsonArray switches,
+    const char* uid
+) {
+    if (uid == nullptr || uid[0] == '\0') {
+        return false;
+    }
+
+    for (JsonObject item : switches) {
+        const char* existingUid =
+            item["uniqueId"].as<const char*>();
+
+        if (existingUid != nullptr &&
+            strcmp(existingUid, uid) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int SwitchModule::findSwitchByUid(
+    const char* uid
+) const {
+    if (uid == nullptr || uid[0] == '\0') {
+        return -1;
+    }
+
+    for (int i = 0; i < configuredSwitches; ++i) {
+        if (Switches[i] == nullptr) {
+            continue;
+        }
+
+        if (strcmp(
+                Switches[i]->getUniqueId(),
+                uid
+            ) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 #pragma region Serial

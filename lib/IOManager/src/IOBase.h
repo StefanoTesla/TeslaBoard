@@ -17,13 +17,9 @@ protected:
     unsigned int min = 0;
     unsigned int max = 1;
 
-    // Carica le proprietà comuni dal JSON.
     void setupCommonJson(JsonObjectConst obj);
-
-    // Scrive le proprietà comuni nel JSON di configurazione.
     void getCommonConfiguration(JsonObject cfg);
 
-    // Copia le proprietà comuni durante la sanificazione.
     static void copyCommonJsonCfg(
         JsonObjectConst src,
         JsonObject dest

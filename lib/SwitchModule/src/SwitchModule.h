@@ -66,7 +66,23 @@ private:
   int validateSwitchType(Type type, const JsonObject &singleSW);
   void checkIfRebootNeeded(int id, Type type, const JsonObject &singleSW,
                            JsonObject response);
-                 
+  static constexpr size_t UID_LENGTH = 8;
+
+  static void generateSwitchUid(char uid[UID_LENGTH + 1]);
+
+  static bool validSwitchUid(const char* uid);
+
+  static bool uidAlreadyUsed(
+        JsonArray switches,
+        const char* uid
+    );
+
+    int findSwitchByUid(const char* uid) const;
+
+    bool uidAlreadyUsedInOldConfiguration(
+        const char* uid,
+        int exceptIndex
+    ) const;
   enum class SwitchSerialCommand : uint8_t {
     Unknown = 0,
     MaxSwitch,
