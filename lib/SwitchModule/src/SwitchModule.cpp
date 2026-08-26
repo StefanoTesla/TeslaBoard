@@ -410,7 +410,11 @@ void SwitchModule::loop() {
       continue;
     }
 
-    if (Switches[i]->getType() == Type::Input || Switches[i]->getType() == Type::Servo) {
+    if (
+        Switches[i]->getType() == Type::Input
+        || Switches[i]->getType() == Type::Servo 
+        || Switches[i]->getType() == Type::VirtualInput
+       ) {
       Switches[i]->loop();
     }
   }
@@ -468,7 +472,7 @@ int SwitchModule::isWritable(int id){
 
   if(validID != 1){ return validID;}
 
-  if(Switches[id]->getType() == Type::Input){
+  if(Switches[id]->getType() == Type::Input || Switches[id]->getType() == Type::VirtualInput){
     return -3;
   }
 

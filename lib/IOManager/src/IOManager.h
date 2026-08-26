@@ -7,5 +7,6 @@
 #include "DigitalOutput/DigitalOutput.h"
 #include "PWM/PWMOutput.h"
 #include "Servo/ServoOutput.h"
+#include "VirtualInput/VirtualInput.h"
 
 #endif

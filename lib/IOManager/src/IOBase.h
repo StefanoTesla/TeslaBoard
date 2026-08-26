@@ -14,8 +14,8 @@ protected:
     char uniqueId[9] = "";
 
     int type = 0;
-    unsigned int min = 0;
-    unsigned int max = 1;
+    int min = 0;
+    int max = 1;
 
     void setupCommonJson(JsonObjectConst obj);
     void getCommonConfiguration(JsonObject cfg);
@@ -47,11 +47,11 @@ public:
         return type;
     }
 
-    unsigned int getMin() const {
+    int getMin() const {
         return min;
     }
 
-    unsigned int getMax() const {
+    int getMax() const {
         return max;
     }
 

@@ -4,10 +4,10 @@
 #include "esp_log.h"
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <DigitalInput/DigitalInput.h>
-#include <DigitalOutput/DigitalOutput.h>
+//#include <DigitalInput/DigitalInput.h>
+//#include <DigitalOutput/DigitalOutput.h>
 #include <IOManager.h>
-#include <PWM/PWMOutput.h>
+//#include <PWM/PWMOutput.h>
 #include <PWMManager.h>
 #include <BaseModule.h>
 #include <NVSManager.h>
@@ -18,7 +18,7 @@
 
 class SwitchModule : public BaseModule {
 public:
-  enum Type { NotPresent, Input, Output, PWM, Servo };
+  enum Type { NotPresent, Input, Output, PWM, Servo, VirtualInput };
 
 public:
   SwitchModule(PWMManager *channelManager) : chMgr(channelManager) {}
