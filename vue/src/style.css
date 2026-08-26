@@ -68,7 +68,7 @@ a.active {
 }
 
 .container_header > .title {
-  @apply font-bold col-span-8 text-left;
+  @apply font-bold col-span-8 text-left mb-0;
 }
 .container_header > .status {
   @apply col-span-3 justify-items-center content-center;

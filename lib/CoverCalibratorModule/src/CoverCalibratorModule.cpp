@@ -76,35 +76,35 @@ void CoverCalibratorModule::appendSecondaryConfig(JsonObject dest) {
 
 /* here the validation of secondary data when store configuration is called*/
 bool CoverCalibratorModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {
-    JsonArray err = response["errors"].as<JsonArray>();
+  JsonArray err = response["errors"].as<JsonArray>();
 
-    if(!toBeValidated["calibrator"].is<JsonObject>()){
-        err.add("Calibrator Configuration is missing");
-        LOGE("Calibrator object is missing");
-        return false;
-    }
+  if(!toBeValidated["calibrator"].is<JsonObject>()){
+      err.add("Calibrator Configuration is missing");
+      LOGE("Calibrator object is missing");
+      return false;
+  }
 
-    calibrator.validateConfiguration(toBeValidated["calibrator"],response);
+  calibrator.validateConfiguration(toBeValidated["calibrator"],response);
 
-    if(err.size()>0){
-        return false;
-    }
+  if(err.size()>0){
+      return false;
+  }
 
-    if(!toBeValidated["cover"].is<JsonObject>()){
-        LOGE("Cover object is missing");
-        err.add("Calibrator Configuration is missing");
-        return false;
-    }
+  if(!toBeValidated["cover"].is<JsonObject>()){
+      LOGE("Cover object is missing");
+      err.add("Calibrator Configuration is missing");
+      return false;
+  }
 
-    cover.validateConfiguration(toBeValidated["cover"],response);
+  cover.validateConfiguration(toBeValidated["cover"],response);
 
-    if(err.size()>0){
-        return false;
-    }
+  if(err.size()>0){
+      return false;
+  }
 
-    rebootNeeded = response["reboot"].as<bool>();
+  rebootNeeded = response["reboot"].as<bool>();
 
-    return err.size() == 0;
+  return err.size() == 0;
 }
 
 /* here we store secondary data during the save config */
