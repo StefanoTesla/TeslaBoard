@@ -161,8 +161,6 @@ const changeValueCmd = async(index) => {
 const updateStatusData = () => {
   let hasActive = false;
   switches.value.Switches.forEach(element => {
-    console.log(element.type)
-    console.log(element.intValue)
     if(element.type != 1 && element.status > 0){
       hasActive = true;
     }

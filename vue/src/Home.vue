@@ -2,7 +2,7 @@
   <Navigation :home="true" />
 
   <div v-if="!txtLoaded" class="items-center min-h-[90dvh] content-center">
-    <div class="card text">
+    <div class="card not_full text">
       <p>Loading<span class="typing-effect">...</span></p>
       <p class="font-extrabold txt-red">{{ loadError }}</p>
     </div>

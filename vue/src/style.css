@@ -12,13 +12,14 @@ input[type="number"] {
 }
 
 :root {
-  --bkg: #121212;
+  --bkg: #171615;
   --divbkg: #1d1d1d;
-  --divhig: #2d2d2d;
+  --divhig: #2b2b2b;
   --green: #cbf05f;
   --orange: #ecb94a;
   --red: #ec4a4a;
   --black: #121212;
+  --border: #3d3c3a;
 }
 
 * {
@@ -36,6 +37,8 @@ body {
 
 header {
   background: var(--divbkg);
+  border-color: var(--border);
+  @apply border-b;
 }
 
 header {
@@ -56,7 +59,8 @@ a.active {
 
 .container {
   background: var(--divbkg);
-  @apply mt-6 mx-auto w-11/12 md:w-10/12 rounded-xl;
+    border-color: var(--border);
+  @apply mt-6 mx-auto w-11/12 md:w-10/12 rounded-xl border;
 }
 
 .container_header {
@@ -78,15 +82,24 @@ a.active {
 
 .card {
   background: var(--divhig);
-  @apply rounded-lg p-4;
+  border-color: var(--border);
+  @apply rounded-lg p-4 border;
 }
 
 .card > .content {
   @apply w-full px-4;
 }
 
+.two_columns {
+  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4;
+}
+.not_full {
+  border-color: var(--border);
+  @apply mx-auto w-1/2 border
+}
+
 .title {
-  @apply text-center font-bold w-full;
+  @apply text-center font-bold w-full mb-4;
 }
 
 .single_grid {
@@ -353,7 +366,8 @@ input[type="range"] {
 }
 
 .sw_grid > .card {
-  @apply mx-0 my-0;
+  border-color: var(--border);
+  @apply mx-0 my-0 border;
 }
 
 .sw_header {

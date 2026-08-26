@@ -5,7 +5,7 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
     >
-    <div class="sw_grid">
+    <div class="two_columns">
       <div class="card">
         <div class="title">
           <p>WiFi</p>
@@ -31,7 +31,7 @@
           <p>{{ upTime(board.wifi.uptime) }}</p>
         </div>
       </div>
-      <div class="card my-4">
+      <div class="card my-4 md:my-0">
         <div class="title">
           <p>CPU</p>
         </div>

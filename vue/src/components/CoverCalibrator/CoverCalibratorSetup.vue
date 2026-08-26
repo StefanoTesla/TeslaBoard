@@ -5,8 +5,9 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <p class="title">{{ t('gen.moduleSetting') }}</p>
+    
     <div class="card mb-4">
+      <p class="title">{{ t('gen.moduleSetting') }}</p>
       <div class="setting_table">
         <div class="flex">
           <div class="txt pr-4">
@@ -46,48 +47,53 @@
         </div>
       </div>
     </div>
+
     <div v-if="coverC.enable">
-      <div class="my-4 flex justify-evenly">
-        <p class="font-bold">{{ t('coverC.calibrator') }}</p>
-        <label class="toggle" for="coverc_calib_present">
-          <input
-            class="toggle__input"
-            name=""
-            type="checkbox"
-            id="coverc_calib_present"
-            v-model="coverC.calibrator.enable"
-            @change="validate()"
+      <div class="card mb-4">
+        <div class="flex justify-evenly">
+          <p class="font-bold">{{ t('coverC.calibrator') }}</p>
+          <label class="toggle" for="coverc_calib_present">
+            <input
+              class="toggle__input"
+              name=""
+              type="checkbox"
+              id="coverc_calib_present"
+              v-model="coverC.calibrator.enable"
+              @change="validate()"
+            />
+            <div class="toggle__fill"></div>
+          </label>
+        </div>
+
+        <div v-if="coverC.calibrator.enable">
+          <PWM
+            :t="t"
+            :index="0"
+            :swi="coverC.calibrator.outPWM"
+            @update:validated="handleValidation"
+            @update:pinUsed="updateCalibratorPin"
           />
-          <div class="toggle__fill"></div>
-        </label>
+        </div>
       </div>
 
-      <div class="card" v-if="coverC.calibrator.enable">
-        <PWM
-          :t="t"
-          :index="0"
-          :swi="coverC.calibrator.outPWM"
-          @update:validated="handleValidation"
-          @update:pinUsed="updateCalibratorPin"
-        />
-      </div>
+      <div class="card mb-4">
+        <div class="flex justify-evenly">
+          <p class="font-bold">{{ t('coverC.cover') }}</p>
+          
+          <label class="toggle" for="coverc_cover_present">
+            <input
+              class="toggle__input"
+              name=""
+              type="checkbox"
+              id="coverc_cover_present"
+              v-model="coverC.cover.enable"
+              @change="validate()"
+            />
+            <div class="toggle__fill"></div>
+          </label>
+        </div>
 
-      <div class="my-4 flex justify-evenly">
-        <p class="font-bold">{{ t('coverC.cover') }}</p>
-        <label class="toggle" for="coverc_cover_present">
-          <input
-            class="toggle__input"
-            name=""
-            type="checkbox"
-            id="coverc_cover_present"
-            v-model="coverC.cover.enable"
-            @change="validate()"
-          />
-          <div class="toggle__fill"></div>
-        </label>
-      </div>
-
-      <div class="card" v-if="coverC.cover.enable">
+      <div v-if="coverC.cover.enable">
         <div class="grid grid-cols-2">
           <div>
             <div class="setting_row">
@@ -131,21 +137,22 @@
               @update:pinUsed="updateCoverPin"
             />
           </div>
-        </div>
-          <div class="flex justify-evenly">
-            <p>{{ t('coverC.setting.cover.storePos') }}</p>
-              <label class="toggle" for="coverc_cover_store">
-                <input
-                  class="toggle__input"
-                  name=""
-                  type="checkbox"
-                  id="coverc_cover_store"
-                  v-model="coverC.cover.storePos"
-                  @change="validate()"
-                />
-                <div class="toggle__fill"></div>
-              </label>
           </div>
+            <div class="flex justify-evenly">
+              <p>{{ t('coverC.setting.cover.storePos') }}</p>
+                <label class="toggle" for="coverc_cover_store">
+                  <input
+                    class="toggle__input"
+                    name=""
+                    type="checkbox"
+                    id="coverc_cover_store"
+                    v-model="coverC.cover.storePos"
+                    @change="validate()"
+                  />
+                  <div class="toggle__fill"></div>
+                </label>
+            </div>
+        </div>
       </div>
     </div>
 
@@ -173,7 +180,7 @@ import PWM from "../IOBase/PWM.vue";
 import Servo from "../IOBase/Servo.vue";
 import { useValidator } from "../../composables/Validator";
 
-const { isGreaterThan, isNegative } = useValidator();
+const { isGreaterThan, isNegative, isInvalidPin } = useValidator();
 
 const props = defineProps({
   t: Function,
@@ -216,7 +223,6 @@ const validate = () => {
       errorResponseNotify(errorMessage);
       return;
     }
-
     coverC.value.cover.closePos = parseInt(coverC.value.cover.closePos);
     closePosValid.value = false;
     if (isNegative(coverC.value.cover.closePos)) {
@@ -224,14 +230,28 @@ const validate = () => {
       errorResponseNotify(props.t('errors.general.negativeValue'));
       return;
     }
+
     if (isGreaterThan(coverC.value.cover.closePos, 100)) {
       closePosValid.value = true;
       const errorMessage = props.t('errors.general.greaterThan') + " 100";
       errorResponseNotify(errorMessage);
       return;
     }
+
+    if(isInvalidPin(coverC.value.cover.outServo.pin,"output")){
+      const errorMessage = props.t('errors.general.IOPinNotUsable') + coverC.value.cover.outServo.pin;
+      errorResponseNotify(errorMessage);
+      return
+    }
   }
 
+  if(coverC.value.calibrator.enable){
+    if(isInvalidPin(coverC.value.calibrator.outPWM.pin,"output")){
+      console.log("pin")
+      console.log(coverC.value.calibrator.outPWM.pin)
+      return
+    }
+  }
   validationState.value = true;
   statusClass.value = "green";
 };
@@ -349,8 +369,8 @@ function setupWatch() {
   watch(
     () => [
       validation.value,
-      coverC.value.calibrator.present,
-      coverC.value.cover.present,
+      coverC.value.calibrator.enable,
+      coverC.value.cover.enable,
     ],
     () => {
       if (coverC.value.calibrator.enable && validation.value[0] === false) {

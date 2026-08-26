@@ -5,8 +5,8 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <p class="title">{{ t('gen.moduleSetting') }}</p>
     <div class="card mb-4">
+      <p class="title">{{ t('gen.moduleSetting') }}</p>
       <div class="setting_table">
         <div class="flex">
           <div class="txt pr-4">
@@ -300,7 +300,7 @@ const validate = () => {
     return;
   }
 
-  if (isGreaterThan(dome.value.shutter.driverType, 2)) {
+  if (isGreaterThan(dome.value.shutter.driverType, 3)) {
     boardTypeUnvalid.value = true;
     const errorMessage = props.t('errors.general.greaterThan') + " " + "2";
     errorResponseNotify(errorMessage);

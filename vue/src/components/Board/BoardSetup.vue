@@ -5,7 +5,7 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <div class="sw_grid">
+    <div class="two_columns">
       <div class="card">
         <div class="setting_table">
           <div class="sw_header">
