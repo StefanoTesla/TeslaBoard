@@ -39,6 +39,12 @@ void CoverCalibratorModule::loadSecondaryData() {
         cover.begin(tmpCfg);
     }
     tmpCfg.clear();
+
+
+    if(!cover.isEnable() && !calibrator.isEnable()){
+      LOGD("Cover and Calibrator aren't enabled, going to disable the main module");
+      moduleEnable = false;
+    }
 }
 
 
