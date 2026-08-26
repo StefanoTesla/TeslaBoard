@@ -137,6 +137,7 @@
             <option value="2">{{ t("IOBase.typeEnum.2") }}</option>
             <option value="3">{{ t("IOBase.typeEnum.3") }}</option>
             <option value="4">{{ t("IOBase.typeEnum.4") }}</option>
+            <option value="5">{{ t("IOBase.typeEnum.5") }}</option>
           </select>
         </div>
 
@@ -175,6 +176,13 @@
           @update:validated="handleValidation"
           @update:pinUsed="updatePin"
         />
+        <VirtualInput
+          v-if="swi.type == 5"
+          :t="t"
+          :index="index"
+          :swi="swi"
+          @update:validated="handleValidation"
+        />
       </div>
     </div>
 
@@ -202,6 +210,7 @@ import Input from "../IOBase/Input.vue";
 import Output from "../IOBase/Output.vue";
 import PWM from "../IOBase/PWM.vue";
 import Servo from "../IOBase/Servo.vue";
+import VirtualInput from "../IOBase/VirtualInput.vue";
 
 const props = defineProps({
   t: Function,
@@ -274,6 +283,12 @@ const cleanProperty = () => {
 
     if (swi.type === 4) {
       cleanedSwi.moveTime = parseInt(swi.moveTime) ?? 0;
+    }
+
+    if (swi.type === 5) {
+      cleanedSwi.defaultValue = parseInt(swi.defaultValue) ?? 0;
+      cleanedSwi.expiration = parseInt(swi.expiration) ?? 0;
+      delete cleanedSwi.pin;
     }
 
     if (Object.hasOwn(swi, "uniqueId")) {

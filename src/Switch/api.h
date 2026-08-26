@@ -349,6 +349,25 @@ void SwitchApi() {
     });
 
     server.addHandler(switchConfigHandler);
+/*
+    AsyncCallbackJsonWebHandler * virtualSwitchHandler = new AsyncCallbackJsonWebHandler("/api/switch/virtual");
+
+    virtualSwitchHandler -> setMethod(HTTP_POST | HTTP_PUT);
+    virtualSwitchHandler -> onRequest([](AsyncWebServerRequest * request, JsonVariant & root) {
+        AsyncJsonResponse * response = new AsyncJsonResponse();
+        JsonObject doc = response->getRoot().to<JsonObject>();
+        String test;
+        serializeJson(doc,test);
+        Serial.print(test);
+        request->send(200, "text/plain", "OK");
+    });
+
+    server.addHandler(virtualSwitchHandler);*/
+
+    server.on("/api/switch/virtual", HTTP_POST, [](AsyncWebServerRequest* request) {
+        Serial.println(">>> HANDLER SEMPLICE CHIARMATO <<<");
+        request->send(200, "text/plain", "OK");
+    });
 
     #pragma endregion
 

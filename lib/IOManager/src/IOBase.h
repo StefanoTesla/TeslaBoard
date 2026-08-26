@@ -78,14 +78,19 @@ public:
 
     virtual void loop() {}
 
+    /* only for inputs*/
     virtual void setDelays(
         unsigned int dOn,
         unsigned int dOff
     ) {}
 
+    /* only for outputs*/
     virtual void setInvert(bool invert) {}
+    /* only for servo*/
     virtual void setMoveTime(unsigned int newTime) {}
-
+    /* only for virtual inputs*/
+    virtual void setDefault(int value) {};
+    virtual void setExpiration(int value) {};
     virtual ~IOBase() {}
 
 private:

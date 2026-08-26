@@ -4,7 +4,7 @@
 VirtualInput::VirtualInput() {}
 
 bool VirtualInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
-  if (obj["type"].as<int>() != 4) {
+  if (obj["type"].as<int>() != 5) {
     return false;
   }
 
@@ -12,7 +12,8 @@ bool VirtualInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
 
   min = INT_MIN;
   max = INT_MAX;
-  write(0);
+  expiration = obj["exiration"].as<int>();
+  write(obj["defaultValue"].as<int>());
   return true;
 }
 
@@ -22,7 +23,14 @@ bool VirtualInput::pinUnusable(int pin) {
 
 int VirtualInput::validateJsonCfg(JsonObject json) {
 
-  if (!json["default"].is<int32_t>()) {
+  if (!json["defaultValue"].is<int32_t>()) {
+    return -1;
+  }
+
+  if (!json["expiration"].is<int32_t>()) {
+    return -1;
+  }
+  if (json["expiration"].as<int32_t>() < 0) {
     return -1;
   }
 
@@ -41,14 +49,18 @@ int VirtualInput::validateJsonCfg(JsonObject json) {
  * @return nothing
  */
 void VirtualInput::copyJsonCfg(JsonObject src, JsonObject dest) {
-  dest["type"] = 4;
+  dest["type"] = 5;
   copyCommonJsonCfg(src, dest);
+  dest["defaultValue"] = src["defaultValue"];
+  dest["expiration"] = src["expiration"];
 
 }
 
 void VirtualInput::getConfiguration(JsonObject cfg) {
-  cfg["type"] = 4;
+  cfg["type"] = 5;
   getCommonConfiguration(cfg);
+  cfg["defaultValue"] = defaultVal;
+  cfg["expiration"] = expiration;
 }
 
 /**
@@ -57,7 +69,7 @@ void VirtualInput::getConfiguration(JsonObject cfg) {
  * Questa funzione utilizza `digitalWrite()` per scrivere il valore
  * di un pin, se configurato, lo inverte
  *
- * @param _value value to be written to the GPIO
+ * @param _value value to be written to the Virtual Input
  * @return int 1= operazione completata.
  */
 int VirtualInput::write(int32_t _value) {
@@ -71,4 +83,15 @@ int VirtualInput::status() {
   return value;
 }
 
-int VirtualInput::getType() { return 4; }
+int VirtualInput::getType() { return 5; }
+
+
+void VirtualInput::setDefault(int _newDefaul) {
+  defaultVal = _newDefaul;
+}
+void VirtualInput::setExpiration(int _newExpiration) {
+  expiration = _newExpiration * 100;
+}
+
+void VirtualInput::loop() {
+}

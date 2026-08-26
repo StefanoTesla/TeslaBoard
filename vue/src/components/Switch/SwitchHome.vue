@@ -42,6 +42,11 @@
               <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>
             </div>
           </div>
+          <div class="sw_containter" v-if="swi.type == 5">
+            <div class="sw_value">
+              <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span>
+            </div>
+          </div>
       </div>  
     </div>  
   </Card>

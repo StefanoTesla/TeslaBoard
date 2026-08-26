@@ -6,6 +6,9 @@ export function useValidator() {
   const isGreaterThan = (value, maxValue) => {
     return value > maxValue;
   };
+  const isLowerThan = (value, minValue) => {
+    return value < minValue;
+  };
 
   const isInvalidPin = (value, type = "input") => {
     const noUsablePin = [
@@ -31,6 +34,7 @@ export function useValidator() {
   return {
     isNegative,
     isGreaterThan,
+    isLowerThan,
     isInvalidPin,
   };
 }

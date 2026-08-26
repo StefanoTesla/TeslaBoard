@@ -239,6 +239,7 @@
 		"general":{
 			"negativeValue":"Il valore non può essere negativo",
 			"greaterThan":"Valore maggiore di: ",
+			"lowerThan":"Valore minore di: ",
 			"configRejected": "Dati non validi. Configurazione non salvata",
 			"validationFailed": "Validazione fallita",
 			"wrongValue":"Valore errato",
@@ -256,7 +257,8 @@
 			"1": "Ingresso Digitale",
 			"2": "Uscita Digitale",
 			"3": "Uscita PWM",
-			"4": "Uscita Servo"
+			"4": "Uscita Servo",
+			"5": "Ingresso Virtuale"
 		},
 		"moduleEnum": {
 			"0": "Non utilizzata",
@@ -282,6 +284,10 @@
 		},
 		"Servo":{
 			"movingTime": "Tempo di movimento:"
+		},
+		"VI":{
+			"defaultValue": "Valore di default:",
+			"expiration": "Scadenza:"
 		}
 	}
 }

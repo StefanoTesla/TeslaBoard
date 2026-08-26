@@ -78,6 +78,12 @@ void SwitchModule::loadSecondaryData() {
         LOGE("unable to setup Servo Output");
         Switches[i] = nullptr;
       };
+    } else if (type == Type::Virtual) {
+      Switches[i] = new VirtualInput;
+      if (!Switches[i]->jsonSetup(tmp)) {
+        LOGE("unable to setup Virtual Input");
+        Switches[i] = nullptr;
+      };
     } else {
       LOGE("Wrong Type stored on NVS");
     }
@@ -115,7 +121,7 @@ bool SwitchModule::applySchemaUpgradeStep(uint16_t currentVersion) {
 void SwitchModule::appendSecondaryConfig(JsonObject dest) {
   JsonArray switchesArray = dest["Switches"].to<JsonArray>();
     for (size_t i = 0; i < configuredSwitches; i++) {
-    if (Switches[i] == nullptr || Switches[i]->getType() > Type::Servo) {
+    if (Switches[i] == nullptr || Switches[i]->getType() > Type::Virtual) {
       continue;
     }
 
@@ -148,8 +154,8 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
         }
 
         unsigned int typeValue = singleSW["type"].as<unsigned int>();
-
-        if (typeValue > Type::Servo) {
+        
+        if (typeValue > Type::Virtual) {
             LOGE("Type value is out of range");
             JsonObject e = err.add<JsonObject>();
             e["error"] = "Type out of range";
@@ -280,6 +286,9 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
         case Servo:
             ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
             break;
+        case Virtual:
+            VirtualInput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
 
         default:
             LOGE("Undefined type during sanitization");
@@ -321,6 +330,11 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
                 Switches[oldId]->setMoveTime(sanitizedObject["moveTime"].as<unsigned int>());
                 break;
 
+            case Virtual:
+                Switches[oldId]->setDefault(sanitizedObject["defaultValue"].as<int>());
+                Switches[oldId]->setExpiration(sanitizedObject["expiration"].as<int>());
+                break;
+
             default:
                 break;
             }
@@ -330,8 +344,9 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
         sprintf(key, "sw%d", id);
 
         String swString;
-        serializeJson(sanitizedObject, swString);
 
+        serializeJson(sanitizedObject, swString);
+        LOGI("Switch json: %s", swString.c_str());
         NvsManager::getInstance().putString(key,swString);
     }
 
@@ -351,6 +366,8 @@ int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
     return PWMOutput::validateJsonCfg(singleSW);
   case Servo:
     return ServoOutput::validateJsonCfg(singleSW);
+  case Virtual:
+    return VirtualInput::validateJsonCfg(singleSW);
   default:
     LOGV("Undefined type");
     return 0;
@@ -413,7 +430,7 @@ void SwitchModule::loop() {
     if (
         Switches[i]->getType() == Type::Input
         || Switches[i]->getType() == Type::Servo 
-        || Switches[i]->getType() == Type::VirtualInput
+        || Switches[i]->getType() == Type::Virtual
        ) {
       Switches[i]->loop();
     }
@@ -472,7 +489,7 @@ int SwitchModule::isWritable(int id){
 
   if(validID != 1){ return validID;}
 
-  if(Switches[id]->getType() == Type::Input || Switches[id]->getType() == Type::VirtualInput){
+  if(Switches[id]->getType() == Type::Input || Switches[id]->getType() == Type::Virtual){
     return -3;
   }
 
