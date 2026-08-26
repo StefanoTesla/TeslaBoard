@@ -1,1 +1,1 @@
-undestanging why esp32 s3 refuse a fast pwm as old esp32
+undestanging why esp32 s3 refuse a fast pwm as old esp32, the answer is that s£ esp32 got only slow timers

@@ -8,7 +8,7 @@
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
 
-#pragma region nvsHandler
+#pragma region Configuration
 
 void Calibrator::begin(const JsonDocument& doc) {
 
@@ -24,50 +24,6 @@ void Calibrator::begin(const JsonDocument& doc) {
 
   LOGV("Calibrator END");
 }
-
-void Calibrator::storeConfiguration(JsonObject calibratorObject) {
-
-  tmpCfg.clear();
-
-  tmpCfg["enable"] = calibratorObject["enable"];
-
-  if (tmpCfg["enable"].as<bool>()) {
-    JsonObject outPWM = tmpCfg["outPWM"].to<JsonObject>();
-    calibrator.copyJsonCfg(calibratorObject["outPWM"], outPWM);
-  }
-
-  String json;
-  serializeJson(tmpCfg, json);
-
-  NvsManager::getInstance().putString("calibrator", json);
-  tmpCfg.clear();
-}
-
-#pragma endregion
-/* Setup the calibrator */
-
-
-/* loop cycle, status and cycle update */
-void Calibrator::loop() { updateStatus(); }
-
-void Calibrator::updateStatus() {
-  if (moduleEnable) {
-    if (getBrightness() == 0) {
-      status = Off;
-    } else {
-      status = Ready;
-    }
-  } else {
-    LOGV("module is gone!");
-    status = NotPresent;
-  }
-}
-
-Calibrator::Status Calibrator::getStatus() const { return status; }
-
-/*
-Configuration Area
-*/
 
 void Calibrator::getConfiguration(JsonObject obj) {
 
@@ -92,6 +48,18 @@ void Calibrator::validateConfiguration(const JsonObject &obj, JsonObject respons
     return;
   }
 
+  bool incomingEnable = obj["enable"].as<bool>();
+
+  //module enable is changed from new data, reboot is neeed of course
+  if (moduleEnable != incomingEnable) {
+    response["reboot"] = true;
+  }
+
+  // the new configuration disable the calibrator, nothing to do more
+  if(!incomingEnable){
+    return;
+  }
+
   JsonObject calibPin = obj["outPWM"];
   retVal = calibrator.validateJsonCfg(calibPin);
 
@@ -102,11 +70,50 @@ void Calibrator::validateConfiguration(const JsonObject &obj, JsonObject respons
     return;
   }
 
-  /* check if board need a reboot */
+  /* Access to the pin number only if the module is enable, otherwise nullpointer exception */
+  if(moduleEnable && calibPin["pin"].as<unsigned int>() != calibrator.getPinNumber()){
+      response["reboot"] = true;
+  }
 
-  if (calibPin["pin"].as<unsigned int>() != calibrator.getPinNumber()
-      || moduleEnable != obj["enable"].as<bool>()) {
-    response["reboot"] = true;
+}
+
+void Calibrator::storeConfiguration(JsonObject calibratorObject) {
+
+  tmpCfg.clear();
+
+  tmpCfg["enable"] = calibratorObject["enable"];
+
+  if (tmpCfg["enable"].as<bool>()) {
+    JsonObject outPWM = tmpCfg["outPWM"].to<JsonObject>();
+    calibrator.copyJsonCfg(calibratorObject["outPWM"], outPWM);
+  }
+
+  String json;
+  serializeJson(tmpCfg, json);
+
+  NvsManager::getInstance().putString("calibrator", json);
+  tmpCfg.clear();
+}
+
+#pragma endregion
+
+
+/* loop cycle, status and cycle update */
+void Calibrator::loop() { updateStatus(); }
+
+void Calibrator::updateStatus() {
+  if (moduleEnable) {
+    if (getBrightness() == 0) {
+      status = Off;
+    } else {
+      status = Ready;
+    }
+  } else {
+    status = NotPresent;
   }
 }
+
+Calibrator::Status Calibrator::getStatus() const { return status; }
+
+
 

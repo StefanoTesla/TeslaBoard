@@ -50,16 +50,10 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
 
   LOGV("---Cover VALIDATION---");
 
-  if (!obj["enable"].as<bool>()) {
-    return;
-  }
-  
   if (!obj["enable"].is<bool>()) {
     err.add("EnableMissing");
     return;
   }
-
-
 
   if (!obj["openPos"].is<unsigned int>()) {
     err.add("openPosMissing");
@@ -67,6 +61,17 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
   }
   if (!obj["closePos"].is<unsigned int>()) {
     err.add("closePosMissing");
+    return;
+  }
+
+  bool incomingEnable = obj["enable"].as<bool>();
+  //module enable is changed from new data, reboot is neeed of course
+  if(incomingEnable != moduleEnable){
+    response["reboot"] = true;
+  }
+
+  // the new configuration disable the cover, nothing to do more
+  if(!incomingEnable){
     return;
   }
 
@@ -98,14 +103,12 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
     return;
   }
 
-  /* check if board need a reboot */
-
-  if (
-    coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()
-    || moduleEnable != obj["enable"].as<bool>()
-  ) {
-    response["reboot"] = true;
+  /* Access to the pin number only if the module is enable, otherwise nullpointer exception */
+  if (moduleEnable && coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()) {
+      response["reboot"] = true;
   }
+
+
 }
 
 void Cover::storeConfiguration(JsonObject coverObject) {
