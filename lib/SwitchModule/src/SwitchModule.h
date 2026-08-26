@@ -35,27 +35,28 @@ public:
   int isWritable(int id);
   int isValidValue(int id, int value);
   int setSwitchValue(int id, int state);
+  int setVirtualSwitchValue(int id, int state);
   int setServoPositionAsync(int id,int position);
   int getServoIsMoving(int id);
   int getSwitchState(int id);
   int getType(int id);
   int getMax(int id);
   int getMin(int id);
-
+  int findSwitchByUid(const char* uid) const;
   const char* getSwitchName(int id);
   const char* getSwitchDescription(int id);
 
 
 protected:
-    const char* schemaName() const override { return SWITCH_SCHEMA_NAME; }
-    uint16_t schemaVersion() const override { return SWITCH_SCHEMA_VERSION; }
-    const char* defaultIdentifier() const override { return "Switch"; }
-    void initSecondaryData() override;
-    void loadSecondaryData() override;
-    void appendSecondaryConfig(JsonObject dest) override;
-    bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
-    void storeSecondaryConfig(const JsonObject &toBeStored) override;
-    bool applySchemaUpgradeStep(uint16_t currentVersion) override;
+  const char* schemaName() const override { return SWITCH_SCHEMA_NAME; }
+  uint16_t schemaVersion() const override { return SWITCH_SCHEMA_VERSION; }
+  const char* defaultIdentifier() const override { return "Switch"; }
+  void initSecondaryData() override;
+  void loadSecondaryData() override;
+  void appendSecondaryConfig(JsonObject dest) override;
+  bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
+  void storeSecondaryConfig(const JsonObject &toBeStored) override;
+  bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
   JsonDocument tmpCfg;
@@ -79,12 +80,11 @@ private:
         const char* uid
     );
 
-    int findSwitchByUid(const char* uid) const;
+  bool uidAlreadyUsedInOldConfiguration(
+      const char* uid,
+      int exceptIndex
+  ) const;
 
-    bool uidAlreadyUsedInOldConfiguration(
-        const char* uid,
-        int exceptIndex
-    ) const;
   enum class SwitchSerialCommand : uint8_t {
     Unknown = 0,
     MaxSwitch,

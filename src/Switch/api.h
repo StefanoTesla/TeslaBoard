@@ -349,25 +349,68 @@ void SwitchApi() {
     });
 
     server.addHandler(switchConfigHandler);
-/*
+
     AsyncCallbackJsonWebHandler * virtualSwitchHandler = new AsyncCallbackJsonWebHandler("/api/switch/virtual");
 
     virtualSwitchHandler -> setMethod(HTTP_POST | HTTP_PUT);
     virtualSwitchHandler -> onRequest([](AsyncWebServerRequest * request, JsonVariant & root) {
         AsyncJsonResponse * response = new AsyncJsonResponse();
-        JsonObject doc = response->getRoot().to<JsonObject>();
-        String test;
-        serializeJson(doc,test);
-        Serial.print(test);
-        request->send(200, "text/plain", "OK");
+        JsonObject res = response->getRoot().to<JsonObject>();
+        JsonObject body = root.as<JsonObject>();
+
+        res["error"] = "";
+        res["execute"] = false;
+
+        if (!body["uniqueId"].is<const char*>()) {
+            res["error"] ="uniqueId key is missing or malformed";
+            response->setLength();
+            response->setCode(400);
+            response->setContentType("application/json");
+            request->send(response);
+            return;
+        }
+
+        const char* uid = body["uniqueId"];
+
+        int switchId = Switches.findSwitchByUid(uid);
+
+        if (switchId == -1) {
+            res["error"] = "uniqueId not found";
+            response->setLength();
+            response->setCode(404);
+            response->setContentType("application/json");
+            request->send(response);
+            return;
+        }
+
+        if(!body["value"].is<int>()){
+            res["error"] = "value don't exist or is not an integer";
+            response->setLength();
+            response->setCode(422);
+            response->setContentType("application/json");
+            request->send(response);
+            return;
+        }
+
+        int value = body["value"];
+
+        int retVal = Switches.setSwitchValue(switchId,value);
+
+        if(retVal == 1){
+            res["execute"] = true;
+            response->setLength();
+            response->setCode(200);
+            response->setContentType("application/json");
+            request->send(response);
+            return;
+        }
+
+        res["error"] = "Someting goes wrong";
+        request->send(500, "text/plain", "OK");
     });
 
-    server.addHandler(virtualSwitchHandler);*/
+    server.addHandler(virtualSwitchHandler);
 
-    server.on("/api/switch/virtual", HTTP_POST, [](AsyncWebServerRequest* request) {
-        Serial.println(">>> HANDLER SEMPLICE CHIARMATO <<<");
-        request->send(200, "text/plain", "OK");
-    });
 
     #pragma endregion
 

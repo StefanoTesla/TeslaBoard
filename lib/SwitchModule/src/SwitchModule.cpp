@@ -587,6 +587,31 @@ int SwitchModule::setSwitchValue(int id, int value) {
   return false;
 }
 
+/*
+Write a value on the Switch
+
+Return:
+
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-3 = unwritable Switch
+-4 = value lower than min value
+-5 = value greater than max value
+
+*/
+int SwitchModule::setVirtualSwitchValue(int id, int value) {
+
+  if (getType(id) != Type::Virtual) { return -3;}
+
+  int validState = isValidValue(id,value);
+  if(validState != 1){ return validState;}
+
+  Switches[id]->write(value);
+  return 1;
+
+}
+
 int SwitchModule::getSwitchState(int id) {
 
   if (id >= configuredSwitches) {
