@@ -520,7 +520,13 @@ void SwitchApi() {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
         JsonObject doc = response -> getRoot();
 
-        doc["Value"] = true;
+        int retVal = Switches.isWritable(request -> getAttribute("id").toInt());
+        if( 1 == retVal ){
+            doc["Value"] = true;
+        } else {
+            doc["Value"] = false;
+        }
+
 
         response->setLength();
         request->send(response);

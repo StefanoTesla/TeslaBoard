@@ -7,7 +7,7 @@
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
-
+char SwitchModule::_deviceStateBuffer[512];
 
 #pragma region Configuration
 /* here we write additional data if nvs was empty*/
@@ -802,9 +802,9 @@ SwitchModule::SwitchSerialCommand SwitchModule::parseCommand(const char* cmd) {
 bool SwitchModule::handlePacket(char* payload, Stream& out) {
     char* saveptr = nullptr;
     char* cmd = strtok_r(payload, ":", &saveptr);
-
+    int cfgSwitches = getConfiguredSwitch();
     if (cmd == nullptr) {
-      out.print("<ERR:BAD_CMD:NULLPTR>");
+      out.print("<SW:ERR:BAD_CMD:NULLPTR>");
       return false;
     }
 
@@ -813,7 +813,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     */
 
     if(!isEnable()){
-      out.print("<ERR:NOT_ENABLE>");
+      out.print("<SW:ERR:NOT_ENABLE>");
       return false;
     }
 
@@ -824,7 +824,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     If command is not listed return the error
     */
     if (command == SwitchSerialCommand::Unknown) {
-      out.print("<ERR:BAD_CMD:UNKNOW>");
+      out.print("<SW:ERR:BAD_CMD:UNKNOW>");
       return false;
     }
 
@@ -834,42 +834,38 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     switch (command){
 
       case SwitchSerialCommand::MaxSwitch:
-        out.print("<");
+        out.print("<SW:");
         out.print(getConfiguredSwitch());
         out.print(">");
         return true;
 
       case SwitchSerialCommand::Desc:
-        out.print("<OK:");
-        out.print("Switch - TeslaBoard 4.0");
-        out.print(">");
+        out.print("<SW:OK:Switch - TeslaBoard 4.0>");
         return true;
 
       case SwitchSerialCommand::IntVersion:
-        out.print("<");
-        out.print("3");
-        out.print(">");
+        out.print("<3>");
         return true;
 
       case SwitchSerialCommand::Name:
-        out.print("<");
+        out.print("<SW:");
         out.print(getIdentifier());
         out.print("- TeslaBoard>");
         return true;
       case SwitchSerialCommand::Connect:
       case SwitchSerialCommand::Disconnect:
-        out.print("<OK>");
+        out.print("<SW:OK>");
         return true;
 
       case SwitchSerialCommand::Connected:
-        out.print("<true>");
+        out.print("<SW:true>");
         return true;
 
       case SwitchSerialCommand::Connecting:
-        out.print("<false>");
+        out.print("<SW:false>");
         return true;
       case SwitchSerialCommand::SupportedActions:
-        out.print("<>");
+        out.print("<SW:>");
         return true;
 
       /* Not Implemented metods/property*/
@@ -879,11 +875,52 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::CmdString:
       case SwitchSerialCommand::SetName:
       case SwitchSerialCommand::SetDesc:
-        out.print("<ERR:NOT_IMPL>");
+      case  SwitchSerialCommand::CancelAsync: //PER ORA
+        out.print("<SW:ERR:NOT_IMPL>");
         return true;
 
       case SwitchSerialCommand::DeviceState:
-        out.print("<ERR:TO_DO>");
+      {
+        _deviceStateBuffer[0] = '\0'; 
+        int offset = 0;
+        const int BUFFER_SIZE = sizeof(_deviceStateBuffer);
+    
+        int numSwitches = getConfiguredSwitch();  // o una variabile membro
+    
+        for (int i = 0; i < numSwitches; i++) {
+            int value = Switches[i]->status();
+            bool state = (value != 0);
+            
+            // StateChangeComplete: true se NON è in movimento
+            bool complete = true;
+            if (Switches[i]->getType() == Type::Servo) {
+                complete = (getServoIsMoving(i) == 0);  // 0 = fermo → completo
+            }
+            
+            bool writable = (isWritable(i) == 1);
+            bool canAsync = writable && (Switches[i]->getType() == Type::Servo);
+            
+            // Scrive nel buffer in modo sicuro
+            offset += snprintf(_deviceStateBuffer + offset,
+                              BUFFER_SIZE - offset,
+                              "%d,%d,%d,%d,%d",
+                              value,
+                              state ? 1 : 0,
+                              complete ? 1 : 0,
+                              writable ? 1 : 0,
+                              canAsync ? 1 : 0);
+            
+            if (i < numSwitches - 1) {
+                offset += snprintf(_deviceStateBuffer + offset,
+                                  BUFFER_SIZE - offset, ";");
+            }
+        }
+      }
+    
+        // Invia la risposta
+        out.print("<SW:");
+        out.print(_deviceStateBuffer);
+        out.println(">");
         return true;
     }
    
@@ -893,7 +930,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     char* chStr = strtok_r(nullptr, ":", &saveptr);
 
       if (chStr == nullptr || *chStr == '\0') {
-          out.print("<ERR:BAD_CMD:INVALID_ID>");
+          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
           return false;
       }
 
@@ -903,20 +940,20 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
 
       /* must be a pure integer, no trailing chars */
       if (*endPtr != '\0') {
-          out.print("<ERR:BAD_CMD:INVALID_ID>");
+          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
           return false;
       }
 
       /* id is 1-based in the protocol, array is 0-based */
       if (val < 1 || val > getConfiguredSwitch()) {  
-          out.print("<ERR:BAD_CMD:ID_RANGE>");
+          out.print("<SW:ERR:BAD_CMD:ID_RANGE>");
           return false;
       }
 
       const int id = static_cast<int>(val) - 1;
 
     if(isValidID(id) != 1){
-      out.print("<ERR:INVALID_ID>");
+      out.print("<SW:ERR:INVALID_ID>");
       return false;
     }
 
@@ -925,59 +962,61 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     switch (command){
 
       case  SwitchSerialCommand::CanAsync:
-      case  SwitchSerialCommand::CancelAsync:
-        out.print("<OK>");
+        if(isWritable(id)==1){
+          out.print("<SW:TRUE>");
+        } else {
+          out.print("<SW:FALSE>");
+        }
         return true;
 
       case SwitchSerialCommand::GetSwitchName:
-        out.print("<");
+        out.print("<SW:");
         out.print(Switches[id]->getName());
         out.print(">");
         return true;
 
       case SwitchSerialCommand::GetSwitchDesc:
-        out.print("<");
+        out.print("<SW:");
         out.print(Switches[id]->getDescription());
         out.print(">");
         return true;
 
       case SwitchSerialCommand::GetSwitchMin:
-        out.print("<");
+        out.print("<SW:");
         out.print(Switches[id]->getMin());
         out.print(">");
         return true;
 
       case SwitchSerialCommand::GetSwitchMax:
-        out.print("<");
+        out.print("<SW:");
         out.print(Switches[id]->getMax());
         out.print(">");
         return true;
 
       case SwitchSerialCommand::Step:
-        out.print("<1>");
+        out.print("<SW:1>");
         return true;
 
       case SwitchSerialCommand::CanWrite:
         if(isWritable(id) == 1){
-          out.print("<TRUE>");
+          out.print("<SW:TRUE>");
         } else {
-          out.print("<FALSE>");
+          out.print("<SW:FALSE>");
         }
         return true;
       case SwitchSerialCommand::GetSwitchValue:
-        out.print("<");
+        out.print("<SW:");
         out.print(Switches[id]->status());
         out.print(">");
         return true;
       case SwitchSerialCommand::StateChangeComplete:
-
         if(Switches[id]->getType() == Type::Servo){
           if(getServoIsMoving(id) == 1){
-            out.print("<false>");
+            out.print("<SW:false>");
             return true;
-          } 
-          out.print("<true>");
+          }
         }
+        out.print("<SW:true>");
         return true;
             
     }
@@ -989,7 +1028,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     */
 
     if(isWritable(id) != 1){
-      out.print("<ERR:ID_NOT_WRITABLE>");
+      out.print("<SW:ERR:ID_NOT_WRITABLE>");
       return false;
     }
 
@@ -1006,7 +1045,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::Set:
         stateStr = strtok_r(nullptr, ":", &saveptr);
         if (stateStr == nullptr) {
-          out.print("<ERR:BAD_CMD:STATE_NULLPTR>");
+          out.print("<SW:ERR:BAD_CMD:STATE_NULLPTR>");
           return false;
         }
         State = false;
@@ -1024,12 +1063,12 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
         ){
           State = false;
         } else {
-          out.print("<ERR:BAD_CMD:STATE_MALFORMED>");
+          out.print("<SW:ERR:BAD_CMD:STATE_MALFORMED>");
           return false;
         }
 
         Switches[id]->write(State ? Switches[id]->getMax() : Switches[id]->getMin());
-        out.print("<OK>");
+        out.print("<SW:OK>");
         return true;
 
     }
@@ -1045,7 +1084,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::SetValue:
         valueStr = strtok_r(nullptr, ":", &saveptr);
         if (valueStr == nullptr || *valueStr == '\0') {
-          out.print("<ERR:BAD_CMD:VALUE_NULLPTR>");
+          out.print("<SW:ERR:BAD_CMD:VALUE_NULLPTR>");
           return false;
         }
 
@@ -1054,13 +1093,13 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
           long val = strtol(valueStr, &endPtr, 10);
 
           if (*endPtr != '\0') {
-            out.print("<ERR:BAD_CMD:VALUE_MALFORMED>");
+            out.print("<SW:ERR:BAD_CMD:VALUE_MALFORMED>");
             return false;
           }
 
           // opzionale: controllo overflow rispetto a int
           if (val < INT_MIN || val > INT_MAX) {
-            out.print("<ERR:BAD_CMD:VALUE_RANGE>");
+            out.print("<SW:ERR:BAD_CMD:VALUE_RANGE>");
             return false;
           }
 
@@ -1068,23 +1107,23 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
         }
 
         if (Value < Switches[id]->getMin()) {
-          out.print("<ERR:VALUE_UNDER_MIN>");
+          out.print("<SW:ERR:VALUE_UNDER_MIN>");
           return false;
         }
         if (Value > Switches[id]->getMax()) {
-          out.print("<ERR:VALUE_ABOVE_MAX>");
+          out.print("<SW:ERR:VALUE_ABOVE_MAX>");
           return false;
         }
 
         Switches[id]->write(Value);
-        out.print("<OK>");
+        out.print("<SW:OK>");
         return true;
       }
 
       #pragma endregion
 
     /* If i'm here I don't know why :( */
-    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
+    out.print("<SW:ERR:BAD_CMD:UNKNOW_CMD>");
     return false;
   }
 

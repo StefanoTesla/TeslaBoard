@@ -62,7 +62,7 @@ private:
   JsonDocument tmpCfg;
   PWMManager *chMgr;
   IOBase *Switches[SWITCH_MAX_SWITCHES] = {nullptr};
-
+  static char _deviceStateBuffer[512];
   unsigned int configuredSwitches;
 
   void validateSwitches(const JsonArray &switches, JsonObject response);
