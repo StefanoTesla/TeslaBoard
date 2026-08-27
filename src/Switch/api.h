@@ -384,7 +384,7 @@ void SwitchApi() {
         }
 
         if(!body["value"].is<int>()){
-            res["error"] = "value don't exist or is not an integer";
+            res["error"] = "Value don't exist or is not an integer";
             response->setLength();
             response->setCode(422);
             response->setContentType("application/json");
@@ -396,13 +396,49 @@ void SwitchApi() {
 
         int retVal = Switches.setSwitchValue(switchId,value);
 
-        if(retVal == 1){
-            res["execute"] = true;
-            response->setLength();
-            response->setCode(200);
-            response->setContentType("application/json");
-            request->send(response);
-            return;
+        switch (retVal) {
+            case 1:
+                res["execute"] = true;
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
+            case -1:
+                res["error"] = "Switch Id outside limits";
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
+            case -2:
+                res["error"] = "Uncunfigured Switch";
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
+            case -3:
+                res["error"] = "Attemping to write on a non virtual switch";
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
+            case -4:
+                res["error"] = "Value given is abowe the mix limit";
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
+            case -5:
+                res["error"] = "Value given is greathen the max limit";
+                response->setLength();
+                response->setCode(200);
+                response->setContentType("application/json");
+                request->send(response);
+                return;
         }
 
         res["error"] = "Someting goes wrong";
