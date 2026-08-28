@@ -35,34 +35,12 @@ void setup() {
   //  return;
   }
 
-  uint32_t start_time = millis();
-  while (!Serial && (millis() - start_time < 4000)) {
-    delay(10);
-  }
-
-  Serial.println();
-  start_time = millis();
-
-  while (!Serial && (millis() - start_time < 4000)) {
-    delay(10);
-  }
-  Serial.println("ESP32-S3 USB CDC attiva");
-  Serial.println("Se leggi qui, stai usando la USB nativa.");
-  Serial.println("Begin WIFI");
   WiFiManager.begin();
-  Serial.println("Begin WIFI");
-  Serial.println("Begin Board");
   Board.begin();
-  Serial.println("Begin Board");
-  Serial.println("Begin Dome");
+
   Dome.begin();
-  Serial.println("Begin Dome");
-  Serial.println("Begin CoverC");
-  CoverCalibrator.begin();
-  Serial.println("Begin CoverC");
-  Serial.println("Begin Switches");
+  CoverCalibrator.begin();;
   Switches.begin();
-  Serial.println("Begin Switches");
   WiFiManager.setHostName(Board.getIdentifier());
   //start alpaca discovery
   alpacaDiscovery(udp);
