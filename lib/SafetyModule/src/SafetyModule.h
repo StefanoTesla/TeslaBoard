@@ -10,9 +10,12 @@
 #define SAFETY_SCHEMA_NAME "sfcfg"
 #define SAFETY_MAX_CONDITIONS 20
 
+class SwitchModule;
+
+
 class SafetyModule : public BaseModule {
 public:
-    SafetyModule() = default;
+    SafetyModule(SwitchModule* switchModule);
 
     void loop();
     bool isSafe() { return status == SafetyStatusEnum::Safe;}
@@ -31,6 +34,8 @@ protected:
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
+    
+    SwitchModule* switches = nullptr;
 
     enum class SafetySerialCommand : uint8_t {
         Unknown = 0,

@@ -1,4 +1,6 @@
 #include "SafetyModule.h"
+#include "SwitchModule.h"
+
 #include "esp_log.h"
 #define LOG_TAG "Safety"
 #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
@@ -6,6 +8,10 @@
 #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
 #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+
+SafetyModule::SafetyModule(SwitchModule* switchModule)
+    : switches(switchModule) {
+}
 
 #pragma region Configuration
 /* here we write additional data if nvs was empty*/
@@ -86,7 +92,7 @@ void SafetyModule::storeSecondaryConfig(const JsonObject &toBeStored) {
 void SafetyModule::loop(){
     
     if(isEnable()){
-        
+
     }
 }
 
