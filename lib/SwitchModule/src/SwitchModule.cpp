@@ -455,7 +455,6 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
   }
 }
 
-
 /*
 Check if provided id is valid
 1 = OK
