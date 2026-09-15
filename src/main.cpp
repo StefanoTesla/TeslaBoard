@@ -51,6 +51,7 @@ void setup() {
   DomeApi();
   CoverCalibratorApi();
   SwitchApi();
+  SafetyApi();
   boardWebServer();
 
   server.serveStatic("/", LittleFS, "/www/").setDefaultFile("index.html");

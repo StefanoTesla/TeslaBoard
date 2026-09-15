@@ -29,7 +29,10 @@ void boardWebServer(){
         coverc["name"] = "coverc";
         coverc["enable"] = CoverCalibrator.isEnable();
         coverc["order"] = CoverCalibrator.getUiOrder();
-        
+        JsonObject safety = modules.add<JsonObject>();
+        safety["name"] = "safety";
+        safety["enable"] = Safety.isEnable();
+        safety["order"] = Safety.getUiOrder();
 
         doc["version"] = SW_VERSION;
         response->setLength();

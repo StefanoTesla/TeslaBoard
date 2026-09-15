@@ -24,6 +24,8 @@ void SafetyApi() {
     server.on("/api/safety/status", HTTP_GET, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse * response = new AsyncJsonResponse();
         JsonObject doc = response -> getRoot().to < JsonObject > ();
+
+        doc["isSafe"] = Safety.isSafe();
         JsonArray array = doc["Conditions"].to < JsonArray > ();
 
         for (size_t i = 0; i < Safety.getConfiguredConditions(); i++) {
