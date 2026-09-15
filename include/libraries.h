@@ -17,3 +17,4 @@
 #include <DomeModule.h>
 #include <SwitchModule.h>
 #include <CoverCalibratorModule.h>
+//#include <SafetyModule.h>

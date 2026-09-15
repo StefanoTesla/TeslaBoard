@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <BaseModule.h>
 #include <NVSManager.h>
+#include "Condition/Condition.h"
 
 #define SAFETY_SCHEMA_VERSION 1
 #define SAFETY_SCHEMA_NAME "sfcfg"
@@ -15,7 +16,10 @@ class SwitchModule;
 
 class SafetyModule : public BaseModule {
 public:
-    SafetyModule(SwitchModule* switchModule);
+    SafetyModule(SwitchModule* switchModule){
+    for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; i++)
+        conditions[i].setSwitchModule(switchModule);   // <-- inietta ptr agli switch
+    }
 
     void loop();
     bool isSafe() { return status == SafetyStatusEnum::Safe;}
@@ -34,9 +38,9 @@ protected:
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
-    
-    SwitchModule* switches = nullptr;
 
+    Condition conditions[SAFETY_MAX_CONDITIONS];
+    size_t    conditionCount = 0;
     enum class SafetySerialCommand : uint8_t {
         Unknown = 0,
         Desc,

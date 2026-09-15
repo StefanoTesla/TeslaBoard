@@ -24,6 +24,7 @@ BoardModule Board;
 DomeModule Dome;
 CoverCalibratorModule CoverCalibrator(&pwmMgr);
 SwitchModule Switches(&pwmMgr); 
+//SafetyModule Safety(&Switches);
 
 AsyncUDP udp;
 

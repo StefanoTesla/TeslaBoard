@@ -1,5 +1,4 @@
 #include "SafetyModule.h"
-#include "SwitchModule.h"
 
 #include "esp_log.h"
 #define LOG_TAG "Safety"
@@ -9,19 +8,15 @@
 #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
 #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 
-SafetyModule::SafetyModule(SwitchModule* switchModule)
-    : switches(switchModule) {
-}
-
 #pragma region Configuration
 /* here we write additional data if nvs was empty*/
 void SafetyModule::initSecondaryData() {
     NvsManager::getInstance().putInt("cfg_cnd", 0);
-      for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; i++) {
-    char key[10];
-    sprintf(key, "cnd%d", i);
-    NvsManager::getInstance().removeKey(key);
-  }
+    for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; i++) {
+        char key[10];
+        sprintf(key, "cnd%d", i);
+        NvsManager::getInstance().removeKey(key);
+    }
   NvsManager::getInstance().putInt("schema", 1);
 }
 
@@ -181,7 +176,11 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
 
         case SafetySerialCommand::DeviceState:
             out.print("<SF:");
-            /* to do */
+            if(isSafe()){
+                out.print("1");
+            } else {
+                out.print("0");
+            }
             out.print(">");
             return true;
     }
