@@ -10,7 +10,46 @@
 
 Condition::ConditionStatusEnum Condition::evalutate() {
 
-    status = Unknow;
+    int id = switches->findSwitchByUid(uniqueId);
+
+    if(id < 0){ return Unknow; }
+
+    int value = switches->getSwitchState(id);
+
+    status = ConditionStatusEnum::Unsafe;
+    switch (checktype)
+    {
+    case ConditionCheckEnum::Less :
+        if(value < refValue){
+            status = ConditionStatusEnum::Safe;
+        }
+        break;
+    case ConditionCheckEnum::LessEqual :
+        if(value <= refValue){
+            status = ConditionStatusEnum::Safe;
+        }
+        break;
+    case ConditionCheckEnum::Equal :
+        if(value == refValue){
+            status = ConditionStatusEnum::Safe;
+        }
+        break;
+    case ConditionCheckEnum::GreaterEqual :
+        if(value >= refValue){
+            status = ConditionStatusEnum::Safe;
+        } 
+        break;
+    case ConditionCheckEnum::Greater :
+        if(value > refValue){
+            status = ConditionStatusEnum::Safe;
+        }
+        break;
+    
+    default:
+        status = ConditionStatusEnum::Error;
+        break;
+    }
+
     return status;
 }
 /*
@@ -22,11 +61,20 @@ Configuration Area
 void Condition::begin(const JsonDocument& doc){
     strlcpy(Name, doc["name"].as<const char*>(), sizeof(Name));
     strlcpy(uniqueId, doc["uniqueId"].as<const char*>(), sizeof(uniqueId));
+    refValue = doc["refValue"].as<int>();
+    int ckType = doc["ckTy"].as<int>();
+    checktype = static_cast<ConditionCheckEnum>(ckType);
+    tmpId = switches->findSwitchByUid(uniqueId);
 }
 
 
 
 void Condition::getConfiguration(JsonObject obj){
+
+    obj["name"] = Name;
+    obj["uniqueID"] = uniqueId;
+    obj["refValue"] = refValue;
+    obj["ckType"] = static_cast<int>(checktype);
 
 }
 
@@ -41,11 +89,12 @@ void Condition::storeConfiguration(JsonObject conditionObject, const char* schem
 
     tmpCfg.clear();
 
+
     String json;
 
     serializeJson(tmpCfg,json);
 
-    NvsManager::getInstance().putString("shutter",json);
+    NvsManager::getInstance().putString(schema,json);
 
     tmpCfg.clear();
 }

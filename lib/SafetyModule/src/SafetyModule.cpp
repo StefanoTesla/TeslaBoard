@@ -92,7 +92,22 @@ void SafetyModule::loop(){
 }
 
 
-/* SERIAL MANAGER */
+void SafetyModule::reportConditionState(int id, JsonObject status){
+
+    for (int i = 0; i < conditionCount; i++)
+    {
+        status["name"]= conditions[i].getName();
+        status["status"]= conditions[i].getStatus();
+        status["refValue"]=conditions[i].getReferenceValue();
+        status["checkType"]=conditions[i].getCheckType();
+        
+    }
+    
+}
+
+
+#pragma region SERIAL
+
 SafetyModule::SafetySerialCommand SafetyModule::parseCommand(const char* cmd) {
     if (strcmp(cmd, "DEVICE_STATE") == 0)     return SafetySerialCommand::DeviceState;
     if (strcmp(cmd, "IS_SAFE") == 0)     return SafetySerialCommand::IsSafe;
@@ -190,4 +205,6 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
     LOGI("Command not handled: %s", cmd);
     out.print("<SF:ERR:BAD_CMD:DRIVER_EXC>");
     return false;
+
+    #pragma endregion
 }

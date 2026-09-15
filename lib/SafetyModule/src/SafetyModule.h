@@ -36,6 +36,7 @@ protected:
     bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
     void storeSecondaryConfig(const JsonObject &toBeStored) override;
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
+    void reportConditionState(int id, JsonObject status);
 
 private:
 

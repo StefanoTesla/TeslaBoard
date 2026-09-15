@@ -17,15 +17,19 @@ public:
     void validateConfiguration(const JsonObject &obj, JsonObject response);
     void storeConfiguration(JsonObject toBeStored,const char* schema);
     void getConfiguration(JsonObject obj);
+    const char* getName() { return Name; }
+    int getStatus() { return status; }
+    int getReferenceValue() { return refValue; }
+    int getCheckType() { { return checktype; }}
 
-    enum ConditionStatusEnum {
-        Unknow = 0,
-        Error,
-        Safe,
-        Unsafe
-    };
+private:
+    JsonDocument tmpCfg;
+    SwitchModule* switches = nullptr;
 
-    ConditionStatusEnum status = ConditionStatusEnum::Unknow;
+    char Name[31] = "";
+    char uniqueId[9] = "";
+    int refValue = 0;
+    int tmpId;
 
     enum ConditionCheckEnum {
         Less = 0,
@@ -35,15 +39,16 @@ public:
         Greater
     };
 
-    ConditionCheckEnum checktype = ConditionCheckEnum::Less;
+    enum ConditionStatusEnum {
+        Unknow = 0,
+        Error,
+        Safe,
+        Unsafe
+    };
 
+    ConditionStatusEnum status = ConditionStatusEnum::Unknow;
     ConditionStatusEnum evalutate();
 
-private:
-    JsonDocument tmpCfg;
-    SwitchModule* switches = nullptr;
-
-    char Name[31] = "";
-    char uniqueId[9] = "";
+    ConditionCheckEnum checktype = ConditionCheckEnum::Less;
 };
 #endif
