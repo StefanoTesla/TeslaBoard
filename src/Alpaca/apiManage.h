@@ -64,6 +64,15 @@ void AlpacaManager(){
       snprintf(fullID, sizeof(fullID), "%s-4862-4947-a8f5-196b2ee72529", macPart);
       cover["UniqueID"] = fullID;
     }
+
+    if(Safety.isEnable()){
+      JsonObject cover = Value.add<JsonObject>();
+      cover["DeviceName"] = Safety.getIdentifier() + " - " + Board.getIdentifier();
+      cover["DeviceType"] = "SafetyMonitor";
+      cover["DeviceNumber"] = 0;
+      snprintf(fullID, sizeof(fullID), "%s-4c7c-b4f8-ea35ef7208bc", macPart);
+      cover["UniqueID"] = fullID;
+    }
     
     response->setLength();
     request->send(response);

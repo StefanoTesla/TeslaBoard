@@ -24,7 +24,9 @@ public:
     void loop();
     bool isSafe() { return status == SafetyStatusEnum::Safe;}
     bool handlePacket(char* payload, Stream& out);
-
+    void reportConditionState(int id, JsonObject status);
+    int getConfiguredConditions(){return configuredConditions;}
+    
 protected:
     const char* schemaName() const override { return SAFETY_SCHEMA_NAME; }
     uint16_t schemaVersion() const override { return SAFETY_SCHEMA_VERSION; }
@@ -36,12 +38,11 @@ protected:
     bool validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) override;
     void storeSecondaryConfig(const JsonObject &toBeStored) override;
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
-    void reportConditionState(int id, JsonObject status);
 
 private:
 
     Condition conditions[SAFETY_MAX_CONDITIONS];
-    size_t    conditionCount = 0;
+    size_t    configuredConditions = 0;
     enum class SafetySerialCommand : uint8_t {
         Unknown = 0,
         Desc,

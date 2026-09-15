@@ -17,6 +17,7 @@ PWMManager pwmMgr;
 #include "Dome/api.h"
 #include "CoverC/api.h"
 #include "Switch/api.h"
+#include "Safety/api.h"
 #include "Board/api.h"
 #include "Alpaca/apiManage.h"
 
@@ -24,7 +25,7 @@ BoardModule Board;
 DomeModule Dome;
 CoverCalibratorModule CoverCalibrator(&pwmMgr);
 SwitchModule Switches(&pwmMgr); 
-//SafetyModule Safety(&Switches);
+SafetyModule Safety(&Switches);
 
 AsyncUDP udp;
 
@@ -42,6 +43,7 @@ void setup() {
   Dome.begin();
   CoverCalibrator.begin();;
   Switches.begin();
+  Safety.begin();
   WiFiManager.setHostName(Board.getIdentifier());
   //start alpaca discovery
   alpacaDiscovery(udp);

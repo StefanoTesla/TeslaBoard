@@ -25,6 +25,12 @@ void SafetyModule::loadSecondaryData() {
     String cfg;
     tmpCfg.clear();
 
+    configuredConditions = NvsManager::getInstance().getInt("cfg_cnd", 0);
+
+    if(configuredConditions == 0){
+        return;
+    }
+
     /* to dooo*/
 }
 
@@ -88,13 +94,14 @@ void SafetyModule::loop(){
     
     if(isEnable()){
 
+
     }
 }
 
 
 void SafetyModule::reportConditionState(int id, JsonObject status){
 
-    for (int i = 0; i < conditionCount; i++)
+    for (int i = 0; i < configuredConditions; i++)
     {
         status["name"]= conditions[i].getName();
         status["status"]= conditions[i].getStatus();
