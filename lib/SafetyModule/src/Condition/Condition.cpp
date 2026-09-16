@@ -67,8 +67,6 @@ void Condition::begin(const JsonDocument& doc){
     tmpId = switches->findSwitchByUid(uniqueId);
 }
 
-
-
 void Condition::getConfiguration(JsonObject obj){
 
     obj["name"] = Name;

@@ -61,9 +61,12 @@ bool SafetyModule::applySchemaUpgradeStep(uint16_t currentVersion) {
 
 /* here we read secondary data during the get config */
 void SafetyModule::appendSecondaryConfig(JsonObject dest) {
-    /* to dooo*/
+  JsonArray conditionsArray = dest["Conditions"].to<JsonArray>();
+    for (size_t i = 0; i < configuredConditions; i++) {
+        JsonObject cnd = conditionsArray.add<JsonObject>();
+        conditions[i].getConfiguration(cnd);
+  }
 }
-
 
 /* here the validation of secondary data when store configuration is called*/
 bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {

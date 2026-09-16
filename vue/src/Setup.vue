@@ -22,6 +22,12 @@
       @update:pinUsed="handleDomePinUpdate"
     />
 
+    <Safety
+      :t="t"
+    />
+
+
+
     <Board :t="t" :gpio="gpioObserver" v-model:reboot="modal" />
   </div>
 
@@ -50,8 +56,10 @@ import Navigation from "./components/Navigation.vue";
 import Switch from "./components/Switch/SwitchSetup.vue";
 import CoverCalibrator from "./components/CoverCalibrator/CoverCalibratorSetup.vue";
 import Dome from "./components/Dome/DomeSetup.vue";
+import Safety from "./components/Safety/SafetySetup.vue";
 import Advise from "./components/Advise/Advise.vue";
 import { useValidator } from "./composables/Validator";
+
 
 const { isInvalidPin } = useValidator();
 
@@ -64,7 +72,7 @@ const switchGPIO = ref([]);
 const permNotify = ref([]);
 
 const components = ref([]);
-const { translations, loadTranslations, t } = useTranslations(); // ✅ Aggiungi t
+const { translations, loadTranslations, t } = useTranslations();
 const txtLoaded = ref(false);
 const modal = ref(false);
 

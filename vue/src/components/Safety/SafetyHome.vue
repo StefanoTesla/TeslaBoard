@@ -5,8 +5,9 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <div class="grid sm:grid-cols1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols1 gap-4">
       <div class="card">
+        <p class="text-center">{{ t('safety.status') }} <span class="font-bold text-green-500!" v-if=safety.isSafe>SICURO</span> <span class="font-bold text-red-500!" v-if=!safety.isSafe>NON SICURO</span></p>
       </div>
     </div>
 
@@ -16,7 +17,6 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { toast } from 'vue3-toastify';
 import Card from '../Card.vue';
 
 const props = defineProps({
@@ -53,8 +53,8 @@ const fetchData = async () => {
     safety.value = data
     dataLoaded.value = true
 
-    const classes = ['green', 'green', 'orange', 'orange', 'red']
-    statusClass.value = classes[safety.value.isSafe] 
+    const classes = ['red', 'green']
+    statusClass.value = classes[safety.value.isSafe ? 1 : 0]
     
   } catch (error) {
     console.error('Errore durante la chiamata API:', error)
@@ -83,8 +83,6 @@ const stopPolling = () => {
   }
 };
 
-
-
 const safetyStateEnum = (status) => {
   const enumShutterState = [
     props.t('safety.home.unknow'), 
@@ -94,8 +92,6 @@ const safetyStateEnum = (status) => {
   ]
   return enumSafetyState[status]
 }
-
-
 
 onMounted(() => {
   startPolling()

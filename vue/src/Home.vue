@@ -12,7 +12,6 @@
     <div v-for="mod in components" :key="mod.name">
       <component :is="resolveComponent(mod.name)" :t="t" />
     </div>
-
     <BoardHome :t="t" />
   </div>
 </template>
@@ -23,6 +22,7 @@ import Navigation from "./components/Navigation.vue";
 import Switch from "./components/Switch/SwitchHome.vue";
 import CoverCalibrator from "./components/CoverCalibrator/CoverCalibratorHome.vue";
 import Dome from "./components/Dome/DomeHome.vue";
+import Safety from "./components/Safety/SafetyHome.vue"
 import { ref, onMounted } from "vue";
 import { useTranslations } from "./composables/translation";
 import BoardHome from "./components/Board/BoardHome.vue";
@@ -40,6 +40,8 @@ function resolveComponent(name) {
       return CoverCalibrator;
     case "dome":
       return Dome;
+    case "safety":
+      return Safety;
     default:
       return null;
   }
@@ -51,7 +53,7 @@ const loadInitConfig = async () => {
     const response = await fetch(ip + "/api/cfg");
     const data = await response.json();
     components.value = data.modules
-      .filter((a) => a.enable)
+      //.filter((a) => a.enable)
       .sort((a, b) => a.order - b.order);
 
     await loadTranslations(data.locale);
