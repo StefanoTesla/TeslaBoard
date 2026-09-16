@@ -64,7 +64,6 @@
         </button>
 
         <div v-for="(cnd, index) in safety.Conditions" :key="index">
-          <p>{{ cnd }}</p>
           <ConditionSetup
             :t="t"
             :condition="cnd"

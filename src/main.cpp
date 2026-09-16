@@ -146,6 +146,7 @@ void loop() {
   Dome.loop();
   CoverCalibrator.loop();
   Switches.loop();
+  Safety.loop();
   ElegantOTA.loop();
 }
 

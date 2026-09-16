@@ -22,6 +22,19 @@ public:
     int getReferenceValue() { return refValue; }
     int getCheckType() { { return checktype; }}
 
+    enum ConditionStatusEnum {
+        Unknow = 0,
+        Error,
+        Safe,
+        Unsafe
+    };
+
+    
+    ConditionStatusEnum evalutate();
+
+
+
+
 private:
     JsonDocument tmpCfg;
     SwitchModule* switches = nullptr;
@@ -39,15 +52,7 @@ private:
         Greater
     };
 
-    enum ConditionStatusEnum {
-        Unknow = 0,
-        Error,
-        Safe,
-        Unsafe
-    };
-
     ConditionStatusEnum status = ConditionStatusEnum::Unknow;
-    ConditionStatusEnum evalutate();
 
     ConditionCheckEnum checktype = ConditionCheckEnum::Less;
 };

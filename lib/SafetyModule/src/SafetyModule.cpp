@@ -97,6 +97,15 @@ void SafetyModule::loop(){
     
     if(isEnable()){
 
+        status = SafetyStatusEnum::Safe;
+
+        for (size_t i = 0; i < configuredConditions; i++)
+        {
+            if(conditions[i].evalutate() != Condition::ConditionStatusEnum::Safe){
+                status = SafetyStatusEnum::Unsafe;
+            }
+        }
+        
 
     }
 }
