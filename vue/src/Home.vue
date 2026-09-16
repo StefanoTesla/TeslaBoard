@@ -53,7 +53,7 @@ const loadInitConfig = async () => {
     const response = await fetch(ip + "/api/cfg");
     const data = await response.json();
     components.value = data.modules
-      //.filter((a) => a.enable)
+      .filter((a) => a.enable)
       .sort((a, b) => a.order - b.order);
 
     await loadTranslations(data.locale);
