@@ -79,23 +79,18 @@ void Condition::getConfiguration(JsonObject obj){
 void Condition::validateConfiguration(const JsonObject &obj, JsonObject response){
 
     JsonArray err = response["errors"].to<JsonArray>();
+
+    int id = obj["uniqueId"].as<int>();
     
 
 }
 
-void Condition::storeConfiguration(JsonObject conditionObject, const char* schema){
+void Condition::copyJsonCfg(JsonObject src, JsonObject dest) {
+  dest["name"] = src["name"];
+  dest["uniqueId"] = src["uniqueId"];
+  dest["refValue"] = src["refValue"];
+  dest["ckType"] = src["ckType"];
 
-    tmpCfg.clear();
-
-
-    String json;
-
-    serializeJson(tmpCfg,json);
-
-    NvsManager::getInstance().putString(schema,json);
-
-    tmpCfg.clear();
 }
-
 
 #pragma endregion

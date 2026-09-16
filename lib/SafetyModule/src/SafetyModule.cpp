@@ -72,7 +72,7 @@ void SafetyModule::appendSecondaryConfig(JsonObject dest) {
 bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {
   JsonArray err = response["errors"].as<JsonArray>();
 
-    /* to dooo*/
+    serializeJsonPretty(toBeValidated, Serial);
 
   if(err.size()>0){
       return false;

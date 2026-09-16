@@ -14,14 +14,15 @@ public:
     Condition() = default;
     void begin(const JsonDocument& condition);
     void setSwitchModule(SwitchModule* sw) { switches = sw; }
-    void validateConfiguration(const JsonObject &obj, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored,const char* schema);
     void getConfiguration(JsonObject obj);
     const char* getName() { return Name; }
     int getStatus() { return status; }
     int getReferenceValue() { return refValue; }
     int getCheckType() { { return checktype; }}
 
+    static void validateConfiguration(const JsonObject &obj, JsonObject response);
+    static void copyJsonCfg(JsonObject obj,JsonObject dest);
+    
     enum ConditionStatusEnum {
         Unknow = 0,
         Error,
@@ -36,7 +37,6 @@ public:
 
 
 private:
-    JsonDocument tmpCfg;
     SwitchModule* switches = nullptr;
 
     char Name[31] = "";
