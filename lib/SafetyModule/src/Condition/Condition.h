@@ -19,6 +19,8 @@ public:
     int getStatus() { return status; }
     int getReferenceValue() { return refValue; }
     int getCheckType() { { return checktype; }}
+    int validateConfiguration(const JsonObject &obj);
+    static void copyJsonCfg(JsonObject obj,JsonObject dest);
 
     static void validateConfiguration(const JsonObject &obj, JsonObject response);
     static void copyJsonCfg(JsonObject obj,JsonObject dest);
