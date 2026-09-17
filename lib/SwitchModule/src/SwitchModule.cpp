@@ -181,17 +181,14 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
             return false;
         }
 
-        const char* incomingUid =
-            singleSW["uniqueId"].as<const char*>();
+        const char* incomingUid = singleSW["uniqueId"].as<const char*>();
 
-        // Nuovo switch oppure vecchia configurazione senza uId.
         if (incomingUid == nullptr ||
             incomingUid[0] == '\0') {
             char generatedUid[UID_LENGTH + 1];
 
-            do {
-                generateSwitchUid(generatedUid);
-            } while (
+            do {generateSwitchUid(generatedUid);} while 
+            (
                 uidAlreadyUsed(
                     incomingSwitches,
                     generatedUid
@@ -232,9 +229,7 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
                 return false;
             }
         }
-
         incomingSwitches.add(singleSW);
-
         checkIfRebootNeeded(id, type, singleSW, response);
     }
 
@@ -254,7 +249,7 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
     JsonDocument sanDoc;
     JsonObject sanitizedObject = sanDoc.to<JsonObject>();
 
-    JsonArray configured = tmpCfg["Switches"].as<JsonArray>();
+    JsonArray configured = toBeStored["Switches"].as<JsonArray>();
 
     for (JsonObject inSwitch : configured) {
         sanitizedObject.clear();

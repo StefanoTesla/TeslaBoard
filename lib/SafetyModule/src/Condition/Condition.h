@@ -2,7 +2,6 @@
 #define CONDITION_H
 
 #include <Arduino.h>
-#include <NVSManager.h>
 #include <ArduinoJson.h>
 #include "esp_log.h"
 
@@ -15,15 +14,11 @@ public:
     void begin(const JsonDocument& condition);
     void setSwitchModule(SwitchModule* sw) { switches = sw; }
     void getConfiguration(JsonObject obj);
-    const char* getName() { return Name; }
-    int getStatus() { return status; }
-    int getReferenceValue() { return refValue; }
-    int getCheckType() { { return checktype; }}
-    int validateConfiguration(const JsonObject &obj);
-    static void copyJsonCfg(JsonObject obj,JsonObject dest);
-
-    static void validateConfiguration(const JsonObject &obj, JsonObject response);
-    static void copyJsonCfg(JsonObject obj,JsonObject dest);
+    const char* getName() const { return Name; }
+    int getStatus() const {return static_cast<int>(status); }
+    int getReferenceValue() const { return refValue; }
+    int getCheckType() const { return static_cast<int>(checktype); }
+    static void copyJsonCfg(JsonObjectConst obj,JsonObject dest);
     
     enum ConditionStatusEnum {
         Unknow = 0,
@@ -41,7 +36,6 @@ private:
     char Name[31] = "";
     char uniqueId[9] = "";
     int refValue = 0;
-    int tmpId;
 
     enum ConditionCheckEnum {
         Less = 0,

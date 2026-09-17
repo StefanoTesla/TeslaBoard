@@ -16,9 +16,9 @@ class SwitchModule;
 
 class SafetyModule : public BaseModule {
 public:
-    SafetyModule(SwitchModule* switchModule){
+    SafetyModule(SwitchModule* sw) : switchModule(sw) {
     for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; i++)
-        conditions[i].setSwitchModule(switchModule); 
+        conditions[i].setSwitchModule(sw); 
     }
 
     void loop();

@@ -78,8 +78,15 @@ bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
         err.add("Conditions is not an array");
         return false;
     }
-    JsonArray storeConditions = tmpCfg["Conditions"].to<JsonArray>();
+
     JsonArray incomingConds = toBeValidated["Conditions"].as<JsonArray>();
+
+    if (incomingConds.size() > SAFETY_MAX_CONDITIONS) {
+        JsonObject e = err.add<JsonObject>();
+        e["error"] = "tooManyConditions";
+        e["max"]   = SAFETY_MAX_CONDITIONS;
+        return false;
+    }
 
     int swId;
     int swType;
@@ -136,7 +143,13 @@ bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
 
         refValue = inCondition["refValue"].as<int>();
 
-        // digital input and digital output mus use equal and 0 or 1 as reference value
+        if (!inCondition["name"].is<const char*>()) {
+            JsonObject e = err.add<JsonObject>();
+            e["id"]    = i;
+            e["error"] = "nameMissing";
+            break;
+        }
+
         if(swType == 1 || swType == 2){
         
             if(ckType != 2){
@@ -174,7 +187,6 @@ bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
             break;
         }
 
-        storeConditions.add(inCondition);
         i+=1;
     }
 
@@ -189,7 +201,7 @@ bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, Json
 /* here we store secondary data during the save config */
 void SafetyModule::storeSecondaryConfig(const JsonObject& toBeStored) {
 
-    JsonArray validated = tmpCfg["Conditions"].as<JsonArray>();
+    JsonArray validated = toBeStored["Conditions"].as<JsonArray>();
 
     if (validated.isNull() || validated.size() == 0) {
         for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; ++i) {
@@ -202,35 +214,38 @@ void SafetyModule::storeSecondaryConfig(const JsonObject& toBeStored) {
         return;
     }
 
-    int id = -1;
+    int written = -1;
 
     for (JsonObject inCond : validated) {
-        ++id;
+        ++written;
+        if (written >= SAFETY_MAX_CONDITIONS) {
+            LOGE("Too many conditions to store!");
+            break;
+        }
 
         JsonDocument oneDoc;
         JsonObject sanitized = oneDoc.to<JsonObject>();
         Condition::copyJsonCfg(inCond, sanitized);
 
         char key[10];
-        snprintf(key, sizeof(key), "cnd%d", id);
+        snprintf(key, sizeof(key), "cnd%d", written);
+
+        conditions[written].begin(oneDoc);
 
         String json;
         serializeJson(sanitized, json);
         NvsManager::getInstance().putString(key, json);
 
-        if (id < SAFETY_MAX_CONDITIONS) {
-            conditions[id].begin(oneDoc);
-        }
     }
 
-    for (size_t i = id + 1; i < SAFETY_MAX_CONDITIONS; ++i) {
+    for (size_t i = written + 1; i < SAFETY_MAX_CONDITIONS; ++i) {
         char key[10];
         snprintf(key, sizeof(key), "cnd%d", i);
         NvsManager::getInstance().removeKey(key);
     }
 
-    NvsManager::getInstance().putInt("cfg_cnd", id + 1);
-    configuredConditions = id + 1;
+    NvsManager::getInstance().putInt("cfg_cnd", written + 1);
+    configuredConditions = written + 1;
 }
 
 #pragma endregion
@@ -251,16 +266,11 @@ void SafetyModule::loop(){
 
 
 void SafetyModule::reportConditionState(int id, JsonObject status){
-
-    for (int i = 0; i < configuredConditions; i++)
-    {
-        status["name"]= conditions[i].getName();
-        status["status"]= conditions[i].getStatus();
-        status["refValue"]=conditions[i].getReferenceValue();
-        status["checkType"]=conditions[i].getCheckType();
-        
-    }
-    
+    if (id < 0 || id >= static_cast<int>(configuredConditions)) return;
+    status["name"]      = conditions[id].getName();
+    status["status"]    = conditions[id].getStatus();
+    status["refValue"]  = conditions[id].getReferenceValue();
+    status["checkType"] = conditions[id].getCheckType();
 }
 
 
