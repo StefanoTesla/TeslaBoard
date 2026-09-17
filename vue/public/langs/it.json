@@ -112,6 +112,16 @@
 					"GreEq":"maggiore o uguale",
 					"Greater":"maggiore"
 				}
+			},
+			"home":{
+				"actualValue": "il valore attuale",
+				"is": "è",
+				"isnt": "non è",
+				"minus": "minore di ",
+				"minEqual": "minore o uguale a",
+				"equal": "uguale a",
+				"greEqual": "maggiore o uguale a",
+				"greater": "maggiore di"
 			}
 		}
 	},

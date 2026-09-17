@@ -460,3 +460,17 @@ input[type="range"] {
 .identifier{
   @apply w-40!
 }
+
+
+.cnd-issafe{
+  @apply bg-green-950;
+}
+.cnd-unsafe{
+  @apply bg-red-800;
+}
+.cnd-unknow{
+  @apply bg-amber-600;
+}
+.cnd-error{
+  @apply bg-amber-600;
+}

@@ -9,6 +9,15 @@
       <div class="card">
         <p class="text-center">{{ t('safety.status') }} <span class="font-bold text-green-500!" v-if=safety.isSafe>SICURO</span> <span class="font-bold text-red-500!" v-if=!safety.isSafe>NON SICURO</span></p>
       </div>
+
+      <div  class="card">
+        <div v-for="cnd in safety.Conditions" class="pb-2">
+          <Condition
+            :t="(t)"
+            :cnd="cnd"
+          />
+        </div>
+      </div>
     </div>
 
 
@@ -18,6 +27,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import Card from '../Card.vue';
+import Condition from '../../components/IOBase/Conditions/ConditionHome.vue'
 
 const props = defineProps({
   t: Function
