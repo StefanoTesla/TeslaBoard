@@ -23,16 +23,39 @@ void SafetyModule::initSecondaryData() {
 
 /* here we load secondary data during the begin */
 void SafetyModule::loadSecondaryData() {
-    String cfg;
-    tmpCfg.clear();
-
     configuredConditions = NvsManager::getInstance().getInt("cfg_cnd", 0);
 
-    if(configuredConditions == 0){
+    if (configuredConditions == 0) {
+        LOGI("No conditions configured");
         return;
     }
 
-    /* to dooo*/
+    if (configuredConditions > SAFETY_MAX_CONDITIONS) {
+        LOGW("cfg_cnd=%u exceeds max (%u), clamping", (unsigned)configuredConditions, (unsigned)SAFETY_MAX_CONDITIONS);
+        configuredConditions = SAFETY_MAX_CONDITIONS;
+    }
+
+    for (size_t i = 0; i < configuredConditions; i++) {
+        char key[10];
+        snprintf(key, sizeof(key), "cnd%d", i);
+
+        String json = NvsManager::getInstance().getString(key, "");
+        if (json.isEmpty()) {
+            LOGE("Missing %s on NVS", key);
+            continue;
+        }
+
+        tmpCfg.clear();
+        DeserializationError err = deserializeJson(tmpCfg, json);
+        if (err != DeserializationError::Ok) {
+            LOGE("Error deserializing %s: %s", key, err.c_str());
+            continue;
+        }
+
+        conditions[i].begin(tmpCfg);
+    }
+
+    LOGI("Loaded %u conditions", (unsigned)configuredConditions);
 }
 
 
