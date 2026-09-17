@@ -44,7 +44,6 @@ void SafetyApi() {
         AsyncJsonResponse * response = new AsyncJsonResponse();
         JsonObject doc = response -> getRoot().to < JsonObject > ();
 
-        // convert the JsonVariant to JsonObject
         const JsonObject & incomingObj = root.as < JsonObject > ();
 
         JsonArray err = doc["errors"].to < JsonArray > ();

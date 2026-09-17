@@ -91,7 +91,6 @@ int Condition::validateConfiguration(const JsonObject &obj){
     unsigned int ckType = obj["ckType"].as<unsigned int>();
     int comaprsionValue = obj["refValue"].as<int>();
 
-
     // error type
     // tens digit switch type 1 2 3 4 5
     // x0 unupported type (servo)

@@ -295,11 +295,7 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
             continue;
         }
 
-        // Applica soltanto i parametri soft se l’oggetto
-        // in RAM corrisponde allo stesso uId.
-        const char* uid =
-            sanitizedObject["uniqueId"]
-                .as<const char*>();
+        const char* uid = sanitizedObject["uniqueId"].as<const char*>();
 
         int oldId = findSwitchByUid(uid);
 
@@ -317,9 +313,7 @@ void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
                 break;
 
             case Output:
-                Switches[oldId]->setInvert(
-                    sanitizedObject["invert"]
-                        .as<bool>()
+                Switches[oldId]->setInvert(sanitizedObject["invert"].as<bool>()
                 );
                 break;
 

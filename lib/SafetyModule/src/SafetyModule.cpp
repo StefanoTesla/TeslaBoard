@@ -1,4 +1,5 @@
 #include "SafetyModule.h"
+#include "SwitchModule.h"
 
 #include "esp_log.h"
 #define LOG_TAG "Safety"
@@ -70,25 +71,167 @@ void SafetyModule::appendSecondaryConfig(JsonObject dest) {
 
 /* here the validation of secondary data when store configuration is called*/
 bool SafetyModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {
-  JsonArray err = response["errors"].as<JsonArray>();
+    JsonArray err = response["errors"].to<JsonArray>();
+    tmpCfg.clear();
 
-    serializeJsonPretty(toBeValidated, Serial);
+    if (!toBeValidated["Conditions"].is<JsonArray>()) {
+        err.add("Conditions is not an array");
+        return false;
+    }
+    JsonArray storeConditions = tmpCfg["Conditions"].to<JsonArray>();
+    JsonArray incomingConds = toBeValidated["Conditions"].as<JsonArray>();
 
-  if(err.size()>0){
-      return false;
-  }
+    int swId;
+    int swType;
+    int ckType;
+    int refValue;
+    int i = 0;
 
-  rebootNeeded = response["reboot"].as<bool>();
+    for (JsonObject inCondition : incomingConds) {
 
-  return err.size() == 0;
+        swId = -1;
+        swType = -1;
+        ckType = 0;
+
+        swId = switchModule->findSwitchByUid(inCondition["uniqueId"].as<const char*>());
+
+        if(swId < 0 || swId >= switchModule->maxConfigurableSwitches()){
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "swNotFound";
+            break;
+        }
+
+        swType = switchModule->getType(swId);
+
+        if(swType < 1 || swType > 5){
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "swTypeNotValid";
+            break;
+        }
+
+        if (!inCondition["ckType"].is<int>()) {
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "ckTypeNotInt";
+            break;
+        }
+
+        ckType = inCondition["ckType"].as<int>();
+
+        if(ckType < 0 || ckType > 4){
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "ckTypeNotValid";
+            break;
+        }
+
+        if (!inCondition["refValue"].is<int>()) {
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "refValueNotInt";
+            break;
+        }
+
+        refValue = inCondition["refValue"].as<int>();
+
+        // digital input and digital output mus use equal and 0 or 1 as reference value
+        if(swType == 1 || swType == 2){
+        
+            if(ckType != 2){
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = i;
+                e["error"] = "digitalMustUseEqual";
+                break;
+            }
+            
+            if(refValue != 0 && refValue != 1){
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = i;
+                e["error"] = "digitalValueForbitten";
+                break;
+            }
+
+        }
+
+        //pwm refvalue max is 4095
+        if(swType == 3){
+            if(refValue < 0 || refValue > 4095){
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = i;
+                e["error"] = "pwmValueForbitten";
+                break;
+            }
+
+        }
+
+        //servo are not used in safety
+        if(swType == 4){
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = i;
+            e["error"] = "swServoNotUsable";
+            break;
+        }
+
+        storeConditions.add(inCondition);
+        i+=1;
+    }
+
+    if(err.size() != 0){
+        tmpCfg.clear();
+        return false;
+    }
+
+    return true;
 }
 
 /* here we store secondary data during the save config */
-void SafetyModule::storeSecondaryConfig(const JsonObject &toBeStored) {
+void SafetyModule::storeSecondaryConfig(const JsonObject& toBeStored) {
 
-    /* to dooo*/
+    JsonArray validated = tmpCfg["Conditions"].as<JsonArray>();
+
+    if (validated.isNull() || validated.size() == 0) {
+        for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; ++i) {
+            char key[10];
+            snprintf(key, sizeof(key), "cnd%u", i);
+            NvsManager::getInstance().removeKey(key);
+        }
+        NvsManager::getInstance().putInt("cfg_cnd", 0);
+        configuredConditions = 0;
+        return;
+    }
+
+    int id = -1;
+
+    for (JsonObject inCond : validated) {
+        ++id;
+
+        JsonDocument oneDoc;
+        JsonObject sanitized = oneDoc.to<JsonObject>();
+        Condition::copyJsonCfg(inCond, sanitized);
+
+        char key[10];
+        snprintf(key, sizeof(key), "cnd%d", id);
+
+        String json;
+        serializeJson(sanitized, json);
+        NvsManager::getInstance().putString(key, json);
+
+        if (id < SAFETY_MAX_CONDITIONS) {
+            conditions[id].begin(oneDoc);
+        }
+    }
+
+    for (size_t i = id + 1; i < SAFETY_MAX_CONDITIONS; ++i) {
+        char key[10];
+        snprintf(key, sizeof(key), "cnd%d", i);
+        NvsManager::getInstance().removeKey(key);
+    }
+
+    NvsManager::getInstance().putInt("cfg_cnd", id + 1);
+    configuredConditions = id + 1;
 }
-
 
 #pragma endregion
 
@@ -96,17 +239,13 @@ void SafetyModule::storeSecondaryConfig(const JsonObject &toBeStored) {
 void SafetyModule::loop(){
     
     if(isEnable()){
-
         status = SafetyStatusEnum::Safe;
-
         for (size_t i = 0; i < configuredConditions; i++)
         {
             if(conditions[i].evalutate() != Condition::ConditionStatusEnum::Safe){
                 status = SafetyStatusEnum::Unsafe;
             }
         }
-        
-
     }
 }
 

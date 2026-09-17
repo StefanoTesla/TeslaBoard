@@ -35,9 +35,6 @@ public:
     
     ConditionStatusEnum evalutate();
 
-
-
-
 private:
     SwitchModule* switches = nullptr;
 

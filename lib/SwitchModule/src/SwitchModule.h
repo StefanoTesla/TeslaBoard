@@ -20,7 +20,7 @@
 
 class SwitchModule : public BaseModule {
 public:
-  enum Type { NotPresent, Input, Output, PWM, Servo, Virtual };
+  enum Type { NotPresent =0, Input, Output, PWM, Servo, Virtual };
 
 public:
   SwitchModule(PWMManager *channelManager) : chMgr(channelManager) {}
@@ -45,7 +45,7 @@ public:
   int findSwitchByUid(const char* uid) const;
   const char* getSwitchName(int id);
   const char* getSwitchDescription(int id);
-
+  int maxConfigurableSwitches() { return SWITCH_MAX_SWITCHES; }
 
 protected:
   const char* schemaName() const override { return SWITCH_SCHEMA_NAME; }

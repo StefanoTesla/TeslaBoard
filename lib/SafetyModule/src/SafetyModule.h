@@ -18,7 +18,7 @@ class SafetyModule : public BaseModule {
 public:
     SafetyModule(SwitchModule* switchModule){
     for (size_t i = 0; i < SAFETY_MAX_CONDITIONS; i++)
-        conditions[i].setSwitchModule(switchModule);   // <-- inietta ptr agli switch
+        conditions[i].setSwitchModule(switchModule); 
     }
 
     void loop();
@@ -40,7 +40,7 @@ protected:
     bool applySchemaUpgradeStep(uint16_t currentVersion) override;
 
 private:
-
+    SwitchModule* switchModule = nullptr;
     Condition conditions[SAFETY_MAX_CONDITIONS];
     size_t    configuredConditions = 0;
     enum class SafetySerialCommand : uint8_t {
