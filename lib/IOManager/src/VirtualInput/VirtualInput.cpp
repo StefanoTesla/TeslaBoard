@@ -12,7 +12,7 @@ bool VirtualInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
 
   min = INT_MIN;
   max = INT_MAX;
-  expiration = obj["exiration"].as<int>();
+  expiration = obj["expiration"].as<int>() * 1000UL;
   write(obj["defaultValue"].as<int>());
   return true;
 }
@@ -74,6 +74,7 @@ void VirtualInput::getConfiguration(JsonObject cfg) {
  */
 int VirtualInput::write(int32_t _value) {
   value = _value;
+  lastRefresh = millis();
   return 1;
 }
 
@@ -90,8 +91,15 @@ void VirtualInput::setDefault(int _newDefaul) {
   defaultVal = _newDefaul;
 }
 void VirtualInput::setExpiration(int _newExpiration) {
-  expiration = _newExpiration * 100;
+  expiration = _newExpiration * 1000UL;
 }
 
 void VirtualInput::loop() {
+}
+
+
+bool VirtualInput::isExpired() {
+  if (expiration == 0)  return false;             // 0 = scadenza disabilitata
+  if (lastRefresh == 0) return false;             // mai refreshato -> gestito dal default in setup
+  return (millis() - lastRefresh) > expiration;
 }

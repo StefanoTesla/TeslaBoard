@@ -25,6 +25,7 @@ public:
     int status();
     int getType() override;
     void loop();
+    bool isExpired() override;
     
 private:
     int readPin() override;

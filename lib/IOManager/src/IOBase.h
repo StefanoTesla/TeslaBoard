@@ -91,6 +91,7 @@ public:
     /* only for virtual inputs*/
     virtual void setDefault(int value) {};
     virtual void setExpiration(int value) {};
+    virtual bool isExpired() { return false; }
     virtual ~IOBase() {}
 
 private:
