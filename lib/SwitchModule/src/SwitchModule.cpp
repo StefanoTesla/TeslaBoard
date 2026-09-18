@@ -638,6 +638,8 @@ const char* SwitchModule::getSwitchDescription(int id){
   return "notExist";
 }
 
+
+bool SwitchModule::getIsExpired(int id) { return Switches[id]->isExpired(); }
 /*
 Check if provided id is valid
 1 = Is Moving

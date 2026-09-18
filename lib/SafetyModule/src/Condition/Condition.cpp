@@ -14,6 +14,10 @@ Condition::ConditionStatusEnum Condition::evalutate() {
 
     if(id < 0){ return Error; }
 
+    if(switches->getIsExpired(id)){
+        return Error;
+    }
+
     int value = switches->getSwitchState(id);
 
     status = ConditionStatusEnum::Unsafe;

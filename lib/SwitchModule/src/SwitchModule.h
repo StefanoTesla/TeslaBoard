@@ -43,6 +43,7 @@ public:
   int getMax(int id);
   int getMin(int id);
   int findSwitchByUid(const char* uid) const;
+  bool getIsExpired(int id);
   const char* getSwitchName(int id);
   const char* getSwitchDescription(int id);
   int maxConfigurableSwitches() { return SWITCH_MAX_SWITCHES; }

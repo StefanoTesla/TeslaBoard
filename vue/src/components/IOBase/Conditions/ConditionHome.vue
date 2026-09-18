@@ -1,5 +1,6 @@
 <template>
-  <p :class="statusClass"><b>{{ cnd.name }}</b>: {{props.t('safety.Conditions.home.actualValue')}} 
+  <p v-if="cnd.status==1">{{props.t('safety.Conditions.home.inError')}} </p>
+  <p v-if="cnd.status>1" :class="statusClass"><b>{{ cnd.name }}</b>: {{props.t('safety.Conditions.home.actualValue')}} 
     <span v-if="cnd.status == 2">{{props.t('safety.Conditions.home.is')}} </span> 
     <span v-if="cnd.status == 3">{{props.t('safety.Conditions.home.isnt')}} </span>
 

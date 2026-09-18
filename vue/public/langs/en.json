@@ -93,6 +93,37 @@
 		"title": "Switches",
 		"switch": "Switch"
 	},
+		"safety":{
+		"title": "Safety Monitor",
+		"status": "Safety status sicurezza:",
+		"Conditions":{
+			"title":"Conditions",
+			"setup":{
+				"swName":"Switch",
+				"name":"Condition Name",
+				"checkType":"Safe if",
+				"checkValue": "then",
+				"checkTypeEnum":
+				{
+					"min":"less",
+					"minEq":"less or equal",
+					"Equal":"equal",
+					"GreEq":"greater or equal",
+					"Greater":"greater "
+				}
+			},
+			"home":{
+				"actualValue": "actual value",
+				"is": "is",
+				"isnt": "isn't",
+				"minus": "less than",
+				"minEqual": "less than or equal to",
+				"equal": "equal to",
+				"greEqual": "greater than or equal to",
+				"greater": "greater than"
+			}
+		}
+	},
 	"gen":{
 		"status":{
 			"open":"Open",

@@ -93,7 +93,6 @@
 		"title": "Interruttori",
 		"switch": "Interruttore"
 	},
-
 	"safety":{
 		"title": "Sicurezza",
 		"status": "Stato sicurezza:",
@@ -121,7 +120,8 @@
 				"minEqual": "minore o uguale a",
 				"equal": "uguale a",
 				"greEqual": "maggiore o uguale a",
-				"greater": "maggiore di"
+				"greater": "maggiore di",
+				"inError": "In errore, l'interruttore non esiste più o il suo valore è scaduto"
 			}
 		}
 	},
