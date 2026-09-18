@@ -33,9 +33,7 @@ AsyncUDP udp;
 
 void setup() {
   Serial.begin(115200);
-  if(!LittleFS.begin()){
-  //  return;
-  }
+  if(!LittleFS.begin()){}
 
   WiFiManager.begin();
   Board.begin();
@@ -45,7 +43,6 @@ void setup() {
   Switches.begin();
   Safety.begin();
   WiFiManager.setHostName(Board.getIdentifier());
-  //start alpaca discovery
   alpacaDiscovery(udp);
   AlpacaManager();
   DomeApi();
