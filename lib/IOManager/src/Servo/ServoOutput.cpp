@@ -127,21 +127,21 @@ bool ServoOutput::isReferenced() {
 
 #pragma region Configuration
 
-bool ServoOutput::jsonSetup(JsonObjectConst setup, bool notUsedHere) {
+bool ServoOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   LOGI("Servo channel setup");
-    if(setup["type"].as<int>() != 4){
+    if(obj["type"].as<int>() != 4){
         return false;
     }
-    setName(setup["name"]);
-    setDescription(setup["desc"]);
+
+  setupCommonJson(obj);
   channel = -1;
   channel = chMgr->getSlowChannel();
   LOGD("Servo channel assigned at position %d", channel);
   if (channel >= 0) {
-    pin = setup["pin"].as<unsigned int>();
+    pin = obj["pin"].as<unsigned int>();
     min = 0;
     max = 100;
-    movingTime = setup["moveTime"].as<unsigned int>() * 1000;
+    movingTime = obj["moveTime"].as<unsigned int>() * 1000;
     ledcSetup(channel, 50, 12);
     ledcAttachPin(pin, channel);
     LOGI("New servo configured, pin: %d, channel: %d, moving time: %d", pin,
@@ -168,8 +168,7 @@ bool ServoOutput::pinUnusable(int pin) {
 
 void ServoOutput::copyJsonCfg(JsonObject src, JsonObject dest) {
   dest["type"] = 4;
-  dest["name"] = src["name"].is<String>() ? src["name"].as<String>() : "";
-  dest["desc"] = src["desc"].is<String>() ? src["desc"].as<String>() : "";
+  copyCommonJsonCfg(src, dest);
   dest["pin"] = src["pin"].as<unsigned int>();
   dest["moveTime"] = src["moveTime"].as<unsigned int>();
 }
@@ -200,8 +199,7 @@ int ServoOutput::validateJsonCfg(JsonObject json) {
 
 void ServoOutput::getConfiguration(JsonObject cfg) {
   cfg["type"] = 4;
-  cfg["name"] = Name;
-  cfg["desc"] = Description;
+  getCommonConfiguration(cfg);
   cfg["pin"] = pin;
   cfg["moveTime"] = movingTime / 1000;
 }

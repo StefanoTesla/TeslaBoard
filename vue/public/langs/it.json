@@ -93,6 +93,38 @@
 		"title": "Interruttori",
 		"switch": "Interruttore"
 	},
+	"safety":{
+		"title": "Sicurezza",
+		"status": "Stato sicurezza:",
+		"Conditions":{
+			"title":"Condizioni",
+			"setup":{
+				"swName":"Interruttore",
+				"name":"Nome Condizione",
+				"checkType":"Sicuro se",
+				"checkValue": "di",
+				"checkTypeEnum":
+				{
+					"min":"minore",
+					"minEq":"minore o uguale",
+					"Equal":"uguale",
+					"GreEq":"maggiore o uguale",
+					"Greater":"maggiore"
+				}
+			},
+			"home":{
+				"actualValue": "il valore attuale",
+				"is": "è",
+				"isnt": "non è",
+				"minus": "minore di ",
+				"minEqual": "minore o uguale a",
+				"equal": "uguale a",
+				"greEqual": "maggiore o uguale a",
+				"greater": "maggiore di",
+				"inError": "In errore, l'interruttore non esiste più o il suo valore è scaduto"
+			}
+		}
+	},
 	"gen":{
 		"status":{
 			"open":"Aperto",
@@ -236,9 +268,21 @@
 			"SwNotWritable": "Switch non scrivibile",
 			"limitReached": "Non è possibile aggiungere altri Interruttori"
 		},
+		"safety":{
+			"limitReached": "Non è possibile aggiungere altre condizioni"
+		},
+		"condition":{
+			"switchNotPresent": "Interruttore inesistente",
+			"outsideBinaryValue": "Interruttore binario, il valore deve essere 0 o 1",
+			"checkTypeBinary": "Interruttore binario, il confronto deve essere Uguale",
+			"outsidePWMValue": "PWM, il valore deve essere compreso tra 0 e 4095",
+			"outsideVirtualMinValue": "Interruttore virtuale, il valore non può essere minore di -2147483648",
+			"outsideVirtualGreValue": "Interruttore virtuale, il valore non può essere minore di 2147483647"
+		},
 		"general":{
 			"negativeValue":"Il valore non può essere negativo",
 			"greaterThan":"Valore maggiore di: ",
+			"lowerThan":"Valore minore di: ",
 			"configRejected": "Dati non validi. Configurazione non salvata",
 			"validationFailed": "Validazione fallita",
 			"wrongValue":"Valore errato",
@@ -256,7 +300,8 @@
 			"1": "Ingresso Digitale",
 			"2": "Uscita Digitale",
 			"3": "Uscita PWM",
-			"4": "Uscita Servo"
+			"4": "Uscita Servo",
+			"5": "Ingresso Virtuale"
 		},
 		"moduleEnum": {
 			"0": "Non utilizzata",
@@ -282,6 +327,10 @@
 		},
 		"Servo":{
 			"movingTime": "Tempo di movimento:"
+		},
+		"VI":{
+			"defaultValue": "Valore di default:",
+			"expiration": "Scadenza:"
 		}
 	}
 }

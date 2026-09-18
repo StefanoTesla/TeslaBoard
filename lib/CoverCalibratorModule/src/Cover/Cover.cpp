@@ -1,96 +1,20 @@
 #include "Cover.h"
 #include "esp_log.h"
+#undef LOG_TAG
 #define LOG_TAG "Cover"
-#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
-#define COVERC_SCHEMA_NAME "cccfg"
-
-#pragma region nvsHandler
-
-bool Cover::openNVS(bool readOnly) {
-
-  switch (nvsStatus) {
-
-    // nvs is closed, i need to open according by the readOnly
-  case CLOSED:
-    LOGV("NVS seems to be closed");
-    if (nvs.begin(COVERC_SCHEMA_NAME, readOnly)) {
-      if (readOnly) {
-        LOGV("NVS opened in readonly");
-        nvsStatus = OPEN_READOLNY;
-      } else {
-        LOGV("NVS opened with write rights");
-        nvsStatus = OPEN_WRITE;
-      }
-      return true;
-    } else {
-      LOGE("Error opening the NVS");
-      nvsStatus = CLOSED;
-      return false;
-    }
-    break;
-
-  case OPEN_READOLNY:
-    LOGV("NVS seems open in read only");
-    if (!readOnly) {
-      closeNVS();
-      if (nvs.begin(COVERC_SCHEMA_NAME, false)) {
-        nvsStatus = OPEN_WRITE;
-        LOGV("NVS opened with write rights");
-        return true;
-      } else {
-        LOGV("Error during opening NVS with write rights");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open in read only");
-      return true;
-    }
-    break;
-
-  case OPEN_WRITE:
-    LOGV("NVS seems open with write rights");
-    if (readOnly) {
-      closeNVS();
-      nvsStatus = CLOSED;
-      if (nvs.begin(COVERC_SCHEMA_NAME, true)) {
-        nvsStatus = OPEN_READOLNY;
-        LOGV("NVS opened in read only");
-        return true;
-      } else {
-        LOGV("Error during opening NVS in read only");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open with write rights");
-      return true;
-    }
-    break;
-
-  default:
-    LOGE("Unknown NVS status: %d", nvsStatus);
-    return false;
-    break;
-  }
-
-  LOGE("Arrived at the buttom of the function, don't know what happed..");
-  return false;
-}
-
-void Cover::closeNVS() {
-  if (nvsStatus != CLOSED) {
-    nvs.end();
-    nvsStatus = CLOSED;
-    LOGV("NVS closed");
-  } else {
-    LOGV("NVS already closed");
-  }
-}
-
-#pragma endregion
+#ifdef COVER_CALIBRATOR_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#endif
 
 #pragma region Configuration
 
@@ -134,16 +58,10 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
 
   LOGV("---Cover VALIDATION---");
 
-  if (!obj["enable"].as<bool>()) {
-    return;
-  }
-  
   if (!obj["enable"].is<bool>()) {
     err.add("EnableMissing");
     return;
   }
-
-
 
   if (!obj["openPos"].is<unsigned int>()) {
     err.add("openPosMissing");
@@ -151,6 +69,17 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
   }
   if (!obj["closePos"].is<unsigned int>()) {
     err.add("closePosMissing");
+    return;
+  }
+
+  bool incomingEnable = obj["enable"].as<bool>();
+  //module enable is changed from new data, reboot is neeed of course
+  if(incomingEnable != moduleEnable){
+    response["reboot"] = true;
+  }
+
+  // the new configuration disable the cover, nothing to do more
+  if(!incomingEnable){
     return;
   }
 
@@ -182,14 +111,12 @@ void Cover::validateConfiguration(const JsonObject &obj, JsonObject response) {
     return;
   }
 
-  /* check if board need a reboot */
-
-  if (
-    coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()
-    || moduleEnable != obj["enable"].as<bool>()
-  ) {
-    response["reboot"] = true;
+  /* Access to the pin number only if the module is enable, otherwise nullpointer exception */
+  if (moduleEnable && coverCfg["pin"].as<unsigned int>() != servo.getPinNumber()) {
+      response["reboot"] = true;
   }
+
+
 }
 
 void Cover::storeConfiguration(JsonObject coverObject) {
@@ -214,11 +141,9 @@ void Cover::storeConfiguration(JsonObject coverObject) {
     servo.setMovingTime(servoObj["moveTime"].as<unsigned int>());
   }
 
-  openNVS(false);
   String json;
   serializeJson(tmpCfg, json);
-  nvs.putString("cover", json);
-  closeNVS();
+  NvsManager::getInstance().putString("cover", json);
   tmpCfg.clear();
 }
 
@@ -329,20 +254,24 @@ void Cover::storeLastPosition(){
     return;
     //wait until timer don't reach 5seconds
   }
+
   LOGV("Going to store the servo position");
+  if(NvsManager::getInstance().isModuleBusy()){
+    lastPosMillis = millis();
+    return;
+  }
 
   int servoPos = servo.readPosition();
 
-  if(lastPosition != servoPos
-    && servoPos >= 0  ){
+  if(lastPosition != servoPos && servoPos >= 0  ){
     LOGV("Storing the cover position");
     lastPosition = servo.readPosition();
-    if(openNVS(false)){
-      nvs.putInt("cPos",lastPosition);
+    if(NvsManager::getInstance().openNVS(false,"cccfg")){
+      NvsManager::getInstance().putInt("cPos",lastPosition);
     } else {
       LOGE("Unable to store last cover position");
     }
-    closeNVS();
+    NvsManager::getInstance().closeNVS();
     
   }
 
@@ -352,6 +281,6 @@ void Cover::storeLastPosition(){
 //return the last know cover position
 //if negative value, was never witten
 int Cover::getLastPosition(){
-  openNVS(true);
-  return nvs.getInt("cPos",-1);
+  NvsManager::getInstance().openNVS(true,"cccfg");
+  return NvsManager::getInstance().getInt("cPos",-1);
 }

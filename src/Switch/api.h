@@ -235,7 +235,7 @@ void SwitchApi() {
         AsyncJsonResponse * response = new AsyncJsonResponse();
         JsonObject doc = response -> getRoot().to < JsonObject > ();
         doc["enable"] = Switches.isEnable();
-        doc["order"] = Switches.uiOrder;
+        doc["order"] = Switches.getUiOrder();
         doc["identifier"] = Switches.getIdentifier();
 
         Switches.getConfiguration(doc);
@@ -342,13 +342,123 @@ void SwitchApi() {
             return;
         }
 
-        Switches.storeConfiguration();
+        Switches.storeConfiguration(incomingObj);
 
         response -> setLength();
         request -> send(response);
     });
 
     server.addHandler(switchConfigHandler);
+
+    AsyncCallbackJsonWebHandler * virtualSwitchHandler = new AsyncCallbackJsonWebHandler("/api/switch/virtual");
+
+    virtualSwitchHandler -> setMethod(HTTP_POST | HTTP_PUT);
+virtualSwitchHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
+    AsyncJsonResponse* response = new AsyncJsonResponse();
+
+    const bool inputWasObject = root.is<JsonObject>();
+
+    JsonDocument tempDoc;
+    if (inputWasObject) {
+        JsonArray arr = tempDoc.to<JsonArray>();
+        arr.add(root);
+    }
+
+    JsonArrayConst input;
+    if (inputWasObject) {
+        input = tempDoc.as<JsonArrayConst>();
+    } else if (root.is<JsonArray>()) {
+        input = root.as<JsonArrayConst>();
+    }
+
+    if (input.isNull()) {
+        response->setCode(400);
+        response->getRoot()["error"] = "Body must be an object or an array";
+        response->setLength();
+        response->setContentType("application/json");
+        request->send(response);
+        return;
+    }
+
+    if (input.size() > 32) {
+        response->setCode(413);
+        response->getRoot()["error"] = "Too many entries (max 32)";
+        response->setLength();
+        response->setContentType("application/json");
+        request->send(response);
+        return;
+    }
+
+    JsonDocument outDoc;
+    JsonArray out = outDoc.to<JsonArray>();
+    int okCount = 0;
+    int koCount = 0;
+
+    for (JsonVariantConst entry : input) {
+        JsonObject item = out.add<JsonObject>();
+
+        if (!entry["uniqueId"].is<const char*>() || !entry["value"].is<int>()) {
+            item["execute"] = false;
+            item["error"]   = "uniqueId or value missing/malformed";
+            koCount++;
+            continue;
+        }
+
+        const char* uid = entry["uniqueId"].as<const char*>();
+        int value       = entry["value"].as<int>();
+
+        item["uniqueId"] = uid;
+
+        int switchId = Switches.findSwitchByUid(uid);
+        if (switchId == -1) {
+            item["execute"] = false;
+            item["error"]   = "uniqueId not found";
+            koCount++;
+            continue;
+        }
+
+        if (Switches.getType(switchId) != 5) {
+            item["execute"] = false;
+            item["error"]   = "Not a virtual switch";
+            koCount++;
+            continue;
+        }
+
+        int ret = Switches.setSwitchValue(switchId, value);
+        if (ret == 1) {
+            item["execute"] = true;
+            okCount++;
+        } else {
+            item["execute"] = false;
+            switch (ret) {
+                case -1: item["error"] = "Switch Id outside limits"; break;
+                case -2: item["error"] = "Unconfigured Switch";      break;
+                case -3: item["error"] = "Not a virtual switch";     break;
+                case -4: item["error"] = "Value below min limit";    break;
+                case -5: item["error"] = "Value above max limit";    break;
+                default: item["error"] = "Unexpected error";         break;
+            }
+            koCount++;
+        }
+    }
+
+    if (koCount == 0)       response->setCode(200);
+    else if (okCount == 0)  response->setCode(422);
+    else                    response->setCode(207);
+
+    if (inputWasObject && out.size() == 1) {
+        response->getRoot().set(out[0]);
+    } else {
+        response->getRoot().set(out);
+    }
+
+    response->setLength();
+    response->setContentType("application/json");
+    request->send(response);
+});
+
+    server.addHandler(virtualSwitchHandler);
+
 
     #pragma endregion
 
@@ -422,7 +532,13 @@ void SwitchApi() {
         AsyncJsonResponse * response = prepareAlpacaResponse(request);
         JsonObject doc = response -> getRoot();
 
-        doc["Value"] = true;
+        int retVal = Switches.isWritable(request -> getAttribute("id").toInt());
+        if( 1 == retVal ){
+            doc["Value"] = true;
+        } else {
+            doc["Value"] = false;
+        }
+
 
         response->setLength();
         request->send(response);
@@ -609,7 +725,6 @@ void SwitchApi() {
 
     alpaca.on("/api/v1/switch/0/connect", HTTP_PUT, [](AsyncWebServerRequest *request) {
             AsyncJsonResponse *response = prepareAlpacaResponse(request);
-
             response->setLength();
             request->send(response);
     }).addMiddleware(&getAlpParams);

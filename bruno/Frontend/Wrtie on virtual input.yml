@@ -1,0 +1,22 @@
+info:
+  name: Wrtie on virtual input
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://192.168.1.22/api/switch/virtual
+  body:
+    type: json
+    data: |-
+      {
+        "uniqueId":"SHHCTQ4U",
+        "value": -2147483648
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

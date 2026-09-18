@@ -4,9 +4,9 @@
 #include <Arduino.h>
 #include "IOManager.h"
 #include <ArduinoJson.h>
-#include <Preferences.h>
 #include <PWMManager.h>
-#define COVERC_SCHEMA_NAME "cccfg"
+#include <NVSManager.h>
+
 class Calibrator {
 public:
     enum Status {
@@ -45,18 +45,12 @@ public:
     Status getStatus() const;
 
     void validateConfiguration(const JsonObject &obj, JsonObject response);
-    void storeConfiguration(JsonObject toBeStored,const char* schema);
+    void storeConfiguration(JsonObject toBeStored);
     void getConfiguration(JsonObject obj);
 
 
 private:
     void updateStatus();
-
-    Preferences nvs;
-    enum PrefEnumStatus { CLOSED, OPEN_WRITE, OPEN_READOLNY };
-    PrefEnumStatus nvsStatus = CLOSED;
-    bool openNVS(bool readOnly);
-    void closeNVS();
 };
 
 #endif

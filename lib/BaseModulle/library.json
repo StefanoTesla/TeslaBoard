@@ -1,0 +1,7 @@
+{
+  "name": "Base Module",
+  "description": "This library in the scheleton of a module, avoiding duplicating read and save main config",
+  "version": "0.0.0",
+  "frameworks": "arduino",
+  "platforms": ["espressif32"]
+}

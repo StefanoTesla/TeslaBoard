@@ -8,32 +8,39 @@ bool DigitalInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   if (obj["type"].as<int>() != 1) {
     return false;
   }
-  setName(obj["name"]);
-  setDescription(obj["desc"]);
+
+  setupCommonJson(obj);
+
   pin = obj["pin"].as<unsigned int>();
   invert = obj["invert"].as<unsigned int>();
   dOn = obj["dOn"].as<unsigned int>();
   dOff = obj["dOff"].as<unsigned int>();
+
   min = 0;
   max = 1;
+
   pinMode(pin, INPUT);
   return true;
 }
 
-//
-// return true if you can't use this pin
-bool DigitalInput::pinUnusable(int pin) {
-  if (pin == 1 or pin == 3 or (pin >= 6 and pin <= 11) or pin == 20 or
-      pin == 24 or (pin >= 28 and pin <= 31) or pin == 37 or pin == 38 or
-      pin > 39) {
-    return true;
-  }
-
-  if (pin == 0 or pin == 12) {
-    return true;
-  }
-  return false;
+void DigitalInput::copyJsonCfg(JsonObject src, JsonObject dest) {
+  dest["type"] = 1;
+  copyCommonJsonCfg(src, dest);
+  dest["pin"] = src["pin"];
+  dest["invert"] = src["invert"];
+  dest["dOn"] = src["dOn"];
+  dest["dOff"] = src["dOff"];
 }
+
+void DigitalInput::getConfiguration(JsonObject cfg) {
+  cfg["type"] = 1;
+  getCommonConfiguration(cfg);
+  cfg["pin"] = pin;
+  cfg["invert"] = invert;
+  cfg["dOn"] = dOn;
+  cfg["dOff"] = dOff;
+}
+
 
 int DigitalInput::validateJsonCfg(JsonObject json) {
 
@@ -57,26 +64,22 @@ int DigitalInput::validateJsonCfg(JsonObject json) {
 
   return 1;
 }
+//
+// return true if you can't use this pin
+bool DigitalInput::pinUnusable(int pin) {
+  if (pin == 1 or pin == 3 or (pin >= 6 and pin <= 11) or pin == 20 or
+      pin == 24 or (pin >= 28 and pin <= 31) or pin == 37 or pin == 38 or
+      pin > 39) {
+    return true;
+  }
 
-void DigitalInput::copyJsonCfg(JsonObject src, JsonObject dest) {
-  dest["type"] = 1;
-  dest["name"] = src["name"].is<String>() ? src["name"].as<String>() : "";
-  dest["desc"] = src["desc"].is<String>() ? src["desc"].as<String>() : "";
-  dest["pin"] = src["pin"];
-  dest["invert"] = src["invert"];
-  dest["dOn"] = src["dOn"];
-  dest["dOff"] = src["dOff"];
+  if (pin == 0 or pin == 12) {
+    return true;
+  }
+  return false;
 }
 
-void DigitalInput::getConfiguration(JsonObject cfg) {
-  cfg["type"] = 1;
-  cfg["name"] = Name;
-  cfg["desc"] = Description;
-  cfg["pin"] = pin;
-  cfg["invert"] = invert;
-  cfg["dOn"] = dOn;
-  cfg["dOff"] = dOff;
-}
+
 
 void DigitalInput::setDelays(unsigned int newDOn, unsigned int newDOff) {
   dOn = newDOn;

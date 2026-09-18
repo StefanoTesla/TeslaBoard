@@ -1,154 +1,50 @@
 #include "SwitchModule.h"
+#include "esp_system.h"
 #undef LOG_TAG
 #define LOG_TAG "Switch"
-#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
-
-#pragma region nvsHandler
-
-bool SwitchModule::openNVS(bool readOnly) {
-
-  switch (nvsStatus) {
-
-    // nvs is closed, i need to ope according by the readOnly
-  case CLOSED:
-    LOGV("NVS seems to be closed");
-    if (nvs.begin(SWITCH_SCHEMA_NAME, readOnly)) {
-      if (readOnly) {
-        LOGV("NVS opened in readonly");
-        nvsStatus = OPEN_READOLNY;
-      } else {
-        LOGV("NVS opened with write rights");
-        nvsStatus = OPEN_WRITE;
-      }
-      return true;
-    } else {
-      LOGE("Error opening the NVS");
-      nvsStatus = CLOSED;
-      return false;
-    }
-    break;
-
-  case OPEN_READOLNY:
-    LOGV("NVS seems open in read only");
-    if (!readOnly) {
-      closeNVS();
-      if (nvs.begin(SWITCH_SCHEMA_NAME, false)) {
-        nvsStatus = OPEN_WRITE;
-        LOGV("NVS opened with write rights");
-        return true;
-      } else {
-        LOGV("Error during opening NVS with write rights");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open in read only");
-      return true;
-    }
-    break;
-
-  case OPEN_WRITE:
-    LOGV("NVS seems open with write rights");
-    if (readOnly) {
-      closeNVS();
-      nvsStatus = CLOSED;
-      if (nvs.begin(SWITCH_SCHEMA_NAME, true)) {
-        nvsStatus = OPEN_READOLNY;
-        LOGV("NVS opened in read only");
-        return true;
-      } else {
-        LOGV("Error during opening NVS in read only");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open with write rights");
-      return true;
-    }
-    break;
-
-  default:
-    LOGE("Unknown NVS status: %d", nvsStatus);
-    return false;
-    break;
-  }
-
-  LOGE("Arrived at the buttom of the function, don't know what happed..");
-  return false;
-}
-
-void SwitchModule::closeNVS() {
-  if (nvsStatus != CLOSED) {
-    nvs.end();
-    nvsStatus = CLOSED;
-    LOGV("NVS closed");
-  } else {
-    LOGV("NVS already closed");
-  }
-}
-
-#pragma endregion
+#ifdef SWITCHES_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)  // gli errori restano
+#endif
+char SwitchModule::_deviceStateBuffer[512];
 
 #pragma region Configuration
-/* initialize the switches */
-void SwitchModule::begin() {
-  LOGI("Loading configuration");
-  JsonDocument doc;
+/* here we write additional data if nvs was empty*/
 
-  if (!openNVS(true)) {
-    LOGE(
-        "Error loading switch nvs partition in read only, trying to format it");
-    if (!initNVS()) {
-      LOGE("NVS INITIALIZATION FAILED");
+/* here we write additional data if nvs was empty*/
+void SwitchModule::initSecondaryData() {
+  NvsManager::getInstance().putInt("cfg_sw", 0);
+  for (size_t i = 0; i < SWITCH_MAX_SWITCHES; i++) {
+    char key[10];
+    sprintf(key, "sw%d", i);
+    NvsManager::getInstance().removeKey(key);
+  }
+  NvsManager::getInstance().putInt("schema", 1);
+}
+
+/* here we load secondary data during the begin */
+void SwitchModule::loadSecondaryData() {
+
+  configuredSwitches = NvsManager::getInstance().getInt("cfg_sw", 0);
+
+    if (configuredSwitches == 0) {
+      LOGI("Any switches configured yet, disabling the module...");
       moduleEnable = false;
-    }
-  }
-
-  LOGV("Checking the schema version");
-  // if I'm here NVS is surelly working, no more check...for the moment
-  openNVS(true);
-  int schemaVersion = nvs.getInt("schema", 0);
-  LOGD("schema version is: %d", schemaVersion);
-
-  if (schemaVersion < SWITCH_SCHEMA_VERSION) {
-    LOGW("Schema version: %d, new version: %d", schemaVersion,
-         SWITCH_SCHEMA_VERSION);
-    switch (schemaVersion) {
-    case 0:
-      LOGI("upgrading from 0 to 1");
-      updateNVS1();
-      break;
-
-    default:
-      break;
-    }
-  }
-
-  openNVS(true);
-
-  moduleEnable = nvs.getBool("enable", false);
-  uiOrder = nvs.getInt("order", 1);
-  identifier = nvs.getString("identifier", "Switch");
-
-  if (!moduleEnable) {
-    LOGW("Module not enable, setup completed");
-    closeNVS();
-    return;
-  }
-
-  configuredSwitches = nvs.getInt("cfg_sw", 0);
-
-  if (configuredSwitches == 0) {
-    LOGI("Any switches configured yet, disabling the module...");
-    moduleEnable = false;
-    return;
+      return;
   }
 
   int id = -1;
+  
   for (size_t i = 0; i < configuredSwitches; i++) {
-
     id++;
     tmpCfg.clear();
     // prepare the page key "swX"
@@ -156,7 +52,7 @@ void SwitchModule::begin() {
     sprintf(key, "sw%d", i);
     // get the string stored
     String swString;
-    swString = nvs.getString(key, "{\"type\":0}");
+    swString = NvsManager::getInstance().getString(key, "{\"type\":0}");
     DeserializationError err;
     err = deserializeJson(tmpCfg, swString);
 
@@ -190,11 +86,16 @@ void SwitchModule::begin() {
         LOGE("unable to setup Servo Output");
         Switches[i] = nullptr;
       };
+    } else if (type == Type::Virtual) {
+      Switches[i] = new VirtualInput;
+      if (!Switches[i]->jsonSetup(tmp)) {
+        LOGE("unable to setup Virtual Input");
+        Switches[i] = nullptr;
+      };
     } else {
       LOGE("Wrong Type stored on NVS");
     }
   }
-  closeNVS();
 
   configuredSwitches = id + 1;
 
@@ -202,49 +103,33 @@ void SwitchModule::begin() {
   LOGV("%d confugred switches", configuredSwitches);
 }
 
-bool SwitchModule::initNVS() {
+/* here we update the nvs when new schema is given */
+bool SwitchModule::applySchemaUpgradeStep(uint16_t currentVersion) {
+    LOGI("Applying schema upgrade step from version %u", currentVersion);
 
-  LOGW("Switch nvs area will be formatted");
-  if (!openNVS(false)) {
-    LOGE("Unable to open the namespace with write rights, initialization "
-         "failed");
-    return false;
-  }
-  LOGI("namespace open or created, writing default parameters");
+    if (!NvsManager::getInstance().openNVS(false, SWITCH_SCHEMA_NAME)) {
+        LOGE("Unable to open board namespace for schema upgrade");
+        return false;
+    }
 
-  nvs.putBool("enable", false);
-  nvs.putInt("schema", 0);
-  closeNVS();
-  return true;
+    switch (currentVersion) {
+        case 0:
+            NvsManager::getInstance().putInt("schema", 1);
+            NvsManager::getInstance().closeNVS();
+            return true;
+
+        default:
+            LOGE("Unknown schema version %u for board upgrade", currentVersion);
+            NvsManager::getInstance().closeNVS();
+            return false;
+    }
 }
 
-void SwitchModule::updateNVS1() {
-  // this is the first schema, don't check if something already exist.
-  openNVS(false);
-  nvs.putInt("schema", 1);
-  nvs.putString("identifier", "Switch");
-  nvs.putInt("order", 1);
-  nvs.putInt("cfg_sw", 0);
-
-  for (size_t i = 0; i < SWITCH_MAX_SWITCHES; i++) {
-    char key[10];
-    sprintf(key, "sw%d", i);
-    nvs.putString(key, "{\"type\":0}");
-  }
-
-  closeNVS();
-}
-
-void SwitchModule::getConfiguration(JsonObject dest) {
-
-  dest["enable"] = moduleEnable;
-  dest["uiOrder"] = uiOrder;
-  dest["identifier"] = identifier;
-  dest["reboot"] = rebootNeeded;
+/* here we read secondary data during the get config */
+void SwitchModule::appendSecondaryConfig(JsonObject dest) {
   JsonArray switchesArray = dest["Switches"].to<JsonArray>();
-
-  for (size_t i = 0; i < configuredSwitches; i++) {
-    if (Switches[i] == nullptr || Switches[i]->getType() > Type::Servo) {
+    for (size_t i = 0; i < configuredSwitches; i++) {
+    if (Switches[i] == nullptr || Switches[i]->getType() > Type::Virtual) {
       continue;
     }
 
@@ -253,123 +138,219 @@ void SwitchModule::getConfiguration(JsonObject dest) {
   }
 }
 
-void SwitchModule::validateConfiguration(const JsonObject &toBeValidated,
-                                         JsonObject response) {
-  LOGI("swtich data validation");
-  tmpCfg.clear();
-  response["reboot"] = false;
-  JsonArray err = response["errors"].to<JsonArray>();
+/* here the validation of secondary data when store configuration is called*/
+bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, JsonObject response) {
+    JsonArray err = response["errors"].as<JsonArray>();
 
-  // Validazione campi principali
-  if (!validateMainFields(toBeValidated, response)) {
-    return;
-  }
+    if (!toBeValidated["Switches"].is<JsonArray>()) {
+        LOGE("Switches is not an array");
+        err.add("Switches is not an array");
+        return false;
+    }
 
-  if (!toBeValidated["enable"].as<bool>()) {
-    LOGI("Main module is not enable, stop validation");
-    return;
-  }
+    JsonArray switches = toBeValidated["Switches"].as<JsonArray>();
 
-  LOGI("Main data validation ok, starting with switches data");
+    JsonArray incomingSwitches = tmpCfg["Switches"].to<JsonArray>();
 
-  if (!toBeValidated["Switches"].is<JsonArray>()) {
-    response["errors"].add("Switches is not an array");
-    return;
-  }
+    int id = -1;
 
-  validateSwitches(toBeValidated["Switches"].as<JsonArray>(), response);
+    for (JsonObject singleSW : switches) {
+        if (!singleSW["type"].is<unsigned int>()) {
+            LOGE("Type is missing or invalid");
+            err.add("Switch type is missing or invalid");
+            return false;
+        }
+
+        unsigned int typeValue = singleSW["type"].as<unsigned int>();
+        
+        if (typeValue > Type::Virtual) {
+            LOGE("Type value is out of range");
+            JsonObject e = err.add<JsonObject>();
+            e["error"] = "Type out of range";
+            return false;
+        }
+
+        Type type = static_cast<Type>(typeValue);
+
+        if (type == Type::NotPresent) {
+            LOGV("Type is NotPresent, skipping");
+            continue;
+        }
+
+        ++id;
+
+        int retVal = validateSwitchType(type, singleSW);
+
+        if (retVal != 1) {
+            LOGE( "Validation failed for switch id: %d", id);
+            JsonObject e = err.add<JsonObject>();
+            e["id"] = id;
+            e["error"] = retVal;
+            return false;
+        }
+
+        const char* incomingUid = singleSW["uniqueId"].as<const char*>();
+
+        if (incomingUid == nullptr ||
+            incomingUid[0] == '\0') {
+            char generatedUid[UID_LENGTH + 1];
+
+            do {generateSwitchUid(generatedUid);} while 
+            (
+                uidAlreadyUsed(
+                    incomingSwitches,
+                    generatedUid
+                )
+            );
+
+            singleSW["uniqueId"] = generatedUid;
+        } else {
+            // Un uId esplicito deve avere il formato corretto.
+            if (!validSwitchUid(incomingUid)) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Invalid uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+
+            // Non sono ammessi duplicati nella lista nuova.
+            if (uidAlreadyUsed(incomingSwitches,incomingUid)) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Duplicate uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+
+            // Un uId presente ma non noto viene considerato errore.
+            // Questa verifica è compatibile con la politica secondo cui
+            // il browser non deve generare gli uId.
+            if (findSwitchByUid(incomingUid) < 0) {
+                JsonObject e = err.add<JsonObject>();
+                e["id"] = id;
+                e["error"] = "Unknown uniqueId";
+                e["uniqueId"] = incomingUid;
+
+                return false;
+            }
+        }
+        incomingSwitches.add(singleSW);
+        checkIfRebootNeeded(id, type, singleSW, response);
+    }
+
+    if (incomingSwitches.size() != configuredSwitches) {
+        response["reboot"] = true;
+    }
+
+    rebootNeeded = response["reboot"].as<bool>();
+    LOGI("All switches validated successfully");
+
+    return err.size() == 0;
 }
 
-bool SwitchModule::validateMainFields(const JsonObject &data,
-                                      JsonObject response) {
-  JsonArray err = response["errors"].to<JsonArray>();
+void SwitchModule::storeSecondaryConfig(const JsonObject& toBeStored) {
+    int id = -1;
 
-  if (!data["enable"].is<bool>()) {
-    LOGE("enable don't exist or is not a boolean");
-    err.add("Enable is not a boolean");
-    return false;
-  } else if (moduleEnable != data["enable"]) {
-    LOGW("enable changed, reboot requested");
-    response["reboot"] = true;
-  }
+    JsonDocument sanDoc;
+    JsonObject sanitizedObject = sanDoc.to<JsonObject>();
 
-  if (!data["uiOrder"].is<int>()) {
-    LOGE("order for ui don't exist or is not a integer");
-    err.add("Order is not a number");
-    return false;
-  }
+    JsonArray configured = toBeStored["Switches"].as<JsonArray>();
 
-  if (!data["identifier"].is<String>()) {
-    LOGE("board identifier don't exist or is not a string");
-    err.add("Identifier is not a string");
-    return false;
-  }
+    for (JsonObject inSwitch : configured) {
+        sanitizedObject.clear();
 
-  tmpCfg["enable"] = data["enable"];
-  tmpCfg["uiOrder"] = data["uiOrder"];
-  tmpCfg["identifier"] = data["identifier"];
+        if (!inSwitch["type"].is<int>()) {
+            LOGE("Missing type while storing configuration");
+            continue;
+        }
 
-  return true;
+        Type type = static_cast<Type>(inSwitch["type"].as<unsigned int>());
+
+        if (type == NotPresent) {
+            LOGE("NotPresent type while storing configuration");
+            continue;
+        }
+
+        ++id;
+
+        switch (type) {
+        case Input:
+            DigitalInput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
+        case Output:
+            DigitalOutput::copyJsonCfg(inSwitch,sanitizedObject);
+            break;
+        case PWM:
+            PWMOutput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
+        case Servo:
+            ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
+        case Virtual:
+            VirtualInput::copyJsonCfg(inSwitch, sanitizedObject);
+            break;
+
+        default:
+            LOGE("Undefined type during sanitization");
+            continue;
+        }
+
+        const char* uid = sanitizedObject["uniqueId"].as<const char*>();
+
+        int oldId = findSwitchByUid(uid);
+
+        if (oldId >= 0 && Switches[oldId]->getType() == sanitizedObject["type"].as<int>() &&
+            Switches[oldId]->getPinNumber() == sanitizedObject["pin"].as<int>()) {
+
+            Switches[oldId]->setName(sanitizedObject["name"].as<const char*>());
+            Switches[oldId]->setDescription(sanitizedObject["desc"].as<const char*>());
+
+            switch (type) {
+            case Input:
+                Switches[oldId]->setDelays(sanitizedObject["dOn"].as<unsigned int>(),sanitizedObject["dOff"].as<unsigned int>());
+
+                Switches[oldId]->setInvert(sanitizedObject["invert"].as<bool>());
+                break;
+
+            case Output:
+                Switches[oldId]->setInvert(sanitizedObject["invert"].as<bool>()
+                );
+                break;
+
+            case PWM:
+                break;
+
+            case Servo:
+                Switches[oldId]->setMoveTime(sanitizedObject["moveTime"].as<unsigned int>());
+                break;
+
+            case Virtual:
+                Switches[oldId]->setDefault(sanitizedObject["defaultValue"].as<int>());
+                Switches[oldId]->setExpiration(sanitizedObject["expiration"].as<int>());
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        char key[10];
+        sprintf(key, "sw%d", id);
+
+        String swString;
+
+        serializeJson(sanitizedObject, swString);
+        LOGI("Switch json: %s", swString.c_str());
+        NvsManager::getInstance().putString(key,swString);
+    }
+
+    NvsManager::getInstance().putInt("cfg_sw", id + 1);
 }
 
-void SwitchModule::validateSwitches(const JsonArray &switches,
-                                    JsonObject response) {
-
-  JsonArray incomingSwitches = tmpCfg["Switches"].to<JsonArray>();
-  JsonArray err = response["errors"].to<JsonArray>();
-  int id = -1;
-
-  for (JsonObject singleSW : switches) {
-
-    // Controlla se il tipo esiste ed è valido - FAIL FAST
-    if (!singleSW["type"].is<unsigned int>()) {
-      LOGE("Type is missing or not an unsigned int");
-      err.add("Switch type is missing or invalid");
-      return;
-    }
-
-    unsigned int typeValue = singleSW["type"].as<unsigned int>();
-
-    if (typeValue > 4) {
-      LOGE("Type value %u is out of range (max 4)", typeValue);
-      JsonObject e = err.add<JsonObject>();
-      e["error"] = "Type out of range";
-      return;
-    }
-
-    Type type = static_cast<Type>(typeValue);
-
-    if (NotPresent == type) {
-      LOGV("Type is NotPresent, skipping");
-      continue;
-    }
-
-    id++;
-
-    int retVal = validateSwitchType(type, singleSW);
-
-    if (retVal != 1) {
-      LOGE("Validation failed for switch id: %d with error code: %d", id,
-           retVal);
-      JsonObject e = err.add<JsonObject>();
-      e["id"] = id;
-      e["error"] = retVal;
-      return;
-    }
-    incomingSwitches.add(singleSW);
-    checkIfRebootNeeded(id, type, singleSW, response);
-  }
-
-  if(incomingSwitches.size() != configuredSwitches){
-    response["reboot"] = true;
-  }
-
-  if (response["reboot"]) {
-    rebootNeeded = true;
-  }
-  LOGI("All switches validated successfully");
-}
-
+/* helpers */
 int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
   switch (type) {
   case NotPresent:
@@ -382,163 +363,56 @@ int SwitchModule::validateSwitchType(Type type, const JsonObject &singleSW) {
     return PWMOutput::validateJsonCfg(singleSW);
   case Servo:
     return ServoOutput::validateJsonCfg(singleSW);
+  case Virtual:
+    return VirtualInput::validateJsonCfg(singleSW);
   default:
     LOGV("Undefined type");
     return 0;
   }
 }
 
-void SwitchModule::checkIfRebootNeeded(int id, Type type,
-                                       const JsonObject &singleSW,
-                                       JsonObject response) {
+void SwitchModule::checkIfRebootNeeded(int newId, Type type, const JsonObject& singleSW, JsonObject response) {
+    const char* uid = singleSW["uniqueId"].as<const char*>();
 
-  if (Switches[id] == nullptr) {
-    LOGV("Switch %d: new position, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
-
-  if (Switches[id]->getType() != static_cast<unsigned int>(type)) {
-    LOGV("Switch %d: type changed, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
-
-  if (Switches[id]->getPinNumber() != singleSW["pin"].as<unsigned int>()) {
-    LOGV("Switch %d: pin changed, reboot needed", id);
-    response["reboot"] = true;
-    return;
-  }
-
-  LOGV("Switch %d: no changes detected", id);
-}
-
-void SwitchModule::storeConfiguration() {
-  LOGI("Writing new configuration on the NVS");
-
-  serializeJson(tmpCfg, Serial);
-
-  if (!openNVS(false)) {
-    LOGE("Failed to open NVS for writing");
-    return;
-  }
-
-  storeMainFields();
-
-  /* if module is not enable don't write anymore*/
-  if (!tmpCfg["enable"].as<bool>()) {
-    LOGI("Main Module is not enable, writing new configuration done.");
-    closeNVS();
-    return;
-  }
-  LOGI("Main config done, start with switches");
-
-  storeSwitches();
-
-  tmpCfg.clear();
-  closeNVS();
-}
-
-void SwitchModule::storeMainFields() {
-
-  nvs.putBool("enable", tmpCfg["enable"].as<bool>());
-  nvs.putInt("uiOrder", tmpCfg["uiOrder"].as<int>());
-  nvs.putInt("schema", SWITCH_SCHEMA_VERSION);
-  nvs.putString("identifier", tmpCfg["identifier"].as<String>());
-
-  LOGI("Applying main data don't require a reboot");
-  uiOrder = tmpCfg["uiOrder"].as<int>();
-  identifier = tmpCfg["identifier"].as<String>();
-}
-
-void SwitchModule::storeSwitches() {
-  int id = -1;
-
-  JsonDocument sanDoc;
-  JsonObject sanitizedObject = sanDoc.to<JsonObject>();
-
-  serializeJson(tmpCfg["Switches"].as<JsonArray>(), Serial);
-  for (JsonObject inSwitch : tmpCfg["Switches"].as<JsonArray>()) {
-    sanitizedObject.clear();
-
-    if (!inSwitch["type"].is<int>()) {
-      LOGE("This should never happens! missing type in storing configuration");
-      continue;
-    }
-    Type type = static_cast<Type>(inSwitch["type"].as<unsigned int>());
-    if (NotPresent == type) {
-      LOGE("This should never happens! NotPresent type in storing "
-           "configuration");
-      continue;
+    if (uid == nullptr || uid[0] == '\0') {
+        LOGV("Switch %d: missing uniqueId, reboot needed", newId);
+        response["reboot"] = true;
+        return;
     }
 
-    id++;
+    int oldId = findSwitchByUid(uid);
 
-    // sanitize the json arriving from the web
-    switch (type) {
-    case Input:
-      DigitalInput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case Output:
-      DigitalOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case PWM:
-      PWMOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-    case Servo:
-      ServoOutput::copyJsonCfg(inSwitch, sanitizedObject);
-      break;
-
-    default:
-      LOGE("This should never happens! Undefined type during sanitifaction");
-      break;
+    if (oldId < 0) {
+        LOGV("Switch %d: new switch, reboot needed", newId);
+        response["reboot"] = true;
+        return;
     }
 
-    // apply soft parameters
-    // if already configured is the same type and same pin
-    if (Switches[id] != nullptr) {
-      if (Switches[id]->getType() ==
-              sanitizedObject["type"].as<unsigned int>() &&
-          Switches[id]->getPinNumber() ==
-              sanitizedObject["pin"].as<unsigned int>()) {
+    if (Switches[oldId]->getType() !=
+            static_cast<int>(type)) {
+        LOGV("Switch %d: type changed, reboot needed", newId);
+        response["reboot"] = true;
 
-        Switches[id]->setName(sanitizedObject["name"].as<const char *>());
-        Switches[id]->setDescription(
-            sanitizedObject["desc"].as<const char *>());
-
-        switch (type) {
-        case Input:
-          Switches[id]->setDelays(sanitizedObject["dOn"].as<unsigned int>(),
-                                  sanitizedObject["dOff"].as<unsigned int>());
-          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
-          break;
-        case Output:
-          Switches[id]->setInvert(sanitizedObject["invert"].as<bool>());
-          break;
-        case PWM:
-          // nothing to do here
-          break;
-        case Servo:
-          Switches[id]->setMoveTime(
-              sanitizedObject["moveTime"].as<unsigned int>());
-          break;
-
-        default:
-          LOGE(
-              "This should never happens! Undefined type during sanitifaction");
-          break;
-        }
-      }
+        // Il type è cambiato: l’identità precedente non rappresenta
+        // più lo stesso tipo di oggetto. L’uId verrà rigenerato prima
+        // del salvataggio definitivo.
+        return;
     }
 
-    char key[10];
-    sprintf(key, "sw%d", id);
-    String swString;
-    serializeJson(sanitizedObject, swString);
-    nvs.putString(key, swString);
-  }
+    if (Switches[oldId]->getPinNumber() !=
+            singleSW["pin"].as<int>()) {
+        LOGV("Switch %d: pin changed, reboot needed", newId);
+        response["reboot"] = true;
+        return;
+    }
 
-  nvs.putInt("cfg_sw", id + 1);
+    if (oldId != newId) {
+        LOGV("Switch moved from %d to %d, reboot needed", oldId, newId);
+        response["reboot"] = true;
+        return;
+    }
+
+    LOGV("Switch %d: soft changes only", newId);
 }
 
 #pragma endregion
@@ -550,7 +424,11 @@ void SwitchModule::loop() {
       continue;
     }
 
-    if (Switches[i]->getType() == Type::Input || Switches[i]->getType() == Type::Servo) {
+    if (
+        Switches[i]->getType() == Type::Input
+        || Switches[i]->getType() == Type::Servo 
+        || Switches[i]->getType() == Type::Virtual
+       ) {
       Switches[i]->loop();
     }
   }
@@ -566,13 +444,13 @@ void SwitchModule::reportSwitchState(int id, JsonObject status) {
   status["desc"] = Switches[id]->getDescription();
   status["min"] = Switches[id]->getMin();
   status["max"] = Switches[id]->getMax();
+  status["uId"] = Switches[id]->getUniqueId();
   if (Switches[id]->getType() <= 2) {
     status["status"] = (bool)Switches[id]->status();
   } else {
     status["status"] = Switches[id]->status();
   }
 }
-
 
 /*
 Check if provided id is valid
@@ -607,7 +485,7 @@ int SwitchModule::isWritable(int id){
 
   if(validID != 1){ return validID;}
 
-  if(Switches[id]->getType() == Type::Input){
+  if(Switches[id]->getType() == Type::Input || Switches[id]->getType() == Type::Virtual){
     return -3;
   }
 
@@ -666,8 +544,6 @@ int SwitchModule::setServoPositionAsync(int id, int position){
 
 }
 
-
-
 /*
 Write a value on the Switch
 
@@ -705,6 +581,31 @@ int SwitchModule::setSwitchValue(int id, int value) {
 
 
   return false;
+}
+
+/*
+Write a value on the Switch
+
+Return:
+
+1 = OK
+-1 = ID outside limits
+-2 = unconfigured Switch
+-3 = unwritable Switch
+-4 = value lower than min value
+-5 = value greater than max value
+
+*/
+int SwitchModule::setVirtualSwitchValue(int id, int value) {
+
+  if (getType(id) != Type::Virtual) { return -3;}
+
+  int validState = isValidValue(id,value);
+  if(validState != 1){ return validState;}
+
+  Switches[id]->write(value);
+  return 1;
+
 }
 
 int SwitchModule::getSwitchState(int id) {
@@ -745,6 +646,8 @@ const char* SwitchModule::getSwitchDescription(int id){
   return "notExist";
 }
 
+
+bool SwitchModule::getIsExpired(int id) { return Switches[id]->isExpired(); }
 /*
 Check if provided id is valid
 1 = Is Moving
@@ -767,3 +670,448 @@ int SwitchModule::getServoIsMoving(int id){
   } 
   return 0;
 }
+
+void SwitchModule::generateSwitchUid(char uid[UID_LENGTH + 1]) {
+    const char alphabet[] =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    const size_t alphabetLength =
+        sizeof(alphabet) - 1;
+
+    uid[0] = 'S';
+
+    for (size_t i = 1; i < UID_LENGTH; ++i) {
+        uid[i] = alphabet[
+            esp_random() % alphabetLength
+        ];
+    }
+
+    uid[UID_LENGTH] = '\0';
+}
+
+
+bool SwitchModule::validSwitchUid(const char* uid) {
+    if (uid == nullptr || strlen(uid) != UID_LENGTH) {
+        return false;
+    }
+
+    if (uid[0] != 'S') {
+        return false;
+    }
+
+    const char alphabet[] =
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+    for (size_t i = 1; i < UID_LENGTH; ++i) {
+        if (strchr(alphabet, uid[i]) == nullptr) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool SwitchModule::uidAlreadyUsed(JsonArray switches, const char* uid) {
+    if (uid == nullptr || uid[0] == '\0') {
+        return false;
+    }
+
+    for (JsonObject item : switches) {
+        const char* existingUid =
+            item["uniqueId"].as<const char*>();
+
+        if (existingUid != nullptr &&
+            strcmp(existingUid, uid) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+int SwitchModule::findSwitchByUid( const char* uid ) const {
+    if (uid == nullptr || uid[0] == '\0') {
+        return -1;
+    }
+
+    for (int i = 0; i < configuredSwitches; ++i) {
+        if (Switches[i] == nullptr) {
+            continue;
+        }
+
+        if (strcmp(Switches[i]->getUniqueId(),uid) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+#pragma region Serial
+
+/* SERIAL MANAGER */
+SwitchModule::SwitchSerialCommand SwitchModule::parseCommand(const char* cmd) {
+  if (strcmp(cmd, "MAX_SWITCH") == 0)      return SwitchSerialCommand::MaxSwitch;
+  if (strcmp(cmd, "DESC") == 0)           return SwitchSerialCommand::Desc;
+  if (strcmp(cmd, "INT_VRS") == 0)        return SwitchSerialCommand::IntVersion;
+  if (strcmp(cmd, "NAME") == 0)           return SwitchSerialCommand::Name;
+  if (strcmp(cmd, "SUP_ACTIONS") == 0)    return SwitchSerialCommand::SupportedActions;
+  if (strcmp(cmd, "ACTION") == 0)         return SwitchSerialCommand::Action;
+  if (strcmp(cmd, "CAN_ASYNC") == 0)      return SwitchSerialCommand::CanAsync;
+  if (strcmp(cmd, "CANC_ASYNC") == 0)     return SwitchSerialCommand::CancelAsync;
+  if (strcmp(cmd, "CAN_WRITE") == 0)      return SwitchSerialCommand::CanWrite;
+  if (strcmp(cmd, "CMD_BLIND") == 0)      return SwitchSerialCommand::CmdBlind;
+  if (strcmp(cmd, "CMD_BOOL") == 0)       return SwitchSerialCommand::CmdBool;
+  if (strcmp(cmd, "CMD_STRING") == 0)     return SwitchSerialCommand::CmdString;
+  if (strcmp(cmd, "CONNECT") == 0)        return SwitchSerialCommand::Connect;
+  if (strcmp(cmd, "CONNECTING") == 0)        return SwitchSerialCommand::Connecting;
+  if (strcmp(cmd, "DISCONNECT") == 0)     return SwitchSerialCommand::Disconnect;
+  if (strcmp(cmd, "CONNECTED") == 0)     return SwitchSerialCommand::Connected;
+  if (strcmp(cmd, "GET_SWITCH_VALUE") == 0) return SwitchSerialCommand::GetSwitchValue;
+  if (strcmp(cmd, "GET_SWITCH_DESC") == 0)  return SwitchSerialCommand::GetSwitchDesc;
+  if (strcmp(cmd, "GET_SWITCH_NAME") == 0)  return SwitchSerialCommand::GetSwitchName;
+  if (strcmp(cmd, "GET_SWITCH_MAX") == 0)   return SwitchSerialCommand::GetSwitchMax;
+  if (strcmp(cmd, "GET_SWITCH_MIN") == 0)   return SwitchSerialCommand::GetSwitchMin;
+  if (strcmp(cmd, "SET_ASYNC") == 0)      return SwitchSerialCommand::SetAsync;
+  if (strcmp(cmd, "SET_ASYNC_VAL") == 0)  return SwitchSerialCommand::SetAsyncVal;
+  if (strcmp(cmd, "STATE_CHANGE_OK") == 0)  return SwitchSerialCommand::StateChangeComplete;
+  if (strcmp(cmd, "SET") == 0)            return SwitchSerialCommand::Set;
+  if (strcmp(cmd, "SET_NAME") == 0)       return SwitchSerialCommand::SetName;
+  if (strcmp(cmd, "SET_DESC") == 0)       return SwitchSerialCommand::SetDesc;
+  if (strcmp(cmd, "SET_VALUE") == 0)      return SwitchSerialCommand::SetValue;
+  if (strcmp(cmd, "STEP") == 0)           return SwitchSerialCommand::Step;
+  if (strcmp(cmd, "DEVICE_STATE") == 0)     return SwitchSerialCommand::DeviceState;
+
+  return SwitchSerialCommand::Unknown;
+}
+
+bool SwitchModule::handlePacket(char* payload, Stream& out) {
+    char* saveptr = nullptr;
+    char* cmd = strtok_r(payload, ":", &saveptr);
+    int cfgSwitches = getConfiguredSwitch();
+    if (cmd == nullptr) {
+      out.print("<SW:ERR:BAD_CMD:NULLPTR>");
+      return false;
+    }
+
+    /*
+    If module is not enable refuse all commands
+    */
+
+    if(!isEnable()){
+      out.print("<SW:ERR:NOT_ENABLE>");
+      return false;
+    }
+
+    SwitchSerialCommand command;
+    LOGI("Command received: %s", cmd ? cmd : "(null)");
+    command = parseCommand(cmd);
+    /*
+    If command is not listed return the error
+    */
+    if (command == SwitchSerialCommand::Unknown) {
+      out.print("<SW:ERR:BAD_CMD:UNKNOW>");
+      return false;
+    }
+
+    /* command that don't require the ID Valitation*/
+    #pragma region CmdWithoutIDValidation 
+    
+    switch (command){
+
+      case SwitchSerialCommand::MaxSwitch:
+        out.print("<SW:");
+        out.print(getConfiguredSwitch());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::Desc:
+        out.print("<SW:OK:Switch - TeslaBoard 4.0>");
+        return true;
+
+      case SwitchSerialCommand::IntVersion:
+        out.print("<3>");
+        return true;
+
+      case SwitchSerialCommand::Name:
+        out.print("<SW:");
+        out.print(getIdentifier());
+        out.print("- TeslaBoard>");
+        return true;
+      case SwitchSerialCommand::Connect:
+      case SwitchSerialCommand::Disconnect:
+        out.print("<SW:OK>");
+        return true;
+
+      case SwitchSerialCommand::Connected:
+        out.print("<SW:true>");
+        return true;
+
+      case SwitchSerialCommand::Connecting:
+        out.print("<SW:false>");
+        return true;
+      case SwitchSerialCommand::SupportedActions:
+        out.print("<SW:>");
+        return true;
+
+      /* Not Implemented metods/property*/
+      case SwitchSerialCommand::Action:
+      case SwitchSerialCommand::CmdBlind:
+      case SwitchSerialCommand::CmdBool:
+      case SwitchSerialCommand::CmdString:
+      case SwitchSerialCommand::SetName:
+      case SwitchSerialCommand::SetDesc:
+      case  SwitchSerialCommand::CancelAsync: //PER ORA
+        out.print("<SW:ERR:NOT_IMPL>");
+        return true;
+
+      case SwitchSerialCommand::DeviceState:
+      {
+        _deviceStateBuffer[0] = '\0'; 
+        int offset = 0;
+        const int BUFFER_SIZE = sizeof(_deviceStateBuffer);
+    
+        int numSwitches = getConfiguredSwitch();  // o una variabile membro
+    
+        for (int i = 0; i < numSwitches; i++) {
+            int value = Switches[i]->status();
+            bool state = (value != 0);
+            
+            // StateChangeComplete: true se NON è in movimento
+            bool complete = true;
+            if (Switches[i]->getType() == Type::Servo) {
+                complete = (getServoIsMoving(i) == 0);  // 0 = fermo → completo
+            }
+            
+            bool writable = (isWritable(i) == 1);
+            bool canAsync = writable && (Switches[i]->getType() == Type::Servo);
+            
+            // Scrive nel buffer in modo sicuro
+            offset += snprintf(_deviceStateBuffer + offset,
+                              BUFFER_SIZE - offset,
+                              "%d,%d,%d,%d,%d",
+                              value,
+                              state ? 1 : 0,
+                              complete ? 1 : 0,
+                              writable ? 1 : 0,
+                              canAsync ? 1 : 0);
+            
+            if (i < numSwitches - 1) {
+                offset += snprintf(_deviceStateBuffer + offset,
+                                  BUFFER_SIZE - offset, ";");
+            }
+        }
+      }
+    
+        // Invia la risposta
+        out.print("<SW:");
+        out.print(_deviceStateBuffer);
+        out.println(">");
+        return true;
+    }
+   
+    #pragma endregion
+
+    /* get the switch id */
+    char* chStr = strtok_r(nullptr, ":", &saveptr);
+
+      if (chStr == nullptr || *chStr == '\0') {
+          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
+          return false;
+      }
+
+      /* convert with error checking */
+      char* endPtr = nullptr;
+      long val = strtol(chStr, &endPtr, 10);
+
+      /* must be a pure integer, no trailing chars */
+      if (*endPtr != '\0') {
+          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
+          return false;
+      }
+
+      /* id is 1-based in the protocol, array is 0-based */
+      if (val < 1 || val > getConfiguredSwitch()) {  
+          out.print("<SW:ERR:BAD_CMD:ID_RANGE>");
+          return false;
+      }
+
+      const int id = static_cast<int>(val) - 1;
+
+    if(isValidID(id) != 1){
+      out.print("<SW:ERR:INVALID_ID>");
+      return false;
+    }
+
+    #pragma region IDValidation
+
+    switch (command){
+
+      case  SwitchSerialCommand::CanAsync:
+        if(isWritable(id)==1){
+          out.print("<SW:TRUE>");
+        } else {
+          out.print("<SW:FALSE>");
+        }
+        return true;
+
+      case SwitchSerialCommand::GetSwitchName:
+        out.print("<SW:");
+        out.print(Switches[id]->getName());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchDesc:
+        out.print("<SW:");
+        out.print(Switches[id]->getDescription());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchMin:
+        out.print("<SW:");
+        out.print(Switches[id]->getMin());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::GetSwitchMax:
+        out.print("<SW:");
+        out.print(Switches[id]->getMax());
+        out.print(">");
+        return true;
+
+      case SwitchSerialCommand::Step:
+        out.print("<SW:1>");
+        return true;
+
+      case SwitchSerialCommand::CanWrite:
+        if(isWritable(id) == 1){
+          out.print("<SW:TRUE>");
+        } else {
+          out.print("<SW:FALSE>");
+        }
+        return true;
+      case SwitchSerialCommand::GetSwitchValue:
+        out.print("<SW:");
+        out.print(Switches[id]->status());
+        out.print(">");
+        return true;
+      case SwitchSerialCommand::StateChangeComplete:
+        if(Switches[id]->getType() == Type::Servo){
+          if(getServoIsMoving(id) == 1){
+            out.print("<SW:false>");
+            return true;
+          }
+        }
+        out.print("<SW:true>");
+        return true;
+            
+    }
+
+    #pragma endregion
+
+    /*
+    from here only command whre the switch need to be writable
+    */
+
+    if(isWritable(id) != 1){
+      out.print("<SW:ERR:ID_NOT_WRITABLE>");
+      return false;
+    }
+
+    char* stateStr =nullptr;
+    char* valueStr =nullptr;
+    bool State;
+    int Value;
+    /* state commands min or max*/
+    #pragma region StateValidation 
+
+    switch (command){
+
+      case SwitchSerialCommand::SetAsync:
+      case SwitchSerialCommand::Set:
+        stateStr = strtok_r(nullptr, ":", &saveptr);
+        if (stateStr == nullptr) {
+          out.print("<SW:ERR:BAD_CMD:STATE_NULLPTR>");
+          return false;
+        }
+        State = false;
+
+        if( 
+          strcmp(stateStr,"True")==0 ||
+          strcmp(stateStr,"TRUE")==0 ||
+          strcmp(stateStr,"true")==0
+        ){
+          State= true;
+        } else if(
+          strcmp(stateStr,"False")==0 ||
+          strcmp(stateStr,"FALSE")==0 ||
+          strcmp(stateStr,"false")==0
+        ){
+          State = false;
+        } else {
+          out.print("<SW:ERR:BAD_CMD:STATE_MALFORMED>");
+          return false;
+        }
+
+        Switches[id]->write(State ? Switches[id]->getMax() : Switches[id]->getMin());
+        out.print("<SW:OK>");
+        return true;
+
+    }
+
+    #pragma endregion
+
+
+    #pragma region ValueValidation 
+
+    switch (command){
+
+      case SwitchSerialCommand::SetAsyncVal:
+      case SwitchSerialCommand::SetValue:
+        valueStr = strtok_r(nullptr, ":", &saveptr);
+        if (valueStr == nullptr || *valueStr == '\0') {
+          out.print("<SW:ERR:BAD_CMD:VALUE_NULLPTR>");
+          return false;
+        }
+
+        {
+          char* endPtr = nullptr;
+          long val = strtol(valueStr, &endPtr, 10);
+
+          if (*endPtr != '\0') {
+            out.print("<SW:ERR:BAD_CMD:VALUE_MALFORMED>");
+            return false;
+          }
+
+          // opzionale: controllo overflow rispetto a int
+          if (val < INT_MIN || val > INT_MAX) {
+            out.print("<SW:ERR:BAD_CMD:VALUE_RANGE>");
+            return false;
+          }
+
+          Value = static_cast<int>(val);
+        }
+
+        if (Value < Switches[id]->getMin()) {
+          out.print("<SW:ERR:VALUE_UNDER_MIN>");
+          return false;
+        }
+        if (Value > Switches[id]->getMax()) {
+          out.print("<SW:ERR:VALUE_ABOVE_MAX>");
+          return false;
+        }
+
+        Switches[id]->write(Value);
+        out.print("<SW:OK>");
+        return true;
+      }
+
+      #pragma endregion
+
+    /* If i'm here I don't know why :( */
+    out.print("<SW:ERR:BAD_CMD:UNKNOW_CMD>");
+    return false;
+  }
+
+  #pragma endregion

@@ -20,16 +20,19 @@ void boardWebServer(){
         JsonObject dome = modules.add<JsonObject>();
         dome["name"] = "dome";
         dome["enable"] = Dome.isEnable();
-        dome["order"] = Dome.uiOrder;
+        dome["order"] = Dome.getUiOrder();
         JsonObject sw = modules.add<JsonObject>();
         sw["name"] = "switch";
         sw["enable"] = Switches.isEnable();
-        sw["order"] = Switches.uiOrder;
+        sw["order"] = Switches.getUiOrder();
         JsonObject coverc = modules.add<JsonObject>();
         coverc["name"] = "coverc";
         coverc["enable"] = CoverCalibrator.isEnable();
-        coverc["order"] = CoverCalibrator.uiOrder;
-        
+        coverc["order"] = CoverCalibrator.getUiOrder();
+        JsonObject safety = modules.add<JsonObject>();
+        safety["name"] = "safety";
+        safety["enable"] = Safety.isEnable();
+        safety["order"] = Safety.getUiOrder();
 
         doc["version"] = SW_VERSION;
         response->setLength();

@@ -1,323 +1,383 @@
 #include "CoverCalibratorModule.h"
 #include "esp_log.h"
+#undef LOG_TAG
 #define LOG_TAG "CovCal"
-#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#ifdef COVER_CALIBRATOR_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)  // gli errori restano
+#endif
 
-#pragma region nvsHandler
-
-bool CoverCalibratorModule::openNVS(bool readOnly) {
-
-  switch (nvsStatus) {
-
-    // nvs is closed, i need to open according by the readOnly
-  case CLOSED:
-    LOGV("NVS seems to be closed");
-    if (nvs.begin(COVERC_SCHEMA_NAME, readOnly)) {
-      if (readOnly) {
-        LOGV("NVS opened in readonly");
-        nvsStatus = OPEN_READOLNY;
-      } else {
-        LOGV("NVS opened with write rights");
-        nvsStatus = OPEN_WRITE;
-      }
-      return true;
-    } else {
-      LOGE("Error opening the NVS");
-      nvsStatus = CLOSED;
-      return false;
-    }
-    break;
-
-  case OPEN_READOLNY:
-    LOGV("NVS seems open in read only");
-    if (!readOnly) {
-      closeNVS();
-      if (nvs.begin(COVERC_SCHEMA_NAME, false)) {
-        nvsStatus = OPEN_WRITE;
-        LOGV("NVS opened with write rights");
-        return true;
-      } else {
-        LOGV("Error during opening NVS with write rights");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open in read only");
-      return true;
-    }
-    break;
-
-  case OPEN_WRITE:
-    LOGV("NVS seems open with write rights");
-    if (readOnly) {
-      closeNVS();
-      nvsStatus = CLOSED;
-      if (nvs.begin(COVERC_SCHEMA_NAME, true)) {
-        nvsStatus = OPEN_READOLNY;
-        LOGV("NVS opened in read only");
-        return true;
-      } else {
-        LOGV("Error during opening NVS in read only");
-        return false;
-      }
-    } else {
-      LOGV("NVS already open with write rights");
-      return true;
-    }
-    break;
-
-  default:
-    LOGE("Unknown NVS status: %d", nvsStatus);
-    return false;
-    break;
-  }
-
-  LOGE("Arrived at the buttom of the function, don't know what happed..");
-  return false;
+#pragma region Configuration
+/* here we write additional data if nvs was empty*/
+void CoverCalibratorModule::initSecondaryData() {
+    NvsManager::getInstance().putString("calibrator", "{}");
+    NvsManager::getInstance().putString("cover", "{}");
 }
 
-void CoverCalibratorModule::closeNVS() {
-  if (nvsStatus != CLOSED) {
-    nvs.end();
-    nvsStatus = CLOSED;
-    LOGV("NVS closed");
-  } else {
-    LOGV("NVS already closed");
-  }
-}
+/* here we load secondary data during the begin */
+void CoverCalibratorModule::loadSecondaryData() {
+    String cfg;
+    tmpCfg.clear();
 
-#pragma endregion
-
-#pragma region CONFIGURATION
-/* initialize the dome */
-void CoverCalibratorModule::begin(){
-    LOGI("Loading configuration");
-    JsonDocument doc;
-
-
-    if(!openNVS(true)){
-        LOGE("Error loading nvs partition, trying to format it");
-        initNVS();
-        if(!openNVS(true)){
-            closeNVS();
-            LOGE("Critical, unable to load nvs after initialization");
-            return;
-        };
-    }else{LOGV("Namespace open without problem");}
-
-    openNVS(true);
-
-    moduleEnable = nvs.getBool("enable");
-    uiOrder = nvs.getInt("order",1);
-    identifier = nvs.getString("identifier","CoverCalibrator");
-
-    if(!moduleEnable){
-        LOGW("Module not enable, setup completed");
-        closeNVS();
-        return;
-    }
-    
-    int schemaVersion = nvs.getInt("schema");
-    LOGD("schema version is: %d", schemaVersion);
-
-    if(schemaVersion < COVERC_SCHEMA_VERSION){
-        LOGW("schema need an upgrade");
-        switch (schemaVersion)
-        {
-            case 0:
-                LOGI("upgrading from 0 to 1");
-                updateNVS1();
-                break;
-            
-            default:
-                break;
-        }
-    }
-
-    openNVS(true);
-
-    /* basic data for CoverCalibratorModule is taken, module bening*/
+    /* load calibrator data */
     LOGI("deserialization of calibrator json configuration");
-    String cfg = nvs.getString("calibrator","{}");
+    cfg = NvsManager::getInstance().getString("calibrator","{}");
     LOGD("raw calibrator json is: %s",cfg.c_str());
-    DeserializationError error = deserializeJson(doc, cfg);
+    DeserializationError error = deserializeJson(tmpCfg, cfg);
     LOGD("calibrator deserialization ret val: %d 0=no error",error);
-
     if(!error){
-        calibrator.begin(doc);
+        calibrator.begin(tmpCfg);
     }
 
-    cfg.clear();
-    cfg = nvs.getString("cover","{}");
+    /* load cover data */
+    cfg = NvsManager::getInstance().getString("cover","{}");
     LOGD("raw cover json is: %s",cfg.c_str());
-    error = deserializeJson(doc, cfg);
+    error = deserializeJson(tmpCfg, cfg);
     LOGD("cover cover ret val: %d 0=no error",error);
-    
-    closeNVS();
 
     if(!error){
-        cover.begin(doc);
+        cover.begin(tmpCfg);
+    }
+    tmpCfg.clear();
+
+
+    if(!cover.isEnable() && !calibrator.isEnable()){
+      LOGD("Cover and Calibrator aren't enabled, going to disable the main module");
+      moduleEnable = false;
+    }
+}
+
+
+/* here we update the nvs when new schema is given */
+bool CoverCalibratorModule::applySchemaUpgradeStep(uint16_t currentVersion) {
+    LOGI("Applying schema upgrade step from version %u", currentVersion);
+
+    if (!NvsManager::getInstance().openNVS(false, COVERC_SCHEMA_NAME)) {
+        LOGE("Unable to open board namespace for schema upgrade");
+        return false;
     }
 
-    LOGV("CoverC Begin finish");
+    switch (currentVersion) {
+        case 0:
+            NvsManager::getInstance().putString("identifier", "CoverC");
+            NvsManager::getInstance().putInt("schema", 1);
+            NvsManager::getInstance().closeNVS();
+            return true;
 
+        default:
+            LOGE("Unknown schema version %u for board upgrade", currentVersion);
+            NvsManager::getInstance().closeNVS();
+            return false;
+    }
 }
 
-void CoverCalibratorModule::updateNVS1(){
-    openNVS(false);
-    nvs.begin(COVERC_SCHEMA_NAME);
-    nvs.putBool("enable",false);
-    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
-    nvs.putInt("order",1);
-    nvs.putString("calibrator","{}");
-    nvs.putString("cover","{}");
-    nvs.end();
-    closeNVS();
-}
-
-bool CoverCalibratorModule::initNVS(){
-
-
-    LOGI("NVS initialization begin");
-    if(!openNVS(false)){
-        LOGE("Unable to access to NVS, initialization failed");
-        closeNVS();
-        return false;
-    };
-
-    nvs.putBool("enable",false);
-    nvs.putInt("order",1);
-    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
-    nvs.putString("identifier","CoverCalibrator");
-    nvs.putString("calibrator","{}");
-    nvs.putString("cover","{}");
-    closeNVS();
-
-    return true;
-}
-
-bool CoverCalibratorModule::isEnable(){
-    return moduleEnable;
-}
-
-void CoverCalibratorModule::getConfiguration(JsonObject dest){
-
-    dest["enable"] = moduleEnable;
-    dest["uiOrder"] = uiOrder;
-    dest["identifier"] = identifier;
-    dest["reboot"] = rebootNeeded;
+/* here we read secondary data during the get config */
+void CoverCalibratorModule::appendSecondaryConfig(JsonObject dest) {
     JsonObject calibObj = dest["calibrator"].to<JsonObject>();
     calibrator.getConfiguration(calibObj);
     JsonObject coverObj = dest["cover"].to<JsonObject>();
     cover.getConfiguration(coverObj);
-
 }
 
-void CoverCalibratorModule::validateConfiguration(const JsonObject &toBeValidated, JsonObject response){
 
-    response["reboot"] = false;
+/* here the validation of secondary data when store configuration is called*/
+bool CoverCalibratorModule::validateSecondaryConfig(const JsonObject &toBeValidated, JsonObject response) {
+  JsonArray err = response["errors"].as<JsonArray>();
 
-    JsonArray err = response["errors"].to<JsonArray>();
-    if(!toBeValidated["enable"].is<bool>()){
-        err.add("Enable is not a boolean");
-        LOGE("Enable is not a boolean");
-        return;
-    }
+  if(!toBeValidated["calibrator"].is<JsonObject>()){
+      err.add("Calibrator Configuration is missing");
+      LOGE("Calibrator object is missing");
+      return false;
+  }
 
-    if(moduleEnable != toBeValidated["enable"]){
-        response["reboot"] = true;
-        LOGI("Enable is not like the actual one, reboot needed");
-    }
+  calibrator.validateConfiguration(toBeValidated["calibrator"],response);
 
-    if(!toBeValidated["uiOrder"].is<int>()){
-        err.add("Order is not a numeber");
-        LOGE("UI order is not a number");
-        return;
-    }
+  if(err.size()>0){
+      return false;
+  }
 
-    if(!toBeValidated["identifier"].is<String>()){
-        err.add("Identifier is not a string");
-        LOGE("Identifier is not a String");
-        return;
-    }
+  if(!toBeValidated["cover"].is<JsonObject>()){
+      LOGE("Cover object is missing");
+      err.add("Calibrator Configuration is missing");
+      return false;
+  }
 
-    if(!toBeValidated["enable"]){
-        LOGI("Main module is not enable, stop validation");
-        return;
-    }
+  cover.validateConfiguration(toBeValidated["cover"],response);
 
-    LOGI("Main data validation ok, starting with calibrator data");
+  if(err.size()>0){
+      return false;
+  }
 
-    if(!toBeValidated["calibrator"].is<JsonObject>()){
-        err.add("Calibrator Configuration is missing");
-        LOGE("Calibrator object is missing");
-        return;
-    }
+  rebootNeeded = response["reboot"].as<bool>();
 
-    calibrator.validateConfiguration(toBeValidated["calibrator"],response);
-
-    if(err.size()>0){
-        return;
-    }
-
-    if(!toBeValidated["cover"].is<JsonObject>()){
-        LOGE("Cover object is missing");
-        err.add("Calibrator Configuration is missing");
-        return;
-    }
-
-    cover.validateConfiguration(toBeValidated["cover"],response);
-
-    if(err.size()>0){
-        return;
-    }
-
-    rebootNeeded = response["reboot"].as<bool>();
+  return err.size() == 0;
 }
 
-void CoverCalibratorModule::storeConfiguration(JsonObject toBeStored){
-    LOGI("Writing new configuration on the NVS");
-
-    openNVS(false);
-
-    bool inEnable = toBeStored["enable"].as<bool>();
-
-    nvs.putBool("enable",inEnable);
-    nvs.putInt("uiOrder",toBeStored["uiOrder"].as<int>());
-    nvs.putInt("schema",COVERC_SCHEMA_VERSION);
-    nvs.putString("identifier",toBeStored["identifier"].as<String>());
- 
-    closeNVS();
-
-    /* apply only the changes that don't require a reboot */
-    uiOrder = toBeStored["uiOrder"].as<int>();
-    identifier = toBeStored["identifier"].as<String>();
-
-    /* if module is not enable don't write anymore*/
-    if(!inEnable ){
-        LOGI("Main Module is not enable, writing new configuration done.");
-        return;
-    }
-    
+/* here we store secondary data during the save config */
+void CoverCalibratorModule::storeSecondaryConfig(const JsonObject &toBeStored) {
     LOGI("Writing calibrator config");
-    calibrator.storeConfiguration(toBeStored["calibrator"],COVERC_SCHEMA_NAME);
+    calibrator.storeConfiguration(toBeStored["calibrator"]);
 
     LOGI("Writing cover config");
     cover.storeConfiguration(toBeStored["cover"]);
-
 }
 
-#pragma endregion CONFIGURATION
+
+#pragma endregion
+
 
 void CoverCalibratorModule::loop(){
     
     if(isEnable()){
-        calibrator.loop();
-        cover.loop();
+        if(calibrator.isEnable()){
+            calibrator.loop();
+        }
+        if(cover.isEnable()){
+            cover.loop();
+        }
     }
 }
 
 
+
+/* SERIAL MANAGER */
+CoverCalibratorModule::CCSerialCommand CoverCalibratorModule::parseCommand(const char* cmd) {
+    if (strcmp(cmd, "DEVICE_STATE") == 0)     return CCSerialCommand::DeviceState;
+    if (strcmp(cmd, "CAL_STATE") == 0)     return CCSerialCommand::CalibratorState;
+    if (strcmp(cmd, "COV_STATE") == 0)     return CCSerialCommand::CoverState;
+    if (strcmp(cmd, "CAL_BRI") == 0)     return CCSerialCommand::Brightness;
+    if (strcmp(cmd, "CAL_MAX_BRI") == 0)     return CCSerialCommand::MaxBrightness;
+    if (strcmp(cmd, "CAL_CHANGING") == 0)     return CCSerialCommand::CalibratorChanging;
+    if (strcmp(cmd, "CAL_OFF") == 0)     return CCSerialCommand::CalibratorOff;
+    if (strcmp(cmd, "CAL_ON") == 0)     return CCSerialCommand::CalibratorOn;
+    if (strcmp(cmd, "COV_MOVING") == 0)     return CCSerialCommand::CoverMoving;
+    if (strcmp(cmd, "COV_OPEN") == 0)     return CCSerialCommand::OpenCover;
+    if (strcmp(cmd, "COV_CLOSE") == 0)     return CCSerialCommand::CloseCover;
+    if (strcmp(cmd, "COV_HALT") == 0)     return CCSerialCommand::HaltCover;
+    if (strcmp(cmd, "DESC") == 0)           return CCSerialCommand::Desc;
+    if (strcmp(cmd, "INT_VRS") == 0)        return CCSerialCommand::IntVersion;
+    if (strcmp(cmd, "NAME") == 0)           return CCSerialCommand::Name;
+    if (strcmp(cmd, "SUP_ACTIONS") == 0)    return CCSerialCommand::SupportedActions;
+    if (strcmp(cmd, "ACTION") == 0)         return CCSerialCommand::Action;
+    if (strcmp(cmd, "CMD_BLIND") == 0)      return CCSerialCommand::CmdBlind;
+    if (strcmp(cmd, "CMD_BOOL") == 0)       return CCSerialCommand::CmdBool;
+    if (strcmp(cmd, "CMD_STRING") == 0)     return CCSerialCommand::CmdString;
+    if (strcmp(cmd, "CONNECT") == 0)        return CCSerialCommand::Connect;
+    if (strcmp(cmd, "CONNECTING") == 0)        return CCSerialCommand::Connecting;
+    if (strcmp(cmd, "DISCONNECT") == 0)     return CCSerialCommand::Disconnect;
+    if (strcmp(cmd, "CONNECTED") == 0)     return CCSerialCommand::Connected;
+
+  LOGI("Command not found: %s",cmd);
+  return CCSerialCommand::Unknown;
+}
+
+
+bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
+    char* saveptr = nullptr;
+    char* cmd = strtok_r(payload, ":", &saveptr);
+
+    if (cmd == nullptr) {
+        out.print("<CC:ERR:BAD_CMD:NULLPTR>");
+        return false;
+    }
+
+    CCSerialCommand command;
+    LOGI("Command recived: %s", cmd);
+    command = parseCommand(cmd);
+
+    if (command == CCSerialCommand::Unknown) {
+        out.print("<CC:ERR:BAD_CMD:UNKNOW>");
+        return false;
+    }
+
+    switch (command) {
+
+        case CCSerialCommand::Desc:
+            out.print("<CC:OK:");
+            out.print(getIdentifier());
+            out.print("- TeslaBoard via USB>");
+            return true;
+
+        case CCSerialCommand::IntVersion:
+            out.print("<CC:2>");
+            return true;
+
+        case CCSerialCommand::Name:
+            out.print("<CC:");
+            out.print(getIdentifier());
+            out.print("- TeslaBoard>");
+            return true;
+
+        case CCSerialCommand::Connect:
+        case CCSerialCommand::Disconnect:
+            out.print("<CC:OK>");
+            return true;
+
+        case CCSerialCommand::Connected:
+            out.print("<CC:true>");
+            return true;
+
+        case CCSerialCommand::Connecting:
+            out.print("<CC:false>");
+            return true;
+
+        case CCSerialCommand::SupportedActions:
+            out.print("<CC:>");
+            return true;
+
+        case CCSerialCommand::Action:
+        case CCSerialCommand::CmdBlind:
+        case CCSerialCommand::CmdBool:
+        case CCSerialCommand::CmdString:
+            out.print("<CC:ERR:NOT_IMPL>");
+            return true;
+
+        case CCSerialCommand::DeviceState:
+            out.print("<CC:");
+            out.print(cover.getStatus());
+            out.print(",");
+            out.print(cover.getStatus() == 2 ? 1 : 0);
+            out.print(",");
+            out.print(calibrator.getStatus());
+            out.print(",0,"); // calibratorChanging always at 0 pwm is update immidiatly
+            out.print(calibrator.getBrightness());
+            out.print(",");
+            out.print(calibrator.getMaxBrightness());
+            out.print(">");
+            return true;
+    }
+
+    #pragma region Calibrator
+
+    switch (command) {
+
+        case CCSerialCommand::CalibratorState:
+            out.print("<CC:");
+            out.print(calibrator.getStatus());
+            out.print(">");
+            return true;
+
+        case CCSerialCommand::CalibratorChanging:
+            out.print("<CC:false>");
+            return true;
+
+        case CCSerialCommand::CalibratorOff:
+            if (!calibrator.isEnable()) {
+                out.print("<CC:ERR:NOT_ENABLE>");
+                return false;
+            }
+            calibrator.setBrightness(0);
+            out.print("<CC:OK>");
+            return true;
+
+        case CCSerialCommand::CalibratorOn:
+        {
+            if (!calibrator.isEnable()) {
+                out.print("<CC:ERR:NOT_ENABLE>");
+                return false;
+            }
+
+            char* chBrightness = strtok_r(nullptr, ":", &saveptr);
+            if (chBrightness == nullptr || *chBrightness == '\0') {
+                out.print("<CC:ERR:BAD_CMD:NO_BRI>");
+                return false;
+            }
+
+            char* endPtr = nullptr;
+            long val = strtol(chBrightness, &endPtr, 10);
+
+            if (*endPtr != '\0') {
+                out.print("<CC:ERR:BAD_CMD:BRI_MALFORMED>");
+                return false;
+            }
+
+            if (val < 0 || val > calibrator.getMaxBrightness()) {
+                out.print("<CC:ERR:BRIGHT_OUT_OF_RANGE>");
+                return false;
+            }
+
+            int brightness = static_cast<int>(val);
+            LOGI("Brightness requested: %d", brightness);
+            calibrator.setBrightness(brightness);
+            out.print("<CC:OK>");
+            return true;
+        }
+
+        case CCSerialCommand::Brightness:
+            out.print("<CC:");
+            out.print(calibrator.getBrightness());
+            out.print(">");
+            return true;
+
+        case CCSerialCommand::MaxBrightness:
+            out.print("<CC:");
+            out.print(calibrator.getMaxBrightness());
+            out.print(">");
+            return true;
+    }
+
+    #pragma endregion
+
+    #pragma region Cover
+
+    switch (command) {
+
+        case CCSerialCommand::CoverState:
+            out.print("<CC:");
+            out.print(cover.getStatus());
+            out.print(">");
+            return true;
+
+        case CCSerialCommand::CoverMoving:
+            out.print("<CC:");
+            out.print(cover.getStatus() == 2 ? "true" : "false");
+            out.print(">");
+            return true;
+
+        case CCSerialCommand::OpenCover:
+            if (!cover.isEnable()) {
+                out.print("<CC:ERR:NOT_ENABLE>");
+                return false;
+            }
+            if (cover.canOpen()) {
+                cover.open();
+                out.print("<CC:OK>");
+                return true;
+            }
+            out.print("<CC:ERR:CAN_T_OPEN>");
+            return false;
+
+        case CCSerialCommand::CloseCover:
+            if (!cover.isEnable()) {
+                out.print("<CC:ERR:NOT_ENABLE>");
+                return false;
+            }
+            if (cover.canClose()) {
+                cover.close();
+                out.print("<CC:OK>");
+                return true;
+            }
+            out.print("<CC:ERR:CAN_T_CLOSE>");
+            return false;
+
+        case CCSerialCommand::HaltCover:
+            out.print("<CC:ERR:NOT_IMPL>");
+            return true;
+    }
+
+    #pragma endregion
+
+    // Se siamo qui, il comando non è stato gestito
+    LOGI("Command not handled: %s", cmd);
+    out.print("<CC:ERR:BAD_CMD:DRIVER_EXC>");
+    return false;
+}

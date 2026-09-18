@@ -1,0 +1,15 @@
+info:
+  name: CoverC status
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: http://192.168.1.22/api/coverc/status
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

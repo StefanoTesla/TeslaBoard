@@ -2,7 +2,7 @@
   <Navigation :home="true" />
 
   <div v-if="!txtLoaded" class="items-center min-h-[90dvh] content-center">
-    <div class="card text">
+    <div class="card not_full text">
       <p>Loading<span class="typing-effect">...</span></p>
       <p class="font-extrabold txt-red">{{ loadError }}</p>
     </div>
@@ -12,7 +12,6 @@
     <div v-for="mod in components" :key="mod.name">
       <component :is="resolveComponent(mod.name)" :t="t" />
     </div>
-
     <BoardHome :t="t" />
   </div>
 </template>
@@ -23,6 +22,7 @@ import Navigation from "./components/Navigation.vue";
 import Switch from "./components/Switch/SwitchHome.vue";
 import CoverCalibrator from "./components/CoverCalibrator/CoverCalibratorHome.vue";
 import Dome from "./components/Dome/DomeHome.vue";
+import Safety from "./components/Safety/SafetyHome.vue"
 import { ref, onMounted } from "vue";
 import { useTranslations } from "./composables/translation";
 import BoardHome from "./components/Board/BoardHome.vue";
@@ -40,6 +40,8 @@ function resolveComponent(name) {
       return CoverCalibrator;
     case "dome":
       return Dome;
+    case "safety":
+      return Safety;
     default:
       return null;
   }

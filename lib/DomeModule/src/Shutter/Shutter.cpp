@@ -1,16 +1,24 @@
 #include "Shutter.h"
 #undef LOG_TAG
 #define LOG_TAG "Shutter"
-#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#ifdef DOME_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#endif
 
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
 
-    debug();
+//    debug();
     cycle();
     updateStatus();
 }
@@ -35,6 +43,7 @@ bool Shutter::isOpen(){
 /* senda an open command*/
 void Shutter::open() {
     if(canOpen()){
+        error = None;
         actualCmd = Open;
         LOGI("Open command recived");
     }
@@ -66,6 +75,7 @@ bool Shutter::isClosed(){
 void Shutter::close() {
     if(canClose()){
         LOGI("Closing command recived");
+        error = None;
         actualCmd = Close;
     }
     
@@ -91,21 +101,17 @@ bool Shutter::isMoving() {
 
 void Shutter::updateStatus() {
 
-    status = Error;
+    if (actualCmd == Open)  { status = Opening; return; }
+    if (actualCmd == Close) { status = Closing; return; }
 
-    if (actualCmd == Idle){
-        if(OpenSensor.status() && !CloseSensor.status()){
-            status = Opened;
-        } else if(CloseSensor.status() && !OpenSensor.status()){
-            status = Closed;
-        }
-    } else {
-        if(actualCmd == Open){
-            status = Opening;
-        } else if (actualCmd == Close){
-            status = Closing;
-        }
+    if (error != None) {
+        status = Error;
+        return;
     }
+
+    if (OpenSensor.status() && !CloseSensor.status())       status = Opened;
+    else if (CloseSensor.status() && !OpenSensor.status())  status = Closed;
+    else                                                    status = Error;
 }
 
 void Shutter::updateLastCommunication() {
@@ -124,6 +130,11 @@ void Shutter::checkTravelTimeOut(){
 
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
         LOGE("Trivel time out triggered, sending Halt Command");
+        if(actualCmd == Open){
+            error = TOutOpening;
+        } else if (actualCmd == Close){
+            error = TOutClosing;
+        }
         halt();
     }
 }
@@ -411,7 +422,7 @@ void Shutter::setAutoCloseTimeMin(unsigned int minutes){
     autoClose.waitingTime = minutes * 60000;
 }
 
-
+/*
 void Shutter::debug(){
     log.actual.openState = OpenSensor.status();
     if(log.actual.openState != log.previous.openState){
@@ -498,7 +509,7 @@ void Shutter::debug(){
             LOGV("HaltFinalStep");
             break;        
         default:
-            LOGV("don't know where I'm");
+            LOGV("don't know where I'am");
             break;
         }
         log.previous.cycle = log.actual.cycle;
@@ -517,11 +528,11 @@ void Shutter::debug(){
     }
 
 }
+*/
 
 /*
 Configuration Area
 */
-
 
 #pragma region Configuration
 
@@ -737,17 +748,14 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
     HaltClose.copyJsonCfg(shutterObject["outHalt"],outHalt);
     HaltClose.invert = outHalt["invert"].as<bool>();
 
-    Preferences pref;
-    pref.begin(schema);
-
     serializeJson(shutterObject,Serial);
 
     String json;
 
     serializeJson(tmpCfg,json);
 
-    pref.putString("shutter",json);
-    pref.end();
+    NvsManager::getInstance().putString("shutter",json);
+
     tmpCfg.clear();
 }
 
