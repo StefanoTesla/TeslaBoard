@@ -416,6 +416,13 @@ void SwitchApi() {
                 continue;
             }
 
+            if (Switches.getType(switchId) != 5) {
+                item["execute"] = false;
+                item["error"]   = "Not a virtual switch";
+                koCount++;
+                continue;
+            }
+
             int ret = Switches.setSwitchValue(switchId, value);
             if (ret == 1) {
                 item["execute"] = true;
