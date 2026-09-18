@@ -13,7 +13,7 @@ bool VirtualInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   min = INT_MIN;
   max = INT_MAX;
   expiration = obj["expiration"].as<int>() * 1000UL;
-  write(obj["defaultValue"].as<int>());
+  value = obj["defaultValue"].as<int>();
   lastRefresh = 0;
   return true;
 }
@@ -61,7 +61,7 @@ void VirtualInput::getConfiguration(JsonObject cfg) {
   cfg["type"] = 5;
   getCommonConfiguration(cfg);
   cfg["defaultValue"] = defaultVal;
-  cfg["expiration"] = expiration;
+  cfg["expiration"] = expiration / 1000UL;
 }
 
 /**
@@ -101,6 +101,6 @@ void VirtualInput::loop() {
 
 bool VirtualInput::isExpired() {
   if (expiration == 0)  return false;
-  if (lastRefresh == 0) return false;         
+  if (lastRefresh == 0) return true;         
   return (millis() - lastRefresh) > expiration;
 }

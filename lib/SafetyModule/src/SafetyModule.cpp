@@ -277,13 +277,21 @@ void SafetyModule::storeSecondaryConfig(const JsonObject& toBeStored) {
 void SafetyModule::loop(){
     
     if(isEnable()){
-        status = SafetyStatusEnum::Safe;
-        for (size_t i = 0; i < configuredConditions; i++)
-        {
-            if(conditions[i].evalutate() != Condition::ConditionStatusEnum::Safe){
-                status = SafetyStatusEnum::Unsafe;
+
+        if(millis()- lastChekMillis >= 500){
+            SafetyStatusEnum result = SafetyStatusEnum::Safe;
+
+            for (size_t i = 0; i < configuredConditions; i++)
+            {
+                if(conditions[i].evalutate() != Condition::ConditionStatusEnum::Safe){
+                    result = SafetyStatusEnum::Unsafe;
+                }
             }
+
+            status = result;
+            lastChekMillis = millis();
         }
+
     }
 }
 

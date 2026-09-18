@@ -42,6 +42,7 @@ protected:
 private:
     SwitchModule* switchModule = nullptr;
     Condition conditions[SAFETY_MAX_CONDITIONS];
+    unsigned long lastChekMillis = 0;
     size_t    configuredConditions = 0;
     enum class SafetySerialCommand : uint8_t {
         Unknown = 0,
