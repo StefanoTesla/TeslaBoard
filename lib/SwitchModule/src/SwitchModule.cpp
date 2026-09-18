@@ -663,9 +663,7 @@ int SwitchModule::getServoIsMoving(int id){
   return 0;
 }
 
-void SwitchModule::generateSwitchUid(
-    char uid[UID_LENGTH + 1]
-) {
+void SwitchModule::generateSwitchUid(char uid[UID_LENGTH + 1]) {
     const char alphabet[] =
         "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
@@ -684,9 +682,7 @@ void SwitchModule::generateSwitchUid(
 }
 
 
-bool SwitchModule::validSwitchUid(
-    const char* uid
-) {
+bool SwitchModule::validSwitchUid(const char* uid) {
     if (uid == nullptr || strlen(uid) != UID_LENGTH) {
         return false;
     }
@@ -707,10 +703,7 @@ bool SwitchModule::validSwitchUid(
     return true;
 }
 
-bool SwitchModule::uidAlreadyUsed(
-    JsonArray switches,
-    const char* uid
-) {
+bool SwitchModule::uidAlreadyUsed(JsonArray switches, const char* uid) {
     if (uid == nullptr || uid[0] == '\0') {
         return false;
     }
@@ -728,9 +721,7 @@ bool SwitchModule::uidAlreadyUsed(
     return false;
 }
 
-int SwitchModule::findSwitchByUid(
-    const char* uid
-) const {
+int SwitchModule::findSwitchByUid( const char* uid ) const {
     if (uid == nullptr || uid[0] == '\0') {
         return -1;
     }
@@ -740,16 +731,14 @@ int SwitchModule::findSwitchByUid(
             continue;
         }
 
-        if (strcmp(
-                Switches[i]->getUniqueId(),
-                uid
-            ) == 0) {
+        if (strcmp(Switches[i]->getUniqueId(),uid) == 0) {
             return i;
         }
     }
 
     return -1;
 }
+
 
 #pragma region Serial
 

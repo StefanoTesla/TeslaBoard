@@ -76,15 +76,9 @@ private:
 
   static bool validSwitchUid(const char* uid);
 
-  static bool uidAlreadyUsed(
-        JsonArray switches,
-        const char* uid
-    );
+  static bool uidAlreadyUsed(JsonArray switches, const char* uid);
 
-  bool uidAlreadyUsedInOldConfiguration(
-      const char* uid,
-      int exceptIndex
-  ) const;
+  bool uidAlreadyUsedInOldConfiguration(const char* uid, int exceptIndex) const;
 
   enum class SwitchSerialCommand : uint8_t {
     Unknown = 0,

@@ -87,7 +87,7 @@ private:
     autoCloseConfig autoClose;
 
     unsigned long ackTimeout = 0;
-
+/*
     struct logging{
         bool openState;
         bool closeState;
@@ -105,7 +105,7 @@ private:
     };
 
     logger log;
-
+*/
     unsigned long startTravelMillis;
     unsigned long travelTime;
     unsigned long travelTOUT = 20000;

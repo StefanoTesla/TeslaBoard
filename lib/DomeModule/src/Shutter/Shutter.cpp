@@ -10,7 +10,7 @@
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
 
-    debug();
+//    debug();
     cycle();
     updateStatus();
 }
@@ -93,24 +93,17 @@ bool Shutter::isMoving() {
 
 void Shutter::updateStatus() {
 
-    status = Error;
+    if (actualCmd == Open)  { status = Opening; return; }
+    if (actualCmd == Close) { status = Closing; return; }
 
-    if (actualCmd == Idle){
-        if (error != None){
-        if(OpenSensor.status() && !CloseSensor.status()){
-            status = Opened;
-        } else if(CloseSensor.status() && !OpenSensor.status()){
-            status = Closed;
-        }
+    if (error != None) {
+        status = Error;
+        return;
+    }
 
-    }
-    } else {
-        if(actualCmd == Open){
-            status = Opening;
-        } else if (actualCmd == Close){
-            status = Closing;
-        }
-    }
+    if (OpenSensor.status() && !CloseSensor.status())       status = Opened;
+    else if (CloseSensor.status() && !OpenSensor.status())  status = Closed;
+    else                                                    status = Error;
 }
 
 void Shutter::updateLastCommunication() {
@@ -421,7 +414,7 @@ void Shutter::setAutoCloseTimeMin(unsigned int minutes){
     autoClose.waitingTime = minutes * 60000;
 }
 
-
+/*
 void Shutter::debug(){
     log.actual.openState = OpenSensor.status();
     if(log.actual.openState != log.previous.openState){
@@ -527,7 +520,7 @@ void Shutter::debug(){
     }
 
 }
-
+*/
 
 /*
 Configuration Area

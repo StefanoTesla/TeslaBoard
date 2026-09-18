@@ -35,40 +35,40 @@ private:
 
     enum class DomeSerialCommand : uint8_t {
         Unknown = 0,
-        Name,//
-        Desc,//
-        IntVersion,//
-        SupportedActions,//
-        Action,//
-        CmdBlind,//
-        CmdBool,//
-        CmdString,//
-        Connect,//
-        Disconnect,//
-        Connected,//
-        Connecting,//
-        AbortSlew,//
+        Name,
+        Desc,
+        IntVersion,
+        SupportedActions,
+        Action,
+        CmdBlind,
+        CmdBool,
+        CmdString,
+        Connect,
+        Disconnect,
+        Connected,
+        Connecting,
+        AbortSlew,
         DeviceState,
-        CanSetShutter,//
-        OpenShutter,//
-        CloseShutter,//
-        ShutterStatus,//
-        Slaved,//
-        Slewing,//
-        Altitude,//
-        Azimuth,//
-        AtHome,//
-        AtPark,//
-        SlewToAltitude,//
-        SlewToAzimuth,//
-        CanFindHome,//
-        CanSetAzi,//
-        CanSetPark,//
-        CanSlave,//
-        CanSyncAzimuth,//
-        FindHome,//
-        Park,//
-        SetPark,//
+        CanSetShutter,
+        OpenShutter,
+        CloseShutter,
+        ShutterStatus,
+        Slaved,
+        Slewing,
+        Altitude,
+        Azimuth,
+        AtHome,
+        AtPark,
+        SlewToAltitude,
+        SlewToAzimuth,
+        CanFindHome,
+        CanSetAzi,
+        CanSetPark,
+        CanSlave,
+        CanSyncAzimuth,
+        FindHome,
+        Park,
+        SetPark,
 
     };
 
