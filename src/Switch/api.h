@@ -353,96 +353,100 @@ void SwitchApi() {
     AsyncCallbackJsonWebHandler * virtualSwitchHandler = new AsyncCallbackJsonWebHandler("/api/switch/virtual");
 
     virtualSwitchHandler -> setMethod(HTTP_POST | HTTP_PUT);
-    virtualSwitchHandler -> onRequest([](AsyncWebServerRequest * request, JsonVariant & root) {
-        AsyncJsonResponse * response = new AsyncJsonResponse();
-        JsonObject res = response->getRoot().to<JsonObject>();
-        JsonObject body = root.as<JsonObject>();
+    virtualSwitchHandler->onRequest([](AsyncWebServerRequest* request, JsonVariant& root) {
+        AsyncJsonResponse* response = new AsyncJsonResponse();
 
-        res["error"] = "";
-        res["execute"] = false;
+        const bool inputWasObject = root.is<JsonObject>();
 
-        if (!body["uniqueId"].is<const char*>()) {
-            res["error"] ="uniqueId key is missing or malformed";
-            response->setLength();
+        JsonDocument tempDoc;
+        if (inputWasObject) {
+            JsonArray arr = tempDoc.to<JsonArray>();
+            arr.add(root);
+        }
+
+        JsonArrayConst input;
+        if (inputWasObject) {
+            input = tempDoc.as<JsonArrayConst>();
+        } else if (root.is<JsonArray>()) {
+            input = root.as<JsonArrayConst>();
+        }
+
+        if (input.isNull()) {
             response->setCode(400);
-            response->setContentType("application/json");
-            request->send(response);
-            return;
-        }
-
-        const char* uid = body["uniqueId"];
-
-        int switchId = Switches.findSwitchByUid(uid);
-
-        if (switchId == -1) {
-            res["error"] = "uniqueId not found";
+            response->getRoot()["error"] = "Body must be an object or an array";
             response->setLength();
-            response->setCode(404);
             response->setContentType("application/json");
             request->send(response);
             return;
         }
 
-        if(!body["value"].is<int>()){
-            res["error"] = "Value don't exist or is not an integer";
+        if (input.size() > 32) {
+            response->setCode(413);
+            response->getRoot()["error"] = "Too many entries (max 32)";
             response->setLength();
-            response->setCode(422);
             response->setContentType("application/json");
             request->send(response);
             return;
         }
 
-        int value = body["value"];
+        JsonArray out = response->getRoot().to<JsonArray>();
+        int okCount = 0;
+        int koCount = 0;
 
-        int retVal = Switches.setSwitchValue(switchId,value);
+        for (JsonVariantConst entry : input) {
+            JsonObject item = out.add<JsonObject>();
 
-        switch (retVal) {
-            case 1:
-                res["execute"] = true;
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
-            case -1:
-                res["error"] = "Switch Id outside limits";
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
-            case -2:
-                res["error"] = "Uncunfigured Switch";
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
-            case -3:
-                res["error"] = "Attemping to write on a non virtual switch";
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
-            case -4:
-                res["error"] = "Value given is abowe the mix limit";
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
-            case -5:
-                res["error"] = "Value given is greathen the max limit";
-                response->setLength();
-                response->setCode(200);
-                response->setContentType("application/json");
-                request->send(response);
-                return;
+            if (!entry["uniqueId"].is<const char*>() || !entry["value"].is<int>()) {
+                item["execute"] = false;
+                item["error"]   = "uniqueId or value missing/malformed";
+                koCount++;
+                continue;
+            }
+
+            const char* uid = entry["uniqueId"].as<const char*>();
+            int value       = entry["value"].as<int>();
+
+            item["uniqueId"] = uid;
+
+            int switchId = Switches.findSwitchByUid(uid);
+            if (switchId == -1) {
+                item["execute"] = false;
+                item["error"]   = "uniqueId not found";
+                koCount++;
+                continue;
+            }
+
+            int ret = Switches.setSwitchValue(switchId, value);
+            if (ret == 1) {
+                item["execute"] = true;
+                okCount++;
+            } else {
+                item["execute"] = false;
+                switch (ret) {
+                    case -1: item["error"] = "Switch Id outside limits"; break;
+                    case -2: item["error"] = "Unconfigured Switch";      break;
+                    case -3: item["error"] = "Not a virtual switch";     break;
+                    case -4: item["error"] = "Value below min limit";    break;
+                    case -5: item["error"] = "Value above max limit";    break;
+                    default: item["error"] = "Unexpected error";         break;
+                }
+                koCount++;
+            }
         }
 
-        res["error"] = "Someting goes wrong";
-        request->send(500, "text/plain", "OK");
+        if (koCount == 0)       response->setCode(200);
+        else if (okCount == 0)  response->setCode(422);
+        else                    response->setCode(207);
+
+
+        if (inputWasObject && out.size() == 1) {
+            JsonObject single = response->getRoot().to<JsonObject>();
+            single.set(out[0].as<JsonObjectConst>());
+        }
+
+        response->setLength();
+        response->setContentType("application/json");
+        request->send(response);
     });
 
     server.addHandler(virtualSwitchHandler);
