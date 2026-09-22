@@ -7,32 +7,20 @@
   >
     <div class="sw_grid">
       <div class="card" v-for="(swi,index) in switches.Switches" :key="index">
-        <div class="title">
-          <p>{{ swi.name }}</p>
-        </div>
-        <div class="sw_desc">
-          <p class="text-center italic">{{ swi.desc }}</p>
+        <div class="grid grid-flow-row grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-3">
+        <div class="col-span-1 lg:col-span-2" >
+          <p :title="swi.uniqueId">{{ swi.name }}</p>
+          <p class="italic">{{ swi.desc }}</p>
         </div>
           <div class="sw_containter" v-if="swi.type == 1">
             <div>
-              <label class="toggle" :for="`sw_${index}_status`">
-                <input class="toggle__input cursor-not-allowed" 
-                  :name="`sw_${index}_status`" 
-                  type="checkbox" 
-                  :id="`sw_${index}_status`" 
-                  v-model="swi.status" 
-                  disabled>
-                <div class="toggle__fill cursor-not-allowed"></div>
-              </label>
+              <div class="status" :for="`sw_${index}_status`">
+                <div :class="['led',swi.status ? 'green' : 'black']"></div>
+              </div>
             </div>
           </div>
-          <div class="sw_containter" v-if="swi.type == 2">
-            <div>
-              <label class="toggle" :for="`sw_${index}_status`">
-                <input class="toggle__input" type="checkbox" v-model="swi.status" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)">
-                <div class="toggle__fill cursor-pointer"></div>
-              </label>
-            </div>
+          <div class="sw_containter flex h-full items-center justify-center" v-if="swi.type == 2">
+              <button :class="[swi.status ? 'green' : 'red']" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)"><span v-if="swi.status">SPEGNI</span><span v-else>ACCENDI</span></button>
           </div>
           <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
             <div class="range">
@@ -47,6 +35,10 @@
               <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span>
             </div>
           </div>
+
+
+        </div>
+
       </div>  
     </div>  
   </Card>

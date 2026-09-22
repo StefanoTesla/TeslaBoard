@@ -7,18 +7,19 @@
   >
     <div class="grid grid-cols1 gap-4">
       <div class="card">
-        <p class="text-center">{{ t('safety.status') }} <span class="font-bold text-green-500!" v-if=safety.isSafe>SICURO</span> <span class="font-bold text-red-500!" v-if=!safety.isSafe>NON SICURO</span></p>
-      </div>
+        <p class="text-center pb-4">{{ t('safety.status') }} <span class="font-bold txt-green" v-if=safety.isSafe>SICURO</span> <span class="font-bold text-red-500!" v-if=!safety.isSafe>NON SICURO</span></p>
 
-      <div  class="card">
-        <div v-for="cnd in safety.Conditions" class="pb-2">
-          <Condition
-            :t="(t)"
-            :cnd="cnd"
-          />
+        <div v-if="safety.Conditions.length > 0">
+          <p class="font-bold">Condizioni:</p>
+          <div v-for="cnd in safety.Conditions" class="pb-2">
+            <Condition
+              :t="(t)"
+              :cnd="cnd"
+            />
+          </div>
         </div>
-      </div>
     </div>
+  </div> 
   </Card>
 </template>
 

@@ -6,27 +6,43 @@
     :statusClass="statusClass"
   >
     <div class="grid sm:grid-cols1 md:grid-cols-2 gap-4">
+      <div class="card">
+        <p class="title">{{ t('dome.home.roofState') }}</p>
+        <p class="text-center pl-2">{{ shutterStateEnum(dome.shutter.roofState) }}</p>
+      </div>
 
-      <div class="card flex flex-col gap-y-8">
+      <div class="card">
+        <p class="title">{{ t('dome.home.input') }}</p>
+        <div class="justify-items-center uppercase flex items-center">
+          <p>{{ t('gen.status.open') }}</p>
+          <span class="block" :class="['led', dome.shutter.input.open ? 'green' : 'black']"></span>
+        </div>
+        <div class="justify-items-center uppercase flex">
+          <p>{{ t('gen.status.close') }}</p>
+          <div class="block" :class="['led', dome.shutter.input.close ? 'green' : 'black']"></div>
+        </div>
+      </div>
+
+      <div class="card flex flex-col justify-evenly">
         <button :class="shutterOpenCmdClass" @click="cmdShutterOpen">{{ t('gen.action.open') }}</button>
         <button :class="shutterCloseCmdClass" @click="cmdShutterClose">{{ t('gen.action.close') }}</button>
         <button class="red cursor-pointer" @click="cmdShutterHalt">{{ t('gen.action.halt') }}</button>
       </div>
-
-
-
+      
       <div class="card flex flex-col justify-evenly">
-        <p>{{ t('dome.home.roofState') }} <b>{{ shutterStateEnum(dome.shutter.roofState) }}</b></p>
-        <p>{{ t('dome.home.input') }}: 
-          <span :class="[ dome.shutter.input.open ? 'txt-green' : 'txt-black' ]">{{ t('gen.status.open') }}</span>                                  
-          <span :class="[ dome.shutter.input.close ? 'txt-green' : 'txt-black']">{{ t('gen.status.close') }}</span>
-        </p>
-          <p>{{ t('dome.home.actualCommand') }} <b>{{ commandEnum(dome.shutter.actualCommand) }}</b></p>
-          <p>{{ t('dome.home.lastTravelTime') }} <b>{{ dome.shutter.lastTravelTime }} sec.</b></p>
-          <p>{{ t('dome.home.autoClose.title') }} 
-            
-            <b class="txt-green" v-if="dome.shutter.autoClose?.enable">{{ t('dome.home.autoClose.enabled') }}</b>
-            <b class="txt-black" v-else>{{ t('dome.home.autoClose.disabled') }}</b></p>
+        <div>
+          <p class="title">{{ t('dome.home.actualCommand') }}</p>
+          <p class="text-center">{{ commandEnum(dome.shutter.actualCommand) }}</p>
+        </div>
+        <div>
+          <p class="title">{{ t('dome.home.lastTravelTime') }}</p>
+          <p class="text-center">{{ dome.shutter.lastTravelTime }} sec.</p>
+        </div>
+        <div>
+          <p class="title">{{ t('dome.home.autoClose.title') }}</p>
+          <p class="text-center font-bold" v-if="dome.shutter.autoClose?.enable">{{ t('dome.home.autoClose.enabled') }}</p>
+          <p class="text-center" v-if="!dome.shutter.autoClose?.enable">{{ t('dome.home.autoClose.disabled') }}</p>
+        </div>
       </div>
     </div>
   </Card>

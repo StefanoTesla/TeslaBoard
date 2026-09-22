@@ -64,7 +64,7 @@
 		"calibrator" :"Flat Panel",
 		"cover": "Coperchio",
 		"home":{
-			"coverState": "Stato del coperchio: ",
+			"coverState": "Stato del Flat Panel: ",
 			"coverEnum":{
 				"notPresent": "Non presente",
 				"moving": "In Movimento",
@@ -114,8 +114,8 @@
 			},
 			"home":{
 				"actualValue": "il valore attuale",
-				"is": "è",
-				"isnt": "non è",
+				"is": "è ",
+				"isnt": "non è ",
 				"minus": "minore di ",
 				"minEqual": "minore o uguale a",
 				"equal": "uguale a",
@@ -127,8 +127,8 @@
 	},
 	"gen":{
 		"status":{
-			"open":"Aperto",
-			"close":"Chiuso",
+			"open":"Aperto ",
+			"close":"Chiuso ",
 			"actualPos": "Posizione attuale:",
 			"actualValue": "Valore Attuale:"
 		},
