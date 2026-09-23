@@ -15,7 +15,11 @@ void boardWebServer(){
         JsonObject doc = response->getRoot().to<JsonObject>();
 
         doc["locale"] = Board.getLocale();
-
+        #ifdef IS_ESP32S3
+        doc["espType"] = 1;
+        #else
+        doc["espType"] = 0;
+        #endif
         JsonArray modules = doc["modules"].to<JsonArray>();
         JsonObject dome = modules.add<JsonObject>();
         dome["name"] = "dome";

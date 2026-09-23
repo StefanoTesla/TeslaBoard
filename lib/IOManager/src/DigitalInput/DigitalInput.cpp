@@ -67,16 +67,25 @@ int DigitalInput::validateJsonCfg(JsonObject json) {
 //
 // return true if you can't use this pin
 bool DigitalInput::pinUnusable(int pin) {
-  if (pin == 1 or pin == 3 or (pin >= 6 and pin <= 11) or pin == 20 or
+
+  #ifdef IS_ESP32S3
+  if(pin <=0 or pin == 3 or pin == 19 or pin == 20 or (pin >=22 or pin <= 38) or (pin >=43 or pin <= 47) or pin >= 48){
+    return true;
+  } 
+
+  return false;
+
+  #else
+
+  if (pin < 1 or pin == 3 or (pin >= 6 and pin <= 12) or pin == 20 or
       pin == 24 or (pin >= 28 and pin <= 31) or pin == 37 or pin == 38 or
       pin > 39) {
     return true;
   }
 
-  if (pin == 0 or pin == 12) {
-    return true;
-  }
   return false;
+
+  #endif
 }
 
 
