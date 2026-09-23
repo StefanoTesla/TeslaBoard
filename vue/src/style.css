@@ -383,7 +383,7 @@ input[type="range"] {
 }
 
 .sw_containter {
-  @apply w-full py-2 text-center;
+  @apply w-full h-full py-2 text-center flex items-center justify-center col-span-4;
 }
 .sw_value {
   @apply flex py-2 justify-center;

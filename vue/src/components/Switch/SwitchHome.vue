@@ -7,9 +7,9 @@
   >
     <div class="sw_grid">
       <div class="card" v-for="(swi,index) in switches.Switches" :key="index">
-        <div class="grid grid-flow-row grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-3">
-        <div class="col-span-1 lg:col-span-2" >
-          <p :title="swi.uniqueId">{{ swi.name }}</p>
+        <div class="grid grid-flow-row grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-8">
+        <div class="col-span-1 lg:col-span-4" >
+          <p :title="swi.uId">{{ swi.name }}</p>
           <p class="italic">{{ swi.desc }}</p>
         </div>
           <div class="sw_containter" v-if="swi.type == 1">
@@ -19,16 +19,22 @@
               </div>
             </div>
           </div>
-          <div class="sw_containter flex h-full items-center justify-center" v-if="swi.type == 2">
-              <button :class="[swi.status ? 'green' : 'red']" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)"><span v-if="swi.status">SPEGNI</span><span v-else>ACCENDI</span></button>
+          <div class="sw_containter" v-if="swi.type == 2">
+              <div class="status" :for="`sw_${index}_status`">
+                  <div :class="['led',swi.status ? 'green' : 'black']"></div>
+              </div>
+              <button :class="[swi.status ? 'red' : 'green']" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)"><span v-if="swi.status">{{ t('gen.action.powerOff') }}</span><span v-else>{{ t('gen.action.powerOn') }}</span></button>
           </div>
           <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
-            <div class="range">
-              <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.status" @change="changeValueCmd(index)"/>
+            <div class="sw_sidebar">
+              <div class="range">
+                <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.status" @change="changeValueCmd(index)"/>
+              </div>
+              <div class="sw_value">
+                <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>
+              </div>
             </div>
-            <div class="sw_value">
-              <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>
-            </div>
+
           </div>
           <div class="sw_containter" v-if="swi.type == 5">
             <div class="sw_value">
@@ -77,6 +83,7 @@ const fetchData = async () => {
       throw new Error('Network response was not ok')
     }
     const data = await response.json()
+
     switches.value = data
     dataLoaded.value = true
 

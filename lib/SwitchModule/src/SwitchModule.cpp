@@ -559,18 +559,20 @@ Return:
 */
 int SwitchModule::setSwitchValue(int id, int value) {
 
+  LOGD("Writing switch id:%d with value %d",id,value);
   int validID = isValidID(id);
   if(validID != 1){ return validID; }
 
   if (!isWritable(id)) { return -3;}
-
+  LOGD("is writable!");
   int validState = isValidValue(id,value);
   if(validState != 1){ return validState;}
 
-  
+  LOGD("Type: %d",Switches[id]->getType());
 
   if (Switches[id]->getType() == Type::Servo) {
     ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
+    LOGD("Sending the position to the servo");
     servo->goTo(value, false, true);
     return 1;
   } else {
