@@ -26,8 +26,6 @@
       :t="t"
     />
 
-
-
     <Board :t="t" :gpio="gpioObserver" v-model:reboot="modal" />
   </div>
 
@@ -61,7 +59,7 @@ import Advise from "./components/Advise/Advise.vue";
 import { useValidator } from "./composables/Validator";
 
 
-const { isInvalidPin } = useValidator();
+const { setEspType, isInvalidPin } = useValidator();
 
 const gpioObserver = ref(
   Array.from({ length: 40 }, () => ({ type: -1, module: -1 }))
@@ -83,6 +81,7 @@ const loadInitConfig = async () => {
     const data = await response.json();
 
     components.value = data.define;
+    setEspType(data.espType)
     await loadTranslations(data.locale);
     txtLoaded.value = true;
   } catch (error) {
@@ -139,8 +138,6 @@ const rebuildGPIOPinList = () => {
     ...switchGPIO.value,
   ];
 
-  //performances: STONK!
-  //clean oldest message
   gpioObserver.value.forEach((element) => {
     removePermanentNotifiy(
       "warning",
