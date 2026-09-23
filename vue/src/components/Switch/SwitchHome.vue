@@ -23,7 +23,9 @@
               <div class="status" :for="`sw_${index}_status`">
                   <div :class="['led',swi.status ? 'green' : 'black']"></div>
               </div>
-              <button :class="[swi.status ? 'red' : 'green']" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)"><span v-if="swi.status">{{ t('gen.action.powerOff') }}</span><span v-else>{{ t('gen.action.powerOn') }}</span></button>
+              <button :class="[swi.status ? 'red' : 'green']" :name="`sw_${index}_status`" :id="`sw_${index}_status`" @click="changeValueCmd(index)">
+                <span v-if="swi.status">{{ t('gen.action.powerOff') }}</span>
+                <span class="txt-black" v-else>{{ t('gen.action.powerOn') }}</span></button>
           </div>
           <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
             <div class="sw_sidebar">
