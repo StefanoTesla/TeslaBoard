@@ -564,11 +564,10 @@ int SwitchModule::setSwitchValue(int id, int value) {
   if(validID != 1){ return validID; }
 
   if (!isWritable(id)) { return -3;}
-  LOGD("is writable!");
+
   int validState = isValidValue(id,value);
   if(validState != 1){ return validState;}
 
-  LOGD("Type: %d",Switches[id]->getType());
 
   if (Switches[id]->getType() == Type::Servo) {
     ServoOutput *servo = static_cast<ServoOutput *>(Switches[id]);
