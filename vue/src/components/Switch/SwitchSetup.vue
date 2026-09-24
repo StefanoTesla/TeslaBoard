@@ -62,9 +62,18 @@
     </div>
 
     <div class="sw_grid" v-if="switches.enable">
-      <div class="card" v-for="(swi, index) in switches.Switches" :key="index">
-        <div class="sw_delete">
-          <button v-if="index > 0" @click="moveSwitch(index, true)">
+      <div class="sw_setup_card" v-for="(swi, index) in switches.Switches" :key="index">
+        <div class="sw_setup_header">
+          <div class="sw_setup_header_type">
+            <p v-if="swi.type == 1" class="sw_setup_type">{{ t("IOBase.typeEnum.1") }}</p>
+            <p v-if="swi.type == 2" class="sw_setup_type">{{ t("IOBase.typeEnum.2") }}</p>
+            <p v-if="swi.type == 3" class="sw_setup_type">{{ t("IOBase.typeEnum.3") }}</p>
+            <p v-if="swi.type == 4" class="sw_setup_type">{{ t("IOBase.typeEnum.4") }}</p>
+            <p v-if="swi.type == 5" class="sw_setup_type">{{ t("IOBase.typeEnum.5") }}</p>
+          </div>
+
+        <div class="sw_setup_tools">
+          <button class="sw_tool_btn" v-if="index > 0" @click="moveSwitch(index, true)">
             <svg
               fill="#000000"
               width="30px"
@@ -79,6 +88,7 @@
             </svg>
           </button>
           <button
+            class="sw_tool_btn"
             v-if="index < switches.Switches.length - 1"
             @click="moveSwitch(index)"
           >
@@ -95,7 +105,7 @@
               ></path>
             </svg>
           </button>
-          <button class="red" @click="deleteSwitch(index)">
+          <button class="sw_tool_btn sw_tool_delete" @click="deleteSwitch(index)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 128 128"
@@ -108,39 +118,47 @@
             </svg>
           </button>
         </div>
-        <div class="sw_header">
-          <p>{{ t("IOBase.name") }}</p>
-          <input
-            type="text"
-            :id="`sw_${index}_name`"
-            class="w-full identifier"
-            v-model="swi.name"
-            maxlength="20"
-            @change="sanitize(index)"
-          />
-        </div>
-        <div class="sw_header">
-          <p>{{ t("IOBase.description") }}</p>
-          <input
-            type="text"
-            :id="`sw_${index}_desc`"
-            class="w-full identifier"
-            v-model="swi.desc"
-            maxlength="20"
-            @change="sanitize(index)"
-          />
-        </div>
-        <div class="sw_header">
-          <p>{{ t("IOBase.type") }}</p>
-          <select :id="`sw_${index}_type`" v-model="swi.type">
-            <option value="1">{{ t("IOBase.typeEnum.1") }}</option>
-            <option value="2">{{ t("IOBase.typeEnum.2") }}</option>
-            <option value="3">{{ t("IOBase.typeEnum.3") }}</option>
-            <option value="4">{{ t("IOBase.typeEnum.4") }}</option>
-            <option value="5">{{ t("IOBase.typeEnum.5") }}</option>
-          </select>
-        </div>
 
+        </div>
+        <div class="sw_setup_content">
+
+          <div class="sw_setup_row">
+            <p>{{ t("IOBase.name") }}</p>
+            <input
+              type="text"
+              :id="`sw_${index}_name`"
+              class="w-full sw_setup_input_text"
+              v-model="swi.name"
+              maxlength="20"
+              @change="sanitize(index)"
+            />
+          </div>
+
+
+
+          <div class="sw_setup_row">
+            <p>{{ t("IOBase.description") }}</p>
+            <input
+              type="text"
+              :id="`sw_${index}_desc`"
+              class="w-full sw_setup_input_text italic"
+              v-model="swi.desc"
+              maxlength="20"
+              @change="sanitize(index)"
+            />
+          </div>
+
+          <div class="sw_setup_row">
+            <p>{{ t("IOBase.type") }}</p>
+            <select :id="`sw_${index}_type`" v-model="swi.type">
+              <option value="1">{{ t("IOBase.typeEnum.1") }}</option>
+              <option value="2">{{ t("IOBase.typeEnum.2") }}</option>
+              <option value="3">{{ t("IOBase.typeEnum.3") }}</option>
+              <option value="4">{{ t("IOBase.typeEnum.4") }}</option>
+              <option value="5">{{ t("IOBase.typeEnum.5") }}</option>
+            </select>
+          </div>
+        </div>
         <Input
           v-if="swi.type == 1"
           :t="t"
@@ -183,6 +201,8 @@
           :swi="swi"
           @update:validated="handleValidation"
         />
+
+        
       </div>
     </div>
 
@@ -337,7 +357,7 @@ const saveData = async () => {
                 " n°" +
                 e.id +
                 ": " +
-                props.t(`errors.gpioValidation.${e.error}`)
+                props.t(gpioErrorKey(e.error))
             )
           : errorResponseNotify(e)
       );
@@ -348,6 +368,14 @@ const saveData = async () => {
     }
   }
 };
+
+function gpioErrorKey(code) {
+  switch (code) {
+    case -1: return "errors.gpioValidation.IOPinNotInt";
+    case -10: return "errors.gpioValidation.IOPinNotUsable";
+    default: return "errors.gpioValidation.unknown";
+  }
+}
 
 const deleteSwitch = (index) => {
   switches.value.Switches.splice(index, 1);

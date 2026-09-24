@@ -282,6 +282,7 @@
 		"general":{
 			"negativeValue":"Il valore non può essere negativo",
 			"greaterThan":"Valore maggiore di: ",
+			"IOPinNotUsable": "Pin non utilizzabile",
 			"lowerThan":"Valore minore di: ",
 			"configRejected": "Dati non validi. Configurazione non salvata",
 			"validationFailed": "Validazione fallita",

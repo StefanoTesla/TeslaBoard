@@ -7,7 +7,7 @@
           :id="`sw_${index}_defaultValue`"
           :class="['', defValueUnvalid ? 'validation_error' : '']"
           type="number"
-          v-model="swi.defaultValue"
+          v-model.number="swi.defaultValue"
           @change="validate()"
         />
       </div>
@@ -20,7 +20,7 @@
           :id="`sw_${index}_expiration`"
           :class="['', expirationUnvalid ? 'validation_error' : '']"
           type="number"
-          v-model="swi.expiration"
+          v-model.number="swi.expiration"
           @change="validate()"
         />
       </div>

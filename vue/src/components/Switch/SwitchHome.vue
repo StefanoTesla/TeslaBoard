@@ -29,8 +29,8 @@
           </div>
           <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
             <div class="sw_sidebar">
-              <div class="range">
-                <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model="swi.status" @change="changeValueCmd(index)"/>
+              <div class="range select-none">
+                <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model.number="swi.status" @change="changeValueCmd(index)"/>
               </div>
               <div class="sw_value">
                 <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>

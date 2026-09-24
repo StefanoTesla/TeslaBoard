@@ -133,7 +133,8 @@ import { toast } from "vue3-toastify";
 import Card from "../Card.vue";
 import { useValidator } from "../../composables/validator";
 
-const { isInvalidPin } = useValidator();
+
+const { isInvalidPin, maxGpio } = useValidator();
 
 const props = defineProps({
   t: Function,
@@ -158,6 +159,7 @@ let localeUnvalid = ref(false);
 let reconTimeUnvalid = ref(false);
 
 const fetchData = async () => {
+  console.log(maxGpio.value)
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip + "/api/board/cfg");
@@ -293,7 +295,7 @@ const checkWherIsUsed = (pin, list) => {
 watch(
   () => props.gpio,
   (newValue) => {
-    const gpios = Array.from({ length: 39 }, (_, i) => ({
+    const gpios = Array.from({ length: maxGpio.value }, (_, i) => ({
       pin: i + 1,
       module: 0,
     }));

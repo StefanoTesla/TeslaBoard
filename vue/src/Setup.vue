@@ -56,9 +56,9 @@ import CoverCalibrator from "./components/CoverCalibrator/CoverCalibratorSetup.v
 import Dome from "./components/Dome/DomeSetup.vue";
 import Safety from "./components/Safety/SafetySetup.vue";
 import Advise from "./components/Advise/Advise.vue";
-import { useValidator } from "./composables/Validator";
+import { useValidator, setEspType } from "./composables/validator";
 
-const { isInvalidPin, setEspType } = useValidator();
+const { isInvalidPin } = useValidator();
 
 
 const gpioObserver = ref(
@@ -81,7 +81,7 @@ const loadInitConfig = async () => {
     const data = await response.json();
 
     components.value = data.define;
-    setEspType(0)
+    setEspType(1)
     await loadTranslations(data.locale);
     txtLoaded.value = true;
   } catch (error) {

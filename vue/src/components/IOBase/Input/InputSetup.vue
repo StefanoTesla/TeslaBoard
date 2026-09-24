@@ -8,7 +8,7 @@
           :id="`sw_${index}_pin`"
           :class="['with_unit', pinUnvalid ? 'validation_error' : '']"
           type="number"
-          v-model="swi.pin"
+          v-model.number="swi.pin"
           @change="validate()"
         />
       </div>
@@ -33,7 +33,7 @@
           :id="`sw_${index}_dOn`"
           :class="['with_unit', dOnUnvalid ? 'validation_error' : '']"
           type="number"
-          v-model="swi.dOn"
+          v-model.number="swi.dOn"
           @change="validate()"
         />
       </div>
@@ -46,7 +46,7 @@
           :id="`sw_${index}_dOff`"
           :class="['with_unit', dOffUnvalid ? 'validation_error' : '']"
           type="number"
-          v-model="swi.dOff"
+          v-model.number="swi.dOff"
           @change="validate()"
         />
       </div>

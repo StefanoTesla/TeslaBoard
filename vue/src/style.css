@@ -14,6 +14,7 @@ input[type="number"] {
 :root {
   --bkg: #171615;
   --divbkg: #1d1d1d;
+  --divhead : #262626;
   --divhig: #2b2b2b;
   --greenText: #cbf05f;
   --green: #9ae600;
@@ -59,7 +60,7 @@ a.active {
 .container {
   background: var(--divbkg);
     border-color: var(--border);
-  @apply mt-6 mx-auto w-11/12 md:w-10/12 rounded-xl border;
+  @apply mt-6 mx-auto w-11/12 rounded-xl border;
 }
 
 .container_header {
@@ -370,7 +371,7 @@ input[type="range"] {
 }
 
 .sw_grid {
-  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mx-4 mb-4;
+  @apply grid grid-flow-row grid-cols-1 sm:grid-cols-2 gap-4 mb-4;
 }
 
 .sw_grid > .card {
@@ -380,6 +381,50 @@ input[type="range"] {
 
 .sw_header {
   @apply text-center font-bold;
+}
+
+.sw_setup_card {
+  background: var(--divhig);
+  border-color: var(--border);
+  @apply rounded-lg border;
+}
+
+.sw_setup_header {
+  background: var(--divhead);
+  @apply rounded-t-lg px-2 pb-1 grid grid-cols-2
+}
+
+  .sw_setup_header_type{
+    @apply flex items-center
+  }
+
+  .sw_setup_tools {
+    @apply flex flex-row justify-end items-center 
+  }
+
+  .sw_tool_delete{
+    background-color: #ec4a4a;
+  }
+
+  .sw_tool_btn {
+    @apply  rounded-md p-1.5 flex items-center justify-center max-w-8 min-w-0 cursor-pointer
+  }
+
+.sw_setup_content{
+  @apply px-2 py-2 grid grid-rows-2 xl:grid-cols-2
+}
+
+.sw_setup_row {
+  @apply md:pb-2 flex flex-col md:flex-row w-full items-center
+}
+
+.sw_setup_input_text{
+  @apply w-50 rounded-md
+}
+
+
+.sw_setup_row > p {
+  @apply pr-2
 }
 
 .sw_containter {

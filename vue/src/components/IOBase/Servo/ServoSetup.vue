@@ -2,13 +2,13 @@
   <div class="setting_row">
     <p>{{ t('IOBase.pin') }}</p>
     <div class="input_with_unit">
-      <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model="swi.pin" min=1 max=39 @change="validate()"/>
+      <span class="unit">n</span><input :id="`sw_${index}_pin`" :class="['with_unit', pinUnvalid ? 'validation_error' : '']" type="number" v-model.number="swi.pin" min=1 max=39 @change="validate()"/>
     </div>
   </div>
   <div class="setting_row">
     <p>{{ t('IOBase.Servo.movingTime') }}</p>
     <div class="input_with_unit">
-      <span class="unit">sec</span><input :id="`sw_${index}_moveTime`" :class="['with_unit', moveTimeUnvalid ? 'validation_error' : '']" type="number" v-model="swi.moveTime" @change="validate()"/>
+      <span class="unit">sec</span><input :id="`sw_${index}_moveTime`" :class="['with_unit', moveTimeUnvalid ? 'validation_error' : '']" type="number" v-model.number="swi.moveTime" @change="validate()"/>
     </div>
   </div>
 </template>
