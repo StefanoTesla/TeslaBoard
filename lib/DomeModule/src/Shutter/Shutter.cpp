@@ -18,7 +18,9 @@
 /* loop cycle, status and cycle update */
 void Shutter::loop(){
 
-//    debug();
+    #ifdef DOME_LOG 
+    debug();
+    #endif
     cycle();
     updateStatus();
 }
@@ -364,7 +366,7 @@ void Shutter::setOutput(outputDirection dir){
         break;
     
     default:
-        //LOGE("Wrong drivertype");
+        LOGE("Wrong drivertype");
         break;
     }
 }
@@ -431,7 +433,7 @@ void Shutter::setAutoCloseTimeMin(unsigned int minutes){
     autoClose.waitingTime = minutes * 60000;
 }
 
-/*
+#ifdef DOME_LOG 
 void Shutter::debug(){
     log.actual.openState = OpenSensor.status();
     if(log.actual.openState != log.previous.openState){
@@ -537,7 +539,7 @@ void Shutter::debug(){
     }
 
 }
-*/
+#endif
 
 /*
 Configuration Area

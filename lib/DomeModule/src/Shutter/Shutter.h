@@ -87,7 +87,7 @@ private:
     autoCloseConfig autoClose;
 
     unsigned long ackTimeout = 0;
-/*
+#ifdef DOME_LOG 
     struct logging{
         bool openState;
         bool closeState;
@@ -105,7 +105,7 @@ private:
     };
 
     logger log;
-*/
+#endif
     unsigned long startTravelMillis;
     unsigned long travelTime;
     unsigned long travelTOUT = 20000;
