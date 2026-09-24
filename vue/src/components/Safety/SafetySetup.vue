@@ -47,7 +47,8 @@
         </div>
       </div>
     </div>
-    <div v-if="safety.enable">        
+
+    <div v-if="safety.enable">
       <div class="card">
         <p class="title">{{ t('safety.Conditions.title') }}</p>
         <button class="ml-4 sw_add green" @click="addNewCondition()">
@@ -63,66 +64,72 @@
           </svg>
         </button>
 
-        <div class="grid grid-cols-2" v-for="(cnd, index) in safety.Conditions" :key="index">
+        <div
+          class="grid grid-cols-2"
+          v-for="(cnd, index) in safety.Conditions"
+          :key="index"
+        >
           <!-- CONDITION -->
 
           <div class="setting_row">
             <p>{{ t('safety.Conditions.setup.name') }}</p>
-                <input
-                  type="text"
-                  :id="`cnd_${index}_name`"
-                  class="w-full identifier"
-                  v-model="cnd.name"
-                  maxlength="30"
-                  @input="onNameInput"
-                />
-            </div>
-            <div class="setting_row">
-              <p>{{ t('safety.Conditions.setup.swName') }}</p>
-                <select
-                  :id="`cnd_${index}_switch`"
-                  :class="{ validation_error: switchUnvalid }"
-                  v-model="cnd.uniqueId"
-                  @change="onFieldChange"
-                >
-                  <option
-                    v-for="s in switches"
-                    :key="s.uniqueId"
-                    :value="s.uniqueId"
-                  >
-                    {{ s.name }}
-                  </option>
-                </select>
+            <input
+              type="text"
+              :id="`cnd_${index}_name`"
+              class="w-full identifier"
+              v-model="cnd.name"
+              maxlength="30"
+              @input="(e) => onNameInput(e, cnd)"
+            />
+          </div>
 
-            </div>
-            <div class="setting_row">
-              <p>{{ t('safety.Conditions.setup.checkType') }}</p>
-                <select
-                  :id="`cnd_${index}_checkType`"
-                  :class="{ validation_error: checkTypeUnvalid }"
-                  v-model.number="cnd.ckType"
-                  @change="onFieldChange"
-                >
-                    <option value=0>{{ t("safety.Conditions.setup.checkTypeEnum.min") }}</option>
-                    <option value=1>{{ t("safety.Conditions.setup.checkTypeEnum.minEq") }}</option>
-                    <option value=2>{{ t("safety.Conditions.setup.checkTypeEnum.Equal") }}</option>
-                    <option value=3>{{ t("safety.Conditions.setup.checkTypeEnum.GreEq") }}</option>
-                    <option value=4>{{ t("safety.Conditions.setup.checkTypeEnum.Greater") }}</option>
-                </select>
-            </div>
-            <div class="setting_row">
-              <p>{{ t('safety.Conditions.setup.checkValue') }}</p>
-                  <input
-                    type="number"
-                    :class="{ validation_error: refValueUnvalid }"
-                    :id="`cnd_${index}_refValue`"
-                    class="w-full identifier"
-                    v-model.number="cnd.refValue"
-                    @change="onFieldChange"
-                  />
-            </div>
+          <div class="setting_row">
+            <p>{{ t('safety.Conditions.setup.swName') }}</p>
+            <select
+              :id="`cnd_${index}_switch`"
+              :class="{ validation_error: cnd._switchErr }"
+              v-model="cnd.uniqueId"
+              @change="onFieldChange"
+            >
+              <option
+                v-for="s in switches"
+                :key="s.uniqueId"
+                :value="s.uniqueId"
+              >
+                {{ s.name }}
+              </option>
+            </select>
+          </div>
 
-            <button class="red" @click="deleteCondition(index)">
+          <div class="setting_row">
+            <p>{{ t('safety.Conditions.setup.checkType') }}</p>
+            <select
+              :id="`cnd_${index}_checkType`"
+              :class="{ validation_error: cnd._ckTypeErr }"
+              v-model.number="cnd.ckType"
+              @change="onFieldChange"
+            >
+              <option value="0">{{ t("safety.Conditions.setup.checkTypeEnum.min") }}</option>
+              <option value="1">{{ t("safety.Conditions.setup.checkTypeEnum.minEq") }}</option>
+              <option value="2">{{ t("safety.Conditions.setup.checkTypeEnum.Equal") }}</option>
+              <option value="3">{{ t("safety.Conditions.setup.checkTypeEnum.GreEq") }}</option>
+              <option value="4">{{ t("safety.Conditions.setup.checkTypeEnum.Greater") }}</option>
+            </select>
+          </div>
+
+          <div class="setting_row">
+            <p>{{ t('safety.Conditions.setup.checkValue') }}</p>
+            <input
+              type="number"
+              :class="{ validation_error: cnd._refErr }"
+              :id="`cnd_${index}_refValue`"
+              class="w-full identifier"
+              v-model.number="cnd.refValue"
+              @change="onFieldChange"
+            />
+          </div>
+
+          <button class="red" @click="deleteCondition(index)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 128 128"
@@ -134,31 +141,28 @@
               />
             </svg>
           </button>
-          </div>
-
-
         </div>
+      </div>
 
-      </div> 
-
-    <div class="config_buttons">
-      <button class="green cursor-pointer" @click="getOriginal()">
-        {{ t('gen.loadFromBoard') }}
-      </button>
-      <button
-        :class="[
-          validationState ? 'red cursor-pointer' : 'black cursor-not-allowed',
-        ]"
-        @click="saveData()"
-      >
-        {{ t('gen.save') }}
-      </button>
+      <div class="config_buttons">
+        <button class="green cursor-pointer" @click="getOriginal()">
+          {{ t('gen.loadFromBoard') }}
+        </button>
+        <button
+          :class="[
+            validationState ? 'red cursor-pointer' : 'black cursor-not-allowed',
+          ]"
+          @click="saveData()"
+        >
+          {{ t('gen.save') }}
+        </button>
+      </div>
     </div>
   </Card>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { toast } from "vue3-toastify";
 import Card from "../Card.vue";
 
@@ -169,36 +173,22 @@ const props = defineProps({
 });
 
 const safety = ref({});
-
 const originalData = ref({});
 let dataLoaded = ref(false);
 let statusClass = ref("green");
-let validation = ref([]);
-let switches = ref([]);
 let validationState = ref(true);
+let switches = ref([]);
 
-const handleValidation = ({ index, isValid }) => {
-  validation.value[index] = isValid;
-};
-
-const onConditionChanged = (i, newVal) => {
-  safety.value.Conditions[i] = newVal;
-
-};
-
-const getOriginal = () => {
-  safety.value = JSON.parse(JSON.stringify(originalData.value));
-};
-
+// ---------- Fetch ----------
 const fetchData = async () => {
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip + "/api/safety/cfg");
-    if (!response.ok) { throw new Error("Network response was not ok"); }
+    if (!response.ok) throw new Error("Network response was not ok");
     const data = await response.json();
     safety.value = data;
     dataLoaded.value = true;
-    if (data.reboot) { statusClass.value = "orange"; }
+    if (data.reboot) statusClass.value = "orange";
 
     originalData.value = JSON.parse(JSON.stringify(safety.value));
 
@@ -208,7 +198,7 @@ const fetchData = async () => {
     const switchCfg = await switchRes.json();
 
     if (switchCfg.enable) {
-      switches.value = (switchCfg.Switches ?? []).map(s => ({
+      switches.value = (switchCfg.Switches ?? []).map((s) => ({
         uniqueId: s.uniqueId,
         name: s.name,
         type: s.type,
@@ -217,33 +207,153 @@ const fetchData = async () => {
       switches.value = [];
     }
 
-
+    // Validazione iniziale dopo il caricamento
+    validate();
   } catch (error) {
     console.error("Errore durante la chiamata API:", error);
   }
 };
 
+// ---------- Event handlers ----------
+const onFieldChange = () => {
+  validate();
+};
+
+const onNameInput = (e, cnd) => {
+  const raw = e.target.value;
+  const cleaned = raw.replace(/[<>#!?*]/g, "").slice(0, 20);
+  e.target.value = cleaned;
+  cnd.name = cleaned;
+};
+
+// ---------- Validazione globale ----------
 const validate = () => {
-  validationState.value = false;
   statusClass.value = "red";
+  validationState.value = false;
 
   safety.value.uiOrder = parseInt(safety.value.uiOrder);
+
   if (!safety.value.enable) {
     statusClass.value = "green";
     validationState.value = true;
     return;
   }
 
-  statusClass.value = "green";
-  validationState.value = true;
+  const list = safety.value.Conditions ?? [];
+  let allValid = true;
+
+  for (let i = 0; i < list.length; i++) {
+    const cnd = list[i];
+
+    // reset flag di riga
+    cnd._switchErr = false;
+    cnd._ckTypeErr = false;
+    cnd._refErr = false;
+
+    // defaults
+    cnd.name = cnd.name ?? "";
+    cnd.uniqueId = cnd.uniqueId ?? "";
+    cnd.refValue = cnd.refValue ?? 0;
+    cnd.ckType = cnd.ckType ?? 0;
+
+    const sw =
+      switches.value.find((s) => s.uniqueId === cnd.uniqueId) ?? null;
+    if (!sw) {
+      cnd._switchErr = true;
+      errorResponseNotify(props.t("errors.condition.switchNotPresent"));
+      allValid = false;
+      continue;
+    }
+
+    const switchType = sw.type;
+    cnd.ckType = parseInt(cnd.ckType);
+    cnd.refValue = parseInt(cnd.refValue);
+
+    if (switchType === 1 || switchType === 2) {
+      if (cnd.ckType !== 2) {
+        cnd._ckTypeErr = true;
+        errorResponseNotify(props.t("errors.condition.checkTypeBinary"));
+        allValid = false;
+        continue;
+      }
+      if (cnd.refValue !== 0 && cnd.refValue !== 1) {
+        cnd._refErr = true;
+        errorResponseNotify(props.t("errors.condition.outsideBinaryValue"));
+        allValid = false;
+        continue;
+      }
+    }
+
+    if (switchType === 4) {
+      if (cnd.refValue < 0 || cnd.refValue > 4095) {
+        cnd._refErr = true;
+        errorResponseNotify(props.t("errors.condition.outsidePWMValue"));
+        allValid = false;
+        continue;
+      }
+    }
+
+    if (switchType === 5) {
+      if (cnd.refValue < -2147483648) {
+        cnd._refErr = true;
+        errorResponseNotify(props.t("errors.condition.outsideVirtualMinValue"));
+        allValid = false;
+        continue;
+      }
+      if (cnd.refValue > 2147483647) {
+        cnd._refErr = true;
+        errorResponseNotify(props.t("errors.condition.outsideVirtualGreValue"));
+        allValid = false;
+        continue;
+      }
+    }
+  }
+
+  validationState.value = allValid;
+  statusClass.value = allValid ? "green" : "red";
+};
+
+// ---------- Azioni ----------
+const getOriginal = () => {
+  safety.value = JSON.parse(JSON.stringify(originalData.value));
+  validate();
+};
+
+const addNewCondition = () => {
+  if ((safety.value.Conditions?.length ?? 0) < 20) {
+    if (!safety.value.Conditions) safety.value.Conditions = [];
+    safety.value.Conditions.push({
+      name: "",
+      uniqueId: "",
+      refValue: 0,
+      ckType: 0,
+    });
+    validate();
+  } else {
+    errorResponseNotify(props.t("errors.safety.limitReached"));
+  }
+};
+
+const deleteCondition = (index) => {
+  safety.value.Conditions.splice(index, 1);
+  validate();
 };
 
 const saveData = async () => {
+  validate();
+
   if (!validationState.value && safety.value.enable) {
-    errorResponseNotify(props.t('errors.general.validationFailed'));
+    errorResponseNotify(props.t("errors.general.validationFailed"));
     return;
   }
 
+  // Rimuove i flag interni prima dell'invio al backend
+  const payload = {
+    ...safety.value,
+    Conditions: (safety.value.Conditions ?? []).map(
+      ({ _switchErr, _ckTypeErr, _refErr, ...rest }) => rest
+    ),
+  };
 
   try {
     const ip = import.meta.env.VITE_API_IP;
@@ -253,71 +363,39 @@ const saveData = async () => {
         Accept: "application/json, text/plain, */*",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(safety.value),
+      body: JSON.stringify(payload),
     });
 
     const data = await response.json();
     if (!response.ok) throw { status: response.status, data };
 
     cmdExecutedNotify();
-
   } catch (err) {
     if (err?.status === 500 && Array.isArray(err.data?.errors)) {
       err.data.errors.forEach((e) =>
         typeof e === "object"
-          ? handleStructuredError(e)
+          ? errorResponseNotify(e.message ?? JSON.stringify(e))
           : errorResponseNotify(e)
       );
     } else {
       errorResponseNotify(
-        err?.message || props.t('errors.general.configRejected')
+        err?.message || props.t("errors.general.configRejected")
       );
     }
   }
 };
 
-
-const addNewCondition = () => {
-  if (safety.value.Conditions.length <= 20) {
-    safety.value.Conditions.push({
-      name: "",
-      uniqueId: "",
-      refValue: 0,
-      ckType: 0,
-    });
-    validation.value.push(false);
-  } else {
-    errorResponseNotify(props.t("errors.safety.limitReached"));
-  }
-};
-const deleteCondition = (index) => {
-  safety.value.Conditions.splice(index, 1);
-  validation.value.splice(index, 1);
-};
-
-
+// ---------- Notify ----------
 const cmdExecutedNotify = () => {
-  toast.success(props.t('gen.configSaved'), {
-    autoClose: 500,
-  });
+  toast.success(props.t("gen.configSaved"), { autoClose: 500 });
 };
 
 const errorResponseNotify = (errorMessage) => {
-  toast.error(errorMessage, {
-    autoClose: 3000,
-  });
+  toast.error(errorMessage, { autoClose: 3000 });
 };
 
+// ---------- Lifecycle ----------
 onMounted(() => {
   fetchData();
 });
-
-watch(
-  () => validation.value.some(v => v === false),
-  (hasFalse) => {
-    validationState.value = !hasFalse;
-  }
-);
-
-
 </script>
