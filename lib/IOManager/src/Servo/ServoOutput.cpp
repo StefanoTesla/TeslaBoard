@@ -157,7 +157,7 @@ bool ServoOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
 bool ServoOutput::pinUnusable(int pin) {
   #ifdef IS_ESP32S3
   
-  if(pin <=0 or pin == 3 or pin == 19 or pin == 20 or (pin >=22 or pin <= 38) or (pin >=43 or pin <= 47) or pin >= 48){
+  if(pin <=0 or pin == 3 or pin == 19 or pin == 20 or (pin >=22 and pin <= 38) or (pin >=43 and pin <= 47) or pin >= 48){
     return true;
   } 
 

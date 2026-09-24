@@ -22,18 +22,14 @@ bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
 bool DigitalOutput::pinUnusable(int pin) {
 
   #ifdef IS_ESP32S3
-  if(pin <=0 or pin == 3 or pin == 19 or pin == 20 or (pin >=22 or pin <= 38) or (pin >=43 or pin <= 47) or pin >= 48){
+  if(pin <=0 or pin == 3 or pin == 19 or pin == 20 or (pin >=22 and pin <= 38) or (pin >=43 and pin <= 47) or pin >= 48){
     return true;
   } 
 
   #else
   
   if (pin == 1 or pin == 3 or (pin >= 6 and pin <= 11) or pin == 20 or
-      pin == 24 or (pin >= 28 and pin <= 31)) {
-    return true;
-  }
-
-  if (pin > 33) {
+      pin == 24 or (pin >= 28 and pin <= 31) or pin > 33) {
     return true;
   }
 
