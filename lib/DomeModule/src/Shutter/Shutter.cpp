@@ -129,7 +129,7 @@ Shutter::ActualCommand Shutter::getActualCommand() const {
 void Shutter::checkTravelTimeOut(){
 
     if(isMoving() && (millis()- startTravelMillis > travelTOUT)){
-        LOGE("Trivel time out triggered, sending Halt Command");
+        LOGE("Travel time out triggered, sending Halt Command");
         if(actualCmd == Open){
             error = TOutOpening;
         } else if (actualCmd == Close){
@@ -201,6 +201,10 @@ void Shutter::cycle(){
               setOutput(Stop);
         }
 
+        if(CloseSensor.status() || OpenSensor.status()){
+            break;
+        }
+
         if(actualCmd == Open){
             LOGI("Waiting for the open signal");
             actualStep = ArrivedToOpenDestination;
@@ -251,7 +255,7 @@ void Shutter::cycle(){
 
         if(driverType == GateController){
             if(OpenSensor.status() && !CloseSensor.status()){
-                LOGE("Close sensor reached, I wanted to open");
+                LOGE("Open sensor reached, I wanted to open");
                 if(!retry){
                     LOGI("Trying again to open");
                     actualStep = PPSendHaltSignal;
@@ -298,6 +302,11 @@ void Shutter::cycle(){
     case PPWaitBeforeSendANewCommand:
         if(millis() - ackTimeout > 5000){
             LOGI("PPCycle, send a new command");
+            if(actualCmd == Open){
+                setOutput(goToOpen);
+            } else if (actualCmd == Close) {
+                setOutput(goToClose);
+            }
             actualStep = WaitSensorLoosing;
             ackTimeout = millis();
             break;
