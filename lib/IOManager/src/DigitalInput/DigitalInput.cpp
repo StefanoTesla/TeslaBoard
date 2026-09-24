@@ -105,32 +105,25 @@ int DigitalInput::readPin() {
 }
 
 int DigitalInput::status() {
-  /* ON CASE */
-  if (readPin()) {
+  bool raw = readPin();
 
-    if (!value) {
-      if (!reInput) { /* get rising edge*/
-        feInput = false;
-        reInput = true;
-        ackMillis = millis();
-      } else {
-        if (millis() - ackMillis > dOn) { /*wait ton time*/
-          value = 1;
-        }
-      }
-    }
-  } else {
-    if (value) {
-      if (!feInput) { /* get falling edge*/
-        reInput = false;
-        feInput = true;
-        ackMillis = millis();
-      } else {
-        if (millis() - ackMillis > dOff) { /*wait toff time*/
-          value = 0;
-        }
-      }
-    }
+  if (raw == value) {
+    reInput = false;
+    feInput = false;
+    return value;
+  }
+
+  if (!reInput && !feInput) {
+    ackMillis = millis();
+    reInput = (raw == true);
+    feInput = (raw == false);
+  }
+
+  unsigned long threshold = raw ? dOn : dOff;
+  if (millis() - ackMillis > threshold) {
+    value = raw ? 1 : 0;
+    reInput = false;
+    feInput = false;
   }
 
   return value;
