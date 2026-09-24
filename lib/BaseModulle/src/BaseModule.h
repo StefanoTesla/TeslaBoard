@@ -25,6 +25,7 @@ protected:
     bool moduleEnable = false;
     bool validConfig = false;
     bool rebootNeeded = false;
+    bool storeConfigRequest = false;
     unsigned int uiOrder = 1;
     String identifier = "";
 

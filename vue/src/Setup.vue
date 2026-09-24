@@ -58,8 +58,8 @@ import Safety from "./components/Safety/SafetySetup.vue";
 import Advise from "./components/Advise/Advise.vue";
 import { useValidator } from "./composables/Validator";
 
+const { isInvalidPin, setEspType } = useValidator();
 
-const { setEspType, isInvalidPin } = useValidator();
 
 const gpioObserver = ref(
   Array.from({ length: 40 }, () => ({ type: -1, module: -1 }))
@@ -81,7 +81,7 @@ const loadInitConfig = async () => {
     const data = await response.json();
 
     components.value = data.define;
-    setEspType(data.espType)
+    setEspType(0)
     await loadTranslations(data.locale);
     txtLoaded.value = true;
   } catch (error) {

@@ -54,5 +54,5 @@ export function useValidator() {
     );
   };
 
-  return { isNegative, isGreaterThan, isLowerThan, isInvalidPin };
+  return { isNegative, isGreaterThan, isLowerThan, isInvalidPin, setEspType };
 }

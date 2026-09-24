@@ -748,7 +748,6 @@ int SwitchModule::findSwitchByUid( const char* uid ) const {
     return -1;
 }
 
-
 #pragma region Serial
 
 /* SERIAL MANAGER */
@@ -795,10 +794,6 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       out.print("<SW:ERR:BAD_CMD:NULLPTR>");
       return false;
     }
-
-    /*
-    If module is not enable refuse all commands
-    */
 
     if(!isEnable()){
       out.print("<SW:ERR:NOT_ENABLE>");
