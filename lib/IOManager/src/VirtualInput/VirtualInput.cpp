@@ -1,5 +1,21 @@
 #include "VirtualInput.h"
 #include <Arduino.h>
+#include "esp_log.h"
+#undef LOG_TAG
+#define LOG_TAG "VirtualIn"
+#ifdef IOBASE_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#endif
 
 VirtualInput::VirtualInput() {}
 
@@ -13,7 +29,8 @@ bool VirtualInput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {
   min = INT_MIN;
   max = INT_MAX;
   expiration = obj["expiration"].as<int>() * 1000UL;
-  value = obj["defaultValue"].as<int>();
+  defaultVal = obj["defaultValue"].as<int>();
+  value = defaultVal;
   lastRefresh = 0;
   return true;
 }
@@ -50,11 +67,10 @@ int VirtualInput::validateJsonCfg(JsonObject json) {
  * @return nothing
  */
 void VirtualInput::copyJsonCfg(JsonObject src, JsonObject dest) {
-  dest["type"] = 5;
   copyCommonJsonCfg(src, dest);
+  dest["type"] = 5;
   dest["defaultValue"] = src["defaultValue"];
   dest["expiration"] = src["expiration"];
-
 }
 
 void VirtualInput::getConfiguration(JsonObject cfg) {

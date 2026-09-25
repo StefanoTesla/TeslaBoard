@@ -1,6 +1,21 @@
 #include "DigitalOutput.h"
 #include <Arduino.h>
-
+#include "esp_log.h"
+#undef LOG_TAG
+#define LOG_TAG "DOut"
+#ifdef IOBASE_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#endif
 DigitalOutput::DigitalOutput() {}
 
 bool DigitalOutput::jsonSetup(JsonObjectConst obj, bool notUsedHere) {

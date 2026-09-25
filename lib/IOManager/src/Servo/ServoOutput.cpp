@@ -1,12 +1,21 @@
 #include "ServoOutput.h"
 #include "esp_log.h"
 #include <Arduino.h>
-#define LOG_TAG "IOServo"
-#define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
-#define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
-#define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
-#define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
-#define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#undef LOG_TAG
+#define LOG_TAG "ServoOut"
+#ifdef IOBASE_LOG
+  #define LOGV(...) ESP_LOGV(LOG_TAG, __VA_ARGS__)
+  #define LOGD(...) ESP_LOGD(LOG_TAG, __VA_ARGS__)
+  #define LOGI(...) ESP_LOGI(LOG_TAG, __VA_ARGS__)
+  #define LOGW(...) ESP_LOGW(LOG_TAG, __VA_ARGS__)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#else
+  #define LOGV(...) do {} while (0)
+  #define LOGD(...) do {} while (0)
+  #define LOGI(...) do {} while (0)
+  #define LOGW(...) do {} while (0)
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
+#endif
 // This library is totally outside the Servo.h arduino library
 // I handle the servo like a PWM output and I calcolate the duty in microsecond
 // with a 12bit resolution. Since I will use slow timer, I declare that 1° of
