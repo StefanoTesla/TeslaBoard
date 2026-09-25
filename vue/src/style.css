@@ -108,7 +108,7 @@ a.active {
 }
 
 .led {
-  @apply w-5 h-5 rounded-full mx-4;
+  @apply w-5 h-5 rounded-full mx-4 border-2 border-black;
 }
 
 .open {
@@ -258,7 +258,7 @@ select {
 }
 
 .config_buttons {
-  @apply mr-4 mb-4 flex flex-col md:flex-row justify-end;
+  @apply lg:mr-4 my-4 flex flex-col md:flex-row items-center justify-end;
 }
 
 .config_buttons > button {
@@ -431,9 +431,12 @@ input[type="range"] {
   @apply w-full h-full py-2 text-center flex items-center justify-center col-span-4;
 }
 .sw_value {
-  @apply flex py-2 justify-center;
+  @apply flex py-2 items-center justify-center;
 }
 
+.sw_value > input{
+  @apply min-w-10 w-15! rounded-lg text-center ml-2 mr-1
+}
 .modal {
   @apply fixed top-0 left-0 h-screen w-screen z-40 flex justify-center items-center;
 }
@@ -447,7 +450,7 @@ input[type="range"] {
 }
 
 .modal_box > .error {
-  @apply text-red-600 font-bold;
+  @apply text-white font-bold bg-red-600;
 }
 
 .modal_selection {
@@ -526,4 +529,49 @@ input[type="range"] {
 }
 .cnd-error{
   @apply bg-amber-600;
+}
+
+
+/* safety setup */
+
+
+.conditions_setup_container {
+  background: var(--divhead);
+  border-color: var(--border);
+  @apply rounded-lg border mb-4;
+}
+
+.condition_setup_header {
+    background: var(--divbkg);
+  @apply flex justify-between items-center py-2 px-2 rounded-t-lg
+}
+
+.cdn_setup_container {
+  @apply px-2 py-2 grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-center
+}
+
+.cdn_setup_container > p {
+  @apply lg:text-right
+}
+
+.cdn_setup_input {
+  @apply col-span-1 md:col-span-2
+}
+
+
+
+/* switch home */
+.sw_home_container{
+  @apply h-full grid grid-flow-row grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-8 items-center
+}
+
+.sw_home_title {
+  @apply col-span-1 lg:col-span-2
+}
+.sw_home_action {
+  @apply w-full h-full py-2 text-center flex items-center justify-center col-span-6
+}
+
+.sw_sidebar{
+  @apply w-full
 }

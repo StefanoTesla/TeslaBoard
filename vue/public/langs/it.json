@@ -129,8 +129,8 @@
 		"status":{
 			"open":"Aperto ",
 			"close":"Chiuso ",
-			"actualPos": "Posizione attuale:",
-			"actualValue": "Valore Attuale:"
+			"actualPos": "Posizione attuale: ",
+			"actualValue": "Valore Attuale: "
 		},
 		"action":{
 			"open" : "Apri",

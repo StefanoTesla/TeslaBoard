@@ -7,19 +7,22 @@
   >
     <div class="sw_grid">
       <div class="card" v-for="(swi,index) in switches.Switches" :key="index">
-        <div class="grid grid-flow-row grid-rows-2 grid-cols-1 lg:grid-rows-1 lg:grid-cols-8">
-        <div class="col-span-1 lg:col-span-4" >
+        <div class="sw_home_container">
+        <div class="sw_home_title" >
           <p :title="swi.uId">{{ swi.name }}</p>
           <p class="italic">{{ swi.desc }}</p>
         </div>
-          <div class="sw_containter" v-if="swi.type == 1">
+        <!-- Digital Input -->
+          <div class="sw_home_action" v-if="swi.type == 1">
             <div>
               <div class="status" :for="`sw_${index}_status`">
                 <div :class="['led',swi.status ? 'green' : 'black']"></div>
               </div>
             </div>
           </div>
-          <div class="sw_containter" v-if="swi.type == 2">
+
+        <!-- Digital Output -->
+          <div class="sw_home_action" v-if="swi.type == 2">
               <div class="status" :for="`sw_${index}_status`">
                   <div :class="['led',swi.status ? 'green' : 'black']"></div>
               </div>
@@ -27,18 +30,39 @@
                 <span v-if="swi.status">{{ t('gen.action.powerOff') }}</span>
                 <span class="txt-black" v-else>{{ t('gen.action.powerOn') }}</span></button>
           </div>
-          <div class="sw_containter" v-if="swi.type == 3 || swi.type == 4">
+          
+        <!-- PWM/Servo -->
+          <div class="sw_home_action" v-if="swi.type == 3 || swi.type == 4">
             <div class="sw_sidebar">
               <div class="range select-none">
-                <input type="range" :id="`sw_${index}_slider`" :min="swi.min" :max="swi.max" step='1' v-model.number="swi.status" @change="changeValueCmd(index)"/>
+                <input 
+                  type="range" 
+                  :id="`sw_${index}_slider`" 
+                  :min="swi.min" 
+                  :max="swi.max" 
+                  step='1' 
+                  v-model.number="swi.status"
+                  @pointerdown="isEditing(true,index)"
+                  @pointerup="isEditing(false)"
+                  @change="changeValueCmd(index)"/>
               </div>
               <div class="sw_value">
-                <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span> / <span> {{ swi.max }} </span>
+                <p>{{ t('gen.status.actualValue') }}</p> 
+                    <input
+                    type="number"
+                    :id="`sv_${index}_actualvalue`"
+                    class="w-full identifier"
+                    v-model.number="swi.status"
+                    @change="changeValueCmd(index)"
+                    @focus="isEditing(true,index)"
+                    @blur="isEditing(false)"
+                  />
+                  / <span> {{ swi.max }} </span>
               </div>
             </div>
 
           </div>
-          <div class="sw_containter" v-if="swi.type == 5">
+          <div class="sw_home_action" v-if="swi.type == 5">
             <div class="sw_value">
               <p>{{ t('gen.status.actualValue') }}</p> <span> {{ swi.status }} </span>
             </div>
@@ -69,6 +93,9 @@ let abortController = null;
 let dataLoaded = ref(false)
 let statusClass = ref('black')
 
+let inEditing = ref(false)
+let skipElementUpgrade = ref(-1)
+
 const fetchData = async () => {
 
   if (abortController) {
@@ -86,7 +113,20 @@ const fetchData = async () => {
     }
     const data = await response.json()
 
-    switches.value = data
+    if (!inEditing.value || skipElementUpgrade.value === -1) {
+      switches.value = data
+    } else {
+      switches.value = {
+        ...data,
+        Switches: data.Switches.map((nuovo, i) => {
+          if (i === skipElementUpgrade.value) {
+            return switches.value.Switches[i] 
+          }
+          return nuovo
+        })
+      }
+    }
+
     dataLoaded.value = true
 
     updateStatusData()
@@ -99,6 +139,20 @@ const fetchData = async () => {
     }
   }
 }
+
+
+const isEditing = async(edit,index) => {
+
+  inEditing.value = edit;
+
+  if(inEditing.value){
+    skipElementUpgrade.value = index
+  } else {
+    inEditing.value = false;
+    skipElementUpgrade.value = -1
+  }
+}
+
 
 const startPolling = () => {
   isPolling = true;

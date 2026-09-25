@@ -51,42 +51,46 @@
     <div v-if="safety.enable">
       <div class="card">
         <p class="title">{{ t('safety.Conditions.title') }}</p>
-        <button class="ml-4 sw_add green" @click="addNewCondition()">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 72 72"
-            width="40px"
-            height="40px"
-          >
-            <path
-              d="M36,12c13.255,0,24,10.745,24,24c0,13.255-10.745,24-24,24S12,49.255,12,36C12,22.745,22.745,12,36,12z M44,39 c1.657,0,3-1.343,3-3c0-1.657-1.343-3-3-3c-0.329,0-2.426,0-5,0c0-2.574,0-4.672,0-5c0-1.657-1.343-3-3-3c-1.657,0-3,1.343-3,3  c0,0.328,0,2.426,0,5c-2.574,0-4.671,0-5,0c-1.657,0-3,1.343-3,3c0,1.657,1.343,3,3,3c0.329,0,2.426,0,5,0c0,2.574,0,4.672,0,5  c0,1.657,1.343,3,3,3c1.657,0,3-1.343,3-3c0-0.328,0-2.426,0-5C41.574,39,43.671,39,44,39z"
-            />
-          </svg>
-        </button>
+
+
 
         <div
-          class="grid grid-cols-2"
+          class="conditions_setup_container"
           v-for="(cnd, index) in safety.Conditions"
           :key="index"
         >
+          <div class="condition_setup_header">
+            <p class="font-bold">Condizione {{ index +1 }}</p>
+            <button class="sw_tool_btn sw_tool_delete" @click="deleteCondition(index)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 128 128"
+                width="20px"
+                height="20px"
+              >
+                <path
+                  d="M 49 1 C 47.34 1 46 2.34 46 4 C 46 5.66 47.34 7 49 7 L 79 7 C 80.66 7 82 5.66 82 4 C 82 2.34 80.66 1 79 1 L 49 1 z M 24 15 C 16.83 15 11 20.83 11 28 C 11 35.17 16.83 41 24 41 L 101 41 L 101 104 C 101 113.37 93.37 121 84 121 L 44 121 C 34.63 121 27 113.37 27 104 L 27 52 C 27 50.34 25.66 49 24 49 C 22.34 49 21 50.34 21 52 L 21 104 C 21 116.68 31.32 127 44 127 L 84 127 C 96.68 127 107 116.68 107 104 L 107 40.640625 C 112.72 39.280625 117 34.14 117 28 C 117 20.83 111.17 15 104 15 L 24 15 z M 24 21 L 104 21 C 107.86 21 111 24.14 111 28 C 111 31.86 107.86 35 104 35 L 24 35 C 20.14 35 17 31.86 17 28 C 17 24.14 20.14 21 24 21 z M 50 55 C 48.34 55 47 56.34 47 58 L 47 104 C 47 105.66 48.34 107 50 107 C 51.66 107 53 105.66 53 104 L 53 58 C 53 56.34 51.66 55 50 55 z M 78 55 C 76.34 55 75 56.34 75 58 L 75 104 C 75 105.66 76.34 107 78 107 C 79.66 107 81 105.66 81 104 L 81 58 C 81 56.34 79.66 55 78 55 z"
+                />
+              </svg>
+            </button>
+          </div>
           <!-- CONDITION -->
+          <div class="cdn_setup_container">
 
-          <div class="setting_row">
             <p>{{ t('safety.Conditions.setup.name') }}</p>
             <input
               type="text"
               :id="`cnd_${index}_name`"
-              class="w-full identifier"
+              class="w-full identifier cdn_setup_input"
               v-model="cnd.name"
               maxlength="30"
               @input="(e) => onNameInput(e, cnd)"
             />
-          </div>
 
-          <div class="setting_row">
             <p>{{ t('safety.Conditions.setup.swName') }}</p>
             <select
               :id="`cnd_${index}_switch`"
+              class="cdn_setup_input"
               :class="{ validation_error: cnd._switchErr }"
               v-model="cnd.uniqueId"
               @change="onFieldChange"
@@ -99,12 +103,11 @@
                 {{ s.name }}
               </option>
             </select>
-          </div>
 
-          <div class="setting_row">
             <p>{{ t('safety.Conditions.setup.checkType') }}</p>
             <select
               :id="`cnd_${index}_checkType`"
+              class="cdn_setup_input"
               :class="{ validation_error: cnd._ckTypeErr }"
               v-model.number="cnd.ckType"
               @change="onFieldChange"
@@ -115,32 +118,39 @@
               <option value="3">{{ t("safety.Conditions.setup.checkTypeEnum.GreEq") }}</option>
               <option value="4">{{ t("safety.Conditions.setup.checkTypeEnum.Greater") }}</option>
             </select>
-          </div>
 
-          <div class="setting_row">
             <p>{{ t('safety.Conditions.setup.checkValue') }}</p>
             <input
               type="number"
               :class="{ validation_error: cnd._refErr }"
               :id="`cnd_${index}_refValue`"
-              class="w-full identifier"
+              class="w-full identifier cdn_setup_input"
               v-model.number="cnd.refValue"
               @change="onFieldChange"
             />
+
+
+
           </div>
 
-          <button class="red" @click="deleteCondition(index)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 128 128"
-              width="20px"
-              height="20px"
-            >
-              <path
-                d="M 49 1 C 47.34 1 46 2.34 46 4 C 46 5.66 47.34 7 49 7 L 79 7 C 80.66 7 82 5.66 82 4 C 82 2.34 80.66 1 79 1 L 49 1 z M 24 15 C 16.83 15 11 20.83 11 28 C 11 35.17 16.83 41 24 41 L 101 41 L 101 104 C 101 113.37 93.37 121 84 121 L 44 121 C 34.63 121 27 113.37 27 104 L 27 52 C 27 50.34 25.66 49 24 49 C 22.34 49 21 50.34 21 52 L 21 104 C 21 116.68 31.32 127 44 127 L 84 127 C 96.68 127 107 116.68 107 104 L 107 40.640625 C 112.72 39.280625 117 34.14 117 28 C 117 20.83 111.17 15 104 15 L 24 15 z M 24 21 L 104 21 C 107.86 21 111 24.14 111 28 C 111 31.86 107.86 35 104 35 L 24 35 C 20.14 35 17 31.86 17 28 C 17 24.14 20.14 21 24 21 z M 50 55 C 48.34 55 47 56.34 47 58 L 47 104 C 47 105.66 48.34 107 50 107 C 51.66 107 53 105.66 53 104 L 53 58 C 53 56.34 51.66 55 50 55 z M 78 55 C 76.34 55 75 56.34 75 58 L 75 104 C 75 105.66 76.34 107 78 107 C 79.66 107 81 105.66 81 104 L 81 58 C 81 56.34 79.66 55 78 55 z"
-              />
-            </svg>
-          </button>
+
+
+
+        </div>
+
+      <div class="flex flex-row-reverse pt-4">
+        <button class="ml-4 sw_add green" @click="addNewCondition()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 72 72"
+            width="40px"
+            height="40px"
+          >
+            <path
+              d="M36,12c13.255,0,24,10.745,24,24c0,13.255-10.745,24-24,24S12,49.255,12,36C12,22.745,22.745,12,36,12z M44,39 c1.657,0,3-1.343,3-3c0-1.657-1.343-3-3-3c-0.329,0-2.426,0-5,0c0-2.574,0-4.672,0-5c0-1.657-1.343-3-3-3c-1.657,0-3,1.343-3,3  c0,0.328,0,2.426,0,5c-2.574,0-4.671,0-5,0c-1.657,0-3,1.343-3,3c0,1.657,1.343,3,3,3c0.329,0,2.426,0,5,0c0,2.574,0,4.672,0,5  c0,1.657,1.343,3,3,3c1.657,0,3-1.343,3-3c0-0.328,0-2.426,0-5C41.574,39,43.671,39,44,39z"
+            />
+          </svg>
+        </button>
         </div>
       </div>
 
@@ -179,7 +189,7 @@ let statusClass = ref("green");
 let validationState = ref(true);
 let switches = ref([]);
 
-// ---------- Fetch ----------
+
 const fetchData = async () => {
   try {
     const ip = import.meta.env.VITE_API_IP;
@@ -207,7 +217,7 @@ const fetchData = async () => {
       switches.value = [];
     }
 
-    // Validazione iniziale dopo il caricamento
+
     validate();
   } catch (error) {
     console.error("Errore durante la chiamata API:", error);
@@ -313,7 +323,7 @@ const validate = () => {
   statusClass.value = allValid ? "green" : "red";
 };
 
-// ---------- Azioni ----------
+
 const getOriginal = () => {
   safety.value = JSON.parse(JSON.stringify(originalData.value));
   validate();
@@ -385,7 +395,7 @@ const saveData = async () => {
   }
 };
 
-// ---------- Notify ----------
+
 const cmdExecutedNotify = () => {
   toast.success(props.t("gen.configSaved"), { autoClose: 500 });
 };
@@ -394,7 +404,7 @@ const errorResponseNotify = (errorMessage) => {
   toast.error(errorMessage, { autoClose: 3000 });
 };
 
-// ---------- Lifecycle ----------
+
 onMounted(() => {
   fetchData();
 });

@@ -247,8 +247,6 @@ const validate = () => {
 
   if(coverC.value.calibrator.enable){
     if(isInvalidPin(coverC.value.calibrator.outPWM.pin,"output")){
-      console.log("pin")
-      console.log(coverC.value.calibrator.outPWM.pin)
       return
     }
   }

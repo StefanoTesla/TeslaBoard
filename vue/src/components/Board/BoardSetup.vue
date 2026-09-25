@@ -159,7 +159,6 @@ let localeUnvalid = ref(false);
 let reconTimeUnvalid = ref(false);
 
 const fetchData = async () => {
-  console.log(maxGpio.value)
   try {
     const ip = import.meta.env.VITE_API_IP;
     const response = await fetch(ip + "/api/board/cfg");
