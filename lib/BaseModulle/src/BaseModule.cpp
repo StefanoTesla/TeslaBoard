@@ -13,7 +13,7 @@
   #define LOGD(...) do {} while (0)
   #define LOGI(...) do {} while (0)
   #define LOGW(...) do {} while (0)
-  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)  // gli errori restano
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 #endif
 
 bool BaseModule::openForRead() {

@@ -13,12 +13,11 @@
   #define LOGD(...) do {} while (0)
   #define LOGI(...) do {} while (0)
   #define LOGW(...) do {} while (0)
-  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)  // gli errori restano
+  #define LOGE(...) ESP_LOGE(LOG_TAG, __VA_ARGS__)
 #endif
 char SwitchModule::_deviceStateBuffer[512];
 
 #pragma region Configuration
-/* here we write additional data if nvs was empty*/
 
 /* here we write additional data if nvs was empty*/
 void SwitchModule::initSecondaryData() {
@@ -205,7 +204,6 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
 
             singleSW["uniqueId"] = generatedUid;
         } else {
-            // Un uId esplicito deve avere il formato corretto.
             if (!validSwitchUid(incomingUid)) {
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = id;
@@ -215,7 +213,6 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
                 return false;
             }
 
-            // Non sono ammessi duplicati nella lista nuova.
             if (uidAlreadyUsed(incomingSwitches,incomingUid)) {
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = id;
@@ -225,9 +222,6 @@ bool SwitchModule::validateSecondaryConfig( const JsonObject& toBeValidated, Jso
                 return false;
             }
 
-            // Un uId presente ma non noto viene considerato errore.
-            // Questa verifica è compatibile con la politica secondo cui
-            // il browser non deve generare gli uId.
             if (findSwitchByUid(incomingUid) < 0) {
                 JsonObject e = err.add<JsonObject>();
                 e["id"] = id;
@@ -393,17 +387,16 @@ void SwitchModule::checkIfRebootNeeded(int newId, Type type, const JsonObject& s
         LOGV("Switch %d: type changed, reboot needed", newId);
         response["reboot"] = true;
 
-        // Il type è cambiato: l’identità precedente non rappresenta
-        // più lo stesso tipo di oggetto. L’uId verrà rigenerato prima
-        // del salvataggio definitivo.
         return;
     }
 
-    if (Switches[oldId]->getPinNumber() !=
-            singleSW["pin"].as<int>()) {
-        LOGV("Switch %d: pin changed, reboot needed", newId);
-        response["reboot"] = true;
-        return;
+
+    if (type != Type::Virtual){
+      if(Switches[oldId]->getPinNumber() != singleSW["pin"].as<int>()) {
+          LOGV("Switch %d: pin changed, reboot needed", newId);
+          response["reboot"] = true;
+          return;
+        }
     }
 
     if (oldId != newId) {

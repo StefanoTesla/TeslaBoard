@@ -716,10 +716,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
     }
     if(outHalt["pin"].as<unsigned int>() != HaltClose.getPinNumber()){
         response["reboot"] = true;
-    }
-
-
-    
+    }    
 
 }
 
@@ -758,8 +755,6 @@ void Shutter::storeConfiguration(JsonObject shutterObject, const char* schema){
     JsonObject outHalt = tmpCfg["outHalt"].to<JsonObject>();
     HaltClose.copyJsonCfg(shutterObject["outHalt"],outHalt);
     HaltClose.invert = outHalt["invert"].as<bool>();
-
-    serializeJson(shutterObject,Serial);
 
     String json;
 
