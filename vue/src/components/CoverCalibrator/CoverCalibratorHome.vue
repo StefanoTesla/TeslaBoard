@@ -150,18 +150,37 @@ const stopPolling = () => {
 };
 
 const updateStatusData = () => {
-  if (coverC.value.cover.status >= 4) {
-    statusClass.value = "red";
-  } else if (coverC.value.cover.status == 2) {
-    statusClass.value = "orange";
-  } else if (
-    coverC.value.cover.status == 0 &&
-    coverC.value.calibrator.status == 0
-  ) {
+
+  // black
+  if(
+    coverC.value.cover.status <= 1 && //not present or closed
+    coverC.value.calibrator.status == 0 || coverC.value.calibrator.brightness == 0
+  ){
     statusClass.value = "black";
-  } else {
+  }
+
+  //green
+
+  if(
+    coverC.value.cover.status == 3 ||
+    coverC.value.calibrator.brightness > 0
+  ) {
     statusClass.value = "green";
   }
+
+  //orange
+  if(coverC.value.cover.status == 2) {
+    statusClass.value = "orange";
+  }
+
+  //red
+  if(
+    coverC.value.cover.status == 5 ||
+    coverC.value.calibrator.status == 5
+  ){
+    statusClass.value = "red";
+  }
+
 
   canOpenCover.value =
     coverC.value.cover.status == 2 || coverC.value.cover.status == 3
