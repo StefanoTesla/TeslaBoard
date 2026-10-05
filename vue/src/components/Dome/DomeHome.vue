@@ -71,7 +71,7 @@ const fetchData = async () => {
     dome.value = data
     dataLoaded.value = true
 
-    const classes = ['green', 'green', 'orange', 'orange', 'red']
+    const classes = ['green', 'black', 'orange', 'orange', 'red']
     statusClass.value = classes[dome.value.shutter.roofState] 
     
   } catch (error) {
