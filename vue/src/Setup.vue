@@ -81,7 +81,7 @@ const loadInitConfig = async () => {
     const data = await response.json();
 
     components.value = data.define;
-    setEspType(1)
+    setEspType(data.espType)
     await loadTranslations(data.locale);
     txtLoaded.value = true;
   } catch (error) {
