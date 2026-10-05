@@ -615,7 +615,7 @@ void Shutter::validateConfiguration(const JsonObject &obj, JsonObject response){
 
 
     int tmp = obj["driverType"].as<int>();
-    if(tmp < 0 || tmp > 3){
+    if(tmp < 1 || tmp > 3){
         err.add("DriveTypeOutRange");
         return;
     }
