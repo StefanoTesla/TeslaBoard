@@ -10,7 +10,7 @@
         <p>{{ t("coverC.calibrator") }}</p>
       </div>
       <div class="flex items-center justify-center">
-        <p>{{ t("coverC.home.coverState") }}</p>
+        <p>{{ t("coverC.home.calibratorState") }}</p>
         <span v-if="coverC.calibrator.status == 1">{{
           t("coverC.home.calibEnum.off")
         }}</span>
@@ -68,7 +68,7 @@
       </div>
       <div class="flex justify-center">
         <p>{{ t("gen.status.actualPos") }}</p>
-        <p class="pl-2">{{ coverC.cover.angle }}°</p>
+        <p class="pl-2">{{ coverC.cover.angle }}%</p>
       </div>
     </div>
   </Card>
@@ -154,7 +154,7 @@ const updateStatusData = () => {
   // black
   if(
     coverC.value.cover.status <= 1 && //not present or closed
-    coverC.value.calibrator.status == 0 || coverC.value.calibrator.brightness == 0
+    (coverC.value.calibrator.status == 0 || coverC.value.calibrator.brightness == 0)
   ){
     statusClass.value = "black";
   }

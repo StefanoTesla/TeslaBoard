@@ -45,11 +45,11 @@
 			"timeout": "Timeout",
 			"autoClose": "Automatic Closing",
 			"timeOutMoviment" : "Maximum Movement Time:",
-    		"autoclosewarning1": "Warning: read carefully before enabling it.",
-    		"autoclosewarning2": "This option automatically closes the roof if the roof is open AND there is no communication with the board (regarding the DOME) through the ASCOM driver",
-    		"autoclosewarning3": "For example, in the event of a temporary blackout, once power is restored and the PC is likely still off or the sequence management software has not restarted, it will wait for the configured minutes, after which the roof will be closed, REGARDLESS of the state of the equipment (telescope).",
-    		"autoclosewarning4": "In case of roof maintenance, this function must be disabled to prevent automatic closing.",
-    		"autoclosewarning5": "By enabling this function you confirm that you have read and understood the risks this function may pose to you and your equipment.",
+			"autoclosewarning1": "Warning: read carefully before enabling it.",
+			"autoclosewarning2": "This option automatically closes the roof if the roof is open AND there is no communication with the board (regarding the DOME) through the ASCOM driver.",
+			"autoclosewarning3": "For example, in the event of a temporary blackout, once power is restored and the PC is likely still off or the sequence management software has not restarted, it will wait for the configured minutes, after which the roof will be closed, REGARDLESS of the state of the equipment (telescope).",
+			"autoclosewarning4": "In case of roof maintenance, this function must be disabled to prevent automatic closing.",
+			"autoclosewarning5": "By enabling this function you confirm that you have read and understood the risks this function may pose to you and your equipment.",
 			"autoCloseEn": "Enable Automatic Closing:",
 			"autoCloseMin": "Close after:",
 			"driverTypeEnum":{
@@ -72,7 +72,7 @@
 				"error" : "Error"
 			},
 			"calibEnum":{
-				"notPreset":"Not Present",
+				"notPresent":"Not Present",
 				"off":"Off",
 				"notReady":"Not Ready",
 				"ready":"Ready",
@@ -93,9 +93,9 @@
 		"title": "Switches",
 		"switch": "Switch"
 	},
-		"safety":{
+	"safety":{
 		"title": "Safety Monitor",
-		"status": "Safety status sicurezza:",
+		"status": "Safety status:",
 		"Conditions":{
 			"title":"Conditions",
 			"setup":{
@@ -109,18 +109,19 @@
 					"minEq":"less or equal",
 					"Equal":"equal",
 					"GreEq":"greater or equal",
-					"Greater":"greater "
+					"Greater":"greater"
 				}
 			},
 			"home":{
 				"actualValue": "actual value",
-				"is": "is",
-				"isnt": "isn't",
-				"minus": "less than",
-				"minEqual": "less than or equal to",
-				"equal": "equal to",
-				"greEqual": "greater than or equal to",
-				"greater": "greater than"
+				"is": "is ",
+				"isnt": "is not ",
+				"minus": "less than ",
+				"minEqual": "less than or equal to ",
+				"equal": "equal to ",
+				"greEqual": "greater than or equal to ",
+				"greater": "greater than ",
+				"inError": "In error, the switch no longer exists or its value has expired"
 			}
 		}
 	},
@@ -267,9 +268,22 @@
 			"SwNotWritable": "Switch not writable",
 			"limitReached": "Cannot add more switches"
 		},
+		"safety":{
+			"limitReached": "Cannot add more conditions"
+		},
+		"condition":{
+			"switchNotPresent": "Switch not present",
+			"outsideBinaryValue": "Binary switch, value must be 0 or 1",
+			"checkTypeBinary": "Binary switch, comparison must be Equal",
+			"outsidePWMValue": "PWM, value must be between 0 and 4095",
+			"outsideVirtualMinValue": "Virtual switch, value cannot be less than -2147483648",
+			"outsideVirtualGreValue": "Virtual switch, value cannot be greater than 2147483647"
+		},
 		"general":{
 			"negativeValue":"Value cannot be negative",
 			"greaterThan":"Value greater than: ",
+			"IOPinNotUsable": "Pin not usable",
+			"lowerThan":"Value less than: ",
 			"configRejected": "Invalid data. Configuration not saved",
 			"validationFailed": "Validation failed",
 			"wrongValue":"Invalid value",
@@ -287,7 +301,8 @@
 			"1": "Digital Input",
 			"2": "Digital Output",
 			"3": "PWM Output",
-			"4": "Servo Output"
+			"4": "Servo Output",
+			"5": "Virtual Input"
 		},
 		"moduleEnum": {
 			"0": "Not used",
@@ -313,6 +328,10 @@
 		},
 		"Servo":{
 			"movingTime": "Movement Time:"
+		},
+		"VI":{
+			"defaultValue": "Default Value:",
+			"expiration": "Expiration:"
 		}
 	}
 }
