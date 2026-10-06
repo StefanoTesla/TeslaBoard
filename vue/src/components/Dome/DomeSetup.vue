@@ -29,10 +29,11 @@
 
         <div class="txt pr-4">
           {{ t('gen.uiOrder') }}
-          <select id="board_locale" v-model="dome.uiOrder">
-            <option :value="1">1</option>
-            <option :value="2">2</option>
-            <option :value="3">3</option>
+          <select id="board_locale" v-model.number="dome.uiOrder">
+            <option :value=1>1</option>
+            <option :value=2>2</option>
+            <option :value=3>3</option>
+            <option :value=4>4</option>
           </select>
         </div>
         <div class="txt pr-4">
