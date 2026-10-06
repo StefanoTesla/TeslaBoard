@@ -575,3 +575,21 @@ input[type="range"] {
 .sw_sidebar{
   @apply w-full
 }
+
+
+.module-header {
+  background-color: var(--divhead);
+  @apply px-2 rounded-b-lg
+}
+
+.module-header-title {
+  @apply font-bold text-center py-2
+}
+.module-header-content {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center py-2
+}
+
+
+.module-header-content > div {
+  @apply pt-2 justify-center items-center
+}

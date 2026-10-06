@@ -5,21 +5,22 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    
-    <div class="card mb-4">
-      <p class="title">{{ t('gen.moduleSetting') }}</p>
-      <div class="setting_table">
+    <!-- Module Header Setting -->
+  <div class="module-header">
+    <div class="module-header-title">{{ t("gen.moduleSetting") }}</div>
+    <div class="mb-4">
+      <div class="module-header-content">
         <div class="flex">
-          <div class="txt pr-4">
-            {{ t('gen.moduleIs') }}
+          <div class="txt pr-2">
+            {{ t("gen.moduleIs") }}
           </div>
           <div class="module_toggle">
-            <label class="toggle" for="coverc_modlue_state">
+            <label class="toggle" for="coverc_module_state">
               <input
                 class="toggle__input"
                 name=""
                 type="checkbox"
-                id="coverc_modlue_state"
+                id="coverc_module_state"
                 v-model="coverC.enable"
                 @change="validate()"
               />
@@ -28,17 +29,17 @@
           </div>
         </div>
 
-        <div class="txt pr-4">
-          {{ t('gen.uiOrder') }}
-          <select id="board_locale" v-model.number="coverC.uiOrder">
+        <div class="flex">
+          {{ t("gen.uiOrder") }}
+          <select id="coverc_order" v-model.number="coverC.uiOrder">
             <option :value=1>1</option>
             <option :value=2>2</option>
             <option :value=3>3</option>
             <option :value=4>4</option>
           </select>
         </div>
-        <div class="txt pr-4">
-          {{ t('gen.modIdent') }}
+        <div class="flex">
+          {{ t("gen.modIdent") }}
           <input
             id="coverc_module_name"
             class="identifier"
@@ -48,6 +49,8 @@
         </div>
       </div>
     </div>
+  </div>
+
 
     <div v-if="coverC.enable">
       <div class="card mb-4">

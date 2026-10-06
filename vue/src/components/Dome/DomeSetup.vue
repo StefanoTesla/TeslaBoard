@@ -5,12 +5,15 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <div class="card mb-4">
-      <p class="title">{{ t('gen.moduleSetting') }}</p>
-      <div class="setting_table">
+
+  <!-- Module Header Setting -->
+  <div class="module-header">
+    <div class="module-header-title">{{ t("gen.moduleSetting") }}</div>
+    <div class="mb-4">
+      <div class="module-header-content">
         <div class="flex">
-          <div class="txt pr-4">
-            {{ t('gen.moduleIs') }}
+          <div class="txt pr-2">
+            {{ t("gen.moduleIs") }}
           </div>
           <div class="module_toggle">
             <label class="toggle" for="dome_module_status">
@@ -27,17 +30,17 @@
           </div>
         </div>
 
-        <div class="txt pr-4">
-          {{ t('gen.uiOrder') }}
-          <select id="board_locale" v-model.number="dome.uiOrder">
+        <div class="flex">
+          {{ t("gen.uiOrder") }}
+          <select id="dome_order" v-model.number="dome.uiOrder">
             <option :value=1>1</option>
             <option :value=2>2</option>
             <option :value=3>3</option>
             <option :value=4>4</option>
           </select>
         </div>
-        <div class="txt pr-4">
-          {{ t('gen.modIdent') }}
+        <div class="flex">
+          {{ t("gen.modIdent") }}
           <input
             id="dome_module_name"
             class="identifier"
@@ -47,6 +50,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+
     <div v-if="dome.enable">
       <p class="title">Shutter</p>
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">

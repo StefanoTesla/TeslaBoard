@@ -5,12 +5,15 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <div class="card mb-4">
-      <p class="title">{{ t('gen.moduleSetting') }}</p>
-      <div class="setting_table">
+
+  <!-- Module Header Setting -->
+  <div class="module-header">
+    <div class="module-header-title">{{ t("gen.moduleSetting") }}</div>
+    <div class="mb-4">
+      <div class="module-header-content">
         <div class="flex">
-          <div class="txt pr-4">
-            {{ t('gen.moduleIs') }}
+          <div class="txt pr-2">
+            {{ t("gen.moduleIs") }}
           </div>
           <div class="module_toggle">
             <label class="toggle" for="safety_module_status">
@@ -27,17 +30,17 @@
           </div>
         </div>
 
-        <div class="txt pr-4">
-          {{ t('gen.uiOrder') }}
-          <select id="board_locale" v-model.number="safety.uiOrder">
-            <option :value="1">1</option>
-            <option :value="2">2</option>
-            <option :value="3">3</option>
-            <option :value="4">4</option>
+        <div class="flex">
+          {{ t("gen.uiOrder") }}
+          <select id="safety_order" v-model.number="safety.uiOrder">
+            <option :value=1>1</option>
+            <option :value=2>2</option>
+            <option :value=3>3</option>
+            <option :value=4>4</option>
           </select>
         </div>
-        <div class="txt pr-4">
-          {{ t('gen.modIdent') }}
+        <div class="flex">
+          {{ t("gen.modIdent") }}
           <input
             id="safety_module_name"
             class="identifier"
@@ -47,7 +50,7 @@
         </div>
       </div>
     </div>
-
+  </div>
     <div v-if="safety.enable">
       <div class="card">
         <p class="title">{{ t('safety.Conditions.title') }}</p>

@@ -5,11 +5,14 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
-    <p class="title">{{ t("gen.moduleSetting") }}</p>
-    <div class="card mb-4">
-      <div class="setting_table">
+
+  <!-- Module Header Setting -->
+  <div class="module-header">
+    <div class="module-header-title">{{ t("gen.moduleSetting") }}</div>
+    <div class="mb-4">
+      <div class="module-header-content">
         <div class="flex">
-          <div class="txt pr-4">
+          <div class="txt">
             {{ t("gen.moduleIs") }}
           </div>
           <div class="module_toggle">
@@ -27,8 +30,8 @@
           </div>
         </div>
 
-        <div class="txt pr-4">
-          {{ t("gen.uiOrder") }}
+        <div class="txt">
+          <p>{{ t("gen.uiOrder") }}</p>
           <select id="switch_order" v-model.number="switches.uiOrder">
             <option :value=1>1</option>
             <option :value=2>2</option>
@@ -36,8 +39,8 @@
             <option :value=4>4</option>
           </select>
         </div>
-        <div class="txt pr-4">
-          {{ t("gen.modIdent") }}
+        <div class="txt">
+          <p>{{ t("gen.modIdent") }}</p>
           <input
             id="switch_module_name"
             class="identifier"
@@ -47,20 +50,7 @@
         </div>
       </div>
     </div>
-    <div class="sw_tools" v-if="switches.enable">
-      <button class="ml-4 sw_add green" @click="addNewSwitch()">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 72 72"
-          width="40px"
-          height="40px"
-        >
-          <path
-            d="M36,12c13.255,0,24,10.745,24,24c0,13.255-10.745,24-24,24S12,49.255,12,36C12,22.745,22.745,12,36,12z M44,39 c1.657,0,3-1.343,3-3c0-1.657-1.343-3-3-3c-0.329,0-2.426,0-5,0c0-2.574,0-4.672,0-5c0-1.657-1.343-3-3-3c-1.657,0-3,1.343-3,3  c0,0.328,0,2.426,0,5c-2.574,0-4.671,0-5,0c-1.657,0-3,1.343-3,3c0,1.657,1.343,3,3,3c0.329,0,2.426,0,5,0c0,2.574,0,4.672,0,5  c0,1.657,1.343,3,3,3c1.657,0,3-1.343,3-3c0-0.328,0-2.426,0-5C41.574,39,43.671,39,44,39z"
-          />
-        </svg>
-      </button>
-    </div>
+  </div>
 
     <div class="sw_grid" v-if="switches.enable">
       <div class="sw_setup_card" v-for="(swi, index) in switches.Switches" :key="index">
@@ -206,7 +196,20 @@
         
       </div>
     </div>
-
+    <div class="sw_tools" v-if="switches.enable">
+      <button class="ml-4 sw_add green" @click="addNewSwitch()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 72 72"
+          width="40px"
+          height="40px"
+        >
+          <path
+            d="M36,12c13.255,0,24,10.745,24,24c0,13.255-10.745,24-24,24S12,49.255,12,36C12,22.745,22.745,12,36,12z M44,39 c1.657,0,3-1.343,3-3c0-1.657-1.343-3-3-3c-0.329,0-2.426,0-5,0c0-2.574,0-4.672,0-5c0-1.657-1.343-3-3-3c-1.657,0-3,1.343-3,3  c0,0.328,0,2.426,0,5c-2.574,0-4.671,0-5,0c-1.657,0-3,1.343-3,3c0,1.657,1.343,3,3,3c0.329,0,2.426,0,5,0c0,2.574,0,4.672,0,5  c0,1.657,1.343,3,3,3c1.657,0,3-1.343,3-3c0-0.328,0-2.426,0-5C41.574,39,43.671,39,44,39z"
+          />
+        </svg>
+      </button>
+    </div>
     <div class="config_buttons">
       <button class="green cursor-pointer" @click="getOriginal()">
         {{ t("gen.loadFromBoard") }}
