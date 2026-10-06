@@ -46,9 +46,9 @@
 			"autoClose": "Automatisches Schließen",
 			"timeOutMoviment" : "Maximale Bewegungszeit:",
 			"autoclosewarning1": "Warnung, bitte vor Aktivierung sorgfältig lesen.",
-			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn das Dach offen ist UND WLAN verbunden ist UND keine Kommunikation mit der Steuerplatine (bezüglich der KUPPEL) besteht.",
+			"autoclosewarning2": "Diese Option schließt das Dach automatisch, wenn das Dach offen ist UND keine Kommunikation mit der Steuerplatine (bezüglich der KUPPEL) über den ASCOM-Treiber besteht.",
 			"autoclosewarning3": "Bei einem vorübergehenden Stromausfall wartet das System nach Wiederkehr der Spannung die eingestellten Minuten und schließt anschließend das Dach UNABHÄNGIG vom Status der Ausrüstung (Teleskop).",
-			"autoclosewarning4": "Bei Wartungsarbeiten am Dach den Browser auf der Hauptseite geöffnet lassen oder diese Funktion deaktivieren.",
+			"autoclosewarning4": "Bei Wartungsarbeiten am Dach diese Funktion deaktivieren, um ein automatisches Schließen zu verhindern.",
 			"autoclosewarning5": "Durch Aktivierung dieser Funktion bestätigen Sie, dass Sie die Risiken für sich und Ihre Ausrüstung verstanden haben.",
 			"autoCloseEn": "Automatisches Schließen aktivieren:",
 			"autoCloseMin": "Schließen nach:",
@@ -72,7 +72,7 @@
 				"error" : "Fehler"
 			},
 			"calibEnum":{
-				"notPreset":"Nicht vorhanden",
+				"notPresent":"Nicht vorhanden",
 				"off":"Aus",
 				"notReady":"Nicht bereit",
 				"ready":"Bereit",
@@ -92,6 +92,38 @@
 	"switch":{
 		"title": "Schalter",
 		"switch": "Schalter"
+	},
+	"safety":{
+		"title": "Sicherheit",
+		"status": "Sicherheitsstatus:",
+		"Conditions":{
+			"title":"Bedingungen",
+			"setup":{
+				"swName":"Schalter",
+				"name":"Bedingungsname",
+				"checkType":"Sicher wenn",
+				"checkValue": "von",
+				"checkTypeEnum":
+				{
+					"min":"kleiner",
+					"minEq":"kleiner oder gleich",
+					"Equal":"gleich",
+					"GreEq":"größer oder gleich",
+					"Greater":"größer"
+				}
+			},
+			"home":{
+				"actualValue": "der aktuelle Wert",
+				"is": "ist ",
+				"isnt": "ist nicht ",
+				"minus": "kleiner als ",
+				"minEqual": "kleiner oder gleich ",
+				"equal": "gleich ",
+				"greEqual": "größer oder gleich ",
+				"greater": "größer als ",
+				"inError": "Fehler: Der Schalter existiert nicht mehr oder sein Wert ist abgelaufen"
+			}
+		}
 	},
 	"gen":{
 		"status":{
@@ -236,9 +268,22 @@
 			"SwNotWritable": "Schalter nicht beschreibbar",
 			"limitReached": "Keine weiteren Schalter möglich"
 		},
+		"safety":{
+			"limitReached": "Es können keine weiteren Bedingungen hinzugefügt werden"
+		},
+		"condition":{
+			"switchNotPresent": "Schalter nicht vorhanden",
+			"outsideBinaryValue": "Binärer Schalter, der Wert muss 0 oder 1 sein",
+			"checkTypeBinary": "Binärer Schalter, der Vergleich muss Gleich sein",
+			"outsidePWMValue": "PWM, der Wert muss zwischen 0 und 4095 liegen",
+			"outsideVirtualMinValue": "Virtueller Schalter, der Wert darf nicht kleiner als -2147483648 sein",
+			"outsideVirtualGreValue": "Virtueller Schalter, der Wert darf nicht größer als 2147483647 sein"
+		},
 		"general":{
 			"negativeValue":"Wert darf nicht negativ sein",
 			"greaterThan":"Wert größer als: ",
+			"IOPinNotUsable": "Pin nicht verwendbar",
+			"lowerThan":"Wert kleiner als: ",
 			"configRejected": "Ungültige Daten. Konfiguration nicht gespeichert",
 			"validationFailed": "Validierung fehlgeschlagen",
 			"wrongValue":"Ungültiger Wert",
@@ -256,7 +301,8 @@
 			"1": "Digitaler Eingang",
 			"2": "Digitaler Ausgang",
 			"3": "PWM-Ausgang",
-			"4": "Servo-Ausgang"
+			"4": "Servo-Ausgang",
+			"5": "Virtueller Eingang"
 		},
 		"moduleEnum": {
 			"0": "Nicht verwendet",
@@ -282,6 +328,10 @@
 		},
 		"Servo":{
 			"movingTime": "Bewegungszeit:"
+		},
+		"VI":{
+			"defaultValue": "Standardwert:",
+			"expiration": "Ablauf:"
 		}
 	}
 }

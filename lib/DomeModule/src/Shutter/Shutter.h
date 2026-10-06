@@ -81,7 +81,7 @@ private:
     struct autoCloseConfig{
         bool enable = false;
         unsigned long waitingTime = 30; //[min] during the setup is multiplied by 60000 to conver minutes to ms
-        unsigned long lastCommunication; //[ms] the last comunication millis from api or alpaca
+        unsigned long lastCommunication = 0; //[ms] the last comunication millis from api or alpaca
     };
 
     autoCloseConfig autoClose;

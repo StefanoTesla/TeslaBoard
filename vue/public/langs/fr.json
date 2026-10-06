@@ -46,9 +46,9 @@
 			"autoClose": "Fermeture Automatique",
 			"timeOutMoviment" : "Temps maximum de mouvement :",
 			"autoclosewarning1": "Attention, lire attentivement avant activation.",
-			"autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET le WiFi est connecté ET qu’il n’y a aucune communication avec la carte (concernant la COUPOLE).",
+			"autoclosewarning2": "Cette option ferme automatiquement le toit si le toit est ouvert ET qu’il n’y a aucune communication avec la carte (concernant la COUPOLE) via le pilote ASCOM.",
 			"autoclosewarning3": "En cas de coupure de courant temporaire, au retour de l’alimentation, si le PC reste éteint ou que les logiciels ne redémarrent pas, le système attendra le temps configuré puis fermera le toit indépendamment de l’état de l’équipement (télescope).",
-			"autoclosewarning4": "En cas de maintenance du toit, laisser le navigateur ouvert sur la page principale ou désactiver cette fonction.",
+			"autoclosewarning4": "En cas de maintenance du toit, cette fonction doit être désactivée pour éviter la fermeture automatique.",
 			"autoclosewarning5": "En activant cette fonction vous confirmez avoir lu et compris les risques pour vous et votre équipement.",
 			"autoCloseEn": "Activation Fermeture Automatique :",
 			"autoCloseMin": "Fermer après :",
@@ -72,7 +72,7 @@
 				"error" : "Erreur"
 			},
 			"calibEnum":{
-				"notPreset":"Non présent",
+				"notPresent":"Non présent",
 				"off":"Off",
 				"notReady":"Non prêt",
 				"ready":"Prêt",
@@ -92,6 +92,38 @@
 	"switch":{
 		"title": "Interrupteurs",
 		"switch": "Interrupteur"
+	},
+	"safety":{
+		"title": "Sécurité",
+		"status": "État de sécurité :",
+		"Conditions":{
+			"title":"Conditions",
+			"setup":{
+				"swName":"Interrupteur",
+				"name":"Nom Condition",
+				"checkType":"Sûr si",
+				"checkValue": "de",
+				"checkTypeEnum":
+				{
+					"min":"inférieur",
+					"minEq":"inférieur ou égal",
+					"Equal":"égal",
+					"GreEq":"supérieur ou égal",
+					"Greater":"supérieur"
+				}
+			},
+			"home":{
+				"actualValue": "la valeur actuelle",
+				"is": "est ",
+				"isnt": "n'est pas ",
+				"minus": "inférieur à ",
+				"minEqual": "inférieur ou égal à ",
+				"equal": "égal à ",
+				"greEqual": "supérieur ou égal à ",
+				"greater": "supérieur à ",
+				"inError": "En erreur, l'interrupteur n'existe plus ou sa valeur a expiré"
+			}
+		}
 	},
 	"gen":{
 		"status":{
@@ -236,9 +268,22 @@
 			"SwNotWritable": "Switch non inscriptible",
 			"limitReached": "Impossible d’ajouter d’autres interrupteurs"
 		},
+		"safety":{
+			"limitReached": "Impossible d'ajouter d'autres conditions"
+		},
+		"condition":{
+			"switchNotPresent": "Interrupteur inexistant",
+			"outsideBinaryValue": "Interrupteur binaire, la valeur doit être 0 ou 1",
+			"checkTypeBinary": "Interrupteur binaire, la comparaison doit être Égal",
+			"outsidePWMValue": "PWM, la valeur doit être comprise entre 0 et 4095",
+			"outsideVirtualMinValue": "Interrupteur virtuel, la valeur ne peut pas être inférieure à -2147483648",
+			"outsideVirtualGreValue": "Interrupteur virtuel, la valeur ne peut pas être supérieure à 2147483647"
+		},
 		"general":{
 			"negativeValue":"La valeur ne peut pas être négative",
 			"greaterThan":"Valeur supérieure à : ",
+			"IOPinNotUsable": "Pin non utilisable",
+			"lowerThan":"Valeur inférieure à : ",
 			"configRejected": "Données invalides. Configuration non sauvegardée",
 			"validationFailed": "Validation échouée",
 			"wrongValue":"Valeur incorrecte",
@@ -256,7 +301,8 @@
 			"1": "Entrée Digitale",
 			"2": "Sortie Digitale",
 			"3": "Sortie PWM",
-			"4": "Sortie Servo"
+			"4": "Sortie Servo",
+			"5": "Entrée Virtuelle"
 		},
 		"moduleEnum": {
 			"0": "Non utilisée",
@@ -282,6 +328,10 @@
 		},
 		"Servo":{
 			"movingTime": "Temps de mouvement :"
+		},
+		"VI":{
+			"defaultValue": "Valeur par défaut :",
+			"expiration": "Expiration :"
 		}
 	}
 }

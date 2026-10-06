@@ -1,6 +1,6 @@
 <template>
   <Card
-    v-if="t('switch')"
+    v-if="t('coverC')"
     :moduleName="t('coverC.title')"
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"

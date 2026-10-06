@@ -141,7 +141,7 @@ DomeModule::DomeSerialCommand DomeModule::parseCommand(const char* cmd) {
   if (strcmp(cmd, "AT_HOME") == 0)     return DomeSerialCommand::AtHome;
   if (strcmp(cmd, "AT_PARK") == 0)     return DomeSerialCommand::AtPark;
   if (strcmp(cmd, "SLEW_ALTI") == 0)     return DomeSerialCommand::SlewToAltitude;
-  if (strcmp(cmd, "SLEW_AZI") == 0)     return DomeSerialCommand::SlewToAltitude;
+  if (strcmp(cmd, "SLEW_AZI") == 0)     return DomeSerialCommand::SlewToAzimuth;
   if (strcmp(cmd, "CAN_HOME") == 0)     return DomeSerialCommand::CanFindHome;
   if (strcmp(cmd, "CAN_SET_AZI") == 0)     return DomeSerialCommand::CanSetAzi;
   if (strcmp(cmd, "CAN_SET_PARK") == 0)     return DomeSerialCommand::CanSetPark;
@@ -183,6 +183,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
       return false;
     }
     
+    shutter.updateLastCommunication();
     switch (command){
 
       case DomeSerialCommand::Name:
@@ -247,7 +248,12 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
         return true;
       /* thing this board can do*/ 
       case DomeSerialCommand::CanSetShutter:
+      if(shutter.isEnable()){
+        out.print("<true>");
+      } else {
         out.print("<false>");
+      }
+        
         return true;
 
       case DomeSerialCommand::ShutterStatus:

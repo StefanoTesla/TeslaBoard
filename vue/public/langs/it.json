@@ -72,7 +72,7 @@
 				"error" : "Errore"
 			},
 			"calibEnum":{
-				"notPreset":"Non Presente",
+				"notPresent":"Non Presente",
 				"off":"Off",
 				"notReady":"Non Pronto",
 				"ready":"Pronto",
@@ -154,7 +154,7 @@
 		"utility":"Utility",
 		"moduleIs":"Attiva\\Disattiva Modulo",
 		"uiOrder": "Posizione nella Home Page",
-		"modIdent": "identificatore",
+		"modIdent": "Identificatore",
 		"moduleSetting": "Configurazione Modulo"
 	},
 	"board":{
