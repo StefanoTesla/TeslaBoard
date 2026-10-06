@@ -12,9 +12,9 @@
     <div class="mb-4">
       <div class="module-header-content">
         <div class="flex">
-          <div class="txt">
+          <p class="txt pr-2">
             {{ t("gen.moduleIs") }}
-          </div>
+          </p>
           <div class="module_toggle">
             <label class="toggle" for="switch_module_status">
               <input
@@ -30,8 +30,8 @@
           </div>
         </div>
 
-        <div class="txt">
-          <p>{{ t("gen.uiOrder") }}</p>
+        <div class="flex">
+          {{ t("gen.uiOrder") }}
           <select id="switch_order" v-model.number="switches.uiOrder">
             <option :value=1>1</option>
             <option :value=2>2</option>
@@ -39,8 +39,8 @@
             <option :value=4>4</option>
           </select>
         </div>
-        <div class="txt">
-          <p>{{ t("gen.modIdent") }}</p>
+        <div class="flex">
+          {{ t("gen.modIdent") }}
           <input
             id="switch_module_name"
             class="identifier"

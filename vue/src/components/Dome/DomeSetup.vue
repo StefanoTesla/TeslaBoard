@@ -12,9 +12,9 @@
     <div class="mb-4">
       <div class="module-header-content">
         <div class="flex">
-          <div class="txt pr-2">
+          <p class="txt pr-2">
             {{ t("gen.moduleIs") }}
-          </div>
+          </p>
           <div class="module_toggle">
             <label class="toggle" for="dome_module_status">
               <input
