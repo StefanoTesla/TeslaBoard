@@ -104,14 +104,14 @@
 				"checkType":"Sicuro se",
 				"checkValue": "di",
 				"checkTypeEnum":
-				{
-					"min":"minore",
-					"minEq":"minore o uguale",
-					"Equal":"uguale",
-					"GreEq":"maggiore o uguale",
-					"Greater":"maggiore"
-				}
-			},
+								{
+									"min":"minore",
+									"minEq":"minore o uguale",
+									"Equal":"uguale",
+									"GreEq":"maggiore o uguale",
+									"Greater":"maggiore"
+								}
+					},
 			"home":{
 				"actualValue": "il valore attuale",
 				"is": "è ",
