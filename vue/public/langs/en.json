@@ -121,7 +121,11 @@
 				"equal": "equal to ",
 				"greEqual": "greater than or equal to ",
 				"greater": "greater than ",
-				"inError": "In error, the switch no longer exists or its value has expired"
+				"inError": "In error, the switch no longer exists or its value has expired",
+				"status":{
+					"isSafe":"SICURO",
+					"notSafe": "NON SICURO"
+				}
 			}
 		}
 	},

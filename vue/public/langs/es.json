@@ -121,7 +121,11 @@
 				"equal": "igual a ",
 				"greEqual": "mayor o igual a ",
 				"greater": "mayor que ",
-				"inError": "En error, el interruptor ya no existe o su valor ha expirado"
+				"inError": "En error, el interruptor ya no existe o su valor ha expirado",
+				"status":{
+					"isSafe":"SEGURO",
+					"notSafe": "INSEGURO"
+				}
 			}
 		}
 	},

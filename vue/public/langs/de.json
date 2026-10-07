@@ -121,7 +121,11 @@
 				"equal": "gleich ",
 				"greEqual": "größer oder gleich ",
 				"greater": "größer als ",
-				"inError": "Fehler: Der Schalter existiert nicht mehr oder sein Wert ist abgelaufen"
+				"inError": "Fehler: Der Schalter existiert nicht mehr oder sein Wert ist abgelaufen",
+				"status":{
+					"isSafe":"SICHER",
+					"notSafe": "UNSICHER"
+				}
 			}
 		}
 	},

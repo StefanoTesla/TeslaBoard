@@ -121,7 +121,11 @@
 				"equal": "uguale a",
 				"greEqual": "maggiore o uguale a",
 				"greater": "maggiore di",
-				"inError": "In errore, l'interruttore non esiste più o il suo valore è scaduto"
+				"inError": "In errore, l'interruttore non esiste più o il suo valore è scaduto",
+				"status":{
+					"isSafe":"SICURO",
+					"notSafe": "NON SICURO"
+				}
 			}
 		}
 	},
