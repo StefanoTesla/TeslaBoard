@@ -64,7 +64,7 @@
 		"calibrator" :"Flat Panel",
 		"cover": "Coperchio",
 		"home":{
-			"coverState": "Stato del Flat Panel: ",
+			"state": "Stato: ",
 			"coverEnum":{
 				"notPresent": "Non presente",
 				"moving": "In Movimento",

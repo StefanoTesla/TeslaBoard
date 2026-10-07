@@ -5,18 +5,15 @@
     :dataLoaded="dataLoaded"
     :statusClass="statusClass"
   >
+  <!-- CALIBRATOR AREA -->
     <div class="card" v-if="coverC.calibrator.status > 0">
       <div class="title">
         <p>{{ t("coverC.calibrator") }}</p>
       </div>
       <div class="flex items-center justify-center">
-        <p>{{ t("coverC.home.calibratorState") }}</p>
-        <span v-if="coverC.calibrator.status == 1">{{
-          t("coverC.home.calibEnum.off")
-        }}</span>
-        <span v-if="coverC.calibrator.status == 3">{{
-          t("coverC.home.calibEnum.ready")
-        }}</span>
+        <p class="pr-2">{{ t("coverC.home.state") }}</p>
+        <span v-if="coverC.calibrator.status == 1">{{ t("coverC.home.calibEnum.off") }}</span>
+        <span v-if="coverC.calibrator.status == 3">{{ t("coverC.home.calibEnum.ready")}}</span>
       </div>
       <div class="range xl:max-w-3xl xl:mx-auto">
         <input
@@ -32,7 +29,7 @@
         <p>{{ t("gen.status.actualValue") }}</p>
         <p class="pl-2">{{ coverC.calibrator.brightness }}/4095</p>
       </div>
-      <div class="flex justify-around">
+      <div class="flex justify-around pt-2">
         <button
           :class="calibratorPowerOnCmdClass"
           @click="calibratorPowerOnCmd"
@@ -47,15 +44,17 @@
         </button>
       </div>
     </div>
+
+    <!-- COVER AREA -->
     <div class="card mt-4" v-if="coverC.cover.status > 0">
       <div class="title">
         <p>{{ t("coverC.cover") }}</p>
       </div>
       <div class="flex justify-center">
-        <p>{{ t("coverC.home.coverState") }}</p>
+        <p>{{ t("coverC.home.state") }}</p>
         <p class="pl-2">{{ coverStatus }}</p>
       </div>
-      <div class="flex justify-around">
+      <div class="flex justify-around py-2">
         <button :class="coverOpenCmdClass" @click="coverOpenCmd">
           {{ t("gen.action.open") }}
         </button>

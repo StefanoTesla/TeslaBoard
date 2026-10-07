@@ -64,7 +64,7 @@
 		"calibrator" :"Flat Panel",
 		"cover": "Tapa",
 		"home":{
-			"coverState": "Estado de la tapa: ",
+			"state": "Estado: ",
 			"coverEnum":{
 				"notPresent": "No presente",
 				"moving": "En Movimiento",

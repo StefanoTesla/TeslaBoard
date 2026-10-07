@@ -64,7 +64,7 @@
 		"calibrator" :"Flat Panel",
 		"cover": "Abdeckung",
 		"home":{
-			"coverState": "Status der Abdeckung: ",
+			"state": "Status: ",
 			"coverEnum":{
 				"notPresent": "Nicht vorhanden",
 				"moving": "In Bewegung",
