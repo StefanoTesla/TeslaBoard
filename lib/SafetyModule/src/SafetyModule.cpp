@@ -342,7 +342,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-        out.print("<CC:ERR:BAD_CMD:NULLPTR>");
+        out.print("<SF:ERR:BAD_CMD:NULLPTR>");
         return false;
     }
 
@@ -351,11 +351,17 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
     command = parseCommand(cmd);
 
     if (command == SafetySerialCommand::Unknown) {
-        out.print("<CC:ERR:BAD_CMD:UNKNOW>");
+        out.print("<SF:ERR:BAD_CMD:UNKNOW>");
         return false;
     }
 
     switch (command) {
+
+        case SafetySerialCommand::IsSafe:
+            out.print("<SF:");
+            out.print(isSafe() ? "true" : "false");
+            out.print(">");
+            return true;
 
         case SafetySerialCommand::Desc:
             out.print("<SF:OK:");

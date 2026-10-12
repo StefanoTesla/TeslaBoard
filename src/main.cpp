@@ -120,6 +120,8 @@ void loop() {
         CoverCalibrator.handlePacket(payload, Serial);
       } else if (strcmp(moduleToken, "SW") == 0) {
         Switches.handlePacket(payload, Serial);
+      } else if (strcmp(moduleToken, "SF") == 0) {
+        Safety.handlePacket(payload, Serial);
       } else {
         Serial.print("<ERR:UNKNOWN_MOD>");
       }
