@@ -104,7 +104,7 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<ERR:SWITCH:BAD_CMD>");
+      out.print("<BO:ERR:SWITCH:BAD_CMD>");
       return false;
     }
 
@@ -114,7 +114,7 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
         char* variable = strtok_r(nullptr, ":", &saveptr);
         LOGI("richiesta di lettura della nvs");
         if(!NvsManager::getInstance().openNVS(true,nameSpace)){
-            out.print("<ERR:BO:NVS_NO_OPEN>");
+            out.print("<BO:ERR:NVS_NO_OPEN>");
             closeNVS();
             return false;
         }
@@ -135,16 +135,22 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
 
     }
     if (strcmp(cmd, "CONNECT") == 0) {
-            out.print("<OK>");
+            out.print("<BO:OK>");
         return true;
     }
     if (strcmp(cmd, "KEEP_ALIVE") == 0) {
-            out.print("<YEAH>");
+            out.print("<BO:YEAH>");
         return true;
     }
     if (strcmp(cmd, "GET_IP") == 0) {
             out.print("<");
             out.print(WiFi.localIP());
+            out.print(">");
+        return true;
+    }
+    if (strcmp(cmd, "GET_IDENTIFIER") == 0) {
+            out.print("<");
+            out.print(getIdentifier());
             out.print(">");
         return true;
     }
