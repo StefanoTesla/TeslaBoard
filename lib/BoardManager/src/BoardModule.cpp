@@ -1,5 +1,6 @@
 #include "BoardModule.h"
 #include "esp_log.h"
+#include <WiFi.h>
 
 #undef LOG_TAG
 #define LOG_TAG "Board"
@@ -139,6 +140,12 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
     }
     if (strcmp(cmd, "KEEP_ALIVE") == 0) {
             out.print("<YEAH>");
+        return true;
+    }
+    if (strcmp(cmd, "GET_IP") == 0) {
+            out.print("<");
+            out.print(WiFi.localIP());
+            out.print(">");
         return true;
     }
     out.print("<ERR:BOARD:UNKNOWN_CMD>");

@@ -159,7 +159,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<ERR:BAD_CMD:NULLPTR>");
+      out.print("<DO:ERR:BAD_CMD:NULLPTR>");
       return false;
     }
 
@@ -168,7 +168,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     */
 
     if(!isEnable()){
-      out.print("<ERR:NOT_ENABLE>");
+      out.print("<DO:ERR:NOT_ENABLE>");
       return false;
     }
 
@@ -179,7 +179,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     If command is not listed return the error
     */
     if (command == DomeSerialCommand::Unknown) {
-      out.print("<ERR:BAD_CMD:UNKNOW>");
+      out.print("<DO:ERR:BAD_CMD:UNKNOW>");
       return false;
     }
     
@@ -187,37 +187,37 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     switch (command){
 
       case DomeSerialCommand::Name:
-        out.print("<");
+        out.print("<DO:");
         out.print(getIdentifier());
         out.print("- TeslaBoard>");
         return true;
 
       case DomeSerialCommand::Desc:
-        out.print("<OK:");
+        out.print("<DO:OK:");
         out.print("Dome - TeslaBoard 4.0 via USB");
         out.print(">");
         return true;
 
       case DomeSerialCommand::IntVersion:
-        out.print("<");
+        out.print("<DO:");
         out.print("3");
         out.print(">");
         return true;
 
       case DomeSerialCommand::Connect:
       case DomeSerialCommand::Disconnect:
-        out.print("<OK>");
+        out.print("<DO:OK>");
         return true;
 
       case DomeSerialCommand::Connecting:
-        out.print("<false>");
+        out.print("<DO:false>");
         return true;
       case DomeSerialCommand::Connected:
-        out.print("<true>");
+        out.print("<DO:true>");
         return true;
 
       case DomeSerialCommand::SupportedActions:
-        out.print("<>");
+        out.print("<DO:>");
         return true;
 
       /* Not Implemented metods/property*/
@@ -235,7 +235,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
       case DomeSerialCommand::Park:
       case DomeSerialCommand::SetPark:
       case DomeSerialCommand::SlewToAzimuth:
-        out.print("<ERR:NOT_IMPL>");
+        out.print("<DO:ERR:NOT_IMPL>");
         return true;
 
       /* thing this board can't do*/
@@ -244,67 +244,71 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
       case DomeSerialCommand::CanSetPark:
       case DomeSerialCommand::CanSlave:
       case DomeSerialCommand::CanSyncAzimuth:
-        out.print("<false>");
+        out.print("<DO:false>");
         return true;
       /* thing this board can do*/ 
       case DomeSerialCommand::CanSetShutter:
-      if(shutter.isEnable()){
-        out.print("<true>");
-      } else {
-        out.print("<false>");
-      }
-        
+        if(shutter.isEnable()){
+          out.print("<DO:true>");
+        } else {
+          out.print("<DO:false>");
+        }
         return true;
 
+      case DomeSerialCommand::DeviceState:
+          out.print("<DO:");
+          out.print(static_cast<int>(shutter.getStatus()));
+          out.print(",");
+          out.print(shutter.getActualCommand() != 0 ? "1" : "0");
+          out.print(">");
+          return true;
+
       case DomeSerialCommand::ShutterStatus:
-        out.print("<");
+        out.print("<DO:");
         out.print(shutter.getStatus());
         out.print(">");
         return true;
 
       case DomeSerialCommand::AbortSlew:
         shutter.halt();
-        out.print("<false>");
+        out.print("<DO:OK>");
         return true;
 
       case DomeSerialCommand::OpenShutter:
         if(shutter.canOpen()){
           shutter.open();
-          out.print("<OK>");
+          out.print("<DO:OK>");
           return true;
         }
 
         if(shutter.getActualCommand() != 0 ){
-          out.print("<ERR:ALREADY_MOVING>");
-          return false;
+          out.print("<DO:ERR:ALREADY_MOVING>");
         } else {
-          out.print("<ERR:ALREADY_OPEN>");
-          return false;
+          out.print("<DO:ERR:ALREADY_OPEN>");
         }
+        return false;
         
       case DomeSerialCommand::CloseShutter:
         if(shutter.canClose()){
           shutter.close();
-          out.print("<OK>");
+          out.print("<DO:OK>");
           return true;
         }
 
         if(shutter.getActualCommand() != 0 ){
-          out.print("<ERR:ALREADY_MOVING>");
-          return false;
+          out.print("<DO:ERR:ALREADY_MOVING>");
         } else {
-          out.print("<ERR:ALREADY_CLOSED>");
-          return false;
+          out.print("<DO:ERR:ALREADY_CLOSED>");
         }
+        return false;
 
       case DomeSerialCommand::Slewing:
         if(shutter.getActualCommand() != 0){
-          out.print("<true>");
-          return true;
-        } else {
-          out.print("<false>");
+          out.print("<DO:true>");
           return true;
         }
+        out.print("<DO:false>");
+        return true;
 
     }
    
@@ -312,6 +316,6 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
 
 
     /* If i'm here I don't know why :( */
-    out.print("<ERR:BAD_CMD:UNKNOW_CMD>");
+    out.print("<DO:ERR:BAD_CMD:UNKNOW_CMD>");
     return false;
   }
