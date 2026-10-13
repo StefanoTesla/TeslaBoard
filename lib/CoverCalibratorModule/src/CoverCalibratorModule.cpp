@@ -288,7 +288,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
             char* chBrightness = strtok_r(nullptr, ":", &saveptr);
             if (chBrightness == nullptr || *chBrightness == '\0') {
-                out.print("<CC:ERR:BAD_CMD:NO_BRI>");
+                out.print("<CC:ERR:NO_BRI>");
                 return false;
             }
 
@@ -296,7 +296,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
             long val = strtol(chBrightness, &endPtr, 10);
 
             if (*endPtr != '\0') {
-                out.print("<CC:ERR:BAD_CMD:BRI_MALFORMED>");
+                out.print("<CC:ERR:BRI_MALFORMED>");
                 return false;
             }
 
@@ -345,7 +345,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
         case CCSerialCommand::OpenCover:
             if (!cover.isEnable()) {
-                out.print("<CC:ERR:NOT_ENABLE>");
+                out.print("<CC:ERR:COVER_NOT_ENABLE>");
                 return false;
             }
             if (cover.canOpen()) {
@@ -358,7 +358,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
         case CCSerialCommand::CloseCover:
             if (!cover.isEnable()) {
-                out.print("<CC:ERR:NOT_ENABLE>");
+                out.print("<CC:ERR:COVER_NOT_ENABLE>");
                 return false;
             }
             if (cover.canClose()) {
@@ -378,6 +378,6 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
     // Se siamo qui, il comando non è stato gestito
     LOGI("Command not handled: %s", cmd);
-    out.print("<CC:ERR:BAD_CMD:DRIVER_EXC>");
+    out.print("<CC:ERR:DRIVER_EXC>");
     return false;
 }

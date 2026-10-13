@@ -126,7 +126,7 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
         else if (strcmp(type, "STR") == 0 ){
             out.print(NvsManager::getInstance().getString(variable));
         } else {
-             out.print("<ERR:BO:WRONG_TYPE>");
+             out.print("<BO:ERR:WRONG_TYPE>");
         }
         
         closeNVS();
@@ -143,13 +143,13 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
         return true;
     }
     if (strcmp(cmd, "GET_IP") == 0) {
-            out.print("<");
+            out.print("<BO:");
             out.print(WiFi.localIP());
             out.print(">");
         return true;
     }
     if (strcmp(cmd, "GET_IDENTIFIER") == 0) {
-            out.print("<");
+            out.print("<BO:");
             out.print(getIdentifier());
             out.print(">");
         return true;

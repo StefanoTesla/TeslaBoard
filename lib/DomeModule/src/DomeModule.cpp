@@ -219,22 +219,24 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
         out.print("<DO:>");
         return true;
 
-      /* Not Implemented metods/property*/
-      case DomeSerialCommand::Action:
-      case DomeSerialCommand::CmdBlind:
-      case DomeSerialCommand::CmdBool:
-      case DomeSerialCommand::CmdString:
       case DomeSerialCommand::Slaved:
       case DomeSerialCommand::AtHome:
       case DomeSerialCommand::AtPark:
       case DomeSerialCommand::Azimuth:
       case DomeSerialCommand::Altitude:
+          out.print("<DO:ERR:NOT_IMPL_PROP>");
+          return true;
+      /* Not Implemented metods/property*/
+      case DomeSerialCommand::Action:
+      case DomeSerialCommand::CmdBlind:
+      case DomeSerialCommand::CmdBool:
+      case DomeSerialCommand::CmdString:
       case DomeSerialCommand::SlewToAltitude:
       case DomeSerialCommand::FindHome:
       case DomeSerialCommand::Park:
       case DomeSerialCommand::SetPark:
       case DomeSerialCommand::SlewToAzimuth:
-        out.print("<DO:ERR:NOT_IMPL>");
+        out.print("<DO:ERR:NOT_IMPL_METHOD>");
         return true;
 
       /* thing this board can't do*/
