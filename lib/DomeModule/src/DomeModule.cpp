@@ -115,13 +115,12 @@ void DomeModule::loop(){
 /* SERIAL MANAGER */
 
 DomeModule::DomeSerialCommand DomeModule::parseCommand(const char* cmd) {
-  if (strcmp(cmd, "DEVICE_STATE") == 0)     return DomeSerialCommand::DeviceState;
-  if (strcmp(cmd, "OPEN_SH") == 0)     return DomeSerialCommand::OpenShutter;
-  if (strcmp(cmd, "CLOSE_SH") == 0)     return DomeSerialCommand::CloseShutter;
+  if (strcmp(cmd, "DEVICE_STATE") == 0)   return DomeSerialCommand::DeviceState;
+  if (strcmp(cmd, "OPEN_SH") == 0)        return DomeSerialCommand::OpenShutter;
+  if (strcmp(cmd, "CLOSE_SH") == 0)       return DomeSerialCommand::CloseShutter;
   if (strcmp(cmd, "CAN_SET_SH") == 0)     return DomeSerialCommand::CanSetShutter;
-  if (strcmp(cmd, "SH_STATUS") == 0)     return DomeSerialCommand::ShutterStatus;
-  if (strcmp(cmd, "ABORT") == 0)     return DomeSerialCommand::AbortSlew;
-
+  if (strcmp(cmd, "SH_STATUS") == 0)      return DomeSerialCommand::ShutterStatus;
+  if (strcmp(cmd, "ABORT") == 0)          return DomeSerialCommand::AbortSlew;
   if (strcmp(cmd, "NAME") == 0)           return DomeSerialCommand::Name;
   if (strcmp(cmd, "DESC") == 0)           return DomeSerialCommand::Desc;
   if (strcmp(cmd, "INT_VRS") == 0)        return DomeSerialCommand::IntVersion;
@@ -131,25 +130,25 @@ DomeModule::DomeSerialCommand DomeModule::parseCommand(const char* cmd) {
   if (strcmp(cmd, "CMD_BOOL") == 0)       return DomeSerialCommand::CmdBool;
   if (strcmp(cmd, "CMD_STRING") == 0)     return DomeSerialCommand::CmdString;
   if (strcmp(cmd, "CONNECT") == 0)        return DomeSerialCommand::Connect;
-  if (strcmp(cmd, "CONNECTING") == 0)        return DomeSerialCommand::Connecting;
-  if (strcmp(cmd, "CONNECTED") == 0)        return DomeSerialCommand::Connected;
+  if (strcmp(cmd, "CONNECTING") == 0)     return DomeSerialCommand::Connecting;
+  if (strcmp(cmd, "CONNECTED") == 0)      return DomeSerialCommand::Connected;
   if (strcmp(cmd, "DISCONNECT") == 0)     return DomeSerialCommand::Disconnect;
-  if (strcmp(cmd, "SLAVED") == 0)     return DomeSerialCommand::Slaved;
-  if (strcmp(cmd, "SLEWING") == 0)     return DomeSerialCommand::Slewing;
-  if (strcmp(cmd, "ALTITUDE") == 0)     return DomeSerialCommand::Altitude;
-  if (strcmp(cmd, "AZIMUTH") == 0)     return DomeSerialCommand::Azimuth;
-  if (strcmp(cmd, "AT_HOME") == 0)     return DomeSerialCommand::AtHome;
-  if (strcmp(cmd, "AT_PARK") == 0)     return DomeSerialCommand::AtPark;
-  if (strcmp(cmd, "SLEW_ALTI") == 0)     return DomeSerialCommand::SlewToAltitude;
-  if (strcmp(cmd, "SLEW_AZI") == 0)     return DomeSerialCommand::SlewToAzimuth;
-  if (strcmp(cmd, "CAN_HOME") == 0)     return DomeSerialCommand::CanFindHome;
-  if (strcmp(cmd, "CAN_SET_AZI") == 0)     return DomeSerialCommand::CanSetAzi;
-  if (strcmp(cmd, "CAN_SET_PARK") == 0)     return DomeSerialCommand::CanSetPark;
-  if (strcmp(cmd, "CAN_SLAVE") == 0)     return DomeSerialCommand::CanSlave;
-  if (strcmp(cmd, "CAN_SYNC_AZI") == 0)     return DomeSerialCommand::CanSyncAzimuth;
-  if (strcmp(cmd, "FIND_HOME") == 0)     return DomeSerialCommand::FindHome;
-  if (strcmp(cmd, "PARK") == 0)     return DomeSerialCommand::Park;
-  if (strcmp(cmd, "SET_PARK") == 0)     return DomeSerialCommand::SetPark;
+  if (strcmp(cmd, "SLAVED") == 0)         return DomeSerialCommand::Slaved;
+  if (strcmp(cmd, "SLEWING") == 0)        return DomeSerialCommand::Slewing;
+  if (strcmp(cmd, "ALTITUDE") == 0)       return DomeSerialCommand::Altitude;
+  if (strcmp(cmd, "AZIMUTH") == 0)        return DomeSerialCommand::Azimuth;
+  if (strcmp(cmd, "AT_HOME") == 0)        return DomeSerialCommand::AtHome;
+  if (strcmp(cmd, "AT_PARK") == 0)        return DomeSerialCommand::AtPark;
+  if (strcmp(cmd, "SLEW_ALTI") == 0)      return DomeSerialCommand::SlewToAltitude;
+  if (strcmp(cmd, "SLEW_AZI") == 0)       return DomeSerialCommand::SlewToAzimuth;
+  if (strcmp(cmd, "CAN_HOME") == 0)       return DomeSerialCommand::CanFindHome;
+  if (strcmp(cmd, "CAN_SET_AZI") == 0)    return DomeSerialCommand::CanSetAzi;
+  if (strcmp(cmd, "CAN_SET_PARK") == 0)   return DomeSerialCommand::CanSetPark;
+  if (strcmp(cmd, "CAN_SLAVE") == 0)      return DomeSerialCommand::CanSlave;
+  if (strcmp(cmd, "CAN_SYNC_AZI") == 0)   return DomeSerialCommand::CanSyncAzimuth;
+  if (strcmp(cmd, "FIND_HOME") == 0)      return DomeSerialCommand::FindHome;
+  if (strcmp(cmd, "PARK") == 0)           return DomeSerialCommand::Park;
+  if (strcmp(cmd, "SET_PARK") == 0)       return DomeSerialCommand::SetPark;
 
   return DomeSerialCommand::Unknown;
 }
@@ -189,7 +188,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
       case DomeSerialCommand::Name:
         out.print("<DO:");
         out.print(getIdentifier());
-        out.print("- TeslaBoard>");
+        out.print(">");
         return true;
 
       case DomeSerialCommand::Desc:

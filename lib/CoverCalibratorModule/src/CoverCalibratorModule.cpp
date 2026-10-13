@@ -214,7 +214,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
         case CCSerialCommand::Name:
             out.print("<CC:");
             out.print(getIdentifier());
-            out.print("- TeslaBoard>");
+            out.print(">");
             return true;
 
         case CCSerialCommand::Connect:

@@ -826,8 +826,9 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::Name:
         out.print("<SW:");
         out.print(getIdentifier());
-        out.print("- TeslaBoard>");
+        out.print(">");
         return true;
+
       case SwitchSerialCommand::Connect:
       case SwitchSerialCommand::Disconnect:
         out.print("<SW:OK>");

@@ -317,20 +317,20 @@ void SafetyModule::reportConditionState(int id, JsonObject status){
 #pragma region SERIAL
 
 SafetyModule::SafetySerialCommand SafetyModule::parseCommand(const char* cmd) {
-    if (strcmp(cmd, "DEVICE_STATE") == 0)     return SafetySerialCommand::DeviceState;
-    if (strcmp(cmd, "IS_SAFE") == 0)     return SafetySerialCommand::IsSafe;
-    if (strcmp(cmd, "DESC") == 0)           return SafetySerialCommand::Desc;
-    if (strcmp(cmd, "INT_VRS") == 0)        return SafetySerialCommand::IntVersion;
-    if (strcmp(cmd, "NAME") == 0)           return SafetySerialCommand::Name;
-    if (strcmp(cmd, "SUP_ACTIONS") == 0)    return SafetySerialCommand::SupportedActions;
-    if (strcmp(cmd, "ACTION") == 0)         return SafetySerialCommand::Action;
-    if (strcmp(cmd, "CMD_BLIND") == 0)      return SafetySerialCommand::CmdBlind;
-    if (strcmp(cmd, "CMD_BOOL") == 0)       return SafetySerialCommand::CmdBool;
-    if (strcmp(cmd, "CMD_STRING") == 0)     return SafetySerialCommand::CmdString;
-    if (strcmp(cmd, "CONNECT") == 0)        return SafetySerialCommand::Connect;
-    if (strcmp(cmd, "CONNECTING") == 0)        return SafetySerialCommand::Connecting;
-    if (strcmp(cmd, "DISCONNECT") == 0)     return SafetySerialCommand::Disconnect;
-    if (strcmp(cmd, "CONNECTED") == 0)     return SafetySerialCommand::Connected;
+    if (strcmp(cmd, "DEVICE_STATE") == 0)       return SafetySerialCommand::DeviceState;
+    if (strcmp(cmd, "IS_SAFE") == 0)            return SafetySerialCommand::IsSafe;
+    if (strcmp(cmd, "DESC") == 0)               return SafetySerialCommand::Desc;
+    if (strcmp(cmd, "INT_VRS") == 0)            return SafetySerialCommand::IntVersion;
+    if (strcmp(cmd, "NAME") == 0)               return SafetySerialCommand::Name;
+    if (strcmp(cmd, "SUP_ACTIONS") == 0)        return SafetySerialCommand::SupportedActions;
+    if (strcmp(cmd, "ACTION") == 0)             return SafetySerialCommand::Action;
+    if (strcmp(cmd, "CMD_BLIND") == 0)          return SafetySerialCommand::CmdBlind;
+    if (strcmp(cmd, "CMD_BOOL") == 0)           return SafetySerialCommand::CmdBool;
+    if (strcmp(cmd, "CMD_STRING") == 0)         return SafetySerialCommand::CmdString;
+    if (strcmp(cmd, "CONNECT") == 0)            return SafetySerialCommand::Connect;
+    if (strcmp(cmd, "CONNECTING") == 0)         return SafetySerialCommand::Connecting;
+    if (strcmp(cmd, "DISCONNECT") == 0)         return SafetySerialCommand::Disconnect;
+    if (strcmp(cmd, "CONNECTED") == 0)          return SafetySerialCommand::Connected;
 
   LOGI("Command not found: %s",cmd);
   return SafetySerialCommand::Unknown;
@@ -376,7 +376,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
         case SafetySerialCommand::Name:
             out.print("<SF:");
             out.print(getIdentifier());
-            out.print("- TeslaBoard>");
+            out.print(">");
             return true;
 
         case SafetySerialCommand::Connect:
