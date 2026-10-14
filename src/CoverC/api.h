@@ -8,7 +8,7 @@ extern CoverCalibratorModule CoverCalibrator;
 
 
 AsyncMiddlewareFunction isCoverCalibratorModuleEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-    if(CoverCalibrator.calibrator.isEnable()){
+    if(CoverCalibrator.isEnable()){
       next();
     } else {
       request->send(500, "text/plain", "Module not enabled");
