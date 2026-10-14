@@ -27,6 +27,7 @@ void Cover::begin(const JsonDocument &doc) {
   storePosition = doc["storePos"].as<bool>();
 
   if (moduleEnable) {
+    
     JsonObjectConst pinServo = doc["outServo"];
     servo.jsonSetup(pinServo);
 

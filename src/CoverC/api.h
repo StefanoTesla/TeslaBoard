@@ -7,8 +7,8 @@ extern CoverCalibratorModule CoverCalibrator;
 #pragma region Middleware 
 
 
-AsyncMiddlewareFunction isCoverCEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
-    if(CoverCalibrator.isEnable()){
+AsyncMiddlewareFunction isCoverCalibratorModuleEnable([](AsyncWebServerRequest* request, ArMiddlewareNext next) {
+    if(CoverCalibrator.calibrator.isEnable()){
       next();
     } else {
       request->send(500, "text/plain", "Module not enabled");
@@ -76,7 +76,7 @@ void CoverCalibratorApi(){
         
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCoverCEnable); 
+    }).addMiddleware(&isCoverCalibratorModuleEnable); 
 
     server.on("/api/coverc/open", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -96,7 +96,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddleware(&isCalibratorEnable);
+    }).addMiddleware(&isCoverEnable);
     
     server.on("/api/coverc/halt", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
@@ -178,7 +178,7 @@ void CoverCalibratorApi(){
 
         response->setLength();
         request->send(response);
-    }).addMiddlewares({&isCoverCEnable,&isCalibratorEnable}); 
+    }).addMiddlewares({&isCalibratorEnable}); 
 
     server.on("/api/coverc/off", HTTP_POST, [](AsyncWebServerRequest * request) {
         AsyncJsonResponse* response = new AsyncJsonResponse();
