@@ -852,8 +852,8 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::CmdString:
       case SwitchSerialCommand::SetName:
       case SwitchSerialCommand::SetDesc:
-      case  SwitchSerialCommand::CancelAsync: //PER ORA
-        out.print("<SW:ERR:NOT_IMPL>");
+      case  SwitchSerialCommand::CancelAsync: //va fatto, non è corretto così
+        out.print("<SW:ERR:NOT_IMPL_METHOD>");
         return true;
 
       case SwitchSerialCommand::DeviceState:
@@ -862,7 +862,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
         int offset = 0;
         const int BUFFER_SIZE = sizeof(_deviceStateBuffer);
     
-        int numSwitches = getConfiguredSwitch();  // o una variabile membro
+        int numSwitches = getConfiguredSwitch(); 
     
         for (int i = 0; i < numSwitches; i++) {
             int value = Switches[i]->status();
@@ -907,7 +907,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     char* chStr = strtok_r(nullptr, ":", &saveptr);
 
       if (chStr == nullptr || *chStr == '\0') {
-          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
+          out.print("<SW:ERR:INVALID_SW_ID>");
           return false;
       }
 
@@ -917,13 +917,13 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
 
       /* must be a pure integer, no trailing chars */
       if (*endPtr != '\0') {
-          out.print("<SW:ERR:BAD_CMD:INVALID_ID>");
+          out.print("<SW:ERR:INVALID_SW_ID>");
           return false;
       }
 
       /* id is 1-based in the protocol, array is 0-based */
       if (val < 1 || val > getConfiguredSwitch()) {  
-          out.print("<SW:ERR:BAD_CMD:ID_RANGE>");
+          out.print("<SW:ERR:SW_ID_RANGE>");
           return false;
       }
 
@@ -976,9 +976,9 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
 
       case SwitchSerialCommand::CanWrite:
         if(isWritable(id) == 1){
-          out.print("<SW:TRUE>");
+          out.print("<SW:true>");
         } else {
-          out.print("<SW:FALSE>");
+          out.print("<SW:false>");
         }
         return true;
       case SwitchSerialCommand::GetSwitchValue:

@@ -186,7 +186,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-        out.print("<CC:ERR:BAD_CMD:NULLPTR>");
+        out.print("<CC:ERR:NULLPTR>");
         return false;
     }
 
@@ -195,7 +195,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     command = parseCommand(cmd);
 
     if (command == CCSerialCommand::Unknown) {
-        out.print("<CC:ERR:BAD_CMD:UNKNOW>");
+        out.print("<CC:ERR:UNKNOW_CMD>");
         return false;
     }
 
@@ -238,7 +238,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
         case CCSerialCommand::CmdBlind:
         case CCSerialCommand::CmdBool:
         case CCSerialCommand::CmdString:
-            out.print("<CC:ERR:NOT_IMPL>");
+            out.print("<CC:ERR:NOT_IMPL_METHOD>");
             return true;
 
         case CCSerialCommand::DeviceState:
@@ -272,7 +272,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
         case CCSerialCommand::CalibratorOff:
             if (!calibrator.isEnable()) {
-                out.print("<CC:ERR:NOT_ENABLE>");
+                out.print("<CC:ERR:NOT_IMPL_METHOD>");
                 return false;
             }
             calibrator.setBrightness(0);
@@ -282,7 +282,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
         case CCSerialCommand::CalibratorOn:
         {
             if (!calibrator.isEnable()) {
-                out.print("<CC:ERR:NOT_ENABLE>");
+                out.print("<CC:ERR:NOT_IMPL_METHOD>");
                 return false;
             }
 
@@ -306,19 +306,27 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
             }
 
             int brightness = static_cast<int>(val);
-            LOGI("Brightness requested: %d", brightness);
+
             calibrator.setBrightness(brightness);
             out.print("<CC:OK>");
             return true;
         }
 
         case CCSerialCommand::Brightness:
+            if (!calibrator.isEnable()) {
+                out.print("<CC:ERR:NOT_IMPL_PROP>");
+                return false;
+            }
             out.print("<CC:");
             out.print(calibrator.getBrightness());
             out.print(">");
             return true;
 
         case CCSerialCommand::MaxBrightness:
+            if (!calibrator.isEnable()) {
+                out.print("<CC:ERR:NOT_IMPL_PROP>");
+                return false;
+            }
             out.print("<CC:");
             out.print(calibrator.getMaxBrightness());
             out.print(">");
@@ -345,7 +353,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
         case CCSerialCommand::OpenCover:
             if (!cover.isEnable()) {
-                out.print("<CC:ERR:COVER_NOT_ENABLE>");
+                out.print("<CC:ERR:NOT_IMPL_METHOD>");
                 return false;
             }
             if (cover.canOpen()) {
@@ -358,7 +366,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
         case CCSerialCommand::CloseCover:
             if (!cover.isEnable()) {
-                out.print("<CC:ERR:COVER_NOT_ENABLE>");
+                out.print("<CC:ERR:NOT_IMPL_METHOD>");
                 return false;
             }
             if (cover.canClose()) {
@@ -370,7 +378,12 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
             return false;
 
         case CCSerialCommand::HaltCover:
-            out.print("<CC:ERR:NOT_IMPL>");
+            if (!cover.isEnable()) {
+                out.print("<CC:ERR:NOT_IMPL_METHOD>");
+                return false;
+            }
+            cover.halt();
+            out.print("<CC:OK>");
             return true;
     }
 

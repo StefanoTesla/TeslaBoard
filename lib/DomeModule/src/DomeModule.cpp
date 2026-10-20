@@ -141,6 +141,7 @@ DomeModule::DomeSerialCommand DomeModule::parseCommand(const char* cmd) {
   if (strcmp(cmd, "AT_PARK") == 0)        return DomeSerialCommand::AtPark;
   if (strcmp(cmd, "SLEW_ALTI") == 0)      return DomeSerialCommand::SlewToAltitude;
   if (strcmp(cmd, "SLEW_AZI") == 0)       return DomeSerialCommand::SlewToAzimuth;
+  if (strcmp(cmd, "SYNC_AZI") == 0)       return DomeSerialCommand::SyncToAzimuth;
   if (strcmp(cmd, "CAN_HOME") == 0)       return DomeSerialCommand::CanFindHome;
   if (strcmp(cmd, "CAN_SET_AZI") == 0)    return DomeSerialCommand::CanSetAzi;
   if (strcmp(cmd, "CAN_SET_PARK") == 0)   return DomeSerialCommand::CanSetPark;
@@ -178,7 +179,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     If command is not listed return the error
     */
     if (command == DomeSerialCommand::Unknown) {
-      out.print("<DO:ERR:BAD_CMD:UNKNOW>");
+      out.print("<DO:ERR:UNKNOW>");
       return false;
     }
     
@@ -219,11 +220,11 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
         out.print("<DO:>");
         return true;
 
-      case DomeSerialCommand::Slaved:
+      case DomeSerialCommand::Altitude:
       case DomeSerialCommand::AtHome:
       case DomeSerialCommand::AtPark:
       case DomeSerialCommand::Azimuth:
-      case DomeSerialCommand::Altitude:
+      case DomeSerialCommand::Slaved:
           out.print("<DO:ERR:NOT_IMPL_PROP>");
           return true;
       /* Not Implemented metods/property*/
@@ -231,11 +232,12 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
       case DomeSerialCommand::CmdBlind:
       case DomeSerialCommand::CmdBool:
       case DomeSerialCommand::CmdString:
-      case DomeSerialCommand::SlewToAltitude:
       case DomeSerialCommand::FindHome:
-      case DomeSerialCommand::Park:
       case DomeSerialCommand::SetPark:
+      case DomeSerialCommand::Park:
+      case DomeSerialCommand::SlewToAltitude:
       case DomeSerialCommand::SlewToAzimuth:
+      case DomeSerialCommand::SyncToAzimuth:
         out.print("<DO:ERR:NOT_IMPL_METHOD>");
         return true;
 

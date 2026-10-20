@@ -61,6 +61,7 @@ private:
         AtPark,
         SlewToAltitude,
         SlewToAzimuth,
+        SyncToAzimuth,
         CanFindHome,
         CanSetAzi,
         CanSetPark,
