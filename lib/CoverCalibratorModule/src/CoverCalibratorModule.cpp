@@ -195,7 +195,7 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
     command = parseCommand(cmd);
 
     if (command == CCSerialCommand::Unknown) {
-        out.print("<CC:ERR:UNKNOW_CMD>");
+        out.print("<CC:ERR:UNKNOW>");
         return false;
     }
 
@@ -391,6 +391,6 @@ bool CoverCalibratorModule::handlePacket(char* payload, Stream& out) {
 
     // Se siamo qui, il comando non è stato gestito
     LOGI("Command not handled: %s", cmd);
-    out.print("<CC:ERR:DRIVER_EXC>");
+    out.print("<CC:ERR:UNKNOW_CMD>");
     return false;
 }

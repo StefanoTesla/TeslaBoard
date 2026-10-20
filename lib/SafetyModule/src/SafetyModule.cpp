@@ -400,7 +400,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
         case SafetySerialCommand::CmdBlind:
         case SafetySerialCommand::CmdBool:
         case SafetySerialCommand::CmdString:
-            out.print("<SF:ERR:NOT_IMPL>");
+            out.print("<SF:ERR:NOT_IMPL_METHOD>");
             return true;
 
         case SafetySerialCommand::DeviceState:
