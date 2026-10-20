@@ -104,7 +104,7 @@ bool BoardModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<BO:ERR:SWITCH:BAD_CMD>");
+      out.print("<BO:ERR:NULLPTR>");
       return false;
     }
 

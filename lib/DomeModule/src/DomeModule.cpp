@@ -159,7 +159,7 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-      out.print("<DO:ERR:BAD_CMD:NULLPTR>");
+      out.print("<DO:ERR:NULLPTR>");
       return false;
     }
 
@@ -319,6 +319,6 @@ bool DomeModule::handlePacket(char* payload, Stream& out) {
 
 
     /* If i'm here I don't know why :( */
-    out.print("<DO:ERR:BAD_CMD:UNKNOW_CMD>");
+    out.print("<DO:ERR:UNKNOW_CMD>");
     return false;
   }

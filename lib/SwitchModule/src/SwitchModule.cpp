@@ -800,7 +800,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     If command is not listed return the error
     */
     if (command == SwitchSerialCommand::Unknown) {
-      out.print("<SW:ERR:BAD_CMD:UNKNOW>");
+      out.print("<SW:ERR:UNKNOW>");
       return false;
     }
 

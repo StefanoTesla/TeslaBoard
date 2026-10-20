@@ -342,7 +342,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
 
     if (cmd == nullptr) {
-        out.print("<SF:ERR:BAD_CMD:NULLPTR>");
+        out.print("<SF:ERR:NULLPTR>");
         return false;
     }
 
@@ -351,7 +351,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
     command = parseCommand(cmd);
 
     if (command == SafetySerialCommand::Unknown) {
-        out.print("<SF:ERR:BAD_CMD:UNKNOW>");
+        out.print("<SF:ERR:UNKNOW>");
         return false;
     }
 
@@ -417,7 +417,7 @@ bool SafetyModule::handlePacket(char* payload, Stream& out) {
 
     // Se siamo qui, il comando non è stato gestito
     LOGI("Command not handled: %s", cmd);
-    out.print("<SF:ERR:BAD_CMD:DRIVER_EXC>");
+    out.print("<SF:ERR:UNKNOWN_CMD>");
     return false;
 
     #pragma endregion
