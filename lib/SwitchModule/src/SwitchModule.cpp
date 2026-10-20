@@ -784,7 +784,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
     char* cmd = strtok_r(payload, ":", &saveptr);
     int cfgSwitches = getConfiguredSwitch();
     if (cmd == nullptr) {
-      out.print("<SW:ERR:BAD_CMD:NULLPTR>");
+      out.print("<SW:ERR:NULLPTR>");
       return false;
     }
 
