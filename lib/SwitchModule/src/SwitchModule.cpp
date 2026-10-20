@@ -1022,7 +1022,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::Set:
         stateStr = strtok_r(nullptr, ":", &saveptr);
         if (stateStr == nullptr) {
-          out.print("<SW:ERR:BAD_CMD:STATE_NULLPTR>");
+          out.print("<SW:ERR:STATE_NULLPTR>");
           return false;
         }
         State = false;
@@ -1040,7 +1040,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
         ){
           State = false;
         } else {
-          out.print("<SW:ERR:BAD_CMD:STATE_MALFORMED>");
+          out.print("<SW:ERR:STATE_MALFORMED>");
           return false;
         }
 
@@ -1061,7 +1061,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       case SwitchSerialCommand::SetValue:
         valueStr = strtok_r(nullptr, ":", &saveptr);
         if (valueStr == nullptr || *valueStr == '\0') {
-          out.print("<SW:ERR:BAD_CMD:VALUE_NULLPTR>");
+          out.print("<SW:ERR:VALUE_NULLPTR>");
           return false;
         }
 
@@ -1070,13 +1070,13 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
           long val = strtol(valueStr, &endPtr, 10);
 
           if (*endPtr != '\0') {
-            out.print("<SW:ERR:BAD_CMD:VALUE_MALFORMED>");
+            out.print("<SW:ERR:VALUE_MALFORMED>");
             return false;
           }
 
           // opzionale: controllo overflow rispetto a int
           if (val < INT_MIN || val > INT_MAX) {
-            out.print("<SW:ERR:BAD_CMD:VALUE_RANGE>");
+            out.print("<SW:ERR:VALUE_OUT_RANGE>");
             return false;
           }
 
@@ -1100,7 +1100,7 @@ bool SwitchModule::handlePacket(char* payload, Stream& out) {
       #pragma endregion
 
     /* If i'm here I don't know why :( */
-    out.print("<SW:ERR:BAD_CMD:UNKNOW_CMD>");
+    out.print("<SW:ERR:UNKNOW_CMD>");
     return false;
   }
 
